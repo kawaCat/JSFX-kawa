@@ -1,49 +1,59 @@
-JSFX-kawa
+# JSFX-kawa
 ################################################################################
-last update: 2016/10/16
 
-GUI Animation for Reapers JSFX eel language.
+GUI Animation Plugins for Reapers JSFX eel language.
 
+[Reaper eel Language Manual] : http://www.reaper.fm/sdk/js/js.php <br/>
+[JSFX ReaJS in ReapPlugs] : http://www.reaper.fm/reaplugs/  <br/>
 
-this is  **alpha Version** .  these scripts  may  works unexpected result occasionally.
+this is  **Test Version** .  these scripts  may  works unexpected result occasionally.<br/>
+tested on Reaper 5.24.
 
-**Konb and Slider and Wave Viewer**
+[BitBucket] : https://bitbucket.org/kawaCat/jsfx-kawa <br/>
+[Github] : https://github.com/kawaCat/JSFX-kawa <br/>
 
-.. image::
+## Test XY Delay
 
-<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/JSFX-test02.gif " width=400px"/>
+* kawa_TestDelay.jsfx
 
-**Simple Button and other type Slider**
+<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/kawa_TestDelay.PNG" width="400px"/>
 
+## Test XY BitCrusher
 
-<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/JSFX-test03.gif " width=400px"/>
+* kawa_TestBitCrusher.jsfx
 
-**Debug Message**
+<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/kawa_Test_bitCrusher.PNG" width="400px"/>
 
-<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/JSFX-test01.gif " width=400px"/>
+## Test XY Chorus
+ 
+* kawa_TestChorus.jsfx
 
-**Test XY Delay**
-
-<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/kawa_TestDelay.PNG" width=400px"/>
-
-**Test XY BitCrusher**
-
-<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/kawa_Test_bitCrusher.PNG" width=400px"/>
-
-**Test XY Chorus**
-
-<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/kawa_TestChorus.PNG" width=400px"/>
+<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/kawa_TestChorus.PNG" width="400px"/>
 
 
-change log
-================================================================================
+
+## Konb and Slider and Wave Viewer
+
+
+<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/JSFX-test02.gif" width="400px" />
+
+## Button and Other Type Slider
+
+<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/JSFX-test03.gif"  width="400px" />
+
+
+## Debug Message
+
+<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/JSFX-test01.gif" width="400px"/>
+
+
+## Change Log
 
 **2016/10/17**
 
 * Add: Test BitCrusher jsfx.
 * Add: Test Chorus jsfx.
 * Add: TestDelay jsfx.
-
 
 **2016/10/16**
 
