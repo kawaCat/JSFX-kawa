@@ -1,0 +1,277 @@
+//====================================================================
+// function List
+//====================================================================
+
+//====================================================================
+// angle Radian
+//--------------------------------------------------------------------
+//function degreeToRadian ( degree)
+//function radianToDegree ( radian)
+//function rad            (degree) //aliase of degreeToRadian()
+//function deg            (radian) //aliase of radianToDegree()
+//====================================================================
+
+//====================================================================
+// distance function
+//--------------------------------------------------------------------
+//function getManhattanDist(x1,y1,x2,y2)
+//function getEuclideanDist(x1,y1,x2,y2)
+//function getChebyshevDist(x1,y1,x2,y2)
+//====================================================================
+
+//====================================================================
+//function _rotPoint_2           (x_,y,ox,oy,AngleRadian_)
+//function HSBtoRGB             (hue, saturation , value) 
+//====================================================================
+
+
+//====================================================================
+// function stringCat                     (str1,str2) 
+// function stringCompareFromNum          (strNum1,strNum2) 
+// function get_float_from_string         (str) //http://forum.cockos.com/showthread.php?t=140211
+//====================================================================
+
+//====================================================================
+// struct functions
+//====================================================================
+//function STRUCT_getStructType           ( SRC_STRUCT_ID)
+//function STRUCT_getElementNum           ( SRC_STRUCT_ID)
+//function STRICT_copyTo                  ( destSTRUCT_ID , srcSTRUCT_ID) 
+//function STRUCT_duplicateInstance       ( SRC_STRUCT_ID) //return new
+//function STRUCT_Clone                   ( SRC_STRCUT_ID) 
+//====================================================================
+
+
+//====================================================================
+@init
+//====================================================================
+// utility function
+//====================================================================
+// anlges
+//====================================================================
+function degreeToRadian (degree)local( out )(out=(degree*$pi)/180;out;);
+function radianToDegree (radian)((radian*180)/$pi;);
+//====================================================================
+function rad(degree) ( degreeToRadian ( degree););
+function deg(radian) ( radianToDegree ( radian););
+//====================================================================
+
+
+//http://forum.cockos.com/showthread.php?t=140211
+//====================================================================
+function get_float_from_string(str)
+(
+    matchi("*?-*?%{float_value}f*?", str) ? ( // first, try to match for a negative value, i.e. a (series of) numeric character(s), *directly* preceded with '-' character)
+        -float_value; // apply negative sign, return float value
+    ) : ( // else, just try to match a (positive) value, i.e. a (series of) numeric character(s)
+        matchi("*?%{float_value}f*?", str) ? 
+        (
+            float_value; // return float value
+        );
+    );
+);
+//====================================================================
+function _rotPoint_2(x_,y_,ox,oy,AngleRadian_)local(lx,ly,px,py)
+(
+    lx = x_ -ox;
+    ly = y_ -oy;
+    px = lx * cos(AngleRadian_) - ly *sin(AngleRadian_);
+    py = lx * sin(AngleRadian_) + ly *cos(AngleRadian_);
+    this.x = ox +px;
+    this.y = oy +py;
+);
+//====================================================================
+
+
+//====================================================================
+// decibels
+//====================================================================
+DEFINE_MIN_DB = -96.0;
+DEFINE_MIN_DB_VALUE = (10 ^ (DEFINE_MIN_DB *0.05 ));
+//====================================================================
+function valueToDecivel( value ) local ( out )
+(
+    out = log10(value) *20;
+    ( out < DEFINE_MIN_DB)? (out = DEFINE_MIN_DB;);
+    out;
+);
+//====================================================================
+function decivelToValue( db ) local ( out )
+(
+    out = (10.0 ^ (db *0.05 ));
+    ( out < DEFINE_MIN_DB_VALUE ) ? ( out = DEFINE_MIN_DB_VALUE; );
+    out;
+);
+//====================================================================
+
+
+//====================================================================
+// distances
+//====================================================================
+function getManhattanDist(x1,y1,x2,y2)local(distance)
+(
+    distance =abs(x1 -x2) + abs(y1 -y2);
+    distance;
+);
+//====================================================================
+function getEuclideanDist(x1,y1,x2,y2)local(horizDistance,vertDistance,distance)
+(
+    horizDistance =abs(x1 - x2);
+    vertDistance  =abs(y1 - y2);   
+    distance = sqrt( (horizDistance ^ 2) + (vertDistance ^ 2) );
+    distance;
+);
+//====================================================================
+function getChebyshevDist(x1,y1,x2,y2)local (distHoriz,distVert,distanceOut)
+(
+    distHoriz = abs(x1 - x2);
+    distVert  = abs(y1 - y2);
+    //================================================================
+    ( distHoriz > distVert) ? (
+       distanceOut = distHoriz;
+    ):(
+       distanceOut= distVert;
+    );
+    //================================================================
+    distanceOut;
+);
+//====================================================================
+
+//====================================================================
+function HSBtoRGB(hue, saturation , value) 
+    local ( r,g,b,h,f,v,p,q,t)
+(
+    //================================================================
+     ( hue > 360) ? ( hue = hue % 360;)
+    :( hue < 0  ) ? ( hue = hue % 360 ;);
+    //================================================================
+    saturation = min ( max(saturation,0),1);
+    //================================================================
+    v = floor( 255 * value);
+    //================================================================
+    v = min ( max(v,0),255);
+    //================================================================
+    (saturation == 0)?
+    (
+        r = v ; g = v; b = v;
+    ):(
+        h = floor( hue / 60);
+        f = hue / 60-h;
+        //============================================================
+        p = floor( v * (1-saturation));
+        p = min ( max(p,0),255);
+        //============================================================
+        q = floor( v * (1-f * saturation));
+        q = min ( max(q,0),255);
+        //============================================================
+        t = floor( v * (1-(1-f) * saturation));
+        t = min ( max(t,0),255);
+        //============================================================
+         (h==0)?(r=v;g=t;b=p;)
+        :(h==1)?(r=q;g=v;b=p;)
+        :(h==2)?(r=p;g=v;b=t;)
+        :(h==3)?(r=p;g=q;b=v;)
+        :(h==4)?(r=t;g=p;b=v;)
+        :(h==5)?(r=v;g=p;b=q;)
+        :(       r=v;g=t;b=p;); 
+    );
+    //================================================================
+    this.r = r;
+    this.g = g;
+    this.b = b;
+);
+//====================================================================
+
+
+//====================================================================
+// string function
+//====================================================================
+function _stringCat(str1,str2) local (tempstr)
+    local ( outStr )
+(
+    tempstr =#;
+    sprintf(tempstr,"");
+    strcat(tempstr,str1);
+    strcat(tempstr,":");
+    strcat(tempstr,str2);
+    tempstr;
+);
+//====================================================================
+function stringCat(str1,str2) local (tempstr)
+    local ( outStr )
+(
+    tempstr =#;
+    sprintf(tempstr,_stringCat(str1,str2));
+    tempstr;
+);
+//====================================================================
+function stringCompareFromNum(strNum1,strNum2) local (out,strSlot1_,strSlot2_)
+(
+    //================================================================
+    strSlot1_ = #;
+    strSlot2_ = #;
+    //================================================================
+    sprintf(strSlot1_,"%s", strNum1);
+    sprintf(strSlot2_,"%s", strNum2);
+    //================================================================
+    out =  strcmp(strSlot1_,strSlot2_) ;
+    //================================================================
+    out;//return 
+);
+//====================================================================
+
+
+//====================================================================
+// struct functions
+//====================================================================
+function STRUCT_getStructType( SRC_STRUCT_ID)local (out)
+(
+    out = STATIC_MASTER_BUFF[SRC_STRUCT_ID];
+    out;
+);
+//====================================================================
+function STRUCT_getElementNum(SRC_STRUCT_ID)local(out)
+(
+    out = STATIC_MASTER_BUFF[SRC_STRUCT_ID+1];
+    out;
+);
+//====================================================================
+function STRICT_copyTo(destSTRUCT_ID,srcSTRUCT_ID) local (elementNum,count_1)
+(
+    elementNum = STRUCT_getElementNum(srcSTRUCT_ID);
+    count_1 =0;
+    //================================================================
+    while ( count_1 <= elementNum ) 
+    (
+        STATIC_MASTER_BUFF[destSTRUCT_ID+count_1] = STATIC_MASTER_BUFF[srcSTRUCT_ID+count_1];
+        count_1 += 1;
+    );
+    //================================================================
+);
+//====================================================================
+function STRUCT_duplicateInstance(SRC_STRUCT_ID) local ( DEST_ID ,count,elementNum,count_1)
+(
+    DEST_ID = STATIC_MASTER_BUFF_ID;
+    elementNum = STRUCT_getElementNum(SRC_STRUCT_ID);
+    //================================================================
+    count_1 =0;
+    while ( count_1 <= elementNum ) 
+    (
+        STATIC_MASTER_BUFF[DEST_ID+count_1] = STATIC_MASTER_BUFF[SRC_STRUCT_ID+count_1];
+        count_1 += 1;
+    );
+    //================================================================
+    STATIC_MASTER_BUFF_ID += elementNum +1;
+    //================================================================
+    DEST_ID;
+);
+//====================================================================
+function STRUCT_Clone(SRC_STRCUT_ID) local (out)
+(
+    out = STRUCT_duplicateInstance(SRC_STRCUT_ID);
+    out;
+);
+//====================================================================
+
+
+

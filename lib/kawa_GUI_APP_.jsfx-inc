@@ -1,0 +1,481 @@
+//====================================================================
+@init
+//====================================================================
+
+//====================================================================
+//funciton Llist
+//====================================================================
+
+//====================================================================
+// app 
+// * CANVAS
+//====================================================================
+//  APP_create()
+//--------------------------------------------------------------------
+//      APP_isActive                  (APP_ID)              
+//      APP_getIsActive               (APP_ID)         
+//      APP_setIsActive               (APP_ID, v )        
+//      APP_toggleIsActive            (APP_ID)
+//      APP_getMouseINFO              (APP_ID)        
+//      APP_getDELTATIME_ID           (APP_ID)      
+//      APP_getChildArray             (APP_ID)         
+//      APP_getChildCount             (APP_ID) 
+//      APP_addChildComponent         (APP_ID,childLAYER_ID) // layer Only
+//      APP_removeChildComponent      (APP_ID,childLAYER_ID)
+//      APP_CopyRectangleTo           (APP_ID,destRECTANGLE_ID)
+//--------------------------------------------------------------------
+//      APP_isMouseWheelVMoved        (APP_ID)
+//      APP_isMouseWheelHMoved        (APP_ID)
+//      APP_isMouseMoved              (APP_ID)      
+//      APP_isMouseButtonPressed      (APP_ID)
+//      APP_isMouseButtonHoldingPress (APP_ID)
+//      APP_isMouseButtonReleased     (APP_ID)
+//      APP_isWindowResized           (APP_ID)
+//--------------------------------------------------------------------
+//      APP_update                    (APP_ID)
+//====================================================================
+
+
+//====================================================================
+// app 
+// inherite
+// * CANVAS
+//====================================================================
+function APP_create() local(APP_ID,_innerRectID,_deltaTime_ID,_childComponentBUFF,_mouseInfo_ID) 
+(
+    //_innerRectID        = RECTANGLE_create(0,0,gfx_w,gfx_h); // increment STATIC_MASTER_BUFF_ID
+    //================================================================
+    _mouseInfo_ID       = MOUSEINFO_create();
+    _deltaTime_ID       = DELTATIME_create();
+    _childComponentBUFF = ARRAY_create(1000);// max ArraSize is 1000;
+    //================================================================
+    APP_ID = CANVAS_create(gfx_w,gfx_h);//STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[APP_ID]    = "APP"; // elementNUM
+    STATIC_MASTER_BUFF[APP_ID+1]  = 24; // elementNUM
+    //================================================================
+    // used 2 ~ 8 in CANVE struct.
+    STATIC_MASTER_BUFF[APP_ID+10]  = _mouseInfo_ID;//
+    STATIC_MASTER_BUFF[APP_ID+11] = -100; // lastWidth
+    STATIC_MASTER_BUFF[APP_ID+12] = -100; // lastheight
+    STATIC_MASTER_BUFF[APP_ID+13] = 0; // non used
+    STATIC_MASTER_BUFF[APP_ID+14] = 0; // non used
+    STATIC_MASTER_BUFF[APP_ID+15] = 0; // non used
+    STATIC_MASTER_BUFF[APP_ID+16] = 0; // non used
+    STATIC_MASTER_BUFF[APP_ID+17] = 0; // LasKeyState
+    //================================================================
+    STATIC_MASTER_BUFF[APP_ID+18] = false;     //isMouseButtonPressed
+    STATIC_MASTER_BUFF[APP_ID+19] = false;     //isMouseButtonReleased
+    //================================================================
+    STATIC_MASTER_BUFF[APP_ID+20] = false;     // isMouseHoldingPress
+    STATIC_MASTER_BUFF[APP_ID+21] = false;     // isWindowResized
+    //================================================================
+    STATIC_MASTER_BUFF[APP_ID+22] = _deltaTime_ID; // deltaTIme_ID
+    //================================================================
+    STATIC_MASTER_BUFF[APP_ID+23] = _childComponentBUFF; // deltaTIme_ID
+    STATIC_MASTER_BUFF[APP_ID+24] = true;  // is Active
+    //================================================================
+    
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=25;
+    APP_ID; //retrun
+);
+//====================================================================
+function APP_isActive(APP_ID)              ( STATIC_MASTER_BUFF[APP_ID+24];);
+function APP_getIsActive(APP_ID)           ( STATIC_MASTER_BUFF[APP_ID+24];);
+function APP_setIsActive(APP_ID,v)         ( STATIC_MASTER_BUFF[APP_ID+24]=v;);
+//====================================================================
+function APP_toggleIsActive( APP_ID)
+(
+    APP_setIsActive(APP_ID
+                   ,(APP_getIsActive(APP_ID) == false)
+                   );
+);
+//====================================================================
+
+
+//====================================================================
+function APP_getMouseINFO(APP_ID)          ( STATIC_MASTER_BUFF[APP_ID+10];);
+function APP_getDELTATIME_ID(APP_ID)       ( STATIC_MASTER_BUFF[APP_ID+22];);
+function APP_getChildArray(APP_ID)         ( STATIC_MASTER_BUFF[APP_ID+23];);
+//====================================================================
+function APP_getChildCount(APP_ID) local ( childCompoArray_ID,childNUM)
+(
+    childCompoArray_ID = APP_getChildArray(APP_ID);
+    childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+    childNUM;
+);
+//====================================================================
+function APP_addChildComponent(APP_ID,childLAYER_ID)
+    local ( childCompoArray_ID,count_,childNUM,temp_A,check)
+(
+    childCompoArray_ID = APP_getChildArray(APP_ID);
+    childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+    count_ =1;
+    check = false;
+    //================================================================
+    while ( count_ <= childNUM)
+    (
+        temp_A = ARRAY_getAt(childCompoArray_ID,count_) ;
+        //============================================================
+        ( childLAYER_ID == temp_A)?
+        (
+            check =true;
+            count_ = childNUM+100; //break
+        );
+        //============================================================
+        count_ +=1;
+    );
+    //================================================================
+    (check ==false)?
+    (
+        ARRAY_push_back(childCompoArray_ID,childLAYER_ID);
+    );
+    //================================================================
+);
+//====================================================================
+function APP_removeChildComponent(APP_ID,childLAYER_ID)
+    local(childCompoArray_ID,count_,childNUM,temp_A)
+(
+    childCompoArray_ID = APP_getChildArray(APP_ID);
+    childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+    count_ = 0;
+    //================================================================
+    while ( count_ <= childNUM)
+    (
+        temp_A = ARRAY_getAt(childCompoArray_ID,count_) ;
+        //============================================================
+        ( childLAYER_ID == temp_A)?
+        (
+            ARRAY_removeAt(childCompoArray_ID,count_);
+            count_ = childNUM+100; //break
+        );
+        //============================================================
+        count_ +=1;
+    );
+    //================================================================
+);
+//====================================================================
+
+
+
+//====================================================================
+// same as Private functions. should note another call.
+//====================================================================
+function APP_getLastWindowWidth(APP_ID)   ( STATIC_MASTER_BUFF[APP_ID+11];);
+function APP_getLastWindowHeight(APP_ID)  ( STATIC_MASTER_BUFF[APP_ID+12];);
+function APP_getLastMouseX(APP_ID)        ( MOUSEINFO_getLastMouseX      ( APP_getMouseINFO(APP_ID) ) ;);
+function APP_getLastMouseY(APP_ID)        ( MOUSEINFO_getLastMouseY      ( APP_getMouseINFO(APP_ID) ) ;);
+function APP_getLastMouseCap(APP_ID)      ( MOUSEINFO_getLastMouseCap    ( APP_getMouseINFO(APP_ID) ) ;);
+function APP_getLastMouseWheelV(APP_ID)   ( MOUSEINFO_getLastMouseWheelV ( APP_getMouseINFO(APP_ID) ) ;);
+function APP_getLastMouseWheelH(APP_ID)   ( MOUSEINFO_getLastMouseWheelH ( APP_getMouseINFO(APP_ID) ) ;);
+function APP_getLasKeyState(APP_ID)       ( STATIC_MASTER_BUFF[APP_ID+17];);
+function APP_getChar(APP_ID )             ( APP_getLasKeyState(APP_ID);  ); //aliase of APP_getLasKeyState
+//====================================================================
+function APP_setLastWindowWidth(APP_ID,e) ( STATIC_MASTER_BUFF[APP_ID+11]=e;);
+function APP_setLastWindowHeight(APP_ID,e)( STATIC_MASTER_BUFF[APP_ID+12]=e;);
+function APP_setLastMouseX(APP_ID,e)      ( MOUSEINFO_setLastMouseX      ( APP_getMouseINFO(APP_ID),e ););
+function APP_setLastMouseY(APP_ID,e)      ( MOUSEINFO_setLastMouseY      ( APP_getMouseINFO(APP_ID),e ););
+function APP_setLastMouseCap(APP_ID,e)    ( MOUSEINFO_setLastMouseCap    ( APP_getMouseINFO(APP_ID),e ););
+function APP_setLastMouseWheelV(APP_ID,e) ( MOUSEINFO_setLastMouseWheelV ( APP_getMouseINFO(APP_ID),e ););
+function APP_setLastMouseWheelH(APP_ID,e) ( MOUSEINFO_setLastMouseWheelH ( APP_getMouseINFO(APP_ID),e ););
+function APP_setLasKeyState(APP_ID,e)     ( STATIC_MASTER_BUFF[APP_ID+17]=e;);
+//====================================================================
+//private
+//====================================================================
+function _APP_setIsMouseButtonPressed(APP_ID,e)   ( STATIC_MASTER_BUFF[APP_ID+18]=e;);
+function _APP_setIsMouseButtonReleased(APP_ID,e)  ( STATIC_MASTER_BUFF[APP_ID+19]=e;);
+function _APP_getIsMouseButtonPressed(APP_ID)     ( STATIC_MASTER_BUFF[APP_ID+18];);
+function _APP_getIsMouseButtonReleased(APP_ID)    ( STATIC_MASTER_BUFF[APP_ID+19];);
+function _APP_setIsMouseButtonHoldPress(APP_ID,e) ( STATIC_MASTER_BUFF[APP_ID+20]=e;);
+function _APP_getIsMouseButtonHoldPress(APP_ID)   ( STATIC_MASTER_BUFF[APP_ID+20];);
+function _APP_setIsMouseButtonHoldPress(APP_ID,e) ( STATIC_MASTER_BUFF[APP_ID+20]=e;);
+function _APP_getIsMouseButtonHoldPress(APP_ID)   ( STATIC_MASTER_BUFF[APP_ID+20];);
+function _APP_setIsWindowResized(APP_ID,e)        ( STATIC_MASTER_BUFF[APP_ID+21]=e;);
+function _APP_getIsWindowResized(APP_ID)          ( STATIC_MASTER_BUFF[APP_ID+21];);
+//====================================================================
+function APP_CopyRectangleTo(APP_ID,destRECTANGLE_ID)local (x,y,w,h)
+(
+    x = RECTANGLE_getX(APP_ID);
+    y = RECTANGLE_getY(APP_ID);
+    w = RECTANGLE_getWidth(APP_ID);
+    h = RECTANGLE_getHeight(APP_ID);
+    //================================================================
+    RECTANGLE_setX(destRECTANGLE_ID,x);
+    RECTANGLE_setY(destRECTANGLE_ID,y);
+    RECTANGLE_setWidth(destRECTANGLE_ID,w);
+    RECTANGLE_setHeight(destRECTANGLE_ID,h);
+    //================================================================ 
+);
+//====================================================================
+function _APP_updateRectangle(APP_ID)
+(
+    RECTANGLE_setWidth(APP_ID,gfx_w);
+    RECTANGLE_setHeight(APP_ID,gfx_h);
+);
+//====================================================================
+function _APP_isCheckWindowSize(APP_ID) local (out ,lastW,lastH)
+(
+    out = false;
+    lastW = APP_getLastWindowWidth(APP_ID);
+    lastH = APP_getLastWindowHeight(APP_ID);
+    //================================================================
+    ( lastW != gfx_w || lastH != gfx_h ) ?
+    (
+        out = true;
+        _APP_setIsWindowResized(APP_ID,true) ;
+        //============================================================
+        _APP_updateRectangle(APP_ID);
+    ):(
+         _APP_setIsWindowResized(APP_ID,false); 
+    )
+    ;
+    //================================================================
+    out;
+);
+//====================================================================
+function _APP_checkMouseCapEvent(APP_ID) local(isChanged,lastMouseCap,newCap)
+(
+    isChanged=false;
+    
+    lastMouseCap = APP_getLastMouseCap(APP_ID);
+    //newCap =  MOUSEINFO_getMouseCap( APP_getMouseINFO(APP_ID) ) ;
+    newCap =  mouse_cap ;
+    //================================================================
+    ( lastMouseCap <  newCap )?(
+       _APP_setIsMouseButtonPressed(APP_ID,true);
+    ):(
+       _APP_setIsMouseButtonPressed(APP_ID,false);
+    );
+    //================================================================
+    ( newCap > 0 )?(
+       _APP_setIsMouseButtonHoldPress(APP_ID,true);
+    ):(
+       _APP_setIsMouseButtonHoldPress(APP_ID,false);
+    );
+    //================================================================
+    ( lastMouseCap >  newCap && lastMouseCap >  0 )? (
+      _APP_setIsMouseButtonReleased(APP_ID,true);
+    ):(
+      _APP_setIsMouseButtonReleased(APP_ID,false);
+    );
+    //================================================================
+    ( lastMouseCap != newCap)? (isChanged =true;);
+    //================================================================
+    isChanged;
+);
+//====================================================================
+// publich envent check
+//====================================================================
+function APP_isMouseWheelVMoved(APP_ID)( MOUSEINFO_isMouseWheelVChanged( APP_getMouseINFO(APP_ID) ););
+//====================================================================
+function APP_isMouseWheelHMoved(APP_ID)( MOUSEINFO_isMouseWheelHChanged( APP_getMouseINFO(APP_ID) ););
+//====================================================================
+function APP_isMouseMoved(APP_ID)      ( MOUSEINFO_isMouseMoved( APP_getMouseINFO(APP_ID) ););
+//====================================================================
+function APP_isMouseButtonPressed(APP_ID)local(isChanged)
+(
+    isChanged = _APP_getIsMouseButtonPressed(APP_ID);
+    isChanged;
+);
+//====================================================================
+function APP_isMouseButtonHoldingPress(APP_ID)local(isChanged)
+(
+    isChanged = _APP_getIsMouseButtonHoldPress(APP_ID);
+    isChanged;
+);
+//====================================================================
+function APP_isMouseButtonReleased(APP_ID)local(isChanged)
+(
+    isChanged = _APP_getIsMouseButtonReleased(APP_ID);
+    isChanged;
+);
+//====================================================================
+function APP_isWindowResized(APP_ID)local(isChanged)
+(
+    isChanged = _APP_getIsWindowResized(APP_ID);
+    isChanged;
+);
+//====================================================================
+
+
+//====================================================================
+function APP_storeLastInfo(APP_ID)
+(
+    //================================================================
+    APP_setLastWindowWidth(APP_ID ,gfx_w);
+    APP_setLastWindowHeight(APP_ID,gfx_h);
+    //================================================================
+    
+    //================================================================
+    APP_setLasKeyState(APP_ID, gfx_getchar());
+    //================================================================
+    APP_ID;//return
+);
+//====================================================================
+
+
+//====================================================================
+// UPDATE
+//====================================================================
+function APP_update(APP_ID)
+    local (childCompoArray_ID,childNUM,count_,mouseInfo_ID)
+(
+
+   
+    //================================================================
+    ( APP_isActive(APP_ID) ==true) ?
+    (
+        //============================================================
+        MOUSEINFO_update ( APP_getMouseINFO(APP_ID) );
+        //============================================================
+        
+        //============================================================
+        _APP_checkMouseCapEvent(APP_ID);
+        _APP_isCheckWindowSize(APP_ID);
+        //============================================================
+        mouseInfo_ID = APP_getMouseINFO(APP_ID);
+        //============================================================
+        
+        //============================================================
+        // layer UPDATE
+        //============================================================
+        childCompoArray_ID = APP_getChildArray(APP_ID);
+        childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+        count_ = 0;
+        while ( count_ < childNUM )
+        (
+        
+            LAYER_update( ARRAY_getAt(childCompoArray_ID,count_)
+                        , APP_ID);
+            //========================================================
+            count_ +=1;
+        );
+        //============================================================
+        
+        //============================================================
+        // each Event 
+        //============================================================
+        ( APP_isWindowResized(APP_ID) ==true)?
+        ( 
+            DBG("APP RESIZED ");
+            //========================================================
+            childCompoArray_ID = APP_getChildArray(APP_ID);
+            childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+            count_ = 0;
+            //========================================================
+            while ( count_ < childNUM )
+            (
+                //====================================================
+                LAYER_resized( ARRAY_getAt(childCompoArray_ID,count_) ,APP_ID);
+                //====================================================
+                count_ +=1;
+            );
+            //========================================================
+        );
+        //============================================================
+        
+        //============================================================
+        ( APP_isMouseMoved(APP_ID) == true)?
+        (
+            
+            childCompoArray_ID = APP_getChildArray(APP_ID);
+            childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+            count_ = 0;
+            //========================================================
+            while ( count_ < childNUM )
+            (
+                //====================================================
+                LAYER_mouseMove(ARRAY_getAt(childCompoArray_ID,count_),mouseInfo_ID);
+                //====================================================
+                count_ +=1;
+            );
+            //========================================================
+        );
+        //============================================================
+        ( APP_isMouseButtonPressed(APP_ID) == true)?
+        (
+            DBG("APP Button Pressed ");
+            childCompoArray_ID = APP_getChildArray(APP_ID);
+            childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+            count_ = 0;
+            //========================================================
+            while ( count_ < childNUM )
+            (
+                //====================================================
+                LAYER_mouseButtonPressd(ARRAY_getAt(childCompoArray_ID,count_), mouseInfo_ID);
+                //====================================================
+                count_ +=1;
+            );
+            //========================================================
+        );
+        //============================================================
+        ( APP_isMouseButtonHoldingPress(APP_ID) == true)?
+        ( 
+            0;
+        );
+        //============================================================
+        ( APP_isMouseButtonReleased(APP_ID) == true)? 
+        ( 
+            DBG("APP Button Released ");
+            childCompoArray_ID = APP_getChildArray(APP_ID);
+            childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+            count_ = 0;
+            //========================================================
+            while ( count_ < childNUM )
+            (
+                //====================================================
+                LAYER_mouseButtonReleased(ARRAY_getAt(childCompoArray_ID,count_), mouseInfo_ID);
+                //====================================================
+                count_ +=1;
+            );
+            //========================================================
+        );
+        //============================================================
+        (    APP_isMouseWheelVMoved(APP_ID) == true 
+          || APP_isMouseWheelHMoved(APP_ID) == true )? 
+        (   
+            DBG("APP Mouse Wheeled  ");
+            childCompoArray_ID = APP_getChildArray(APP_ID);
+            childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+            count_ = 0;
+            //========================================================
+            while ( count_ < childNUM )
+            (
+                //====================================================
+                LAYER_mouseWheeled( ARRAY_getAt(childCompoArray_ID,count_),mouseInfo_ID);
+                //====================================================
+                count_ +=1;
+            );       
+            
+        );
+        //============================================================
+        
+        //============================================================
+        // all draw
+        //============================================================
+        childCompoArray_ID = APP_getChildArray(APP_ID);
+        childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+        count_ = 0;
+        //============================================================
+        while ( count_ < childNUM )
+        (
+           
+            gfx_x =0;gfx_y =0;
+            //========================================================
+            LAYER_draw(ARRAY_getAt(childCompoArray_ID,count_));
+            //========================================================
+            count_ +=1;
+        );
+        //============================================================
+        
+        //============================================================
+        APP_storeLastInfo(APP_ID);
+        //============================================================
+    );
+    //================================================================
+);
+//====================================================================
+
+
+

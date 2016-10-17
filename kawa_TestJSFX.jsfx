@@ -1,0 +1,261 @@
+//====================================================================
+desc:kawa TestJSFX
+//====================================================================
+
+// imports
+//====================================================================
+import kawa_ALL.jsfx-inc
+//=================================================================
+
+
+//====================================================================
+// sliders
+//--------------------------------------------------------------------
+slider1:0.25<0.0,1>parameter1
+//====================================================================
+
+
+@init
+//====================================================================
+    // create APP ID
+    //================================================================
+    APP_ID = APP_create();
+    //================================================================
+
+    //create Layer ID
+    //================================================================
+    LAYER_001 = LAYER_create("LAYER01");
+    LAYER_002 = LAYER_create("LAYER02");
+    //================================================================
+
+    //create Component and add to layer 1 .
+    //================================================================
+    TEST_comp  = COMPONENT_create("TEST");
+    SLIDER_2_comp = SLIDERTYPE2_create("TEST2");
+    KONB_ID  = KNOB_create( "knobTest") ;
+    //----------------------------------------------------------------
+    TEXT_DB_L = TEXT_create("text 1"); 
+    TEXT_DB_R = TEXT_create("text 2");
+    TEXT_setIsDBValueMode(TEXT_DB_L, true );
+    TEXT_setIsDBValueMode(TEXT_DB_R, true );
+    TEXT_setDBValueModeTextPreFix(TEXT_DB_L, "(L)");
+    TEXT_setDBValueModeTextPreFix(TEXT_DB_R, "(R)");
+    //----------------------------------------------------------------
+    LAYER_addChildComponent(LAYER_001 , TEXT_DB_L);
+    LAYER_addChildComponent(LAYER_001 , TEXT_DB_R);
+    //----------------------------------------------------------------
+    LAYER_addChildComponent(LAYER_001 , TEST_comp);
+    LAYER_addChildComponent(LAYER_001 , SLIDER_2_comp);
+    LAYER_addChildComponent(LAYER_001 , KONB_ID);
+    //================================================================
+
+    // layer 2
+    //================================================================
+    BUTTON_comp   = BUTTON_create("TEST3");
+    SLIDER_1_comp = SLIDER_create("TEST4");
+    //----------------------------------------------------------------
+    LAYER_addChildComponent(LAYER_002 , BUTTON_comp);
+    LAYER_addChildComponent(LAYER_002 , SLIDER_1_comp);
+    //================================================================
+
+
+    // layer add to app
+    //================================================================
+    APP_addChildComponent(APP_ID,LAYER_001);
+    APP_addChildComponent(APP_ID,LAYER_002);
+    //================================================================
+    LAYER_setActive(LAYER_001,true);
+    LAYER_setActive(LAYER_002,false);
+    //================================================================
+
+    // canvase test
+    //================================================================
+    CANVS_WAVE_L = CANVAS_create(100,100);
+    CANVS_WAVE_R = CANVAS_create(100,100);
+    //================================================================
+    
+@slider
+//====================================================================
+    COMPONENT_setValue( SLIDER_2_comp,slider1 );
+    COMPONENT_setValue( KONB_ID,slider1 );
+
+
+@block
+//====================================================================
+    COMPONENT_setValue( TEXT_DB_L ,max(max_L,abs(minL)));
+    COMPONENT_setValue( TEXT_DB_R ,max(max_R,abs(minR)));
+    //================================================================
+    max_L = 0;min_L = 0;
+    max_R = 0;min_R = 0;
+    //================================================================
+
+
+@sample
+//====================================================================
+    max_L = max(max_L,spl0);
+    min_L = min(min_L,spl0);
+    max_R = max(max_R,spl1);
+    min_R = min(min_R,spl1);
+
+@gfx 200 400
+//====================================================================
+
+    // direct draw background to
+    //================================================================
+    drawBackGrond_color( 10, 120 , 12*4);
+    drawSinWaveCircle(100,0.8,1,0.0043);
+    drawSinWaveCircle(100,0.8,1,0.0043);
+    //================================================================
+    
+    // canvase test
+    //================================================================
+    drawWaveBufferToCanvas(CANVS_WAVE_L
+                          ,max_L
+                          ,min_L
+                          ,40 * COMPONENT_getValue(KONB_ID)
+                          ,0.5
+                          ,1
+                          ,80);
+
+    drawWaveBufferToCanvas(CANVS_WAVE_R
+                          ,max_R
+                          ,min_R
+                          ,40 * COMPONENT_getValue(SLIDER_2_comp)
+                          ,0.6
+                          ,1
+                          ,0);
+    //================================================================
+    gfx_a =0.6;
+    CANVAS_blitImage(CANVS_WAVE_R,0,0,1,0);
+    CANVAS_blitImage(CANVS_WAVE_L,0,0,1,0);
+    gfx_a =1;
+    //================================================================
+    // final background
+    //================================================================
+    drawDotGrid(20,20,0.04);
+    //================================================================
+
+
+    // for debug
+    //================================================================
+    DBGMESSAGE_drawAllMessage(DBG);
+    //================================================================
+
+
+    // App update. check and compare with last event state.(resize or mouse)
+    //================================================================
+    APP_update(APP_ID);
+  
+    //================================================================
+    ( mouse_cap & 2 ==2 && lastCAP != mouse_cap )?
+    (
+        (LAYER_isActive(LAYER_001)==true )?
+        (
+            LAYER_setActive(LAYER_001,false );
+            LAYER_setActive(LAYER_002,true );
+        ):(
+            LAYER_setActive(LAYER_001,true );
+            LAYER_setActive(LAYER_002,false );
+        );
+        //============================================================
+    );
+    //================================================================
+    ( mouse_cap & 64 ==64 && lastCAP != mouse_cap )?
+    (
+        DBG_toggle(DBG);
+    );
+    //================================================================
+    lastCAP = mouse_cap;
+    //================================================================
+    
+    
+    // alignment position when resized.
+    //================================================================
+    ( APP_isWindowResized(APP_ID) ==true) ?
+    (
+        DBG("CALLL RESIzED");
+        RECTANGLE_copyTo      ( CANVS_WAVE_L,APP_ID);
+        RECTANGLE_copyTo      ( CANVS_WAVE_R,APP_ID);
+        CANVAS_recreateCanvas ( CANVS_WAVE_L ); 
+        CANVAS_recreateCanvas ( CANVS_WAVE_R );
+        //============================================================
+        RECTANGLE_copyTo      ( LAYER_001,APP_ID);  // layer resize 
+        RECTANGLE_copyTo      ( LAYER_002,APP_ID);  // layer resize 
+        //============================================================
+    );
+    //================================================================
+
+    //================================================================
+    ( LAYER_isAreaResized(LAYER_001) ==true)   ?
+    (
+        RECTANGLE_copyTo         (TEST_comp,LAYER_001);
+        RECTANGLE_cropFromTopP   (TEST_comp,0.025);
+        //============================================================
+        RECTANGLE_copyTo         (SLIDER_2_comp,LAYER_001);
+        RECTANGLE_cropFromTopP   (SLIDER_2_comp,0.07);
+        RECTANGLE_cropFromRightP (SLIDER_2_comp,1-( 0.61803));
+        RECTANGLE_reduce         (SLIDER_2_comp,5,5);
+        //============================================================
+        RECTANGLE_copyTo         (TEXT_DB_L,LAYER_001);
+        RECTANGLE_cropFromTopP   (TEXT_DB_L,0.392);
+        RECTANGLE_reduceP        (TEXT_DB_L,0.18,0.18);
+        //============================================================
+        RECTANGLE_copyTo         (TEXT_DB_R,LAYER_001);
+        RECTANGLE_cropFromBottomP(TEXT_DB_R,0.382);
+        RECTANGLE_reduceP        (TEXT_DB_R,0.18,0.18);
+        //============================================================
+        RECTANGLE_copyTo         (KONB_ID,LAYER_001);
+        RECTANGLE_reduceP        (KONB_ID,0.28,0.28);
+        RECTANGLE_reduce         (KONB_ID,5,5);
+    );
+    //================================================================
+
+
+    //================================================================
+    ( LAYER_isAreaResized(LAYER_002) == true) ?
+    (
+        RECTANGLE_copyTo        (BUTTON_comp,LAYER_002);
+        //============================================================
+        RECTANGLE_cropFromLeftP (BUTTON_comp,0.5);
+        RECTANGLE_reduceP       (BUTTON_comp,0.1,0.1);
+        //============================================================
+        RECTANGLE_copyTo        (SLIDER_1_comp,LAYER_002);
+        RECTANGLE_cropFromRightP(SLIDER_1_comp,0.5);
+        RECTANGLE_reduceP       (SLIDER_1_comp,0.1,0.1);
+        //============================================================
+        RECTANGLE_copyTo        (TEXT_DB_L,APP_ID);
+    );
+    //================================================================
+
+    // if animation
+    //================================================================
+    COMPONENT_setComponentAlpha(TEST_comp,abs(sin($pi*2*mod*2)));
+    mod += 0.01;(mod > 1 )?(mod=0;);
+    //================================================================
+
+    // plugin Title Str
+    //================================================================
+    pluginTitleStrMarginX = 10;
+    pluginTitleStrMarginY = 4;
+    pluginTitleStr = #;
+    sprintf ( pluginTitleStr,"kawa Test ");
+    //================================================================
+    gfx_measurestr(pluginTitleStr,pluginTitleStr_w,pluginTitleStr_h);
+    //================================================================
+    gfx_x = gfx_w - pluginTitleStr_w -pluginTitleStrMarginX;
+    gfx_y = gfx_h - pluginTitleStr_h -pluginTitleStrMarginY;
+    //================================================================
+    gfx_r =0;gfx_g=0;gfx_b=0;gfx_a=1;
+    gfx_rect( gfx_x -pluginTitleStrMarginX
+            , gfx_y -pluginTitleStrMarginY
+            , pluginTitleStr_w+pluginTitleStrMarginX*3
+            , pluginTitleStr_h+pluginTitleStrMarginY*3
+            );
+    //================================================================
+    gfx_r =1;gfx_g=1;gfx_b=1;gfx_a=1;
+    gfx_drawstr( pluginTitleStr);
+    //================================================================
+    
+//====================================================================
+// 続
+// 未完

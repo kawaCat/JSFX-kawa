@@ -1,0 +1,336 @@
+//====================================================================
+@init
+//====================================================================
+
+//====================================================================
+// inherit List
+// * Rectangle
+// * Canvas
+//====================================================================
+function XYSLIDER_create(name) local (XYSLIDER_ID,_childComponentBUFF,name_,circle_Area_ID)
+(
+    circle_Area_ID = CIRCLE_create(0,0,10);
+    //================================================================
+    XYSLIDER_ID = COMPONENT_create(name);//element NUM 6
+    //================================================================
+    STATIC_MASTER_BUFF[XYSLIDER_ID ]     = "XYSLIDER";        // classTYPE
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 1]  = 24;                 // elementNUM
+    //================================================================
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 19] = circle_Area_ID;
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 20] = false;           // is Pressd incircleArea
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 21] = -1;               // sliderXIndex
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 22] = -1;               // sliderYIndex
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 23] = 0.5;               // X value
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 24] = 0.5;               // Y value
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=25; // next entry Bufff Point
+    //================================================================
+    // init prepare.
+    //================================================================
+    MAP_setValue( COMPONENT_getColorMap(XYSLIDER_ID)
+                ,"background_mouseon"
+                , COLOR_create(0,1,1,1));
+    //================================================================
+    XYSLIDER_ID; //retrun
+);
+//====================================================================
+function XYSLIDER_getXValue(XYSLIDER_ID)                       ( STATIC_MASTER_BUFF[XYSLIDER_ID + 23];);
+function XYSLIDER_setXValue(XYSLIDER_ID,v)                     ( STATIC_MASTER_BUFF[XYSLIDER_ID + 23]=v;);
+function XYSLIDER_getYValue(XYSLIDER_ID)                       ( STATIC_MASTER_BUFF[XYSLIDER_ID + 24];);
+function XYSLIDER_setYValue(XYSLIDER_ID,v)                     ( STATIC_MASTER_BUFF[XYSLIDER_ID + 24]=v;);
+//====================================================================
+function XYSLIDER_getSliderIndexX(XYSLIDER_ID)                 ( STATIC_MASTER_BUFF[XYSLIDER_ID + 21];);
+function XYSLIDER_setSliderIndexX(XYSLIDER_ID,idx)             ( STATIC_MASTER_BUFF[XYSLIDER_ID + 21]=idx;);
+function XYSLIDER_getSliderIndexY(XYSLIDER_ID)                 ( STATIC_MASTER_BUFF[XYSLIDER_ID + 22];);
+function XYSLIDER_setSliderIndexY(XYSLIDER_ID,idx)             ( STATIC_MASTER_BUFF[XYSLIDER_ID + 22]=idx;);
+//====================================================================
+function XYSLIDER_getCircleArea(XYSLIDER_ID)                   ( STATIC_MASTER_BUFF[XYSLIDER_ID + 19];);
+function XYSLIDER_isCircleAreaPressed(XYSLIDER_ID)             ( STATIC_MASTER_BUFF[XYSLIDER_ID + 20];);
+function _XYSLIDER_setIsCircleAreaPressed(XYSLIDER_ID,v)       ( STATIC_MASTER_BUFF[XYSLIDER_ID + 20] =v;);
+//====================================================================
+// meterWidth
+//====================================================================
+function _XYSLIDER_getMeterWidth(XYSLIDER_ID)
+    local (circle_Pointer_ID,x,w,radius,out)
+(
+    //================================================================
+    x = RECTANGLE_getX(XYSLIDER_ID);
+    w = RECTANGLE_getWidth(XYSLIDER_ID);
+    //================================================================
+    circle_Pointer_ID = XYSLIDER_getCircleArea(XYSLIDER_ID);
+    //================================================================
+    radius = CIRCLE_getRadius(circle_Pointer_ID);
+    //================================================================
+    out = w -radius/2;
+);
+//====================================================================
+function _XYSLIDER_getMeterHeight(XYSLIDER_ID)
+    local (circle_Pointer_ID,y,h,radius,out)
+(
+    //================================================================
+    y = RECTANGLE_getY(XYSLIDER_ID);
+    h = RECTANGLE_getHeight(XYSLIDER_ID);
+    //================================================================
+    circle_Pointer_ID = XYSLIDER_getCircleArea(XYSLIDER_ID);
+    radius = CIRCLE_getRadius(circle_Pointer_ID);
+    //================================================================
+    out = h -radius/2;
+);
+//====================================================================
+function _XYSLIDER_positionToXValue(XYSLIDER_ID,x_) 
+local (out,meterWidth,tempX,radius)
+(
+    //================================================================
+    meterWidth = _XYSLIDER_getMeterWidth(XYSLIDER_ID);
+    tempX = RECTANGLE_getX(XYSLIDER_ID);
+    //================================================================
+    out = max( 0,min( (x_- tempX )/(meterWidth) ,1));
+);
+//====================================================================
+function _XYSLIDER_positionToYValue(XYSLIDER_ID,y_) local (out,meterHeight,tempY,radius)
+(
+    //================================================================
+    meterHeight = _XYSLIDER_getMeterHeight(XYSLIDER_ID);
+    tempY = RECTANGLE_getY(XYSLIDER_ID);
+    //================================================================
+    out = max( 0,min( (y_- tempY )/(meterHeight) ,1));
+);
+//====================================================================
+
+
+//====================================================================
+function XYSLIDER_resized(XYSLIDER_ID,parrentRECT )
+(
+    0;
+);
+//====================================================================
+function XYSLIDER_draw(XYSLIDER_ID)
+local ( radius,lineH,x,y,w,h,circle_Area_ID
+	  , tempStr,tempStrW,tempStrH,XXXX,YYYY,margin)
+(
+    //================================================================
+    x = RECTANGLE_getX(XYSLIDER_ID);
+    y = RECTANGLE_getY(XYSLIDER_ID);
+    w = RECTANGLE_getWidth(XYSLIDER_ID);
+    h = RECTANGLE_getHeight(XYSLIDER_ID);
+    //================================================================
+    radius = 12;
+    lineH  = 1;
+    //================================================================
+    
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
+    gfx_a = 0.5  *COMPONENT_getComponentAlpha(XYSLIDER_ID);
+    gfx_rect( x, y, w, h,true);
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+    //================================================================
+    gfx_line(  x +w/2 ,y 
+             , x +w/2 ,y+h);
+    gfx_line(  x   ,y+h/2
+              ,x+w ,y+h/2);
+    gfx_rect( x, y, w, h,false);         
+    //================================================================
+    circle_Area_ID =  XYSLIDER_getCircleArea(XYSLIDER_ID);
+    //================================================================
+    XXXX = (x+radius)+ (w-radius*2 ) * XYSLIDER_getXValue(XYSLIDER_ID) ;
+    YYYY = (y+radius)+ (h-radius*2 ) * XYSLIDER_getYValue(XYSLIDER_ID) ; 
+    //================================================================
+    CIRCLE_setCX(circle_Area_ID,XXXX );
+    CIRCLE_setCY(circle_Area_ID,YYYY);
+    CIRCLE_setRadius(circle_Area_ID,radius);
+    //================================================================
+    
+    //================================================================
+    tempStr = "X 0.0 : Y 0.0";
+    gfx_measurestr(tempStr,tempStrW,tempStrH);
+    //================================================================
+    margin =3;
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+    gfx_rect(x+w/2
+            ,y+h/2
+            ,tempStrW+margin*2
+            ,tempStrH+margin*2,true);
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
+    gfx_x = x+w/2+margin;
+    gfx_y = y+h/2+margin;
+    gfx_drawstr( "X 0.5 : Y 0.5");
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+    gfx_rect(x
+            ,y
+            ,tempStrW+margin*2
+            ,tempStrH+margin*2,true);
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
+    gfx_x = x+margin;
+    gfx_y = y+margin;
+    gfx_drawstr( "X 0.0 : Y 0.0");
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+    gfx_rect(x+w-margin*2 -tempStrW
+            ,y
+            ,tempStrW+margin*2
+            ,tempStrH+margin*2,true);
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
+    gfx_x = x+w-margin-tempStrW;
+    gfx_y = y+margin;
+    gfx_drawstr( "X 1.0 : Y 0.0");
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+    gfx_rect(x+w-margin*2 -tempStrW
+            ,y+h-margin*2 -tempStrH
+            ,tempStrW+margin*2
+            ,tempStrH+margin*2,true);
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
+    gfx_x = x+w-margin-tempStrW;
+    gfx_y = y+h-margin-tempStrH;
+    gfx_drawstr( "X 1.0 : Y 1.0");
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+    gfx_rect(x
+            ,y+h-margin*2 -tempStrH
+            ,tempStrW+margin*2
+            ,tempStrH+margin*2,true);
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
+    gfx_x = x+margin;
+    gfx_y = y+h-margin-tempStrH;
+    gfx_drawstr( "X 0.0 : Y 1.0");
+    //================================================================
+
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+    //================================================================
+    gfx_circle( floor(XXXX),floor(YYYY) , radius ,true);
+    //================================================================
+    (    XYSLIDER_isCircleAreaPressed(XYSLIDER_ID) ==true
+      || CIRCLE_isContainMouse( circle_Area_ID ) == true
+    ) ?
+    (
+        //============================================================
+        COMPONENT_changeColorGfx( XYSLIDER_ID,"red");
+        gfx_circle( floor(XXXX),floor(YYYY) , radius -4    ,true);
+        
+        //============================================================
+        //value 
+        //============================================================
+        tempStr =#;
+        sprintf(  tempStr
+                ,"x %1.2f :y %1.2f "
+                , XYSLIDER_getXValue(XYSLIDER_ID)
+                , XYSLIDER_getYValue(XYSLIDER_ID)
+                );
+        //============================================================
+        gfx_measurestr(tempStr,tempStrW,tempStrH);
+        //============================================================
+        COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+        gfx_rect(max(x,min(mouse_x,x+w-(tempStrW+margin*2)-radius -5)) +radius +5
+                ,max(y,min(mouse_y,y+h-(tempStrH+margin*2)-radius -5)) +radius +5
+                ,tempStrW+margin*2
+                ,tempStrH+margin*2,true);
+        COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
+        gfx_x = max(x,min(mouse_x,x+w-(tempStrW+margin*2)-radius -5))+margin +radius +5;
+        gfx_y = max(y,min(mouse_y,y+h-(tempStrH+margin*2)-radius -5))+margin +radius +5;
+        gfx_drawstr( tempStr);
+        //============================================================
+    ):(
+        COMPONENT_changeColorGfx( XYSLIDER_ID,"yellow");
+        gfx_circle( floor(XXXX),floor(YYYY) , radius -4    ,true);
+    );
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+    //================================================================
+);
+//====================================================================
+function XYSLIDER_mouseMoved(XYSLIDER_ID,MOUSEINFO_ID)local(XXX,YYY)
+(
+    ( RECTANGLE_isContainMouse(XYSLIDER_ID) ==true) ?
+    (
+        DBG(" SLIDER  Mouse Moved");
+    );
+    //================================================================
+
+    //================================================================
+    ( XYSLIDER_isCircleAreaPressed(XYSLIDER_ID) ==true )?
+    (
+        XXX = _XYSLIDER_positionToXValue( XYSLIDER_ID
+                                        , MOUSEINFO_getMouseX(MOUSEINFO_ID));
+        YYY = _XYSLIDER_positionToYValue( XYSLIDER_ID
+                                        , MOUSEINFO_getMouseY(MOUSEINFO_ID));
+        //============================================================
+        //COMPONENT_setValue(XYSLIDER_ID,XXX);
+        
+        XYSLIDER_setXValue(XYSLIDER_ID,XXX) ;
+        XYSLIDER_setYValue(XYSLIDER_ID,YYY) ;
+        //============================================================
+        //============================================================
+        DBG(" XY SLIDER -- X Changed");
+        DBG_FLOAT(XYSLIDER_getXValue(XYSLIDER_ID) );
+        //============================================================
+        DBG(" XY SLIDER --  Y Changed");
+        DBG_FLOAT(XYSLIDER_getYValue(XYSLIDER_ID) );
+        //============================================================
+        slider( XYSLIDER_getSliderIndexX(XYSLIDER_ID) ) = XXX;
+        slider( XYSLIDER_getSliderIndexY(XYSLIDER_ID) ) = YYY;
+        //============================================================
+        slider_automate(2 ^ XYSLIDER_getSliderIndexX(XYSLIDER_ID) -1 );
+        slider_automate(2 ^ XYSLIDER_getSliderIndexY(XYSLIDER_ID) -1);
+    );
+    //================================================================
+);
+//====================================================================
+function XYSLIDER_mouseButtonPressd(XYSLIDER_ID,MOUSEINFO_ID )local(circle_Area_ID)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(XYSLIDER_ID) ==true) ?
+    (
+        DBG(" SLIDER Mouse Button Press IN");
+        COMPONENT_setIsMousePressStartedInThisComp(XYSLIDER_ID,true);
+    ):(
+        COMPONENT_setIsMousePressStartedInThisComp(XYSLIDER_ID,false);
+    );
+    //================================================================
+    circle_Area_ID = XYSLIDER_getCircleArea(XYSLIDER_ID);
+    //================================================================
+    ( CIRCLE_isContainMouse(circle_Area_ID) == true)?
+    (
+        DBG(" SLIDER Mouse Button Press IN Circle");
+        _XYSLIDER_setIsCircleAreaPressed(XYSLIDER_ID,true);
+    );
+    //================================================================
+);
+//====================================================================
+function XYSLIDER_mouseButtonReleased( XYSLIDER_ID,MOUSEINFO_ID )local (tempstr)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(XYSLIDER_ID) ==true) ?
+    (
+        //============================================================
+        DBG(" SLIDER Mouse Button Released");
+    );
+    //================================================================
+    _XYSLIDER_setIsCircleAreaPressed(XYSLIDER_ID,false);
+    //================================================================
+);
+//====================================================================
+function XYSLIDER_mouseWheeled(XYSLIDER_ID,MOUSEINFO_ID )
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(XYSLIDER_ID) ==true) ?
+    (
+        DBG(" SLIDER Mouse Wheeld");
+        
+        COMPONENT_setValue( XYSLIDER_ID
+                          ,   COMPONENT_getValue(XYSLIDER_ID) 
+                            + MOUSEINFO_getMouseWheelDiffV_ABS(MOUSEINFO_ID)/30
+                          );
+       
+        //============================================================
+        DBG_FLOAT(COMPONENT_getValue(XYSLIDER_ID) );
+        //============================================================
+        DBG(" SLIDER -- SLIDER Changed");
+        //slider( XYSLIDER_getSliderIndex(XYSLIDER_ID) ) = xxx;
+    );
+    //================================================================
+);
+//====================================================================
+
+

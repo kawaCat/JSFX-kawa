@@ -1,0 +1,546 @@
+//====================================================================
+//funciton Llist
+//====================================================================
+
+
+//====================================================================
+// ARRAY Struct // [CAUTION] test version 
+//====================================================================
+//  ARRAY_create()
+//--------------------------------------------------------------------
+//   ARRAY_getAt(ARRAY_ID,pos) 
+//   ARRAY_changeValueAt(ARRAY_ID,pos,value) 
+//   ARRAY_getBufferSize(ARRAY_ID)
+//   ARRAY_getMaxBufferSize(ARRAY_ID) 
+//   ARRAY_getStartBufferPointer(ARRAY_ID)
+//   ARRAY_getStartBufferPointerbBsolute(ARRAY_ID)
+//   ARRAY_push_back(ARRAY_ID,value)  //return new ARRAY_ID
+//   ARRAY_push_front(ARRAY_ID,value) //return new ARRAY_ID
+//   ARRAY_removeAt(ARRAY_ID,pos)     //return ARRAY_ID
+//====================================================================
+
+
+//====================================================================
+// circuler Buffer. 
+//====================================================================
+//  CIRCLEBUFFER_create(SizeInt)
+//--------------------------------------------------------------------
+//   CIRCLEBUFFER_getStartBufferPointerID          (CIRCLEBUFFER_ID)
+//   CIRCLEBUFFER_getStartBufferPointerIDAbsolute  (CIRCLEBUFFER_ID)
+//   CIRCLEBUFFER_getBufferSize                    (CIRCLEBUFFER_ID)
+//   CIRCLEBUFFER_getValueFromPos                  (CIRCLEBUFFER_ID,cursolPos)
+//   CIRCLEBUFFER_getAt                            (CIRCLEBUFFER_ID,cursolPos)  //aliase
+//   CIRCLEBUFFER_push_back                        (CIRCLEBUFFER_ID,value)
+//   CIRCLEBUFFER_push_front                       (CIRCLEBUFFER_ID,value)
+//====================================================================
+
+
+//====================================================================
+//CUSOLBUFFER
+//====================================================================
+//  CURSOLBUFFER_create (MaxSizeInt) local(CURSOLBUFFER_ID )
+//--------------------------------------------------------------------
+//    CURSOLBUFFER_getMaxSize                      (CIRCLEBUFFER_ID)             
+//    CURSOLBUFFER_getCursolPos                    (CIRCLEBUFFER_ID)           
+//    CURSOLBUFFER_setCursolPos                    (CIRCLEBUFFER_ID,v)         
+//    CURSOLBUFFER_getLastCursolPos                (CIRCLEBUFFER_ID)       
+//    CURSOLBUFFER_setLastCursolPos                (CIRCLEBUFFER_ID,v)     
+//    CURSOLBUFFER_getBufferPointer                (CIRCLEBUFFER_ID)       
+//    CURSOLBUFFER_getBufferPointerAbs             (CIRCLEBUFFER_ID)    
+//====================================================================
+//    CURSOLBUFFER_stepCursolPos                   (CIRCLEBUFFER_ID)
+//    CURSOLBUFFER_stepBackCursolPos               (CIRCLEBUFFER_ID)
+//    CURSOLBUFFER_getValueFromPos                 (CIRCLEBUFFER_ID,cursolPos)
+//    CURSOLBUFFER_getValueOffsetFromLastPushedPos (CIRCLEBUFFER_ID,offsetNum)
+//    CURSOLBUFFER_getLastPushedValue              (CIRCLEBUFFER_ID)
+//    CURSOLBUFFER_getAt                           (CIRCLEBUFFER_ID,cursolPos) //aliase of CURSOLBUFFER_getValueFromPos
+//    CURSOLBUFFER_getValueWithOffset              (CIRCLEBUFFER_ID,offsetPos) //aliase ofd CURSOLBUFFER_getValueOffsetFromLastPushedPos
+//    CURSOLBUFFER_getOffsettedValue               (CIRCLEBUFFER_ID,offsetPos) //aliase of CURSOLBUFFER_getValueOffsetFromLastPushedPos
+//====================================================================
+//    CURSOLBUFFER_push(CIRCLEBUFFER_ID,v) 
+//    CURSOLBUFFER_pushAndBackStep(CIRCLEBUFFER_ID,v)
+//====================================================================
+
+
+//====================================================================
+// MAP
+//====================================================================
+//  MAP_create()
+//--------------------------------------------------------------------
+//    MAP_getArrayID (MAP_ID)
+//    MAP_getSize    (MAP_ID)
+//    MAP_setValue   (MAP_ID,keyName,Value)
+//    MAP_getValue   (MAP_ID,keyName)
+//====================================================================
+
+
+//====================================================================
+// [CAUTION] test version 
+//====================================================================
+@init
+//====================================================================
+function ARRAY_create(maxSizeInt)local (ARRAY_ID,instanceNUM) local (maxSize)
+(
+    //maxSize = STATIC_ARRAY_ONE_MAXSIZE;
+    maxSize = maxSizeInt;
+    ARRAY_ID = STATIC_ARRAY_BUFF_ID;
+    //================================================================
+    STATIC_ARRAY_BUFF[ARRAY_ID]   = "ARRAY" ; 
+    STATIC_ARRAY_BUFF[ARRAY_ID+1] = 4 + maxSize ; //elementNNUM;
+    STATIC_ARRAY_BUFF[ARRAY_ID+2] = 0; //buffersize
+    STATIC_ARRAY_BUFF[ARRAY_ID+3] = maxSize; //
+    STATIC_ARRAY_BUFF[ARRAY_ID+4] = 0;         //bufferStartPoiner;
+    //================================================================
+    STATIC_ARRAY_BUFF_ID += 4 + maxSize +1;
+    //================================================================
+    ARRAY_ID;//return 
+);
+//====================================================================
+function ARRAY_getBufferSize(ARRAY_ID)                ( STATIC_ARRAY_BUFF[ARRAY_ID+2];);
+function ARRAY_getMaxBufferSize(ARRAY_ID)             ( STATIC_ARRAY_BUFF[ARRAY_ID+3];);
+function ARRAY_getStartBufferPointer(ARRAY_ID)        ( ARRAY_ID+ 4;);
+function ARRAY_getStartBufferPointerAbsolute(ARRAY_ID)( ARRAY_ID+ 4 +STATIC_ARRAY_BUFF_START;);
+//====================================================================
+function ARRAY_setBufferSize(ARRAY_ID,v)
+(
+    ( ARRAY_getMaxBufferSize(ARRAY_ID) < v) ?(
+        STATIC_ARRAY_BUFF[ARRAY_ID+2] = ARRAY_getMaxBufferSize(ARRAY_ID); 
+    ):( 0 > v) ? (
+        STATIC_ARRAY_BUFF[ARRAY_ID+2] = 0;
+    ):(
+        STATIC_ARRAY_BUFF[ARRAY_ID+2] = v;
+    );
+);
+//====================================================================
+function ARRAY_getAt(ARRAY_ID,pos) local (out,bufferSize)
+(
+    bufferSize = ARRAY_getBufferSize (ARRAY_ID );
+    ( bufferSize < pos) ? 
+    (
+        out = 0;
+    ):(
+        out = STATIC_ARRAY_BUFF[ARRAY_getStartBufferPointer(ARRAY_ID)+pos];
+    );
+    //================================================================
+    out;
+);
+//====================================================================
+function ARRAY_changeValueAt(ARRAY_ID,pos,value) local (bufferSize)
+(
+    bufferSize = ARRAY_getBufferSize (ARRAY_ID );
+    ( bufferSize < pos) ? 
+    (
+        0;
+    ):(
+        STATIC_ARRAY_BUFF[ARRAY_getStartBufferPointer(ARRAY_ID)+pos] =value ;
+    );
+    //================================================================
+);
+//====================================================================
+function ARRAY_push_back(ARRAY_ID,value) local(bufferSize)
+(
+    bufferSize = ARRAY_getBufferSize(ARRAY_ID);
+    //================================================================
+    ARRAY_setBufferSize(ARRAY_ID,ARRAY_getBufferSize(ARRAY_ID)+1);
+    //================================================================
+    STATIC_ARRAY_BUFF[ARRAY_getStartBufferPointer(ARRAY_ID)+bufferSize] = value;
+    //================================================================
+    ARRAY_ID;//return
+);
+//====================================================================
+function ARRAY_push_front(ARRAY_ID,value) local(bufferSize)//return new ARRAY_ID
+(
+    bufferSize = ARRAY_getBufferSize(ARRAY_ID);
+    //================================================================
+    ARRAY_setBufferSize(ARRAY_ID,ARRAY_getBufferSize(ARRAY_ID)+1);
+    //================================================================
+
+    //================================================================
+    memcpy( STATIC_ARRAY_BUFF_ID  + STATIC_ARRAY_BUFF_START
+          , ARRAY_getStartBufferPointer(ARRAY_ID)           + STATIC_ARRAY_BUFF_START
+          , ARRAY_getMaxBufferSize(ARRAY_ID) );
+          
+    memcpy( ARRAY_getStartBufferPointer(ARRAY_ID)  + STATIC_ARRAY_BUFF_START +1
+          , ARRAY_getStartBufferPointer(ARRAY_ID)  + STATIC_ARRAY_BUFF_START
+          , ARRAY_getMaxBufferSize(ARRAY_ID) -1);
+    //================================================================
+    STATIC_ARRAY_BUFF[ARRAY_getStartBufferPointer(ARRAY_ID)] = value;
+    //================================================================
+    //ARRAY_ID;//return 
+    //================================================================
+);
+//====================================================================
+function ARRAY_removeAt(ARRAY_ID,pos)local (bufferSize)
+(
+    bufferSize =  ARRAY_getBufferSize(ARRAY_ID);
+    //================================================================
+    (bufferSize >= 1 && (bufferSize >= pos) && pos >=0 )?
+    (
+        //============================================================
+        memcpy( ARRAY_getStartBufferPointer(ARRAY_ID) +STATIC_ARRAY_BUFF_START + pos 
+              , ARRAY_getStartBufferPointer(ARRAY_ID) +STATIC_ARRAY_BUFF_START + pos +1
+              , bufferSize-pos);
+        //============================================================
+        (ARRAY_getBufferSize(ARRAY_ID)-1 >0)?
+        (
+            ARRAY_setBufferSize(ARRAY_ID,ARRAY_getBufferSize(ARRAY_ID)-1);
+        );
+    );
+    //================================================================
+    ARRAY_ID; //return 
+);
+//====================================================================
+
+
+//====================================================================
+// circuler Buffer.
+//====================================================================
+function CIRCLEBUFFER_create(MaxSizeInt)local (CIRCLEBUFFER_ID)
+(
+    CIRCLEBUFFER_ID = STATIC_CIRCLE_BUFF_ID;
+    //================================================================
+    STATIC_CIRCLE_BUFF[CIRCLEBUFFER_ID]   ="CircleBuffer";
+    STATIC_CIRCLE_BUFF[CIRCLEBUFFER_ID+1] = 3 +MaxSizeInt;//element NUM
+    STATIC_CIRCLE_BUFF[CIRCLEBUFFER_ID+2] = MaxSizeInt;//sizeNUM
+    STATIC_CIRCLE_BUFF[CIRCLEBUFFER_ID+3] = 0;//bufferStartPoint;
+    //================================================================
+    memset (STATIC_CIRCLE_BUFF[CIRCLEBUFFER_ID+3], 0,MaxSizeInt);
+    //================================================================
+    //todo check value
+    //================================================================
+    STATIC_CIRCLE_BUFF_ID += 3+ MaxSizeInt+1;
+    CIRCLEBUFFER_ID;
+);
+//====================================================================
+function CIRCLEBUFFER_getStartBufferPointerID(CIRCLEBUFFER_ID)(CIRCLEBUFFER_ID+3;);//get as "ID"
+function CIRCLEBUFFER_getStartBufferPointerIDAbsolute(CIRCLEBUFFER_ID)//get total buffer Number
+(
+    CIRCLEBUFFER_ID+3+STATIC_CIRCLE_BUFF_START;
+);
+//====================================================================
+function CIRCLEBUFFER_getBufferSize(CIRCLEBUFFER_ID)(STATIC_CIRCLE_BUFF[CIRCLEBUFFER_ID+2];);
+function CIRCLEBUFFER_setBufferSize(CIRCLEBUFFER_ID,sizeint) (STATIC_CIRCLE_BUFF[CIRCLEBUFFER_ID+2] = floor(sizeint););
+//====================================================================
+function CIRCLEBUFFER_getValueFromPos(CIRCLEBUFFER_ID,cursolPos)local (bufSize,curPos_,out)
+(
+    bufSize = CIRCLEBUFFER_getBufferSize(CIRCLEBUFFER_ID);
+    curPos_ = cursolPos;
+    ( bufSize <= curPos_) ? (curPos_ = 0;);
+    //================================================================
+    STATIC_CIRCLE_BUFF[CIRCLEBUFFER_getStartBufferPointerID(CIRCLEBUFFER_ID)+ curPos_];
+    //================================================================
+);
+//====================================================================
+function CIRCLEBUFFER_getAt(CIRCLEBUFFER_ID,cursolPos)
+(
+    CIRCLEBUFFER_getValueFromPos(CIRCLEBUFFER_ID,cursolPos);
+);
+//====================================================================
+function CIRCLEBUFFER_push_back(CIRCLEBUFFER_ID,value)local (bufSize,bufStartPointerID)
+(
+    bufSize =  CIRCLEBUFFER_getBufferSize(CIRCLEBUFFER_ID);
+    bufStartPointerID = CIRCLEBUFFER_getStartBufferPointerID(CIRCLEBUFFER_ID);
+    // slide
+    memcpy( STATIC_CIRCLE_BUFF_ID + STATIC_CIRCLE_BUFF_START //to temp
+          , bufStartPointerID     + STATIC_CIRCLE_BUFF_START+1 
+          , bufSize);
+    memcpy( bufStartPointerID     + STATIC_CIRCLE_BUFF_START 
+          , STATIC_CIRCLE_BUFF_ID + STATIC_CIRCLE_BUFF_START
+          , bufSize);
+    //================================================================
+    STATIC_CIRCLE_BUFF[bufStartPointerID +bufSize] = value; // overwrite to End of buffer
+    STATIC_CIRCLE_BUFF[bufStartPointerID +bufSize];
+);
+//====================================================================
+function CIRCLEBUFFER_push_front(CIRCLEBUFFER_ID,value)local (bufSize,bufStartPointerID)
+(
+    bufSize =  CIRCLEBUFFER_getBufferSize(CIRCLEBUFFER_ID);
+    bufStartPointerID = CIRCLEBUFFER_getStartBufferPointerID(CIRCLEBUFFER_ID);
+    // slide
+    memcpy( STATIC_CIRCLE_BUFF_ID + STATIC_CIRCLE_BUFF_START //to temp
+          , bufStartPointerID     + STATIC_CIRCLE_BUFF_START
+          , bufSize);
+    memcpy( bufStartPointerID+1   + STATIC_CIRCLE_BUFF_START 
+          , STATIC_CIRCLE_BUFF_ID + STATIC_CIRCLE_BUFF_START //from temp
+          , bufSize);
+    //================================================================
+    STATIC_CIRCLE_BUFF[bufStartPointerID] = value; // overwrite to End of buffer
+    STATIC_CIRCLE_BUFF[bufStartPointerID];
+    //================================================================
+);
+//====================================================================
+
+
+//====================================================================
+//CURSOL BUFFER
+//====================================================================
+function CURSOLBUFFER_create (MaxSizeInt) local(CURSOLBUFFER_ID )
+(
+    CURSOLBUFFER_ID = STATIC_CIRCLE_BUFF_ID;
+    //================================================================
+    STATIC_CIRCLE_BUFF[CURSOLBUFFER_ID]   ="CIRCLEBUFFER_RAW";//element NUM
+    STATIC_CIRCLE_BUFF[CURSOLBUFFER_ID+1] = 5;//element NUM
+    STATIC_CIRCLE_BUFF[CURSOLBUFFER_ID+2] = MaxSizeInt;//sizeNUM
+    STATIC_CIRCLE_BUFF[CURSOLBUFFER_ID+3] = 0;//cursol pos
+    STATIC_CIRCLE_BUFF[CURSOLBUFFER_ID+4] = 0;//last cursol pos
+    STATIC_CIRCLE_BUFF[CURSOLBUFFER_ID+5] = 0;//bufferStartPoint;
+    
+    //================================================================
+    //todo check value
+    //================================================================
+    STATIC_CIRCLE_BUFF_ID += 6+ MaxSizeInt;
+    CURSOLBUFFER_ID;
+    //================================================================
+);
+//====================================================================
+function CURSOLBUFFER_getMaxSize(CIRCLEBUFFER_ID)              (STATIC_CIRCLE_BUFF[CIRCLEBUFFER_ID+2];);
+//====================================================================
+function CURSOLBUFFER_getCursolPos(CIRCLEBUFFER_ID)            (STATIC_CIRCLE_BUFF[CIRCLEBUFFER_ID+3];);
+function CURSOLBUFFER_setCursolPos(CIRCLEBUFFER_ID,v)          (STATIC_CIRCLE_BUFF[CIRCLEBUFFER_ID+3]=floor(v));
+//====================================================================
+function CURSOLBUFFER_getLastCursolPos(CIRCLEBUFFER_ID)        (STATIC_CIRCLE_BUFF[CIRCLEBUFFER_ID+4]);
+function CURSOLBUFFER_setLastCursolPos(CIRCLEBUFFER_ID,v)      (STATIC_CIRCLE_BUFF[CIRCLEBUFFER_ID+4]=floor(v));
+//====================================================================
+function CURSOLBUFFER_getBufferPointer(CIRCLEBUFFER_ID)        ( CIRCLEBUFFER_ID+5;);
+function CURSOLBUFFER_getBufferPointerAbs(CIRCLEBUFFER_ID)     ( CIRCLEBUFFER_ID+5+STATIC_CIRCLE_BUFF_START;);
+//====================================================================
+function CURSOLBUFFER_stepCursolPos(CIRCLEBUFFER_ID)
+(
+    CURSOLBUFFER_setLastCursolPos(CIRCLEBUFFER_ID
+                                     ,CURSOLBUFFER_getCursolPos(CIRCLEBUFFER_ID) ) ;
+    //================================================================
+    CURSOLBUFFER_setCursolPos( CIRCLEBUFFER_ID
+                                 , CURSOLBUFFER_getCursolPos(CIRCLEBUFFER_ID)  + 1 );
+    //================================================================
+    (      CURSOLBUFFER_getCursolPos(CIRCLEBUFFER_ID)  
+        >= CURSOLBUFFER_getMaxSize(CIRCLEBUFFER_ID) )?
+    (
+        CURSOLBUFFER_setCursolPos( CIRCLEBUFFER_ID, 0 );
+    );
+    //================================================================
+);
+//====================================================================
+function CURSOLBUFFER_stepBackCursolPos(CIRCLEBUFFER_ID)
+(
+    CURSOLBUFFER_setLastCursolPos(CIRCLEBUFFER_ID
+                                     ,CURSOLBUFFER_getCursolPos(CIRCLEBUFFER_ID));
+    //================================================================
+    CURSOLBUFFER_setCursolPos( CIRCLEBUFFER_ID
+                                 , CURSOLBUFFER_getCursolPos(CIRCLEBUFFER_ID) -1
+                                 );
+    //================================================================
+    ( CURSOLBUFFER_getCursolPos(CIRCLEBUFFER_ID) < 0) ?
+    (
+        CURSOLBUFFER_setCursolPos( CIRCLEBUFFER_ID
+                                     , CURSOLBUFFER_getMaxSize(CIRCLEBUFFER_ID)-1 );
+    );
+    //================================================================
+);
+
+//====================================================================
+function CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,cursolPos)
+    local (bufSize,curPos_)
+(
+    bufSize = CURSOLBUFFER_getMaxSize(CIRCLEBUFFER_ID);
+    curPos_ = cursolPos;
+    //================================================================
+    ( bufSize < curPos_) ? (curPos_ = 0;);
+    ( curPos_ <  0)      ? (curPos_ = 0;);
+    //================================================================
+    STATIC_CIRCLE_BUFF[CURSOLBUFFER_getBufferPointer(CIRCLEBUFFER_ID)+curPos_];
+    //================================================================
+);
+//====================================================================
+function _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,pos )
+    local (out)
+(
+    bufSize = CURSOLBUFFER_getMaxSize(CIRCLEBUFFER_ID);
+    
+    out = pos;
+    //================================================================
+    ( bufSize <=  pos)  ? (out = 0;);
+    ( pos     < 0    )  ? (out += bufSize;);
+    //================================================================
+    out;
+    //================================================================
+);
+//====================================================================
+function CURSOLBUFFER_getValueOffsetFromLastPushedPos(CIRCLEBUFFER_ID,offsetNum)
+    local (newpos)
+(
+    //================================================================
+    newpos = _CURSOLBUFFER_safeRoundPos( CIRCLEBUFFER_ID
+                                           , CURSOLBUFFER_getLastCursolPos(CIRCLEBUFFER_ID)+offsetNum) ;
+    //================================================================
+    
+    //================================================================
+    STATIC_CIRCLE_BUFF[CURSOLBUFFER_getBufferPointer(CIRCLEBUFFER_ID)+newpos];
+    //================================================================
+);
+//====================================================================
+
+
+//====================================================================
+function CURSOLBUFFER_getLastPushedValue( CIRCLEBUFFER_ID)
+(
+    CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID
+                                    ,CURSOLBUFFER_getLastCursolPos(CIRCLEBUFFER_ID));
+);
+//====================================================================
+function CURSOLBUFFER_getAt(CIRCLEBUFFER_ID,cursolPos) //aliase of function CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,cursolPos)
+(
+    CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,cursolPos);
+);
+//====================================================================
+function CURSOLBUFFER_getValueWithOffset(CIRCLEBUFFER_ID,offsetPos)//aliase of function CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,cursolPos)
+(
+    CURSOLBUFFER_getValueOffsetFromLastPushedPos(CIRCLEBUFFER_ID,offsetPos);
+);
+//====================================================================
+function CURSOLBUFFER_getOffsettedValue(CIRCLEBUFFER_ID,offsetPos)//aliase of function CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,cursolPos)
+(
+    CURSOLBUFFER_getValueOffsetFromLastPushedPos(CIRCLEBUFFER_ID,offsetPos);
+);
+//====================================================================
+
+
+//====================================================================
+function CURSOLBUFFER_push(CIRCLEBUFFER_ID,v) 
+    local (insertPos,bufferPointer)
+(
+    insertPos = CURSOLBUFFER_getCursolPos(CIRCLEBUFFER_ID);
+    //================================================================
+    STATIC_CIRCLE_BUFF [CURSOLBUFFER_getBufferPointer(CIRCLEBUFFER_ID)+insertPos] = v; // same result
+    //================================================================
+    CURSOLBUFFER_stepCursolPos(CIRCLEBUFFER_ID);
+);
+//====================================================================
+function CURSOLBUFFER_pushAndBackStep(CIRCLEBUFFER_ID,v)
+    local (insertPos,bufferPointer)
+(
+    insertPos = CURSOLBUFFER_getCursolPos(CIRCLEBUFFER_ID);
+    //================================================================
+    CURSOLBUFFER_getBufferPointerAbs(CIRCLEBUFFER_ID)+ insertPos = v;
+    //================================================================
+    CURSOLBUFFER_stepBackCursolPos(CIRCLEBUFFER_ID);
+);
+//====================================================================
+
+
+
+//====================================================================
+// MAP ELEM
+//====================================================================
+function MAP_ELEM_create(keyName,velue)local(MAP_ELEM_ID)
+(
+    MAP_ELEM_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[MAP_ELEM_ID] ="MAP_ELEM";
+    STATIC_MASTER_BUFF[MAP_ELEM_ID+1] =3;
+    STATIC_MASTER_BUFF[MAP_ELEM_ID+2] =keyName;
+    STATIC_MASTER_BUFF[MAP_ELEM_ID+3] =velue;
+    //================================================================
+    STATIC_MASTER_BUFF_ID += 4;
+    //================================================================
+    MAP_ELEM_ID;
+);
+//====================================================================
+function MAP_ELEM_getKeyName( MAP_ELEM_ID)(STATIC_MASTER_BUFF[MAP_ELEM_ID+2]);
+function MAP_ELEM_getValue  ( MAP_ELEM_ID)(STATIC_MASTER_BUFF[MAP_ELEM_ID+3]);
+function MAP_ELEM_setValue  ( MAP_ELEM_ID,v)(STATIC_MASTER_BUFF[MAP_ELEM_ID+3] =v;);
+//====================================================================
+
+
+//====================================================================
+// MAP strcut
+//====================================================================
+function MAP_create() local (MAP_ID,array_id)
+(
+    array_id = ARRAY_create(1000);// maxMapSize is 1000
+    MAP_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MAP_BUFF_START[MAP_ID]   = "MAP";//elementName
+    STATIC_MAP_BUFF_START[MAP_ID+1] = 2;//elementNum
+    STATIC_MAP_BUFF_START[MAP_ID+2] = array_id;//keyName
+    //================================================================
+    STATIC_MAP_BUFF_ID +=3;
+    //================================================================
+    MAP_ID;
+);
+//====================================================================
+function MAP_getArrayID(MAP_ID)(STATIC_MAP_BUFF_START[MAP_ID+2];);
+//====================================================================
+function MAP_getSize(MAP_ID)
+(
+    ARRAY_getBufferSize( MAP_getArrayID(MAP_ID) );
+);
+//====================================================================
+function MAP_setValue(MAP_ID,keyName,Value)
+    local(doubleCheck,count,tempElem,array_ID,tempKeyName,bufferSize)
+(
+    doubleCheck = false;
+    count = 0;
+    array_ID = MAP_getArrayID(MAP_ID);
+    bufferSize =MAP_getSize(MAP_ID);
+    //================================================================
+    while ( count < bufferSize)
+    (
+        tempElem = ARRAY_getAt(array_ID,count);
+        tempKeyName = MAP_ELEM_getKeyName(tempElem);
+        //============================================================
+        ( stringCompareFromNum(keyName,tempKeyName) ==0)?
+        (
+            MAP_ELEM_setValue(tempElem,Value);
+            doubleCheck =true;
+            count = bufferSize+100;//break
+        );
+        //============================================================
+        count +=1;
+    );
+    //================================================================
+    
+    //================================================================
+    (doubleCheck == false)?
+    (
+        tempElem = MAP_ELEM_create(keyName,Value);
+        ARRAY_push_back( MAP_getArrayID(MAP_ID)
+                       , tempElem);
+    );
+    //================================================================
+);
+//====================================================================
+function MAP_getValue(MAP_ID,keyName)
+    local(out,count_2,tempElem,array_ID,bufferSize,tempKeyName)
+(
+    out =-1;
+    count_2 = 0;
+    array_ID = MAP_getArrayID(MAP_ID);
+    bufferSize =ARRAY_getBufferSize(array_ID);
+    //================================================================
+    while ( count_2 < bufferSize)
+    (
+        tempElem = ARRAY_getAt(array_ID,count_2);
+        tempKeyName = MAP_ELEM_getKeyName(tempElem);
+        //============================================================
+        ( stringCompareFromNum(keyName,tempKeyName) == 0)?
+        (   
+            out = MAP_ELEM_getValue(tempElem);
+            count_2 = bufferSize+100;//break
+        );
+        //============================================================
+        count_2 +=1;
+    );
+    //================================================================
+    out;
+);
+//====================================================================
+
+
+
+
+
+
+
+
+
+

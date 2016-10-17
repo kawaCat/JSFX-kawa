@@ -1,0 +1,310 @@
+//====================================================================
+
+//====================================================================
+//funciton Llist
+//====================================================================
+
+//====================================================================
+//function COMPONENT_create(name) 
+//====================================================================
+//function COMPONENT_getMinValue                     (COMPONENT_ID)           
+//function COMPONENT_setMinValue                     (COMPONENT_ID,v)         
+//function COMPONENT_getMaxValue                     (COMPONENT_ID)           
+//function COMPONENT_setMaxValue                     (COMPONENT_ID,v)         
+//====================================================================
+//function COMPONENT_isActive                        (COMPONENT_ID)             
+//function COMPONENT_getIsActive                     (COMPONENT_ID)          
+//function COMPONENT_setIsActive                     (COMPONENT_ID,v)        
+//====================================================================
+//function COMPONENT_toggleIsActive                  (COMPONENT_ID)
+//====================================================================
+//function COMPONENT_getParrentLAYRE                 (COMPONENT_ID)     
+//function COMPONENT_setParrentLAYRE                 (COMPONENT_ID,p)   
+//function COMPONENT_isExistParrentLAYRE             (COMPONENT_ID) 
+//====================================================================
+//function COMPONENT_getValue                        (COMPONENT_ID)                                   
+//function COMPONENT_setValue                        (COMPONENT_ID,value)                             
+//====================================================================
+//function COMPONENT_getValueString                  (COMPONENT_ID) 
+//====================================================================
+//function COMPONENT_getName                         (COMPONENT_ID)                                    
+//function COMPONENT_setName                         (COMPONENT_ID,name)                               
+//function COMPONENT_isMousePressStartedInThisComp   (COMPONENT_ID)              
+//function COMPONENT_setIsMousePressStartedInThisComp(COMPONENT_ID,bool)      
+//====================================================================
+//function COMPONENT_getComponentAlpha               (COMPONENT_ID)                          
+//function COMPONENT_setComponentAlpha               (COMPONENT_ID,a)                       
+//====================================================================
+//function COMPONENT_getColorMap                     (COMPONENT_ID) 
+//function COMPONENT_getColor                        (COMPONENT_ID,colorKeyName)
+//function COMPONENT_setColor                        (COMPONENT_ID,colorKeyName,color_ID_)
+//function COMPONENT_changeColorGfx                  (COMPONENT_ID,colorKeyName)
+//====================================================================
+//function COMPONENT_getDBGText                      (COMPONENT_ID,optMsG)
+//====================================================================
+
+//====================================================================
+//function COMPONENT_resized                         (COMPONENT_ID,parrentLeyerRect)
+//function COMPONENT_draw                            (COMPONENT_ID)
+//function COMPONENT_mouseMoved                      (COMPONENT_ID,MOUSEINFO_ID)
+//function COMPONENT_mouseButtonPressd               (COMPONENT_ID,MOUSEINFO_ID )
+//function COMPONENT_mouseButtonReleased             (COMPONENT_ID,MOUSEINFO_ID )
+//function COMPONENT_mouseWheeled                    (COMPONENT_ID,MOUSEINFO_ID )
+//====================================================================
+
+
+
+//====================================================================
+import kawa_GUI_CORE_.jsfx-inc
+//====================================================================
+@init
+//====================================================================
+
+//====================================================================
+function createDefaultColorMAP()local (out_c )
+(
+    out_c = MAP_create();
+    //================================================================
+    MAP_setValue( out_c,"bakcground",COLOR_create(1,0.4,0.4,1)); 
+    MAP_setValue( out_c,"bakcground_mouseon",COLOR_create(1,1,0,1)); 
+    MAP_setValue( out_c,"black"   ,COLOR_create(0,0,0,1)); 
+    MAP_setValue( out_c,"white"   ,COLOR_create(1,1,1,1)); 
+    MAP_setValue( out_c,"red"     ,COLOR_create(1,0,0,1)); 
+    MAP_setValue( out_c,"yellow"  ,COLOR_create(1,1,0,1)); 
+    MAP_setValue( out_c,"blue"    ,COLOR_create(0,0,1,1)); 
+    MAP_setValue( out_c,"green"   ,COLOR_create(0,1,0,1)); 
+    //================================================================
+    out_c;
+);
+//====================================================================
+
+
+//====================================================================
+// inherit List
+// * Rectangle
+//====================================================================
+function COMPONENT_create(name) 
+    local (COMPONENT_ID,name_,color_Map_ID,componentInfoMap)
+(
+    color_Map_ID =  createDefaultColorMAP();
+    componentInfoMap =  MAP_create();
+    //================================================================
+    COMPONENT_ID = RECTANGLE_create(0,0,0,0);//element NUM 6
+    //================================================================
+    STATIC_MASTER_BUFF[COMPONENT_ID ]     = "COMPONENT";       // classTYPE
+    STATIC_MASTER_BUFF[COMPONENT_ID + 1]  = 18;                // elementNUM
+    //================================================================
+    STATIC_MASTER_BUFF[COMPONENT_ID + 8]  = 0 ;                // not use
+    STATIC_MASTER_BUFF[COMPONENT_ID + 9]  = name;              // ComponentName
+    STATIC_MASTER_BUFF[COMPONENT_ID + 10] = false;             // start Mousepressed in  this comp
+    STATIC_MASTER_BUFF[COMPONENT_ID + 11] = 0;                 // componentB value
+    //================================================================
+    STATIC_MASTER_BUFF[COMPONENT_ID + 12] = 1;                 // component Alpha
+    STATIC_MASTER_BUFF[COMPONENT_ID + 13] = color_Map_ID;      // color_MAP_ID
+    //================================================================
+    STATIC_MASTER_BUFF[COMPONENT_ID + 14] = -123456;           // parrent LAYER;
+    STATIC_MASTER_BUFF[COMPONENT_ID + 15] = true;              // is Active
+    STATIC_MASTER_BUFF[COMPONENT_ID + 16] = 0;                 // min Value
+    STATIC_MASTER_BUFF[COMPONENT_ID + 17] = 1.0;               // max Value
+    STATIC_MASTER_BUFF[COMPONENT_ID + 18] = componentInfoMap;  // max Value
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=19; // next entry Bufff Point
+    //================================================================
+    
+    //================================================================
+    // init prepare.
+    //================================================================
+    
+    //================================================================
+    COMPONENT_ID; //retrun
+);
+//====================================================================
+function COMPONENT_getComponentInfoMap   ( COMPONENT_ID)   ( STATIC_MASTER_BUFF[COMPONENT_ID+18];);
+//====================================================================
+function COMPONENT_getComponentInfoValue( COMPONENT_ID,keyName) 
+( 
+    MAP_getValue   (  COMPONENT_getComponentInfoMap( COMPONENT_ID)
+                    , keyName);
+);
+//====================================================================
+function COMPONENT_setComponentInfoValue( COMPONENT_ID,keyName,value) 
+( 
+    MAP_setValue   (  COMPONENT_getComponentInfoMap( COMPONENT_ID)
+                    , keyName
+                    , value);
+);
+//====================================================================
+function COMPONENT_isParrentLayerResized( COMPONENT_ID)
+(
+    COMPONENT_getComponentInfoValue( COMPONENT_ID,"parrentLayer_Resized");
+);
+//====================================================================
+
+
+//====================================================================
+function COMPONENT_getMinValue(COMPONENT_ID)           ( STATIC_MASTER_BUFF[COMPONENT_ID+16];);
+function COMPONENT_setMinValue(COMPONENT_ID,v)         ( STATIC_MASTER_BUFF[COMPONENT_ID+16]=v;);
+function COMPONENT_getMaxValue(COMPONENT_ID)           ( STATIC_MASTER_BUFF[COMPONENT_ID+17];);
+function COMPONENT_setMaxValue(COMPONENT_ID,v)         ( STATIC_MASTER_BUFF[COMPONENT_ID+17]=v;);
+//====================================================================
+function COMPONENT_isActive(COMPONENT_ID)              ( STATIC_MASTER_BUFF[COMPONENT_ID+15];);
+function COMPONENT_getIsActive(COMPONENT_ID)           ( STATIC_MASTER_BUFF[COMPONENT_ID+15];);
+function COMPONENT_setIsActive(COMPONENT_ID,v)         ( STATIC_MASTER_BUFF[COMPONENT_ID+15]=v;);
+//====================================================================
+function COMPONENT_toggleIsActive( COMPONENT_ID)
+(
+    COMPONENT_setIsActive( COMPONENT_ID
+                          ,(COMPONENT_getIsActive(COMPONENT_ID) == false)
+                          );
+);
+//====================================================================
+function COMPONENT_getParrentLAYRE(COMPONENT_ID)       ( STATIC_MASTER_BUFF[COMPONENT_ID + 14];);
+function COMPONENT_setParrentLAYRE(COMPONENT_ID,p)     ( STATIC_MASTER_BUFF[COMPONENT_ID + 14] = p;);
+function COMPONENT_isExistParrentLAYRE(COMPONENT_ID)   (  ( STATIC_MASTER_BUFF[COMPONENT_ID + 14] != -123456); ); // !!
+//====================================================================
+function COMPONENT_getValue(COMPONENT_ID)                                   ( STATIC_MASTER_BUFF[COMPONENT_ID + 11];);
+function COMPONENT_setValue(COMPONENT_ID,value)                             
+( 
+    STATIC_MASTER_BUFF[COMPONENT_ID + 11] = min( max( value
+                                                    , COMPONENT_getMinValue(COMPONENT_ID)) 
+                                                , COMPONENT_getMaxValue(COMPONENT_ID));
+    
+);
+//====================================================================
+function COMPONENT_getValueString( COMPONENT_ID) local ( out )
+(
+    out =#;
+    sprintf ("%f",COMPONENT_getValue(COMPONENT_ID ) );
+    out;
+);
+//====================================================================
+function COMPONENT_getName(COMPONENT_ID)                                    ( STATIC_MASTER_BUFF[COMPONENT_ID + 9];);
+function COMPONENT_setName(COMPONENT_ID,name)                               ( STATIC_MASTER_BUFF[COMPONENT_ID + 9]=name;);
+function COMPONENT_isMousePressStartedInThisComp(COMPONENT_ID)              ( STATIC_MASTER_BUFF[COMPONENT_ID + 10];);
+function COMPONENT_setIsMousePressStartedInThisComp(COMPONENT_ID,bool)      ( STATIC_MASTER_BUFF[COMPONENT_ID + 10] = bool;);
+//====================================================================
+function COMPONENT_getComponentAlpha(COMPONENT_ID)                          ( STATIC_MASTER_BUFF[COMPONENT_ID + 12];);
+function COMPONENT_setComponentAlpha(COMPONENT_ID,a)                        ( STATIC_MASTER_BUFF[COMPONENT_ID + 12] = a;);
+//====================================================================
+function COMPONENT_getColorMap(COMPONENT_ID) (STATIC_MASTER_BUFF[COMPONENT_ID + 13];);
+//====================================================================
+function COMPONENT_getColor(COMPONENT_ID,colorKeyName) local (outColor_ID)
+(
+    //================================================================
+    outColor_ID = MAP_getValue( COMPONENT_getColorMap(COMPONENT_ID)
+                              , colorKeyName);
+    //================================================================
+    //COLOR_setA( outColor_ID
+    //          , COLOR_getA(outColor_ID) * COMPONENT_getComponentAlpha(COMPONENT_ID));
+    //================================================================
+    outColor_ID;
+);
+//====================================================================
+function COMPONENT_setColor(COMPONENT_ID,colorKeyName,color_ID_)
+(
+    //================================================================
+    MAP_setValue( COMPONENT_getColorMap(COMPONENT_ID)
+                , colorKeyName
+                , color_ID_ );
+    //================================================================
+);
+//====================================================================
+function COMPONENT_changeColorGfx( COMPONENT_ID,colorKeyName)local (COLOR_ID_2)
+(
+    COLOR_ID_2 =  COMPONENT_getColor(COMPONENT_ID,colorKeyName);
+    //================================================================
+    gfx_r = COLOR_getR(COLOR_ID_2);
+    gfx_g = COLOR_getG(COLOR_ID_2);
+    gfx_b = COLOR_getB(COLOR_ID_2);
+    gfx_a = COLOR_getA(COLOR_ID_2)*COMPONENT_getComponentAlpha(COMPONENT_ID);
+    //================================================================
+);
+//====================================================================
+
+
+//====================================================================
+function COMPONENT_getDBGText(COMPONENT_ID,optMsG) local (out)
+(
+    out =#;
+    out = stringCat(STRUCT_getStructType(COMPONENT_ID),COMPONENT_getName(COMPONENT_ID));
+    stringCat(out,optMsG);
+    out;
+);
+//====================================================================
+
+//====================================================================
+// meterWidth
+//====================================================================
+
+//====================================================================
+function COMPONENT_resized(COMPONENT_ID,parrentLeyerRect)
+(
+    0;
+    DBG("COMPO_Resized");
+);
+//====================================================================
+function COMPONENT_draw(COMPONENT_ID)local (radius,lineH,x,y,w,h,circle_Area_ID)
+(
+    //================================================================
+    x = RECTANGLE_getX(COMPONENT_ID);
+    y = RECTANGLE_getY(COMPONENT_ID);
+    w = RECTANGLE_getWidth(COMPONENT_ID);
+    h = RECTANGLE_getHeight(COMPONENT_ID);
+    //================================================================
+    ( RECTANGLE_isContainMouse(COMPONENT_ID) ==true) ?
+    (
+        COMPONENT_changeColorGfx( COMPONENT_ID,"bakcground_mouseon");
+    ):(
+        COMPONENT_changeColorGfx( COMPONENT_ID,"bakcground");
+    );
+    //================================================================
+    RECTANGLE_drawFill(COMPONENT_ID,true); //test
+    //================================================================
+    gfx_rect( x , y , w, h,true);
+    //================================================================
+);
+//====================================================================
+function COMPONENT_mouseMoved(COMPONENT_ID,MOUSEINFO_ID)
+(
+    ( RECTANGLE_isContainMouse(COMPONENT_ID) ==true) ?
+    (
+        DBG("COMPO_MOUSE_MOVE");
+    );
+    //================================================================
+);
+//====================================================================
+function COMPONENT_mouseButtonPressd(COMPONENT_ID,MOUSEINFO_ID )local(circle_Area_ID)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(COMPONENT_ID) ==true) ?
+    (
+        DBG("COMPO_MOUSE_BUTTON_PRESS_IN");
+        COMPONENT_setIsMousePressStartedInThisComp(COMPONENT_ID,true);
+    ):(
+        COMPONENT_setIsMousePressStartedInThisComp(COMPONENT_ID,false);
+    );
+    //================================================================
+);
+//====================================================================
+function COMPONENT_mouseButtonReleased( COMPONENT_ID,MOUSEINFO_ID )
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(COMPONENT_ID) ==true) ?
+    (
+        DBG("COMPO_MOUSE_BUTTON_RELEASE");
+    );
+    //================================================================
+);
+//====================================================================
+function COMPONENT_mouseWheeled(COMPONENT_ID,MOUSEINFO_ID )
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(COMPONENT_ID) ==true) ?
+    (
+        DBG("COMPO_MOUSE_WHEELD");
+    );
+    //================================================================
+);
+//====================================================================
+
+

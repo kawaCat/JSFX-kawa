@@ -1,0 +1,864 @@
+
+//====================================================================
+//  function LIST
+//====================================================================
+
+//====================================================================
+// MOUSEINFO_create() local(MOUSEINFO_ID)
+//--------------------------------------------------------------------
+//    MOUSEINFO_getMouseX                 (MOUSEINFO_ID)  
+//    MOUSEINFO_getMouseY                 (MOUSEINFO_ID)  
+//    MOUSEINFO_getLastMouseX             (MOUSEINFO_ID)
+//    MOUSEINFO_getLastMouseY             (MOUSEINFO_ID)
+//    MOUSEINFO_getMouseCap               (MOUSEINFO_ID)
+//    MOUSEINFO_getlastMouseCap           (MOUSEINFO_ID)
+//    MOUSEINFO_getMouseWheelV            (MOUSEINFO_ID)
+//    MOUSEINFO_getLastMouseWheelV        (MOUSEINFO_ID)       
+//    MOUSEINFO_getMouseWheelH            (MOUSEINFO_ID)           
+//    MOUSEINFO_getLastMouseWheelH        (MOUSEINFO_ID)       
+//    MOUSEINFO_setMouseX                 (MOUSEINFO_ID,v)              
+//    MOUSEINFO_setMouseY                 (MOUSEINFO_ID,v)              
+//    MOUSEINFO_setLastMouseX             (MOUSEINFO_ID,v)          
+//    MOUSEINFO_setLastMouseY             (MOUSEINFO_ID,v)          
+//    MOUSEINFO_setMouseCap               (MOUSEINFO_ID,v)            
+//    MOUSEINFO_setlastMouseCap           (MOUSEINFO_ID,v)        
+//    MOUSEINFO_setMouseWheelV            (MOUSEINFO_ID,v)         
+//    MOUSEINFO_setLastMouseWheelV        (MOUSEINFO_ID,v)     
+//    MOUSEINFO_setMouseWheelH            (MOUSEINFO_ID,v)         
+//    MOUSEINFO_setLastMouseWheelH        (MOUSEINFO_ID,v)     
+//====================================================================
+//    MOUSEINFO_update                    (MOUSEINFO_ID)
+//====================================================================
+//    MOUSEINFO_isMouseMoved              (MOUSEINFO_ID)
+//    MOUSEINFO_isMouseCapChanged         (MOUSEINFO_ID)
+//    MOUSEINFO_isMouseWheelChanged       (MOUSEINFO_ID)
+//    MOUSEINFO_getMouseXDiff             (MOUSEINFO_ID)
+//    MOUSEINFO_getMouseYDiff             (MOUSEINFO_ID)
+//    MOUSEINFO_getMouseWheelDiffV        (MOUSEINFO_ID)
+//    MOUSEINFO_getMouseWheelDiffH        (MOUSEINFO_ID)
+//    MOUSEINFO_getMouseWheelDiffV_ABS    (MOUSEINFO_ID) // return 1,or -1 or 0
+//    MOUSEINFO_getMouseWheelDiffH_ABS    (MOUSEINFO_ID) // return 1,or -1 or 0
+//====================================================================
+
+//====================================================================
+// COLOR_create(r,g,b,a) local (COLOR_ID) // createID as COLOR_ID
+//--------------------------------------------------------------------
+//    COLOR_getR                   (COLOR_ID)
+//    COLOR_getG                   (COLOR_ID)
+//    COLOR_getB                   (COLOR_ID)
+//    COLOR_getA                   (COLOR_ID)
+//    COLOR_setR                   (COLOR_ID,newR)
+//    COLOR_setG                   (COLOR_ID,newG)
+//    COLOR_setB                   (COLOR_ID,newB)
+//    COLOR_setA                   (COLOR_ID,newA)
+//    COLOR_invert                 (COLOR_ID)
+//====================================================================
+
+//====================================================================
+// POINT_create(x,y) local (POINT_ID)
+//--------------------------------------------------------------------
+//    POINT_getX                   (POINT_ID)
+//    POINT_getY                   (POINT_ID)
+//    POINT_setX                   (POINT_ID,newX)
+//    POINT_setY                   (POINT_ID,newY)
+//    POINT_rotation               (targetPOINT_ID,orignePOINT_ID,AngleRadian_)
+//    getManhattanDist             (POINT_ID_A,POINT_ID_B)
+//    getEuclideanDist             (POINT_ID_A,POINT_ID_B)
+//    getChebyshevDist             (POINT_ID_A,POINT_ID_B)
+//====================================================================
+
+//====================================================================
+// CIRCLE_create(x,y,radius)local (CIRCLE_ID)
+//--------------------------------------------------------------------
+//    CIRCLE_getCX                 (CIRCLE_ID)
+//    CIRCLE_getCY                 (CIRCLE_ID)
+//    CIRCLE_getRadius             (CIRCLE_ID)
+//    CIRCLE_setCX                 (CIRCLE_ID,newX)
+//    CIRCLE_setCY                 (CIRCLE_ID,newY)
+//    CIRCLE_setRadius             (CIRCLE_ID,newRadius)
+//    CIRCLE_isContainPoint        (CIRCLE_ID,targetX,targetY)
+//    CIRCLE_isContainMouse        (CIRCLE_ID)
+//====================================================================
+
+//====================================================================
+// RECTANGLE_create(x,y,w,h)local (RECT_ID)
+//--------------------------------------------------------------------
+//    RECTANGLE_updateInfo         (RECT_ID)
+//    RECTANGLE_getX               (RECT_ID)     
+//    RECTANGLE_getY               (RECT_ID)     
+//    RECTANGLE_getWidth           (RECT_ID) 
+//    RECTANGLE_getHeight          (RECT_ID)
+//    RECTANGLE_getX2              (RECT_ID)    
+//    RECTANGLE_getY2              (RECT_ID)    
+//    RECTANGLE_setX               (RECT_ID,newX)           
+//    RECTANGLE_setY               (RECT_ID,newY)           
+//    RECTANGLE_setWidth           (RECT_ID,newWidth)   
+//    RECTANGLE_setHeight          (RECT_ID,newHeight) 
+//    RECTANGLE_setX2              (RECT_ID,newX2) 
+//    RECTANGLE_setY2              (RECT_ID,newY2) 
+//    RECTANGLE_move               (RECT_ID,moveX,moveY)
+//    RECTANGLE_reduce             (RECT_ID,reduceX,reduceY) 
+//    RECTANGLE_expand             (RECT_ID,expandX,expandY) 
+//    RECTANGLE_isContainPoint     (RECT_ID,targetX,targetY)
+//    RECTANGLE_isContainMouse     (RECT_ID)
+//    RECTANGLE_removeFromTop      (RECT_ID,removeValue)
+//    RECTANGLE_removeFromBottom   (RECT_ID,removeValue)
+//    RECTANGLE_removeFromLeft     (RECT_ID,removeValue)
+//    RECTANGLE_removeFromRight    (RECT_ID,removeValue)
+//    RECTANGLE_removeFromTopP     (RECT_ID,removeValueRelative)
+//    RECTANGLE_removeFromBottomP  (RECT_ID,removeValueRelative)
+//    RECTANGLE_removeFromLeftP    (RECT_ID,removeValueRelative)
+//    RECTANGLE_removeFromRightP   (RECT_ID,removeValueRelative)
+//    RECTANGLE_cropFromTop        (RECT_ID,cropValue)
+//    RECTANGLE_cropFromBottom     (RECT_ID,cropValue)
+//    RECTANGLE_cropFromLeft       (RECT_ID,cropValue)
+//    RECTANGLE_cropFromRight      (RECT_ID,cropValue)
+//    RECTANGLE_cropFromTopP       (RECT_ID,cropValueRelative)
+//    RECTANGLE_cropFromBottomP    (RECT_ID,cropValueRelative)
+//    RECTANGLE_cropFromLeftP      (RECT_ID,cropValueRelative)
+//    RECTANGLE_cropFromRightP     (RECT_ID,cropValueRelative)
+//    RECTANGLE_copyTo             (destRECT_ID,srcRECT_ID)
+//====================================================================
+
+//====================================================================
+// inherit List
+// * Rectangle
+//====================================================================
+//   CANVAS_create(width,height)
+//--------------------------------------------------------------------
+//    CANVAS_isCreatedCanvas       (CANVAS_ID)
+//    CANVAS_recreateCanvas        (CANVAS_ID)
+//    CANVAS_getCanvaseSlotID      (CANVAS_ID)
+//    CANVAS_clearCanvas           (CANVAS_ID)//aliase of local CANVAS_recreateCanvas()
+//    CANVAS_resizeCanvas          (CANVAS_ID,width,height)
+//====================================================================
+
+//====================================================================
+// init
+//====================================================================
+@init
+//====================================================================
+
+//====================================================================
+// mouse INFO 
+//====================================================================
+function MOUSEINFO_create() local(MOUSEINFO_ID)
+(
+    //================================================================
+    MOUSEINFO_ID = STATIC_MASTER_BUFF_ID;//buffer entry point
+    //================================================================
+    STATIC_MASTER_BUFF[MOUSEINFO_ID]     = "MOUSE_INFO";  // classNAME
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+1]   = 11 ;           // element NUM
+    //================================================================
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+2]   = mouse_x;       // mouseX
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+3]   = mouse_y;       // mouseY
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+4]   = 0;             // last MouseX
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+5]   = 0;             // last MouseY
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+6]   = mouse_cap;     // mouse cap
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+7]   = 0;             // last MouseCap
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+8]   = mouse_wheel;   // mouse_wheel
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+9]   = 0;             // last mouse_wheel
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+10]  = mouse_hwheel;  // mouse_hwheel
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+11]  = 0;             // last mouse_hwheel
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=12;//next buffer entry point.
+    //================================================================
+    MOUSEINFO_ID;//return 
+    //================================================================
+);
+//====================================================================
+function MOUSEINFO_getMouseX(MOUSEINFO_ID)                (STATIC_MASTER_BUFF[MOUSEINFO_ID+2];);
+function MOUSEINFO_getMouseY(MOUSEINFO_ID)                (STATIC_MASTER_BUFF[MOUSEINFO_ID+3];);
+function MOUSEINFO_getLastMouseX(MOUSEINFO_ID)            (STATIC_MASTER_BUFF[MOUSEINFO_ID+4];);
+function MOUSEINFO_getLastMouseY(MOUSEINFO_ID)            (STATIC_MASTER_BUFF[MOUSEINFO_ID+5];);
+function MOUSEINFO_getMouseCap(MOUSEINFO_ID)              (STATIC_MASTER_BUFF[MOUSEINFO_ID+6];);
+function MOUSEINFO_getLastMouseCap(MOUSEINFO_ID)          (STATIC_MASTER_BUFF[MOUSEINFO_ID+7];);
+function MOUSEINFO_getMouseWheelV(MOUSEINFO_ID)           (STATIC_MASTER_BUFF[MOUSEINFO_ID+8];);
+function MOUSEINFO_getLastMouseWheelV(MOUSEINFO_ID)       (STATIC_MASTER_BUFF[MOUSEINFO_ID+9];);
+function MOUSEINFO_getMouseWheelH(MOUSEINFO_ID)           (STATIC_MASTER_BUFF[MOUSEINFO_ID+10];);
+function MOUSEINFO_getLastMouseWheelH(MOUSEINFO_ID)       (STATIC_MASTER_BUFF[MOUSEINFO_ID+11];);
+//====================================================================
+function MOUSEINFO_setMouseX(MOUSEINFO_ID,v)              (STATIC_MASTER_BUFF[MOUSEINFO_ID+2]  = v;);
+function MOUSEINFO_setMouseY(MOUSEINFO_ID,v)              (STATIC_MASTER_BUFF[MOUSEINFO_ID+3]  = v;);
+function MOUSEINFO_setLastMouseX(MOUSEINFO_ID,v)          (STATIC_MASTER_BUFF[MOUSEINFO_ID+4]  = v;);
+function MOUSEINFO_setLastMouseY(MOUSEINFO_ID,v)          (STATIC_MASTER_BUFF[MOUSEINFO_ID+5]  = v;);
+function MOUSEINFO_setMouseCap(MOUSEINFO_ID,v)            (STATIC_MASTER_BUFF[MOUSEINFO_ID+6]  = v;);
+function MOUSEINFO_setlastMouseCap(MOUSEINFO_ID,v)        (STATIC_MASTER_BUFF[MOUSEINFO_ID+7]  = v;);
+function MOUSEINFO_setMouseWheelV(MOUSEINFO_ID,v)         (STATIC_MASTER_BUFF[MOUSEINFO_ID+8]  = v;);
+function MOUSEINFO_setLastMouseWheelV(MOUSEINFO_ID,v)     (STATIC_MASTER_BUFF[MOUSEINFO_ID+9]  = v;);
+function MOUSEINFO_setMouseWheelH(MOUSEINFO_ID,v)         (STATIC_MASTER_BUFF[MOUSEINFO_ID+10] = v;);
+function MOUSEINFO_setLastMouseWheelH(MOUSEINFO_ID,v)     (STATIC_MASTER_BUFF[MOUSEINFO_ID+11] = v;);
+//====================================================================
+function MOUSEINFO_update(MOUSEINFO_ID)
+(
+    //================================================================
+    MOUSEINFO_setLastMouseX(MOUSEINFO_ID,MOUSEINFO_getMouseX(MOUSEINFO_ID));
+    MOUSEINFO_setLastMouseY(MOUSEINFO_ID,MOUSEINFO_getMouseY(MOUSEINFO_ID));
+    //================================================================
+    MOUSEINFO_setLastMouseCap(MOUSEINFO_ID,MOUSEINFO_getMouseCap(MOUSEINFO_ID));
+    //================================================================
+    MOUSEINFO_setLastMouseWheelV(MOUSEINFO_ID, MOUSEINFO_getMouseWheelV(MOUSEINFO_ID));
+    MOUSEINFO_setLastMouseWheelH(MOUSEINFO_ID, MOUSEINFO_getMouseWheelH(MOUSEINFO_ID));
+    //================================================================
+    
+    // update
+    //================================================================
+    MOUSEINFO_setMouseX(MOUSEINFO_ID,mouse_x);
+    MOUSEINFO_setMouseY(MOUSEINFO_ID,mouse_y);
+    //================================================================
+    MOUSEINFO_setMouseCap(MOUSEINFO_ID,mouse_cap);
+    //================================================================
+    MOUSEINFO_setMouseWheelV(MOUSEINFO_ID, mouse_wheel);
+    MOUSEINFO_setMouseWheelH(MOUSEINFO_ID, mouse_hwheel);
+    //================================================================
+);
+//====================================================================
+
+
+//====================================================================
+function MOUSEINFO_isMouseMoved(MOUSEINFO_ID)
+( 
+    (   MOUSEINFO_getLastMouseX(MOUSEINFO_ID) != MOUSEINFO_getMouseX(MOUSEINFO_ID)
+     || MOUSEINFO_getLastMouseY(MOUSEINFO_ID) != MOUSEINFO_getMouseY(MOUSEINFO_ID) )
+);
+//====================================================================
+function MOUSEINFO_isMouseCapChanged(MOUSEINFO_ID)
+( 
+    ( MOUSEINFO_getLastMouseCap(MOUSEINFO_ID) != MOUSEINFO_getMouseCap(MOUSEINFO_ID) )
+);
+//====================================================================
+function MOUSEINFO_isMouseWheelChanged(MOUSEINFO_ID)
+( 
+    (   MOUSEINFO_getLastMouseWheelV(MOUSEINFO_ID) != MOUSEINFO_getMouseWheelV(MOUSEINFO_ID)
+     || MOUSEINFO_getLastMouseWheelH(MOUSEINFO_ID) != MOUSEINFO_getMouseWheelH(MOUSEINFO_ID) )
+);
+//====================================================================
+function MOUSEINFO_isMouseWheelVChanged(MOUSEINFO_ID)
+( 
+    (   MOUSEINFO_getLastMouseWheelV(MOUSEINFO_ID) != MOUSEINFO_getMouseWheelV(MOUSEINFO_ID) )
+);
+//====================================================================
+function MOUSEINFO_isMouseWheelHChanged(MOUSEINFO_ID)
+( 
+    (   MOUSEINFO_getLastMouseWheelH(MOUSEINFO_ID) != MOUSEINFO_getMouseWheelH(MOUSEINFO_ID) )
+);
+//====================================================================
+function MOUSEINFO_getMouseXDiff(MOUSEINFO_ID)
+(
+    MOUSEINFO_getMouseX(MOUSEINFO_ID)-MOUSEINFO_getLastMouseX(MOUSEINFO_ID);
+);
+//====================================================================
+function MOUSEINFO_getMouseXDiffAbs(MOUSEINFO_ID) local(out)
+(
+    out =0;
+    ( MOUSEINFO_getMouseXDiff(MOUSEINFO_ID) ) >0)? out =1:(out =-1;
+    out ;
+);
+//====================================================================
+function MOUSEINFO_getMouseYDiff(MOUSEINFO_ID)
+(
+    MOUSEINFO_getMouseY(MOUSEINFO_ID)-MOUSEINFO_getLastMouseY(MOUSEINFO_ID);
+);
+//====================================================================
+function MOUSEINFO_getMouseYDiffAbs(MOUSEINFO_ID) local(out)
+(
+    out =0;
+    ( MOUSEINFO_getMouseYDiff(MOUSEINFO_ID) ) >0)? out =1:(out =-1;
+    out ;
+);
+//====================================================================
+function MOUSEINFO_getMouseWheelDiffV(MOUSEINFO_ID)
+(
+    MOUSEINFO_getMouseWheelV(MOUSEINFO_ID)-MOUSEINFO_getLastMouseWheelV(MOUSEINFO_ID);
+);
+//====================================================================
+function MOUSEINFO_getMouseWheelDiffH(MOUSEINFO_ID)
+(
+    MOUSEINFO_getMouseWheelH(MOUSEINFO_ID)-MOUSEINFO_getLastMouseWheelH(MOUSEINFO_ID);
+);
+//====================================================================
+function MOUSEINFO_getMouseWheelDiffV_ABS(MOUSEINFO_ID)local (out)
+(   
+    out = 0;
+    //================================================================
+    (MOUSEINFO_getMouseWheelV(MOUSEINFO_ID) > MOUSEINFO_getLastMouseWheelV(MOUSEINFO_ID) )?
+    (
+        out = 1;
+    ):(
+        out = -1;
+    );
+);
+//====================================================================
+function MOUSEINFO_getMouseWheelDiffH_ABS(MOUSEINFO_ID)local (out)
+(   
+    out = 0;
+    //================================================================
+    (MOUSEINFO_getMouseWheelH(MOUSEINFO_ID) > MOUSEINFO_getLastMouseWheelH(MOUSEINFO_ID) )?
+    (
+        out = 1;
+    ):(
+        out = -1;
+    );
+);
+//====================================================================
+
+
+
+//====================================================================
+//COLOR_ Struct
+//====================================================================
+function COLOR_create(r,g,b,a)local(COLOR_ID)
+(
+    COLOR_ID = STATIC_MASTER_BUFF_ID;
+    STATIC_MASTER_BUFF[COLOR_ID]   = "COLOR"; // classNAME
+    STATIC_MASTER_BUFF[COLOR_ID+1] = 5; // element Num
+    //================================================================
+    STATIC_MASTER_BUFF[COLOR_ID+2] = r;
+    STATIC_MASTER_BUFF[COLOR_ID+3] = g;
+    STATIC_MASTER_BUFF[COLOR_ID+4] = b;
+    STATIC_MASTER_BUFF[COLOR_ID+5] = a;
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=6;
+    COLOR_ID;
+);
+//====================================================================
+function COLOR_getR(COLOR_ID)(STATIC_MASTER_BUFF[COLOR_ID+2]);
+function COLOR_getG(COLOR_ID)(STATIC_MASTER_BUFF[COLOR_ID+3];);
+function COLOR_getB(COLOR_ID)(STATIC_MASTER_BUFF[COLOR_ID+4];);
+function COLOR_getA(COLOR_ID)(STATIC_MASTER_BUFF[COLOR_ID+5];);
+function COLOR_setR(COLOR_ID,newR)(STATIC_MASTER_BUFF[COLOR_ID+2]=newR;);
+function COLOR_setG(COLOR_ID,newG)(STATIC_MASTER_BUFF[COLOR_ID+3]=newG;);
+function COLOR_setB(COLOR_ID,newB)(STATIC_MASTER_BUFF[COLOR_ID+4]=newB;);
+function COLOR_setA(COLOR_ID,newA)(STATIC_MASTER_BUFF[COLOR_ID+5]=newA;);
+function COLOR_invert(COLOR_ID)local(r,g,b,a)
+(
+    r =  COLOR_getR(COLOR_ID);
+    g =  COLOR_getG(COLOR_ID);
+    b =  COLOR_getB(COLOR_ID);
+   
+    COLOR_setR(COLOR_ID,1-r);
+    COLOR_setG(COLOR_ID,1-g);
+    COLOR_setB(COLOR_ID,1-b);
+);
+//====================================================================
+// --hue_: 0~360 ,saturation_:0.0~1.0 value: 0.0~1.0 brightness ,return 255/..
+function COLOR_applyHSB(COLOR_ID,hue, saturation , value) 
+local ( hsb)
+(
+    hsb.HSBtoRGB(hue, saturation , value) ;
+    
+    //================================================================
+    COLOR_setR(COLOR_ID,hsb.r);
+    COLOR_setg(COLOR_ID,hsb.g);
+    COLOR_setb(COLOR_ID,hsb.b);
+    //================================================================
+);
+//====================================================================
+
+
+
+
+//====================================================================
+// POINT struct
+//====================================================================
+function POINT_create(x,y)local (POINT_ID)
+(
+    POINT_ID = STATIC_MASTER_BUFF_ID;
+    STATIC_MASTER_BUFF[POINT_ID]   ="POINT"; // struct NAME
+    STATIC_MASTER_BUFF[POINT_ID+1] =3;       // element Num
+    //================================================================
+    STATIC_MASTER_BUFF[POINT_ID+2] =x;
+    STATIC_MASTER_BUFF[POINT_ID+3] =y;
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=4;
+    POINT_ID;
+);
+//====================================================================
+function POINT_getX(POINT_ID)(STATIC_MASTER_BUFF[POINT_ID+2];);
+function POINT_getY(POINT_ID)(STATIC_MASTER_BUFF[POINT_ID+3];);
+function POINT_setX(POINT_ID,newX)(STATIC_MASTER_BUFF[POINT_ID+2]=newX;);
+function POINT_setY(POINT_ID,newY)(STATIC_MASTER_BUFF[POINT_ID+3]=newY;);
+function POINT_rotation(targetPOINT_ID,orignePOINT_ID,AngleRadian_)local(x,y,ox,oy,lx,ly,px,py)
+(
+    x  =  POINT_getX(targetPOINT_ID);
+    y  =  POINT_getY(targetPOINT_ID);
+    ox =  POINT_getX(orignePOINT_ID);
+    oy =  POINT_getY(orignePOINT_ID);
+    lx = x -ox;
+    ly = y -oy;
+    px = lx * cos(AngleRadian_) - ly *sin(AngleRadian_);
+    py = lx * sin(AngleRadian_) + ly *cos(AngleRadian_);
+    POINT_setX(targetPOINT_ID,ox +px);
+    POINT_setY(targetPOINT_ID,oy +py);
+);
+//====================================================================
+function getManhattanDist(POINT_ID_A,POINT_ID_B)local(x1,y1,x2,y2,distance)
+(
+    x1  =  POINT_getX(POINT_ID_A);
+    y1  =  POINT_getY(POINT_ID_A);
+    x2  =  POINT_getX(POINT_ID_B);
+    y2  =  POINT_getY(POINT_ID_B);
+    distance =abs(x1 -x2) + abs(y1 -y2);
+    distance;
+);
+//====================================================================
+function getEuclideanDist(POINT_ID_A,POINT_ID_B)local(x1,y1,x2,y2,horizDistance,vertDistance,distance)
+(
+    x1  =  POINT_getX(POINT_ID_A);
+    y1  =  POINT_getY(POINT_ID_A);
+    x2  =  POINT_getX(POINT_ID_B);
+    y2  =  POINT_getY(POINT_ID_B);
+    horizDistance =abs(x1 - x2);
+    vertDistance  =abs(y1 - y2);   
+    distance = sqrt( (horizDistance ^ 2) + (vertDistance ^ 2) );
+    distance;
+);
+//====================================================================
+function getChebyshevDist(POINT_ID_A,POINT_ID_B)local(x1,y1,x2,y2,distHoriz,distVert,distanceOut)
+(
+    x1  =  POINT_getX(POINT_ID_A);
+    y1  =  POINT_getY(POINT_ID_A);
+    x2  =  POINT_getX(POINT_ID_B);
+    y2  =  POINT_getY(POINT_ID_B);
+       
+    distHoriz = abs(x1 - x2);
+    distVert  = abs(y1 - y2);
+    
+    ( distHoriz > distVert) ? (
+       distanceOut = distHoriz;
+    ):(
+       distanceOut= distVert;
+    );
+    
+    distanceOut;
+);
+//====================================================================
+// Circle struct
+//====================================================================
+function CIRCLE_create(x,y,radius)local (CIRCLE_ID)
+(
+    CIRCLE_ID = STATIC_MASTER_BUFF_ID;
+    STATIC_MASTER_BUFF[CIRCLE_ID]   ="CIRCLE";
+    STATIC_MASTER_BUFF[CIRCLE_ID+1]   =4;
+    STATIC_MASTER_BUFF[CIRCLE_ID+2] =x;
+    STATIC_MASTER_BUFF[CIRCLE_ID+3] =y;
+    STATIC_MASTER_BUFF[CIRCLE_ID+4] =radius;
+    STATIC_MASTER_BUFF_ID +=5;
+    CIRCLE_ID;
+);
+//====================================================================
+function CIRCLE_getCX(CIRCLE_ID)(STATIC_MASTER_BUFF[CIRCLE_ID+2];);
+function CIRCLE_getCY(CIRCLE_ID)(STATIC_MASTER_BUFF[CIRCLE_ID+3];);
+function CIRCLE_getRadius(CIRCLE_ID)(STATIC_MASTER_BUFF[CIRCLE_ID+4];);
+//====================================================================
+function CIRCLE_setCX(CIRCLE_ID,newX)(STATIC_MASTER_BUFF[CIRCLE_ID+2]=newX;);
+function CIRCLE_setCY(CIRCLE_ID,newY)(STATIC_MASTER_BUFF[CIRCLE_ID+3]=newY;);
+function CIRCLE_setRadius(CIRCLE_ID,newRadius)(STATIC_MASTER_BUFF[CIRCLE_ID+4]=newRadius;);
+//===================================================================
+function CIRCLE_isContainPoint(CIRCLE_ID,targetX,targetY)local ( x,y,r,out)
+(
+     x = CIRCLE_getCX(CIRCLE_ID);
+     y = CIRCLE_getCY(CIRCLE_ID);
+     r = CIRCLE_getRadius(CIRCLE_ID);
+    ( getEuclideanDist(x,y,targetX,targetY) <= r )?
+    (
+       out =true;  
+    ):(
+       out =false;
+    );
+    
+    out;
+);
+//===================================================================
+function CIRCLE_isContainMouse(CIRCLE_ID)local (out)
+(
+    out = Circle_isContainPoint(CIRCLE_ID,mouse_x,mouse_y);
+    out;
+);
+//====================================================================
+
+
+//===================================================================
+// Rectangle struct
+//===================================================================
+function RECTANGLE_create(x,y,w,h)local (RECT_ID)
+(
+    RECT_ID = STATIC_MASTER_BUFF_ID;
+    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID]  ="RECTANGLE"; //elementNUM
+    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+1]  = 7; //elementNUM
+    //================================================================
+    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+2]= x;
+    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+3]= y;
+    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+4]= w;
+    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+5]= h;
+    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+6]= x+w;//x2
+    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+7]= y+h;//y2
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=8;
+    RECT_ID;
+);
+
+//====================================================================
+function RECTANGLE_updateInfo(RECT_ID)
+( 
+    // width safe //reject zero
+    ( abs(STATIC_MASTER_BUFF[RECT_ID+4] ) <1 ) ?
+    (
+        STATIC_MASTER_BUFF[RECT_ID+4] = 1;
+    );
+    //================================================================
+    ////height //reject zero
+    ( abs(STATIC_MASTER_BUFF[RECT_ID+5] ) <1 ) ?
+    (
+        STATIC_MASTER_BUFF[RECT_ID+5] = 1; 
+    );
+    //================================================================
+    
+    STATIC_MASTER_BUFF[RECT_ID+6] = STATIC_MASTER_BUFF[RECT_ID+2]+STATIC_MASTER_BUFF[RECT_ID+4];
+    STATIC_MASTER_BUFF[RECT_ID+7] = STATIC_MASTER_BUFF[RECT_ID+3]+STATIC_MASTER_BUFF[RECT_ID+5]
+);
+//====================================================================
+function RECTANGLE_getX(RECT_ID)     (STATIC_MASTER_BUFF[RECT_ID+2];);
+function RECTANGLE_getY(RECT_ID)     (STATIC_MASTER_BUFF[RECT_ID+3];);
+function RECTANGLE_getWidth(RECT_ID) (STATIC_MASTER_BUFF[RECT_ID+4];);
+function RECTANGLE_getHeight(RECT_ID)(STATIC_MASTER_BUFF[RECT_ID+5];);
+function RECTANGLE_getX2(RECT_ID)    (STATIC_MASTER_BUFF[RECT_ID+6];);
+function RECTANGLE_getY2(RECT_ID)    (STATIC_MASTER_BUFF[RECT_ID+7];);
+//====================================================================
+function RECTANGLE_setX(RECT_ID,newX)           (STATIC_MASTER_BUFF[RECT_ID+2] = newX;     RECTANGLE_updateInfo(RECT_ID) );
+function RECTANGLE_setY(RECT_ID,newY)           (STATIC_MASTER_BUFF[RECT_ID+3] = newY;     RECTANGLE_updateInfo(RECT_ID) );
+function RECTANGLE_setWidth(RECT_ID,newWidth)   (STATIC_MASTER_BUFF[RECT_ID+4] = newWidth; RECTANGLE_updateInfo(RECT_ID) );
+function RECTANGLE_setHeight(RECT_ID,newHeight) (STATIC_MASTER_BUFF[RECT_ID+5] = newHeight;RECTANGLE_updateInfo(RECT_ID) );
+//====================================================================
+function RECTANGLE_setX2(RECT_ID,newX2) local (x1)
+(
+    STATIC_MASTER_BUFF[RECT_ID+6] = newX2;
+    x1 = RECTANGLE_getX(RECT_ID);
+    RECTANGLE_setWidth(RECT_ID,newX2-x1);
+);
+//====================================================================
+function RECTANGLE_setY2(RECT_ID,newY2) local (y1)
+(
+    STATIC_MASTER_BUFF[RECT_ID+7] = newY2;
+    y1 = RECTANGLE_getX(RECT_ID);
+    RECTANGLE_setHeight(RECT_ID,newY2-y1);
+);
+//====================================================================
+//====================================================================
+function RECTANGLE_move(RECT_ID,moveX,moveY)local(x,y)
+(
+    x = RECTANGLE_getX(RECT_ID);
+    y = RECTANGLE_getY(RECT_ID);
+    RECTANGLE_setX(RECT_ID,x+moveX);
+    RECTANGLE_setY(RECT_ID,y+moveY);
+);
+//====================================================================
+function RECTANGLE_removeFromTop(RECT_ID,removeValue)local(y,h)
+(
+    y = RECTANGLE_getY(RECT_ID);
+    h = RECTANGLE_getHeight(RECT_ID);
+    RECTANGLE_setY(RECT_ID,y+removeValue);
+    RECTANGLE_setHeight(RECT_ID,h-removeValue);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function RECTANGLE_removeFromBottom(RECT_ID,removeValue)local(h)
+(
+    h = RECTANGLE_getHeight(RECT_ID);
+    RECTANGLE_setHeight(RECT_ID,h-removeValue);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function RECTANGLE_removeFromLeft(RECT_ID,removeValue)local(x,w)
+(
+    x = RECTANGLE_getX(RECT_ID);
+    w = RECTANGLE_getWidth(RECT_ID);
+    RECTANGLE_setX(RECT_ID,x+removeValue);
+    RECTANGLE_setWidth(RECT_ID,w-removeValue);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function RECTANGLE_removeFromRight(RECT_ID,removeValue)local(w)
+(
+    w = RECTANGLE_getWidth(RECT_ID);
+    RECTANGLE_setWidth(RECT_ID,w-removeValue);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function RECTANGLE_cropFromTop(RECT_ID,cropValue)local(y)
+(
+    y = RECTANGLE_getY(RECT_ID);
+    RECTANGLE_setHeight(RECT_ID,cropValue);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function RECTANGLE_cropFromBottom(RECT_ID,cropValue)local(y,h)
+(
+    y = RECTANGLE_getY(RECT_ID);
+    h = RECTANGLE_getHeight(RECT_ID);
+    RECTANGLE_setY(RECT_ID,y+h-cropValue);
+    RECTANGLE_setHeight(RECT_ID,cropValue);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function RECTANGLE_cropFromLeft(RECT_ID,cropValue)local(x,w)
+(
+    x = RECTANGLE_getX(RECT_ID);
+    RECTANGLE_setX(RECT_ID,x);
+    RECTANGLE_setWidth(RECT_ID,cropValue);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function RECTANGLE_cropFromRight(RECT_ID,cropValue)local(x,w)
+(
+    x = RECTANGLE_getX(RECT_ID);
+    w = RECTANGLE_getWidth(RECT_ID);
+    RECTANGLE_setX(RECT_ID,x+w-cropValue);
+    RECTANGLE_setWidth(RECT_ID,cropValue);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function RECTANGLE_cropFromTopP(RECT_ID,cropValue)local(h,val,y)
+(
+    y = RECTANGLE_getY(RECT_ID);
+    h = RECTANGLE_getHeight(RECT_ID);
+    val = h * cropValue;
+    RECTANGLE_cropFromTop(RECT_ID,val);
+);
+//====================================================================
+function RECTANGLE_cropFromBottomP(RECT_ID,cropValue)local(h,val)
+(
+    h = RECTANGLE_getHeight(RECT_ID);
+    val = h * cropValue;
+    RECTANGLE_cropFromBottom(RECT_ID,val);
+);
+//====================================================================
+function RECTANGLE_cropFromLeftP(RECT_ID,cropValue)local(w,val)
+(
+    w = RECTANGLE_getWidth(RECT_ID);
+    val = w * cropValue;
+    RECTANGLE_cropFromLeft(RECT_ID,val);
+);
+//====================================================================
+function RECTANGLE_cropFromRightP(RECT_ID,cropValue)local(w,val)
+(
+    w = RECTANGLE_getWidth(RECT_ID);
+    val = w * cropValue;
+    RECTANGLE_cropFromRight(RECT_ID,val);
+);
+//====================================================================
+function RECTANGLE_removeFromTopP(RECT_ID,removeValueRelative)local(y,h,rVelue)
+(
+    y = RECTANGLE_getY(RECT_ID);
+    h = RECTANGLE_getHeight(RECT_ID);
+    rVelue = h *removeValueRelative;
+    RECTANGLE_setY(RECT_ID,y+rVelue);
+    RECTANGLE_setHeight(RECT_ID,h-rVelue);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function RECTANGLE_removeFromBottomP(RECT_ID,removeValueRelative)local(h,rVelue)
+(
+    h = RECTANGLE_getHeight(RECT_ID);
+    rVelue = h *removeValueRelative;
+    RECTANGLE_setHeight(RECT_ID,h-rVelue);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function RECTANGLE_removeFromLeftP(RECT_ID,removeValueRelative)local(x,w,rVelue)
+(
+    x = RECTANGLE_getX(RECT_ID);
+    w = RECTANGLE_getWidth(RECT_ID);
+    rVelue = w *removeValueRelative;
+    RECTANGLE_setX(RECT_ID,x+rVelue);
+    RECTANGLE_setWidth(RECT_ID,w-rVelue);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function RECTANGLE_removeFromRightP(RECT_ID,removeValueRelative)local(w,rVelue)
+(
+    w = RECTANGLE_getWidth(RECT_ID);
+    rVelue = w *removeValueRelative;
+    RECTANGLE_setWidth(RECT_ID,w-rVelue);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function RECTANGLE_reduce(RECT_ID,reduceX,reduceY) local (x,y,w,h)
+(
+    x = RECTANGLE_getX(RECT_ID);
+    y = RECTANGLE_getY(RECT_ID);
+    w = RECTANGLE_getWidth(RECT_ID);
+    h = RECTANGLE_getHeight(RECT_ID);
+    RECTANGLE_setX(RECT_ID,x+reduceX);
+    RECTANGLE_setY(RECT_ID,y+reduceY);
+    RECTANGLE_setWidth(RECT_ID,w-reduceX*2);  
+    RECTANGLE_setHeight(RECT_ID,h-reduceY*2);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function RECTANGLE_reduceP(RECT_ID,reduceXrel,reduceYrel) local (x,y,w,h,xRelV,yRelV)
+(
+    x = RECTANGLE_getX(RECT_ID);
+    y = RECTANGLE_getY(RECT_ID);
+    w = RECTANGLE_getWidth(RECT_ID);
+    h = RECTANGLE_getHeight(RECT_ID);
+    xRelV = w * reduceXrel;
+    yRelV = h * reduceYrel;
+    RECTANGLE_setX(RECT_ID,x+xRelV);
+    RECTANGLE_setY(RECT_ID,y+yRelV);
+    RECTANGLE_setWidth(RECT_ID,w-xRelV*2);  
+    RECTANGLE_setHeight(RECT_ID,h-yRelV*2);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function RECTANGLE_expand(RECT_ID,expandX,expandY) local (x,y,w,h)
+(
+    x = RECTANGLE_getX(RECT_ID);
+    y = RECTANGLE_getY(RECT_ID);
+    w = RECTANGLE_getWidth(RECT_ID);
+    h = RECTANGLE_getHeight(RECT_ID);
+    RECTANGLE_setX(RECT_ID,x-expandX);
+    RECTANGLE_setY(RECT_ID,y-expandY);  
+    RECTANGLE_setWidth(RECT_ID,w+expandX*2);
+    RECTANGLE_setHeight(RECT_ID,h+expandY*2);  
+    RECTANGLE_updateInfo(RECT_ID);
+);
+//====================================================================
+function __RECTANGLE_isContainPoint__check_(targetX,targetY,curentX,currentY,nextX,nextY)
+  local (tempX1,tempY1,tempX2,tempY2,checkedOut)
+(
+    tempX1 = nextX - curentX;
+    tempY1 = nextY - currentY;
+    tempX2 = targetX - curentX;
+    tempY2 = targetY - currentY;
+    (tempX1 * tempY2 - tempX2 * tempY1 < 0) ?
+    (
+        checkedOut=1
+    ):(
+        checkedOut=-1
+    );
+    checkedOut;      
+);
+//====================================================================
+function RECTANGLE_isContainPoint(RECT_ID,targetX,targetY)
+  local (out,x,y,x2,y2,x2,y2,xx1,yy1,xx2,,yy2,xx3,yy3,xx4,yy4,check1,check2,check3,check4)
+(
+    x  = RECTANGLE_getX(RECT_ID);
+    y  = RECTANGLE_getY(RECT_ID);
+    x2 = RECTANGLE_getX2(RECT_ID);
+    y2 = RECTANGLE_getY2(RECT_ID);
+    xx1 = x; yy1=y;
+    xx2 = x2;yy2=y;
+    xx3 = x2;yy3=y2;
+    xx4 = x; yy4=y2;
+    
+    check1 = __RECTANGLE_isContainPoint__check_(targetX,targetY,xx1,yy1,xx2,yy2);
+    check2 = __RECTANGLE_isContainPoint__check_(targetX,targetY,xx2,yy2,xx3,yy3);
+    check3 = __RECTANGLE_isContainPoint__check_(targetX,targetY,xx3,yy3,xx4,yy4);
+    check4 = __RECTANGLE_isContainPoint__check_(targetX,targetY,xx4,yy4,xx1,yy1);
+    
+    ( abs(check1+check2+check3+check4) >=4) ?
+    ( 
+        out = true;
+    ):(
+        out = false;
+    );
+    out;    
+);
+//====================================================================
+function RECTANGLE_isContainMouse(RECT_ID)local (out)
+(
+    out = RECTANGLE_isContainPoint(RECT_ID,mouse_x,mouse_y);
+    out;
+);
+//====================================================================
+function RECTANGLE_copyTo(destRECT_ID,srcRECT_ID)
+(
+    //================================================================
+    RECTANGLE_setX     (destRECT_ID,RECTANGLE_getX(srcRECT_ID));
+    RECTANGLE_setY     (destRECT_ID,RECTANGLE_getY(srcRECT_ID));
+    RECTANGLE_setWidth (destRECT_ID,RECTANGLE_getWidth(srcRECT_ID));
+    RECTANGLE_setHeight(destRECT_ID,RECTANGLE_getHeight(srcRECT_ID));
+    //================================================================
+);
+//====================================================================
+function RECTANGLE_compare(RECT_ID,targetRECT_ID)local ( out )
+(
+    out = (    RECTANGLE_getX(RECT_ID)      ==  RECTANGLE_getX( targetRECT_ID)
+            && RECTANGLE_getY(RECT_ID)      ==  RECTANGLE_getY( targetRECT_ID)
+            && RECTANGLE_getWidth(RECT_ID)  ==  RECTANGLE_getWidth( targetRECT_ID)
+            && RECTANGLE_getHeight(RECT_ID) ==  RECTANGLE_getHeight( targetRECT_ID)
+            );
+    //================================================================
+    (out ==true );
+);
+//====================================================================
+
+//====================================================================
+// inherit List
+// * Rectangle
+//====================================================================
+function CANVAS_create(width,height)local (CANVAS_ID,canvasSLOTID,ww_,hh_)
+(
+    CANVAS_ID = RECTANGLE_create(0,0,width ,height);
+    //================================================================
+    STATIC_MASTER_BUFF[CANVAS_ID ]   = "CANVAS"; // element NUM;
+    STATIC_MASTER_BUFF[CANVAS_ID +1]   = 9; // element NUM;
+    //================================================================
+    STATIC_MASTER_BUFF[CANVAS_ID +8] = STATIC_CANVAS_SLOT_CURSOL; // canvas SLOT
+    STATIC_MASTER_BUFF[CANVAS_ID +9] = false; // isCreatedFlag
+    //================================================================
+    STATIC_MASTER_BUFF_ID += 10; // step cursol
+    //================================================================
+    
+    //================================================================
+    STATIC_CANVAS_SLOT_CURSOL +=1;
+    //================================================================
+    CANVAS_ID;
+);
+//====================================================================
+function CANVAS_isCreatedCanvas(CANVAS_ID)(STATIC_MASTER_BUFF[CANVAS_ID +9];);
+//====================================================================
+function _CANVAS_setisCreatedCanvas(CANVAS_ID,v)(STATIC_MASTER_BUFF[CANVAS_ID +9] = v;);
+//====================================================================
+function CANVAS_recreateCanvas(CANVAS_ID)local (width,height,canvasSlot)
+(
+    width  = RECTANGLE_getWidth(CANVAS_ID); 
+    height = RECTANGLE_getHeight(CANVAS_ID);
+    //================================================================
+    canvasSlot = STATIC_MASTER_BUFF[ CANVAS_ID +8 ];
+    gfx_setimgdim(canvasSlot, 0,0);//force clear
+    gfx_setimgdim(canvasSlot, width,height);
+    
+    //check is  exectue process in @gfx section . collectry create image in @gfx section.
+    ( gfx_w != 0 )?
+    (
+        _CANVAS_setisCreatedCanvas(CANVAS_ID,true);
+    );
+    //================================================================
+);
+//====================================================================
+function CANVAS_getCanvaseSlotID(CANVAS_ID)local (out)
+(   
+    ( CANVAS_isCreatedCanvas(CANVAS_ID) ==false )?
+    (
+        CANVAS_recreateCanvas(CANVAS_ID);
+    );
+    //================================================================
+    out = STATIC_MASTER_BUFF[ CANVAS_ID +8 ];
+    out;
+);
+//====================================================================
+function CANVAS_clearCanvas(CANVAS_ID)//aliase of local CANVAS_recreateCanvas()
+(
+    CANVAS_recreateCanvas(CANVAS_ID);
+);
+//====================================================================
+function CANVAS_resizeCanvas(CANVAS_ID,width,height)
+(
+    RECTANGLE_setWidth(CANVAS_ID,width); 
+    RECTANGLE_setHeight(CANVAS_ID,height);
+    CANVAS_recreateCanvas(CANVAS_ID);
+);
+//====================================================================
+

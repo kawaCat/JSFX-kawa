@@ -1,0 +1,136 @@
+//====================================================================
+@init
+//====================================================================
+
+
+//====================================================================
+// inherit List
+// * Rectangle
+// * Canvas
+//====================================================================
+function TEXT_create(name) local (TEXT_ID)
+(
+    //================================================================
+    TEXT_ID = COMPONENT_create(name);//element NUM 6
+    //================================================================
+    STATIC_MASTER_BUFF[TEXT_ID ]      = "TEXT";        // classTYPE
+    STATIC_MASTER_BUFF[TEXT_ID + 1]   = 20;            // elementNUM
+    //================================================================
+    STATIC_MASTER_BUFF[TEXT_ID + 19]  = false;         // is DB valueMODE
+    STATIC_MASTER_BUFF[TEXT_ID + 20]  = "";            // is DB valueMODE Text prefix Front
+    STATIC_MASTER_BUFF[TEXT_ID + 21]  = "";            // is DB valueMODE Text postfix back
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=22; // next entry Bufff Point
+    //================================================================
+
+    //================================================================
+    MAP_setValue( COMPONENT_getColorMap(TEXT_ID)
+                ,"textColor"
+                , COLOR_create(1,0,0,1));
+    //================================================================
+    MAP_setValue( COMPONENT_getColorMap(TEXT_ID)
+                ,"textColor_mouseon"
+                , COLOR_create(1,1,0,1));
+    //================================================================
+    
+    // init prepare.
+    //================================================================
+    TEXT_ID; //retrun
+);
+//====================================================================
+function TEXT_getIsDBValueMode( TEXT_ID)            (STATIC_MASTER_BUFF[TEXT_ID + 19]; );
+function TEXT_setIsDBValueMode( TEXT_ID,b)          (STATIC_MASTER_BUFF[TEXT_ID + 19]=b; );
+function TEXT_IsDBValueMode( TEXT_ID)               (TEXT_getIsDBValueMode( TEXT_ID) );
+//====================================================================
+function TEXT_getDBValueModeTextPreFix( TEXT_ID)    (STATIC_MASTER_BUFF[TEXT_ID + 20]; );
+function TEXT_setDBValueModeTextPreFix( TEXT_ID,s)  (STATIC_MASTER_BUFF[TEXT_ID + 20]=s; );
+function TEXT_getDBValueModeTextPostFix( TEXT_ID)   (STATIC_MASTER_BUFF[TEXT_ID + 21]; );
+function TEXT_setDBValueModeTextPostFix( TEXT_ID,s) (STATIC_MASTER_BUFF[TEXT_ID + 21]=s; );
+//====================================================================
+function TEXT_drawDBValueModeText( TEXT_ID)local(tempstr,decibels)
+(
+    //================================================================
+    tempstr =#;
+    sprintf ( tempStr,"%s %+01.2fdB",TEXT_getDBValueModeTextPreFix(TEXT_ID)
+                                 ,valueToDecivel( COMPONENT_getValue(TEXT_ID) ) );
+    strcat ( tempStr,TEXT_getDBValueModeTextPostFix(TEXT_ID) ) ;
+    //================================================================
+    RECTANGLE_drawStrInCenterFitFont(TEXT_ID,tempStr);
+    //================================================================
+);
+//====================================================================
+
+//====================================================================
+function TEXT_resized(TEXT_ID,parrentRECT )
+( 
+    0; 
+);
+//====================================================================
+function TEXT_draw(TEXT_ID)local (tempText)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(TEXT_ID) ==true) ?
+    (
+        COMPONENT_changeColorGfx( TEXT_ID,"textColor_mouseon");
+    ):(
+        COMPONENT_changeColorGfx( TEXT_ID,"textColor");
+    );
+    //================================================================
+    ( TEXT_IsDBValueMode( TEXT_ID) ==true)?
+    (
+        TEXT_drawDBValueModeText( TEXT_ID);
+    ):(
+        RECTANGLE_drawStrInCenterFitFont(TEXT_ID,COMPONENT_getName(TEXT_ID));
+    )
+    //================================================================
+    
+    //================================================================
+);
+//====================================================================
+function TEXT_mouseMoved(TEXT_ID,MOUSEINFO_ID)
+(
+    ( RECTANGLE_isContainMouse(TEXT_ID) ==true) ?
+    (
+        DBG(" TEXT  Mouse Moved");
+    );
+   //=================================================================
+);
+//====================================================================
+function TEXT_mouseButtonPressd(TEXT_ID,MOUSEINFO_ID )local(circle_Area_ID)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(TEXT_ID) ==true) ?
+    (
+        DBG(" TEXT Mouse Button Press IN");
+        COMPONENT_setIsMousePressStartedInThisComp(TEXT_ID,true);
+        ;
+    ):(
+        COMPONENT_setIsMousePressStartedInThisComp(TEXT_ID,false);
+    );
+    //================================================================
+);
+//====================================================================
+function TEXT_mouseButtonReleased( TEXT_ID,MOUSEINFO_ID )local (tempstr)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(TEXT_ID) ==true) ?
+    (
+        //============================================================
+        DBG(" TEXT Mouse Button Released");
+        //============================================================
+    );
+    //================================================================
+);
+//====================================================================
+function TEXT_mouseWheeled(TEXT_ID,MOUSEINFO_ID )
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(TEXT_ID) ==true) ?
+    (
+        DBG(" TEXT Mouse Wheeld");
+    );
+    //================================================================
+);
+//====================================================================
+
+

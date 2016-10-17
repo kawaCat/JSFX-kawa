@@ -1,0 +1,201 @@
+//====================================================================
+@init
+//====================================================================
+
+
+//====================================================================
+// inherit List
+// * Rectangle
+// * Canvas
+//====================================================================
+function KNOB_create(name) 
+local (KNOB_ID,_childComponentBUFF,name_,circle_Area_ID,textArea_Rect)
+(
+    textArea_Rect =RECTANGLE_create(0,0,0,0);
+    //================================================================
+    KNOB_ID = COMPONENT_create(name);
+    //================================================================
+    STATIC_MASTER_BUFF[KNOB_ID ]     = "KNOB";        // classTYPE
+    STATIC_MASTER_BUFF[KNOB_ID + 1]  = 22;                 // elementNUM
+    //================================================================
+    STATIC_MASTER_BUFF[KNOB_ID + 19] = 0; //non use
+    STATIC_MASTER_BUFF[KNOB_ID + 20] = false;           // is Pressd incircleArea
+    STATIC_MASTER_BUFF[KNOB_ID + 21] = 1;               // sliderIndex
+    STATIC_MASTER_BUFF[KNOB_ID + 22] = textArea_Rect;               // sliderIndex
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=23; // next entry Bufff Point
+    //================================================================
+    // init prepare.
+    //================================================================
+    MAP_setValue( COMPONENT_getColorMap(KNOB_ID)
+                ,"bakcground_mouseon"
+                , COLOR_create(0,1,1,1));
+    MAP_setValue( COMPONENT_getColorMap(KNOB_ID)
+                ,"bakcground"
+                , COLOR_create(1,1,1,1));
+    //================================================================
+    MAP_setValue( COMPONENT_getColorMap(KNOB_ID)
+                ,"textColor"
+                , COLOR_create(0,0,0,1));
+    MAP_setValue( COMPONENT_getColorMap(KNOB_ID )
+                ,"textColor_mouseon"
+                , COLOR_create(1,1,0,1));
+    //================================================================
+    KNOB_ID; //retrun
+    //================================================================
+);
+//====================================================================
+function KNOB_getTextAreaRect(KNOB_ID)                 ( STATIC_MASTER_BUFF[KNOB_ID + 22];);
+//====================================================================
+function KNOB_getSliderIndex(KNOB_ID)                  ( STATIC_MASTER_BUFF[KNOB_ID + 21];);
+function KNOB_setSliderIndex(KNOB_ID,idx)              ( STATIC_MASTER_BUFF[KNOB_ID + 21]=idx;);
+//====================================================================
+function _KNOB_getInnerMargin(KNOB_ID) local (out)
+(
+    out = min ( RECTANGLE_getWidth(KNOB_ID),RECTANGLE_getHeight(KNOB_ID)) *0.1;
+    //================================================================
+    out =floor(  min(max(out,2),5) );
+    ( out % 2 == 0 )? ( out +=1 ;);
+    //================================================================
+    out;
+);
+//====================================================================
+function KNOB_resized(KNOB_ID,parrentRECT )
+(
+    0;
+);
+//====================================================================
+function KNOB_draw(KNOB_ID)local (x,y,w,h,margin,tempText,radius)
+(
+    margin = _KNOB_getInnerMargin(KNOB_ID);
+    //================================================================
+    x = RECTANGLE_getX(KNOB_ID)    ; y = RECTANGLE_getY(KNOB_ID);
+    w = RECTANGLE_getWidth(KNOB_ID); h = RECTANGLE_getHeight(KNOB_ID);
+    //================================================================
+    ( RECTANGLE_isContainMouse(KNOB_ID) ==true) ?
+    (
+        COMPONENT_changeColorGfx( KNOB_ID,"bakcground_mouseon");
+    ):(
+        COMPONENT_changeColorGfx( KNOB_ID,"bakcground");
+    );
+    // gfx_rect(x,y,w,h);  
+    //================================================================
+    radius = min(w,h)/2;
+    drawFillArc2( x+w/2 
+                , y+h/2 
+                , radius*0.9+4
+                , radius*0.60183 -4
+                , rad(220)
+                , rad(500) 
+                , 64);
+    //================================================================
+    COMPONENT_changeColorGfx( KNOB_ID,"red");
+    //================================================================
+    drawFillArc2( x+w/2 
+                , y+h/2 
+                , radius*0.9 ,radius*0.60183
+                , rad(221)
+                , rad(221+ (500-222) * COMPONENT_getValue( KNOB_ID) )
+                , 64);
+    //================================================================
+    
+    //================================================================
+    RECTANGLE_copyTO( KNOB_getTextAreaRect(KNOB_ID),KNOB_ID);
+    COMPONENT_changeColorGfx( KNOB_ID,"black");
+   
+    //================================================================
+    RECTANGLE_removeFromTopP(KNOB_getTextAreaRect(KNOB_ID),0.7);
+    RECTANGLE_reduceP(KNOB_getTextAreaRect(KNOB_ID),0.1,0.1);
+    RECTANGLE_drawFill(         KNOB_getTextAreaRect(KNOB_ID),true);
+    //================================================================
+    COMPONENT_changeColorGfx(KNOB_ID,"white");
+    RECTANGLE_drawStrInCenterFitFont(KNOB_getTextAreaRect(KNOB_ID)
+                                    ,COMPONENT_getName(KNOB_ID));
+    //================================================================
+    
+    //================================================================
+    ( RECTANGLE_isContainMouse(KNOB_ID) ==true) ?
+    (
+        COMPONENT_changeColorGfx( KNOB_ID,"textColor_mouseon");
+    ):(
+        COMPONENT_changeColorGfx( KNOB_ID   ,"textColor");
+    );
+    //================================================================
+    tempText =#;
+    sprintf(tempText,"%2.2f",COMPONENT_getValue(KNOB_ID));
+    RECTANGLE_drawStrInCenterFitFont(KNOB_ID,tempText);
+   
+    //================================================================
+);
+//====================================================================
+function KNOB_mouseMoved(KNOB_ID,MOUSEINFO_ID)local(XXX)
+(
+    ( RECTANGLE_isContainMouse(KNOB_ID) ==true) ?
+    (
+        DBG(" SLIDER  Mouse Moved");
+    );
+    //================================================================
+    (   COMPONENT_isMousePressStartedInThisComp(KNOB_ID) ==true )?
+    (
+        //============================================================
+        COMPONENT_setValue(KNOB_ID,  COMPONENT_getValue(KNOB_ID)
+                                   + MOUSEINFO_getMouseXDiff(MOUSEINFO_ID)/750);
+        COMPONENT_setValue(KNOB_ID,  COMPONENT_getValue(KNOB_ID)
+                                   + MOUSEINFO_getMouseYDiff(MOUSEINFO_ID)/750*-1);
+        //============================================================
+        DBG_FLOAT(COMPONENT_getValue(KNOB_ID) );
+        //============================================================
+        DBG(" SLIDER -- SLIDER Changed");
+        slider( KNOB_getSliderIndex(KNOB_ID) ) = COMPONENT_getValue(KNOB_ID);;
+        slider_automate(2 ^ KNOB_getSliderIndex(KNOB_ID) -1 );
+    );
+    //================================================================
+);
+//====================================================================
+function KNOB_mouseButtonPressd(KNOB_ID,MOUSEINFO_ID )local(circle_Area_ID)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(KNOB_ID) ==true) ?
+    (
+        DBG(" KNOB Mouse Button Press IN");
+        COMPONENT_setIsMousePressStartedInThisComp(KNOB_ID,true);
+    ):(
+        COMPONENT_setIsMousePressStartedInThisComp(KNOB_ID,false);
+    );
+    //================================================================
+);
+//====================================================================
+function KNOB_mouseButtonReleased( KNOB_ID,MOUSEINFO_ID )local (tempstr)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(KNOB_ID) ==true) ?
+    (
+        //============================================================
+        DBG(" KNOB Mouse Button Released");
+    );
+    //================================================================
+);
+//====================================================================
+function KNOB_mouseWheeled(KNOB_ID,MOUSEINFO_ID )
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(KNOB_ID) ==true) ?
+    (
+        DBG(" KNOB Mouse Wheeld");
+        COMPONENT_setValue( KNOB_ID
+                          ,   COMPONENT_getValue(KNOB_ID) 
+                            + MOUSEINFO_getMouseWheelDiffV_ABS(MOUSEINFO_ID)/30
+                          );
+       
+        //============================================================
+        DBG_FLOAT(COMPONENT_getValue(KNOB_ID) );
+        //============================================================
+        DBG(" KNOB -- SLIDER Changed");
+        slider( KNOB_getSliderIndex(KNOB_ID) ) = COMPONENT_getValue(KNOB_ID);;
+        slider_automate(2 ^ KNOB_getSliderIndex(KNOB_ID) -1 );
+    );
+    //================================================================
+);
+//====================================================================
+
+

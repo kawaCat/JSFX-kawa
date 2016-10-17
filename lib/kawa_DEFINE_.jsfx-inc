@@ -1,0 +1,41 @@
+//====================================================================
+@init
+//====================================================================
+// MASTER DEFINE HEADER
+//====================================================================
+true  = 1;
+false = 0;
+//====================================================================
+// max 8380000;about
+//====================================================================
+STATIC_MASTER_BUFF                       = 5000;//start ID
+STATIC_MASTER_BUFF_ID                    = 0;     //cursol pointer
+//====================================================================
+STATIC_MAP_BUFF_START                    = 100000 ; //  10 man
+STATIC_CIRCLE_BUFF_START                 = 1000000; // 100 man
+STATIC_ARRAY_BUFF_START                  = 2000000; // 200 man
+//====================================================================
+
+//====================================================================
+STATIC_TEMP_BUFFER                       = 8380000 -10000 ; 
+STATIC_TEMP_STRING_START_SLOT_NUM_START  = 900; 
+STATIC_TEMP_STRING_START_SLOT_NUM        = STATIC_TEMP_STRING_START_SLOT_NUM_START; 
+//====================================================================
+STATIC_CANVAS_SLOT_CURSOL                = 1; // 0..127 max 127 Component
+STATIC_CLEAR_CANVAS_SLOT                 = 127;//use clear canvas image. temporaly.
+//====================================================================
+
+
+//====================================================================
+// ARRAY DEFINE
+//====================================================================
+//STATIC_ARRAY_ONE_MAXSIZE  = srate * 1;
+STATIC_ARRAY_BUFF           = STATIC_ARRAY_BUFF_START;  
+STATIC_ARRAY_BUFF_ID        = 0;      // cursol pointer
+//====================================================================
+STATIC_CIRCLE_BUFF          = STATIC_CIRCLE_BUFF_START; 
+STATIC_CIRCLE_BUFF_ID       = 0;      //cursol Pointer
+//====================================================================
+STATIC_MAP_BUFF             = STATIC_MAP_BUFF_START;  
+STATIC_MAP_BUFF_ID          = 0;	  //cursol Pointer
+//====================================================================

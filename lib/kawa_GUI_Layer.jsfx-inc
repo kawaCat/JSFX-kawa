@@ -1,0 +1,643 @@
+
+//====================================================================
+// function List
+//====================================================================
+
+//====================================================================
+// LEYAR 
+//====================================================================
+
+//====================================================================
+//function LAYER_create(name)
+//====================================================================
+//function LAYER_getParrentApp ( LAYER_ID)         
+//function LAYER_setParrentApp ( LAYER_ID,p)        
+//====================================================================
+//function LAYER_getIsResized  ( LAYER_ID)         
+//function LAYER_setIsResized  ( LAYER_ID,b)       
+//====================================================================
+//function LAYER_isResized     ( LAYER_ID)         
+//function LAYER_isAreaResized ( LAYER_ID)         
+//====================================================================
+//function LAYER_isActive(LAYER_ID)               
+//function LAYER_getIsActive(LAYER_ID)             
+//function LAYER_setIsActive(LAYER_ID,v)
+//function LAYER_setActive(LAYER_ID,v) //aliase of LAYER_setIsActive
+//function LAYER_toggleIsActive( LAYER_ID)
+//====================================================================
+
+//====================================================================
+//function LAYER_getName(LAYER_ID) ( STATIC_MASTER_BUFF[LAYER_ID + 9];);
+//function LAYER_getChildComponentArray(LAYER_ID)(STATIC_MASTER_BUFF[LAYER_ID + 8]; );
+//function LAYER_getChildCount(LAYER_ID) local ( childCompoArray_ID,childNUM)
+//====================================================================
+//function LAYER_addChildComponent(LAYER_ID,childLAYER_ID)
+//function LAYER_removeChildComponent(LAYER_ID,childLAYER_ID)
+//====================================================================
+
+//====================================================================
+//call from top App
+//====================================================================
+//function LAYER_update(LAYER_ID,parrentRectID)
+//function LAYER_resized(LAYER_ID,parrentRectID)
+//function LAYER_draw(LAYER_ID)
+//function LAYER_mouseMove(LAYER_ID,MOUSEINFO_ID)
+//function LAYER_mouseButtonPressd(LAYER_ID,MOUSEINFO_ID)
+//function LAYER_mouseButtonReleased(LAYER_ID,MOUSEINFO_ID)
+//function LAYER_mouseWheeled(LAYER_ID,MOUSEINFO_ID)
+//====================================================================
+
+
+//====================================================================
+import kawa_GUI_CORE_.jsfx-inc
+@init
+//====================================================================
+
+//====================================================================
+// inherit List
+// * Rectangle
+//====================================================================
+function LAYER_create(name) local (LAYER_ID,_childComponentBUFF,name_,_lastRectangle_ID)
+(
+    _childComponentBUFF =ARRAY_create(1000);// max ArraSize is 1000;
+    _lastRectangle_ID = RECTANGLE_create(0,0,-100,-100);
+    //================================================================
+    LAYER_ID = RECTANGLE_create(0,0,-100,-100);//element NUM 6
+
+    //================================================================
+    STATIC_MASTER_BUFF[LAYER_ID ]     = "LAYER"; // elementNUM
+    STATIC_MASTER_BUFF[LAYER_ID + 1]  = 14; // elementNUM
+    //================================================================
+    STATIC_MASTER_BUFF[LAYER_ID + 8]  = _childComponentBUFF;//lastWidth
+    STATIC_MASTER_BUFF[LAYER_ID + 9]  = name;               // layerName
+    STATIC_MASTER_BUFF[LAYER_ID + 10] = 0;                  // parrentAPP_ID;h
+    STATIC_MASTER_BUFF[LAYER_ID + 11] = 0;                  // non USE
+    STATIC_MASTER_BUFF[LAYER_ID + 12] = true;               // isActive
+    STATIC_MASTER_BUFF[LAYER_ID + 13] = false;               // isResized
+    STATIC_MASTER_BUFF[LAYER_ID + 14] = _lastRectangle_ID;  // last Area
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=15;
+    //================================================================
+    // init prepare.
+    //================================================================
+    LAYER_ID; //retrun
+);
+//====================================================================
+function _LAYER_getLastLayerAreaRect(LAYER_ID)   ( STATIC_MASTER_BUFF[LAYER_ID+14];);
+//====================================================================
+function LAYER_getParrentApp( LAYER_ID)          ( STATIC_MASTER_BUFF[LAYER_ID+10];);
+function LAYER_setParrentApp( LAYER_ID,p)        ( STATIC_MASTER_BUFF[LAYER_ID+10]=p;);
+//====================================================================
+function LAYER_getIsResized  ( LAYER_ID)         ( STATIC_MASTER_BUFF[LAYER_ID + 13];);
+function LAYER_setIsResized  ( LAYER_ID,b)       ( STATIC_MASTER_BUFF[LAYER_ID + 13]=b;);
+//====================================================================
+function LAYER_isResized     ( LAYER_ID)         ( LAYER_getIsResized(LAYER_ID););
+function LAYER_isAreaResized ( LAYER_ID)         ( LAYER_isResized( LAYER_ID);); //aliase of LAYER_isResized
+//====================================================================
+
+//====================================================================
+function LAYER_isActive(LAYER_ID)                ( STATIC_MASTER_BUFF[LAYER_ID+12];);
+function LAYER_getIsActive(LAYER_ID)             ( LAYER_isActive(LAYER_ID););
+function LAYER_setIsActive(LAYER_ID,v)
+( 
+    STATIC_MASTER_BUFF[LAYER_ID+12]=v;
+    LAYER_setIsResized(LAYER_ID,v);
+    DBG("ACTIVE_CAHNGE");
+);
+function LAYER_setActive(LAYER_ID,v)( LAYER_setIsActive(LAYER_ID,v););; //aliase of LAYER_setIsActive
+//====================================================================
+function LAYER_toggleIsActive( LAYER_ID)
+(
+    LAYER_setIsActive( LAYER_ID
+                     ,(LAYER_getIsActive(LAYER_ID) == false)
+                     );
+);
+//====================================================================
+
+//====================================================================
+function LAYER_getName(LAYER_ID) ( STATIC_MASTER_BUFF[LAYER_ID + 9];);
+//====================================================================
+function LAYER_getChildComponentArray(LAYER_ID)(STATIC_MASTER_BUFF[LAYER_ID + 8]; );
+//====================================================================
+function LAYER_getChildCount(LAYER_ID) local ( childCompoArray_ID,childNUM)
+(
+    childCompoArray_ID = LAYER_getChildComponentArray(LAYER_ID);
+    childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+    childNUM;
+);
+//====================================================================
+function LAYER_addChildComponent(LAYER_ID,childLAYER_ID)
+    local ( childCompoArray_ID,count_,childNUM,temp_A,check)
+(
+    childCompoArray_ID = LAYER_getChildComponentArray(LAYER_ID);
+    childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+    count_ =1;
+    check = false;
+    //================================================================
+    while ( count_ <= childNUM)
+    (
+        temp_A = ARRAY_getAt(childCompoArray_ID,count_) ;
+        //============================================================
+        ( childLAYER_ID == temp_A)?
+        (
+            check =true;
+            count_ = childNUM+100; //break
+        );
+        //============================================================
+        count_ +=1;
+    );
+    //================================================================
+    (check ==false)?
+    (
+        ARRAY_push_back(childCompoArray_ID,childLAYER_ID);
+        COMPONENT_setParrentLAYRE(childLAYER_ID,LAYER_ID);
+    );
+    //================================================================
+);
+//====================================================================
+function LAYER_removeChildComponent(LAYER_ID,childLAYER_ID)
+    local(childCompoArray_ID,count_,childNUM,temp_A)
+(
+    childCompoArray_ID = LAYER_getChildComponentArray(LAYER_ID);
+    childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+    count_ = 0;
+    //================================================================
+    while ( count_ <= childNUM)
+    (
+        temp_A = ARRAY_getAt(childCompoArray_ID,count_) ;
+        //============================================================
+        ( childLAYER_ID == temp_A)?
+        (
+            DBGMESSAGE_add(DBG,"true" );
+            DBGMESSAGE_addFloat(DBG, count_ );
+            ARRAY_removeAt(childCompoArray_ID,count_);
+            COMPONENT_setParrentLAYRE(childLAYER_ID,-123456);
+            count_ = childNUM+100; //break
+        );
+        //============================================================
+        count_ +=1;
+    );
+    //================================================================
+);
+//====================================================================
+
+
+//====================================================================
+// COMPONENT SELECTOR
+//====================================================================
+function _LAYER_resized(LAYER_ID,targetCOMPONENT_ID,parrentRECT ) 
+    local (struct_Type)
+(
+    //================================================================
+    ( COMPONENT_isActive(targetCOMPONENT_ID) == true )?
+    (
+        struct_Type = STRUCT_getStructType( targetCOMPONENT_ID );
+        //============================================================
+        ( strcmp(struct_Type ,"COMPONENT")== 0 )?
+        (
+            COMPONENT_resized(targetCOMPONENT_ID,parrentRECT);
+            //========================================================
+        ):(strcmp(struct_Type ,"SLIDER")== 0 )?
+        (
+            SLIDER_resized(targetCOMPONENT_ID,parrentRECT);
+            //========================================================
+        ):(strcmp(struct_Type ,"SLIDERTYPE2")== 0 )?
+        (
+            SLIDERTYPE2_resized(targetCOMPONENT_ID,parrentRECT);
+            //========================================================
+        ):(strcmp(struct_Type ,"XYSLIDER")== 0 )?
+        (
+            XYSLIDER_resized(targetCOMPONENT_ID,parrentRECT);
+            //========================================================
+        ):(strcmp(struct_Type ,"BUTTON")== 0 )?
+        (
+            BUTTON_resized(targetCOMPONENT_ID,parrentRECT);
+            //========================================================
+        ):(strcmp(struct_Type ,"TEXT")== 0 )?
+        (
+            TEXT_resized(targetCOMPONENT_ID,parrentRECT);
+            //========================================================
+        ):( strcmp(struct_Type ,"KNOB")== 0 )?
+        (
+            KNOB_resized(targetCOMPONENT_ID,parrentRECT);
+            //========================================================
+        )
+        //============================================================
+        ;
+    );
+    //================================================================
+);
+//====================================================================
+function _LAYER_draw(LAYER_ID,targetCOMPONENT_ID)local (struct_Type)
+(
+    //================================================================
+    ( COMPONENT_isActive(targetCOMPONENT_ID) == true )?
+    (   
+        struct_Type = STRUCT_getStructType( targetCOMPONENT_ID );
+        //============================================================
+        ( strcmp(struct_Type ,"COMPONENT")== 0 )?
+        (
+            COMPONENT_draw(targetCOMPONENT_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"SLIDER")== 0 )?
+        (
+            SLIDER_draw(targetCOMPONENT_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"SLIDERTYPE2")== 0 )?
+        (
+            SLIDERTYPE2_draw(targetCOMPONENT_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"XYSLIDER")== 0 )?
+        (
+            XYSLIDER_draw(targetCOMPONENT_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"BUTTON")== 0 )?
+        (
+            BUTTON_draw(targetCOMPONENT_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"TEXT")== 0 )?
+        (
+            TEXT_draw(targetCOMPONENT_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"KNOB")== 0 )?
+        (
+            KNOB_draw(targetCOMPONENT_ID);
+            //========================================================
+        )
+        ;
+        //============================================================
+    );
+    //================================================================
+);
+//====================================================================
+function _LAYER_mouseMoved(LAYER_ID,targetCOMPONENT_ID,MOUSEINFO_ID)
+    local (struct_Type)
+(
+    //================================================================
+    ( COMPONENT_isActive(targetCOMPONENT_ID) == true )?
+    (
+        struct_Type = STRUCT_getStructType( targetCOMPONENT_ID );
+        //============================================================
+        ( strcmp(struct_Type ,"COMPONENT")== 0 )?
+        (
+            COMPONENT_mouseMoved(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"SLIDER")== 0 )?
+        (
+            SLIDER_mouseMoved(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"SLIDERTYPE2")== 0 )?
+        (
+            SLIDERTYPE2_mouseMoved(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"XYSLIDER")== 0 )?
+        (
+            XYSLIDER_mouseMoved(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"BUTTON")== 0 )?
+        (
+            BUTTON_mouseMoved(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"TEXT")== 0 )?
+        (
+            TEXT_mouseMoved(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"KNOB")== 0 )?
+        (
+            KNOB_mouseMoved(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        )
+        //============================================================
+        ;
+    );
+    //================================================================
+);
+//====================================================================
+function _LAYER_mouseButtonPressd(LAYER_ID,targetCOMPONENT_ID,MOUSEINFO_ID )
+    local (struct_Type)    
+(
+    //================================================================
+    ( COMPONENT_isActive(targetCOMPONENT_ID) == true )?
+    (
+        struct_Type = STRUCT_getStructType( targetCOMPONENT_ID );
+        //============================================================
+        ( strcmp(struct_Type ,"COMPONENT")== 0 )?
+        (
+            COMPONENT_mouseButtonPressd(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"SLIDER")== 0 )?
+        (
+            SLIDER_mouseButtonPressd(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"SLIDERTYPE2")== 0 )?
+        (
+            SLIDERTYPE2_mouseButtonPressd(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"XYSLIDER")== 0 )?
+        (
+            XYSLIDER_mouseButtonPressd(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"BUTTON")== 0 )?
+        (
+            BUTTON_mouseButtonPressd(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"TEXT")== 0 )?
+        (
+            TEXT_mouseButtonPressd(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"KNOB")== 0 )?
+        (
+            KNOB_mouseButtonPressd(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        )
+        //============================================================
+        ;
+    );
+    //================================================================
+);
+//====================================================================
+function _LAYER_mouseButtonReleased(LAYER_ID,targetCOMPONENT_ID,MOUSEINFO_ID )
+    local (struct_Type)
+(
+    //================================================================
+    ( COMPONENT_isActive(targetCOMPONENT_ID) == true )?
+    (
+        struct_Type = STRUCT_getStructType( targetCOMPONENT_ID );
+        //============================================================
+        ( strcmp(struct_Type ,"COMPONENT")== 0 )?
+        (
+            COMPONENT_mouseButtonReleased(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"SLIDER")== 0 )?
+        (
+            SLIDER_mouseButtonReleased(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ) :(strcmp(struct_Type ,"SLIDERTYPE2")== 0 )?
+        (
+            SLIDERTYPE2_mouseButtonReleased(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"XYSLIDER")== 0 )?
+        (
+            XYSLIDER_mouseButtonReleased(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"BUTTON")== 0 )?
+        ( 
+            BUTTON_mouseButtonReleased(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"TEXT")== 0 )?
+        (
+            TEXT_mouseButtonReleased(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"KNOB")== 0 )?
+        (
+            KNOB_mouseButtonReleased(targetCOMPONENT_ID,MOUSEINFO_ID);
+        )
+        //============================================================
+        ;
+        //============================================================
+        COMPONENT_setIsMousePressStartedInThisComp(targetCOMPONENT_ID,false);
+    );
+    //================================================================
+);
+//====================================================================
+function _LAYER_mouseWheeled(LAYER_ID,targetCOMPONENT_ID,MOUSEINFO_ID)
+    local (struct_Type)
+(
+    //================================================================
+    ( COMPONENT_isActive(targetCOMPONENT_ID) == true )?
+    (
+        struct_Type = STRUCT_getStructType( targetCOMPONENT_ID );
+        //============================================================
+        ( strcmp(struct_Type ,"COMPONENT")== 0 )?
+        (
+            COMPONENT_mouseWheeled(targetCOMPONENT_ID,MOUSEINFO_ID);
+        ):(strcmp(struct_Type ,"SLIDER")== 0 )?
+        (
+            SLIDER_mouseWheeled(targetCOMPONENT_ID,MOUSEINFO_ID);
+        ):(strcmp(struct_Type ,"SLIDERTYPE2")== 0 )?
+        (
+            SLIDERTYPE2_mouseWheeled(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"XYSLIDER")== 0 )?
+        (
+            XYSLIDER_mouseWheeled(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"BUTTON")== 0 )?
+        ( 
+            BUTTON_mouseWheeled(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"TEXT")== 0 )?
+        (
+            TEXT_mouseWheeled(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"KNOB")== 0 )?
+        (
+            KNOB_mouseWheeled(targetCOMPONENT_ID,MOUSEINFO_ID);
+        )
+        //============================================================
+        ;
+        //============================================================
+    );
+    //================================================================
+);
+//====================================================================
+
+
+//====================================================================
+//call from top App
+//====================================================================
+function LAYER_update(LAYER_ID,parrentRectID)
+    local (childCompoArray_ID,count_,childNUM )
+(
+    
+    //================================================================
+    ( LAYER_isActive(LAYER_ID) ==true)?
+    (
+        //============================================================
+        LAYER_setIsResized( LAYER_ID
+                          , ( RECTANGLE_compare( _LAYER_getLastLayerAreaRect(LAYER_ID)
+                                               , LAYER_ID) ==false ) ) ;
+        //============================================================
+        
+      
+        
+        //============================================================
+        childCompoArray_ID = LAYER_getChildComponentArray(LAYER_ID);
+        childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+        count_ = 0;
+        //============================================================
+        while ( count_ < childNUM )
+        (
+            COMPONENT_setComponentInfoValue(  ARRAY_getAt(childCompoArray_ID,count_)
+                                            , "parrentLayer_Resized"
+                                            , LAYER_isAreaResized ( LAYER_ID)
+                                            ) ;
+            //========================================================
+            count_ +=1;
+        );
+        //============================================================
+        
+    );
+    //================================================================
+    //store Rectangle info to last Rectangle 
+    //============================================================
+    RECTANGLE_copyTo(_LAYER_getLastLayerAreaRect(LAYER_ID),LAYER_ID);
+    //============================================================
+);
+//====================================================================
+
+
+//====================================================================
+function LAYER_resized(LAYER_ID,parrentRectID)
+   local (childCompoArray_ID,count_,childNUM )
+(
+    //================================================================
+    ( LAYER_isActive(LAYER_ID) ==true)?
+    (
+        //============================================================
+        DBG("RESIZED LAYER");
+        //============================================================
+        
+        //============================================================
+        childCompoArray_ID = LAYER_getChildComponentArray(LAYER_ID);
+        childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+        count_ = 0;
+        //============================================================
+        while ( count_ < childNUM )
+        (
+            //========================================================
+            _LAYER_resized( LAYER_ID
+                          , ARRAY_getAt(childCompoArray_ID,count_)
+                          , parrentRectID);
+            //========================================================
+            count_ +=1;
+        );
+        //============================================================
+    );
+    //================================================================
+);
+//====================================================================
+function LAYER_draw(LAYER_ID)
+    local (childCompoArray_ID,count_,childNUM )
+(
+    //================================================================
+    ( LAYER_isActive(LAYER_ID) ==true)?
+    (
+        //============================================================
+        childCompoArray_ID = LAYER_getChildComponentArray(LAYER_ID);
+        childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+        count_ = 0;
+        //============================================================
+        while ( count_ < childNUM )
+        (
+            //========================================================
+            _LAYER_draw(LAYER_ID,ARRAY_getAt(childCompoArray_ID,count_));
+            //========================================================
+            count_ +=1;
+        );
+        //============================================================
+    );
+    //================================================================
+);
+//====================================================================
+function LAYER_mouseMove(LAYER_ID,MOUSEINFO_ID)
+    local (childCompoArray_ID,count_,childNUM )
+(
+    //================================================================
+    ( LAYER_isActive(LAYER_ID) ==true)?
+    (
+        //============================================================
+        childCompoArray_ID = LAYER_getChildComponentArray(LAYER_ID);
+        childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+        count_ = 0;
+        //============================================================
+        while ( count_ < childNUM )
+        (
+            //========================================================
+            _LAYER_mouseMoved( LAYER_ID
+                             , ARRAY_getAt(childCompoArray_ID,count_) 
+                             , MOUSEINFO_ID);
+            //========================================================
+            count_ +=1;
+        );
+        //============================================================
+    );
+    //================================================================
+);
+//====================================================================
+function LAYER_mouseButtonPressd(LAYER_ID,MOUSEINFO_ID)
+    local (childCompoArray_ID,count_,childNUM )
+(
+    //================================================================
+    ( LAYER_isActive(LAYER_ID) ==true)?
+    (
+        //============================================================
+        childCompoArray_ID = LAYER_getChildComponentArray(LAYER_ID);
+        childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+        count_ = 0;
+        //============================================================
+        while ( count_ < childNUM )
+        (
+            //========================================================
+            _LAYER_mouseButtonPressd( LAYER_ID
+                                    , ARRAY_getAt(childCompoArray_ID,count_) 
+                                    , MOUSEINFO_ID);
+            //========================================================
+            count_ +=1;
+        );
+        //============================================================
+    );
+    //================================================================
+);
+//====================================================================
+function LAYER_mouseButtonReleased(LAYER_ID,MOUSEINFO_ID)
+    local (childCompoArray_ID,count_,childNUM )
+(
+    //================================================================
+    ( LAYER_isActive(LAYER_ID) ==true)?
+    (
+        //============================================================
+        childCompoArray_ID = LAYER_getChildComponentArray(LAYER_ID);
+        childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+        count_ = 0;
+        //============================================================
+        while ( count_ < childNUM )
+        (
+            //========================================================
+            _LAYER_mouseButtonReleased( LAYER_ID
+                                      , ARRAY_getAt(childCompoArray_ID,count_) 
+                                      , MOUSEINFO_ID);
+            //========================================================
+            count_ +=1;
+        );
+        //============================================================
+    );
+    //================================================================
+);
+//====================================================================
+function LAYER_mouseWheeled(LAYER_ID,MOUSEINFO_ID)
+    local (childCompoArray_ID,count_,childNUM )
+(
+    //================================================================
+    ( LAYER_isActive(LAYER_ID) ==true)?
+    (
+        //============================================================
+        childCompoArray_ID = LAYER_getChildComponentArray(LAYER_ID);
+        childNUM = ARRAY_getBufferSize(childCompoArray_ID);
+        count_ = 0;
+        //============================================================
+        while ( count_ < childNUM )
+        (
+            //========================================================
+            _LAYER_mouseWheeled( LAYER_ID
+                               , ARRAY_getAt(childCompoArray_ID,count_) 
+                               , MOUSEINFO_ID);
+            //========================================================
+            count_ +=1;
+        );
+    );
+    //================================================================
+);
+//====================================================================
+
+

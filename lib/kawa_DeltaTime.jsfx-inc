@@ -1,0 +1,92 @@
+
+
+//====================================================================
+//DELTATIME COUNTER Struct
+//====================================================================
+//function DELTATIME_create(speedDiv)  //speed  Div 0.1 ~
+//--------------------------------------------------------------------
+//function DELTATIME_getDeltaTime         (DELTATIME_ID)
+//function DELTATIME_getDeltaTimeWithStep (DELTATIME_ID)
+//function DELTATIME_getSpeedDiv          (DELTATIME_ID)
+//function DELTATIME_setSpeedDiv          (DELTATIME_ID,speedDiv)
+//function DELTATIME_getLastTime          (DELTATIME_ID)
+//function DELTATIME_setLastTime          (DELTATIME_ID,t) 
+//function DELTATIME_step                 (DELTATIME_ID)
+//====================================================================
+
+
+//====================================================================
+@init
+//====================================================================
+
+//====================================================================
+// DELTATIME Counter
+//====================================================================
+function DELTATIME_create()local(DELTATIME_ID) //speed  Div 0.1 ~
+(
+    DELTATIME_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[DELTATIME_ID]   = "DELTATIME";// --elementNum
+    STATIC_MASTER_BUFF[DELTATIME_ID+1] = 3;// --elementNum
+    STATIC_MASTER_BUFF[DELTATIME_ID+2] = 0.0;// currentAnimTime
+    STATIC_MASTER_BUFF[DELTATIME_ID+3] = time_precise()/1000;  // lastTime
+    //================================================================
+    STATIC_MASTER_BUFF_ID += 4;
+    //================================================================
+    DELTATIME_ID;
+);
+//====================================================================
+function DELTATIME_getDeltaTime(DELTATIME_ID)   ( STATIC_MASTER_BUFF[DELTATIME_ID+2]; );
+//====================================================================
+function DELTATIME_getLastTime(DELTATIME_ID)    (STATIC_MASTER_BUFF[DELTATIME_ID+3];);
+function DELTATIME_setLastTime(DELTATIME_ID,t)  (STATIC_MASTER_BUFF[DELTATIME_ID+3]=t;);
+//====================================================================
+function _DELTATIME_round(newTime) local (out)
+(
+    out = newTime;
+    (out > 1.0 )?(out =0.0);
+    (out < 0.0 )?(out =1.0);
+    out;
+);
+//====================================================================
+function _DELTATIME_addDeltaTime(DELTATIME_ID,t) local (newDt)
+( 
+    STATIC_MASTER_BUFF[DELTATIME_ID+2] +=t; 
+    newDt =_DELTATIME_round(STATIC_MASTER_BUFF[DELTATIME_ID+2]);
+    //================================================================
+    STATIC_MASTER_BUFF[DELTATIME_ID+2] = newDt;
+);
+//====================================================================
+function DELTATIME_stepByTime(DELTATIME_ID,speedDiv_)local (lastTime,time_p,distance,dt)
+(
+    time_p =time_precise();
+    lastTime = DELTATIME_getLastTime(DELTATIME_ID);
+    distance = (time_p-lastTime);
+    //================================================================
+    _DELTATIME_addDeltaTime(DELTATIME_ID,(distance/speedDiv_));
+    //================================================================
+    DELTATIME_setLastTime(DELTATIME_ID,time_p);
+    //================================================================
+);
+//====================================================================
+function DELTATIME_stepByValue(DELTATIME_ID,addValue)local (lastTime,time_p,distance,dt)
+(
+    //================================================================
+    _DELTATIME_addDeltaTime(DELTATIME_ID,addValue);
+    //================================================================
+);
+//====================================================================
+function DELTATIME_getDeltaTimeWithStepTime(DELTATIME_ID,speedDiv) local (dt)
+(
+    DELTATIME_stepByTime(DELTATIME_ID,speedDiv);
+    dt =  DELTATIME_getDeltaTime(DELTATIME_ID);
+    dt;
+);
+//====================================================================
+function DELTATIME_getDeltaTimeWithStepValue(DELTATIME_ID,addValue) local (dt)
+(
+    DELTATIME_stepByValue(DELTATIME_ID,addValue);
+    dt =  DELTATIME_getDeltaTime(DELTATIME_ID);
+    dt;
+);
+//====================================================================

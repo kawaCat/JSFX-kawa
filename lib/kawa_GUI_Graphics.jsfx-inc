@@ -1,0 +1,592 @@
+
+//====================================================================
+// function List
+//====================================================================
+
+//====================================================================
+//function drawWaveBufferToCanvas(CANVAS_ID,waveMax,waveMin,oneBar_Width,vAmp,alpha,hueOffset)
+//function drawBackGrond_1(gradiationNUM,hueStart_,hueWidth_)
+//function drawBackGrond_2(gradiationNUM,hueStart_,hueWidth_)
+//function drawSinWaveCircle(num,radius,rate,speed) 
+//function drawDotGrid(xwidth,ywidth,radius)
+//====================================================================
+//function COLOR_changeColor(COLOR_ID)
+//function COLOR_toGFX(COLOR_ID)( COLOR_changeColor(COLOR_ID);); //aliase function of COLOR_changeColor
+//function POINT_drawString( POINT_ID,text)
+//====================================================================
+//function CANVAS_blitImage(CANVAS_ID,dest_xpos,dest_ypos,scale,rotation)
+//function CANVAS_blitImage2(CANVAS_ID,dest_xpos,dest_ypos,scale,rotation,roffsetX,roffsetY)
+//function CANVAS_blitImage3(CANVAS_ID,dest_xpos,dest_ypos,scale,rotation)
+//function POINT_drawCircle(POINT_ID,radius,antialiase)
+//function POINT_drawCircleFill(POINT_ID,radius,antialiase)
+//====================================================================
+
+//====================================================================
+//function CIRCLE_draw(CIRCLE_ID,antialiase)
+//function CIRCLE_drawFill(CIRCLE_ID,antialiase)
+//function RECTANGLE_drawFill(RECT_ID,antialiase)
+//function RECTANGLE_drawFill(RECT_ID,antialiase)
+//function RECTANGLE_drawStrInCenter(RECT_ID,str)
+//function RECTANGLE_drawStrInCenterFitFont(RECT_ID,str)
+//function drawDecibelValue( x,y,Value,fontsize) 
+//====================================================================
+//function drawFillArc(_cx,_cy,_r,_sA,_eA,_div)
+//function drawFillArc2(_cx,_cy,_r,_r2,_sA,_eA,_div)
+//====================================================================
+
+
+//====================================================================
+@init
+//====================================================================
+// GRAPHICS Process
+//====================================================================
+
+___tempHSB ; // !!
+//====================================================================
+
+//====================================================================
+function drawWaveBufferToCanvas(CANVAS_ID,waveMax,waveMin,oneBar_Width,vAmp,alpha,hueOffset)
+    local ( lastDest,tempCanvasSlot,halfHeight
+          , yy1,yy2,tempCanvas,vAmp_,CLEAR_CANVAS_SLOT
+          , onebarWidth,val)
+(
+    onebarWidth = ceil( oneBar_Width );
+    onebarWidth = max (1,onebarWidth);
+    lastDest = gfx_dest;
+    vAmp_ = vAmp;
+    //================================================================
+    CLEAR_CANVAS_SLOT =127; // last canvas Slot for use temp work.
+    gfx_setimgdim( CLEAR_CANVAS_SLOT,0,0);    
+    gfx_setimgdim( CLEAR_CANVAS_SLOT,2048,2048);    
+    //================================================================
+    gfx_dest=CLEAR_CANVAS_SLOT;
+    //================================================================
+    gfx_x=0;gfx_y=0;
+    gfx_r =1;gfx_g=1;gfx_b=1;gfx_a=1;
+    //================================================================
+    gfx_blit( CANVAS_getCanvaseSlotID(CANVAS_ID), 1,0 );//scale ,rot );
+    //================================================================
+    CANVAS_clearCanvas(CANVAS_ID);
+    //================================================================
+    gfx_dest=CANVAS_getCanvaseSlotID(CANVAS_ID);
+    //================================================================
+    
+    //================================================================
+    gfx_blit( CLEAR_CANVAS_SLOT 
+            , 1,0 //scale ,rot
+            , onebarWidth
+            , 0
+            , RECTANGLE_getWidth(CANVAS_ID) -onebarWidth
+            , RECTANGLE_getHeight(CANVAS_ID)
+            //--------------------------------------------------------
+            , 0, 0
+            , RECTANGLE_getWidth(CANVAS_ID) -onebarWidth
+            , RECTANGLE_getHeight(CANVAS_ID)
+            );
+    //================================================================
+
+    //================================================================
+    halfHeight =  (RECTANGLE_getHeight(CANVAS_ID)/2);
+    yy1 =  halfHeight - abs( halfHeight * waveMax) *vAmp_;
+    yy2 =  halfHeight + abs( halfHeight * waveMin) *vAmp_;
+    val = max(waveMax,abs(waveMin));
+    ___tempHSB.HSBtoRGB(-180+30*val +hueOffset, 0   , 1*hueOffset);
+    gfx_r =___tempHSB.r/255;gfx_g=___tempHSB.g/255;gfx_b=___tempHSB.b/255;gfx_a=1;
+    //================================================================
+    gfx_rect( RECTANGLE_getWidth(CANVAS_ID) -onebarWidth
+            , yy1
+            , onebarWidth
+            , yy2-yy1
+            ,true,true );
+    //================================================================z
+    gfx_r =0;gfx_g=0;gfx_b=0;gfx_a=0.5;
+    //================================================================
+    gfx_line(RECTANGLE_getWidth(CANVAS_ID) -onebarWidth
+            , halfHeight
+            , RECTANGLE_getWidth(CANVAS_ID)
+            ,halfHeight
+            ,true
+            );
+    //================================================================
+    gfx_dest= lastDest;
+    //================================================================
+    gfx_a=1;
+);
+//====================================================================
+
+
+
+//====================================================================
+function drawBackGrond_black(gradiationNUM)
+    local (count_,incWidth,_incHue,move_)
+(
+    //================================================================
+    count_ = 0;
+    incWidth = ceil (gfx_w/gradiationNUM);
+    _incHue =  hueWidth_ /gradiationNUM;
+    //================================================================
+    while (count_ < gradiationNUM)
+    (
+        ___tempHSB.HSBtoRGB(0
+                           ,0
+                           ,0.6/gradiationNUM *count_);
+        //============================================================
+        gfx_r = ___tempHSB.r/255;
+        gfx_g = ___tempHSB.g/255;
+        gfx_b = ___tempHSB.b/255;
+        gfx_a = 1;
+        //============================================================
+        gfx_rect( incWidth*count_,0,incWidth,gfx_h,true);
+        //============================================================
+        count_+=1;
+    );
+    //================================================================
+    move_ += 1.5;
+    (move_ >360) ?(move_ =0);
+);
+//====================================================================
+function drawBackGrond_color(gradiationNUM,hueStart_,hueWidth_)
+    local (count_,incWidth,_incHue,move_)
+(
+    //================================================================
+    count_ = 0;
+    incWidth = ceil (gfx_w/gradiationNUM);
+    _incHue =  hueWidth_ /gradiationNUM;
+    //================================================================
+    while (count_ < gradiationNUM)
+    (
+        ___tempHSB.HSBtoRGB(hueStart_ + _incHue*count_ +move_ ,1,1);
+        //============================================================
+        gfx_r = ___tempHSB.r/255;
+        gfx_g = ___tempHSB.g/255;
+        gfx_b = ___tempHSB.b/255;
+        gfx_a = 1;
+        //============================================================
+        gfx_rect( incWidth*count_,0,incWidth,gfx_h,true);
+        //============================================================
+        count_+=1;
+    );
+    //================================================================
+    move_ += 1.5;
+    (move_ >360) ?(move_ =0);
+);
+//====================================================================
+
+//====================================================================
+function drawSinWaveCircle(num,radius,rate,speed) 
+    local (count_,incWidth,incDelta,x,y,time_)
+(
+    incWidth = gfx_w / num;
+    incDelta = ($pi *2 *rate)/num;
+    //================================================================
+    gfx_r=1;
+    gfx_g=1;
+    gfx_b=1;
+    gfx_a=1;
+    //================================================================
+    count_ = 0;
+    while ( count_ < num )
+    (
+        x = incWidth * count_ -radius;
+        y = sin( $pi *2 *  time_ + incDelta*count_  )   * gfx_h/2.3 + gfx_h/2;
+        gfx_circle(x,y,radius,true);
+        //============================================================
+        x = incWidth * count_ -radius;
+        y = sin( $pi *2 *  time_ + incDelta*count_ +$pi )* gfx_h/2.3 + gfx_h/2;
+        gfx_circle(x,y,radius,true);
+        //===========================================================
+        count_+=1;
+    );
+    //================================================================
+    time_+= speed;
+    (time_ > 1.0)?(time_ =0.0);
+    (time_ < 0.0)?(time_ =1.0);
+);
+//====================================================================
+function drawDotGrid(xwidth,ywidth,radius)
+    local (_xDrawNum,_yDrawNum,count_x,count_y)
+(
+    //================================================================
+    _xDrawNum = gfx_w / xwidth;
+    _yDrawNum = gfx_h / ywidth;
+    //================================================================
+    
+    count_y = 0;
+    //================================================================
+    while (count_y < _yDrawNum )
+    (
+        count_x = 0;
+        while (count_x < _xDrawNum )
+        (
+            gfx_r=1; gfx_g=1;
+            gfx_b=1; gfx_a=0.5;
+            //========================================================
+            gfx_circle( xwidth * count_x
+                      , ywidth * count_y
+                      , radius,true);
+            //========================================================
+            count_x +=1;
+        );
+        count_y +=1;
+    );
+    //================================================================
+);
+//====================================================================
+
+
+//====================================================================
+function COLOR_changeColor(COLOR_ID)
+(
+    gfx_r = COLOR_getR(COLOR_ID);
+    gfx_g = COLOR_getG(COLOR_ID);
+    gfx_b = COLOR_getB(COLOR_ID);
+    gfx_a = COLOR_getA(COLOR_ID);
+);
+//====================================================================
+function COLOR_toGFX(COLOR_ID)( COLOR_changeColor(COLOR_ID);); //aliase function of COLOR_changeColor
+//====================================================================
+function POINT_drawString( POINT_ID,text)local (x,y,lastX,lastY)
+(
+    lastX = gfx_x;lastY = gfx_y;
+    //================================================================
+    gfx_x = POINT_getX ( POINT_ID);
+    gfx_y = POINT_getY ( POINT_ID);
+    gfx_drawstr( text);
+    //================================================================
+    gfx_x = lastX;gfx_y = lastY;
+);
+//====================================================================
+
+//====================================================================
+function CANVAS_blitImage(CANVAS_ID,dest_xpos,dest_ypos,scale,rotation)
+    local ( lastX,lastY)
+(
+    lastX = gfx_x;lastY = gfx_y;
+    //================================================================
+    gfx_x = dest_xpos ;
+    gfx_y = dest_ypos ;
+    gfx_blit( CANVAS_getCanvaseSlotID (CANVAS_ID),scale,rotation);
+    //================================================================
+    gfx_x = lastX;gfx_y = lastY;
+);
+function CANVAS_blitImage2(CANVAS_ID,dest_xpos,dest_ypos,scale,rotation,roffsetX,roffsetY)local (canvasSlot)
+(
+    canvasSlot = CANVAS_getCanvaseSlotID (CANVAS_ID);
+    lastX = gfx_x;lastY = gfx_y;
+    //================================================================
+    gfx_x = dest_xpos;
+    gfx_y = dest_ypos;
+    gfx_blit(canvasSlot,scale,rotation
+            , dest_xpos,dest_ypos
+            , RECTANGLE_getWidth(CANVAS_ID )
+            , RECTANGLE_getHeight(CANVAS_ID )
+            //--------------------------------------------------------
+            , dest_xpos,dest_ypos
+            , RECTANGLE_getWidth(CANVAS_ID )
+            , RECTANGLE_getHeight(CANVAS_ID )
+            //--------------------------------------------------------
+            ,roffsetX,roffsetY
+            );
+    //================================================================
+    gfx_x = lastX;gfx_y = lastY;
+);
+//====================================================================
+function CANVAS_blitImage3(CANVAS_ID,dest_xpos,dest_ypos,scale,rotation)local (canvasSlot)
+(
+    canvasSlot = CANVAS_getCanvaseSlotID (CANVAS_ID);
+    lastX = gfx_x;lastY = gfx_y;
+    //================================================================
+    gfx_x = dest_xpos;
+    gfx_y = dest_ypos;
+    gfx_blit(canvasSlot,scale,rotation
+            , dest_xpos,dest_ypos
+            , RECTANGLE_getWidth(CANVAS_ID )
+            , RECTANGLE_getHeight(CANVAS_ID )
+            //--------------------------------------------------------
+            , dest_xpos,dest_ypos
+            , RECTANGLE_getWidth(CANVAS_ID )
+            , RECTANGLE_getHeight(CANVAS_ID )
+            //--------------------------------------------------------
+            ,RECTANGLE_getWidth(CANVAS_ID )/8
+            , RECTANGLE_getHeight(CANVAS_ID )/8
+            );
+    //================================================================
+    gfx_x = lastX;gfx_y = lastY;
+);
+//====================================================================
+function POINT_drawCircle(POINT_ID,radius,antialiase)local (x,y)
+(
+    x = POINT_getX(POINT_ID);
+    y = POINT_getY(POINT_ID);
+    gfx_circle(x,y,radius,false,antialiase);
+);
+//====================================================================
+function POINT_drawCircleFill(POINT_ID,radius,antialiase)local (x,y)
+(
+    x = POINT_getX(POINT_ID);
+    y = POINT_getY(POINT_ID);
+    gfx_circle(x,y,radius,true,antialiase);
+);
+//====================================================================
+
+
+//====================================================================
+function CIRCLE_draw(CIRCLE_ID,antialiase)local (x,y,r)
+(
+    x = CIRCLE_getCX(CIRCLE_ID);
+    y = CIRCLE_getCY(CIRCLE_ID);
+    r = CIRCLE_getRadius (CIRCLE_ID);
+    //================================================================
+    gfx_circle(x,y,r,false,antialiase);
+);
+//====================================================================
+function CIRCLE_drawFill(CIRCLE_ID,antialiase)local (x,y,r)
+(
+    x = CIRCLE_getCX(CIRCLE_ID);
+    y = CIRCLE_getCY(CIRCLE_ID);
+    r = CIRCLE_getRadius (CIRCLE_ID);
+    //================================================================
+    gfx_circle(x,y,r,true,antialiase);
+);
+//====================================================================
+function RECTANGLE_drawFill(RECT_ID,antialiase)local (x,y,w,h)
+(
+    x = RECTANGLE_getX(RECT_ID);
+    y = RECTANGLE_getY(RECT_ID);
+    w = RECTANGLE_getWidth(RECT_ID);
+    h = RECTANGLE_getHeight(RECT_ID);
+    gfx_rect(x,y,w,h,false,antialiase);
+);
+//====================================================================
+function RECTANGLE_drawFill(RECT_ID,antialiase)local (x,y,w,h)
+(
+    x = RECTANGLE_getX(RECT_ID);
+    y = RECTANGLE_getY(RECT_ID);
+    w = RECTANGLE_getWidth(RECT_ID);
+    h = RECTANGLE_getHeight(RECT_ID);
+    gfx_rect(x,y,w,h,true,antialiase);
+);
+//====================================================================
+function RECTANGLE_drawStrInCenter(RECT_ID,str)
+    local (strW,strH,x,y,w,h,lastX,lasty)
+(
+    gfx_measurestr(str,strW,strH);
+    lastX = gfx_x;
+    lastY = gfx_y;
+    //================================================================
+    x = RECTANGLE_getX(RECT_ID);
+    y = RECTANGLE_getY(RECT_ID);
+    w = RECTANGLE_getWidth(RECT_ID);
+    h = RECTANGLE_getHeight(RECT_ID);
+    //================================================================
+    gfx_x =  (x +w/2) - strW/2;
+    gfx_y =  (y +h/2) - strH/2;
+    //================================================================
+    gfx_drawstr( str);
+    //================================================================
+    gfx_x = lastX;
+    gfx_y = lastY;
+);
+//====================================================================
+
+//drawString
+//====================================================================
+function RECTANGLE_getFittedFontSize(RECT_ID,str)local (strLen,x,y,w,h,targetFontSize)
+(
+    strLen =  strlen(str);
+    w = RECTANGLE_getWidth(RECT_ID);
+    h = RECTANGLE_getHeight(RECT_ID);
+    //================================================================
+    targetFontSize = w/(strLen/1.5);
+    //================================================================
+    targetFontSize = min(max(targetFontSize,1),h) ;
+    //================================================================
+    targetFontSize;
+);
+//====================================================================
+function RECTANGLE_drawStrInCenterFitFont(RECT_ID,str)local (strLen,x,y,w,h,lastFontIdx,temp,targetFontSize)
+(
+    lastFontIdx = gfx_getfont();
+    //================================================================
+    strLen =  strlen(str);
+    w = RECTANGLE_getWidth(RECT_ID);
+    h = RECTANGLE_getHeight(RECT_ID);
+    //================================================================
+    targetFontSize = w/(strLen/1.5);
+    //================================================================
+    targetFontSize = min(max(targetFontSize,1),h) ;
+    gfx_setfont(1,"Courier New Bold",targetFontSize);
+    //================================================================
+    RECTANGLE_drawStrInCenter(RECT_ID,str);
+    //================================================================
+    gfx_setfont(lastFontIdx);
+);
+//====================================================================
+function drawDecibelValue( x,y,Value,fontsize) 
+    local(tempStr,lastFontIdx ,lastX,lastY)
+(   
+    lastFontIdx = gfx_getfont();
+    //================================================================
+    tempStr = #;
+    sprintf ( tempStr,"%2.2fdB",valueToDecivel( value ) );
+    gfx_setfont(1,"arial black",fontsize);
+    //================================================================
+    lastX = gfx_x;
+    lastY = gfx_y;
+    //================================================================
+    gfx_x = x;
+    gfx_y = y;
+    //================================================================
+    gfx_drawstr(tempStr);
+    //================================================================
+    gfx_x = lastX;
+    gfx_y = lastY;
+    //================================================================
+    gfx_setfont(lastFontIdx);
+);
+//====================================================================
+function drawStrWithBlackBackGround(x,y,str)
+    local (strW,strH,lastR,lastG.lastB,lastA,lastX,lastY)
+(
+    gfx_measurestr(str,strW,strH);
+    //================================================================
+    lastR =gfx_r;lastG =gfx_g;lastB =gfx_b;lastA =gfx_a;
+    lastX =gfx_x;lastY =gfx_y;
+    //================================================================
+    gfx_r =0;gfx_g =0;gfx_b =0;
+    gfx_a =1; // !
+    //================================================================
+    
+    gfx_rect(x-3,y-3,strW+6,strH+6,true);
+    gfx_r =1;gfx_g =1;gfx_b =1;
+    gfx_a =1; // !
+    gfx_x = x;gfx_y=y;
+    gfx_drawstr( str);
+    //================================================================
+    gfx_r = lastR;gfx_g = lastG;gfx_b = lastB;gfx_a = lastA;
+    gfx_x = lastX;gfx_y = lastY;
+    //================================================================
+);
+//====================================================================
+
+
+//====================================================================
+// !!
+//====================================================================
+__temp_Point_12345 = POINT_create(0,0);//center
+__temp_Point_12346 = POINT_create(0,0);//lastPoint
+__temp_Point_12347 = POINT_create(0,0);//newPoint
+//====================================================================
+function drawFillArc(_cx,_cy,_r,_sA,_eA,_div)
+    local(divNum,oneAngleArea,polygons,count_1,centerPoint,lastPoint)
+(
+    oneAngleArea = (_eA - _sA)/_div;
+    //================================================================
+    polygons = STATIC_TEMP_BUFFER;
+    //================================================================
+    centerPoint.x = _cx;
+    centerPoint.y = _cy;
+    //================================================================
+    POINT_setX(__temp_Point_12345,_cx);
+    POINT_setY(__temp_Point_12345,_cy);
+    //================================================================
+    POINT_setX(__temp_Point_12346,_cx);
+    POINT_setY(__temp_Point_12346,_cy -_r);
+    //================================================================
+    POINT_rotation(__temp_Point_12346,__temp_Point_12345,_sA);
+    //================================================================
+    count_1 =0;
+    //================================================================
+    while ( count_1  <=_div)
+    (
+        //reset
+        POINT_setX(__temp_Point_12347,_cx);
+        POINT_setY(__temp_Point_12347,_cy -_r);
+        //============================================================
+        POINT_rotation(__temp_Point_12347,__temp_Point_12345,_sA+(oneAngleArea*count_1));
+        //===========================================================
+      
+        //===========================================================
+        gfx_triangle( POINT_getX(__temp_Point_12345) , POINT_getY(__temp_Point_12345)// _centerP
+                    , POINT_getX(__temp_Point_12346) , POINT_getY(__temp_Point_12346)   // _lastPoint
+                    , POINT_getX(__temp_Point_12347) , POINT_getY(__temp_Point_12347)    //  newPoint
+                    );
+        //============================================================
+        POINT_setX(__temp_Point_12346,POINT_getX(__temp_Point_12347));
+        POINT_setY(__temp_Point_12346,POINT_getY(__temp_Point_12347));
+        //============================================================
+        count_1+=1;
+    );
+    //================================================================
+);
+//====================================================================
+// !!!
+//====================================================================
+___CenterPoint_    = POINT_create(0,0);//center
+___outerPointLast_ = POINT_create(0,0);//lastPoint
+___outerPointNew_  = POINT_create(0,0);//newPoint
+//====================================================================
+___innerPointLast_ = POINT_create(0,0);//lastPoint//inner
+___innerPointNew_  = POINT_create(0,0);//newPoint//innner
+//====================================================================
+function drawFillArc2(_cx,_cy,_r,_r2,_sA,_eA,_div)
+    local(divNum,oneAngleArea,polygons,count_1,centerPoint,lastPoint)
+(
+    oneAngleArea = (_eA - _sA)/_div;
+    //================================================================
+    polygons = STATIC_TEMP_BUFFER;
+    //================================================================
+    _r2 = _r2 ;
+    //================================================================
+    POINT_setX(___CenterPoint_,_cx);
+    POINT_setY(___CenterPoint_,_cy);
+    //================================================================
+    POINT_setX(___outerPointLast_,_cx);
+    POINT_setY(___outerPointLast_,_cy -_r);
+    POINT_setX(___innerPointLast_,_cx);
+    POINT_setY(___innerPointLast_,_cy -_r2);
+    //================================================================
+    POINT_rotation(___outerPointLast_,___CenterPoint_,_sA);
+    POINT_rotation(___innerPointLast_,___CenterPoint_,_sA);
+    //================================================================
+    count_1 =0;
+    //================================================================
+    while ( count_1  <=_div)
+    (
+        //reset
+        POINT_setX(___outerPointNew_,_cx);
+        POINT_setY(___outerPointNew_,_cy -_r);
+        //============================================================
+        //reset
+        POINT_setX(___innerPointNew_,_cx);
+        POINT_setY(___innerPointNew_,_cy -_r2);
+        //============================================================
+        POINT_rotation(___outerPointNew_,___CenterPoint_,_sA+(oneAngleArea*count_1));
+        POINT_rotation(___innerPointNew_,___CenterPoint_,_sA+(oneAngleArea*count_1));
+        //===========================================================
+      
+        //===========================================================
+        gfx_triangle( POINT_getX(___innerPointLast_) , POINT_getY(___innerPointLast_)  // innerlast
+                    , POINT_getX(___outerPointLast_) , POINT_getY(___outerPointLast_)  // outerLast
+                    , POINT_getX(___outerPointNew_ ) , POINT_getY(___outerPointNew_)  //  outerNew
+                    );
+        //============================================================
+        gfx_triangle( POINT_getX(___innerPointNew_ ) , POINT_getY(___innerPointNew_)  // innerNew
+                    , POINT_getX(___outerPointNew_ )    , POINT_getY(___outerPointNew_)  // outerLast
+                    , POINT_getX(___innerPointLast_) , POINT_getY(___innerPointLast_)  //  outerNew
+                    );
+        //============================================================
+        
+        //============================================================
+        POINT_setX(___outerPointLast_,POINT_getX(___outerPointNew_));
+        POINT_setY(___outerPointLast_,POINT_getY(___outerPointNew_));
+        //============================================================
+        POINT_setX(___innerPointLast_,POINT_getX(___innerPointNew_));
+        POINT_setY(___innerPointLast_,POINT_getY(___innerPointNew_));
+        //============================================================
+        count_1+=1;
+    );
+    //================================================================
+);
+//====================================================================
+

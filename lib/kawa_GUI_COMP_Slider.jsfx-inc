@@ -1,0 +1,223 @@
+//====================================================================
+@init
+//====================================================================
+
+
+//====================================================================
+// inherit List
+// * Rectangle
+// * Canvas
+//====================================================================
+function SLIDER_create(name) local (SLIDER_ID,_childComponentBUFF,name_,circle_Area_ID)
+(
+    circle_Area_ID = CIRCLE_create(0,0,10);
+    //================================================================
+    SLIDER_ID = COMPONENT_create(name);//element NUM 6
+    //================================================================
+    STATIC_MASTER_BUFF[SLIDER_ID ]     = "SLIDER";        // classTYPE
+    STATIC_MASTER_BUFF[SLIDER_ID + 1]  = 21;                 // elementNUM
+    //================================================================
+    STATIC_MASTER_BUFF[SLIDER_ID + 19] = circle_Area_ID;
+    STATIC_MASTER_BUFF[SLIDER_ID + 20] = false;           // is Pressd incircleArea
+    STATIC_MASTER_BUFF[SLIDER_ID + 21] = 1;               // sliderIndex
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=22; // next entry Bufff Point
+    //================================================================
+    // init prepare.
+    //================================================================
+    MAP_setValue( COMPONENT_getColorMap(SLIDER_ID)
+                ,"background_mouseon"
+                , COLOR_create(0,1,1,1));
+    //================================================================
+    SLIDER_ID; //retrun
+);
+//====================================================================
+function SLIDER_getSliderIndex(SLIDER_ID)                  ( STATIC_MASTER_BUFF[SLIDER_ID + 21];);
+function SLIDER_setSliderIndex(SLIDER_ID,idx)              ( STATIC_MASTER_BUFF[SLIDER_ID + 21]=idx;);
+function SLIDER_getCircleArea(SLIDER_ID)                   ( STATIC_MASTER_BUFF[SLIDER_ID + 19];);
+function SLIDER_isCircleAreaPressed(SLIDER_ID)             ( STATIC_MASTER_BUFF[SLIDER_ID + 20];);
+function _SLIDER_setIsCircleAreaPressed(SLIDER_ID,v)       ( STATIC_MASTER_BUFF[SLIDER_ID + 20] =v;);
+//====================================================================
+// meterWidth
+//====================================================================
+function _SLIDER_getMeterWidth(SLIDER_ID)local (circle_Pointer_ID,x,y,w,h,radius,out)
+(
+    //================================================================
+    x = RECTANGLE_getX(SLIDER_ID);
+    y = RECTANGLE_getY(SLIDER_ID);
+    w = RECTANGLE_getWidth(SLIDER_ID);
+    h = RECTANGLE_getHeight(SLIDER_ID);
+    //================================================================
+    circle_Pointer_ID = SLIDER_getCircleArea(SLIDER_ID);
+    //================================================================
+    radius = CIRCLE_getRadius(circle_Pointer_ID);
+    //================================================================
+    out = w -radius*2;
+);
+//====================================================================
+function _SLIDER_positionToValue(SLIDER_ID,x_,y_) local (out,meterWidth,x,radius)
+(
+    //================================================================
+    meterWidth = _SLIDER_getMeterWidth(SLIDER_ID);
+    x = RECTANGLE_getX(SLIDER_ID);
+    //================================================================
+    out = max( 0,min( (x_-x)/(meterWidth) ,1));
+);
+//====================================================================
+
+
+//====================================================================
+function SLIDER_resized(SLIDER_ID,parrentRECT )
+(
+    0;
+);
+//====================================================================
+function SLIDER_draw(SLIDER_ID)local (radius,lineH,x,y,w,h,circle_Area_ID)
+(
+    //================================================================
+    x = RECTANGLE_getX(SLIDER_ID);
+    y = RECTANGLE_getY(SLIDER_ID);
+    w = RECTANGLE_getWidth(SLIDER_ID);
+    h = RECTANGLE_getHeight(SLIDER_ID);
+    //================================================================
+    radius = 10;
+    lineH  = 1;
+    //================================================================
+    ( RECTANGLE_isContainMouse(SLIDER_ID) ==true) ?
+    (
+        COMPONENT_changeColorGfx( SLIDER_ID,"background_mouseon");
+         gfx_rect( x, y, w, h,true);
+    );  
+    //================================================================
+    gfx_r =0.3;gfx_g =0.3;gfx_b =0.3; gfx_a =1;
+    gfx_rect( x -2 +radius
+            , y+h/2 -lineH/2-2
+            , w+4 -radius*2
+            , lineH+4,true);
+    //================================================================
+    gfx_r =0.8;gfx_g =0.8;gfx_b =0.8; gfx_a =1;
+    gfx_rect( x +radius
+            , y+h/2 -lineH/2
+            , w -radius*2
+            , lineH,true);
+    //================================================================
+    circle_Area_ID =  SLIDER_getCircleArea(SLIDER_ID);
+    //================================================================
+    CIRCLE_setCX(circle_Area_ID,(x+radius+4)+ (w-radius*2 -8)*COMPONENT_getValue(SLIDER_ID) );
+    CIRCLE_setCY(circle_Area_ID,y+h/2);
+    CIRCLE_setRadius(circle_Area_ID,radius);
+    //================================================================
+    //( CIRCLE_isContainMouse(circle_Area_ID) ==true) ?
+    (    SLIDER_isCircleAreaPressed(SLIDER_ID) ==true
+      || CIRCLE_isContainMouse( circle_Area_ID ) == true
+    ) ?
+    (
+        gfx_r =1;gfx_g =0;gfx_b =0;gfx_a =1;
+    ):(
+        gfx_r =1;gfx_g =1;gfx_b =1;gfx_a =1;
+    );
+    //================================================================
+    gfx_circle( (x+radius+4)+ (w-radius*2 -8)*COMPONENT_getValue(SLIDER_ID) 
+               , y+h/2
+               , radius ,true);
+    
+    //================================================================
+);
+//====================================================================
+function SLIDER_mouseMoved(SLIDER_ID,MOUSEINFO_ID)local(XXX)
+(
+    ( RECTANGLE_isContainMouse(SLIDER_ID) ==true) ?
+    (
+        DBG(" SLIDER  Mouse Moved");
+    );
+    //================================================================
+    (   COMPONENT_isMousePressStartedInThisComp(SLIDER_ID) ==true
+     && SLIDER_isCircleAreaPressed(SLIDER_ID) ==false
+     && COMPONENT_isParrentLayerResized( SLIDER_ID) ==false
+    )?
+    (
+        RECTANGLE_setX(   SLIDER_ID
+                       ,  RECTANGLE_getX(SLIDER_ID)
+                        + MOUSEINFO_getMouseXDiff(MOUSEINFO_ID) );
+        RECTANGLE_setY(   SLIDER_ID
+                       ,  RECTANGLE_getY(SLIDER_ID)
+                        + MOUSEINFO_getMouseYDiff(MOUSEINFO_ID) );
+    );
+    //================================================================
+
+    //================================================================
+    ( SLIDER_isCircleAreaPressed(SLIDER_ID) ==true )?
+    (
+        XXX = _SLIDER_positionToValue( SLIDER_ID
+                                     , MOUSEINFO_getMouseX(MOUSEINFO_ID)
+                                     , MOUSEINFO_getMouseY(MOUSEINFO_ID));
+        COMPONENT_setValue(SLIDER_ID,XXX);
+        //============================================================
+        DBG_FLOAT(COMPONENT_getValue(SLIDER_ID) );
+        //============================================================
+        DBG(" SLIDER -- SLIDER Changed");
+        //============================================================
+        slider( SLIDER_getSliderIndex(SLIDER_ID) ) = XXX;
+        slider_automate(2 ^ SLIDER_getSliderIndex(SLIDER_ID) -1 );
+    );
+    //================================================================
+);
+//====================================================================
+function SLIDER_mouseButtonPressd(SLIDER_ID,MOUSEINFO_ID )local(circle_Area_ID)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(SLIDER_ID) ==true) ?
+    (
+        DBG(" SLIDER Mouse Button Press IN");
+        COMPONENT_setIsMousePressStartedInThisComp(SLIDER_ID,true);
+    ):(
+        COMPONENT_setIsMousePressStartedInThisComp(SLIDER_ID,false);
+    );
+    //================================================================
+    circle_Area_ID = SLIDER_getCircleArea(SLIDER_ID);
+    //================================================================
+    ( CIRCLE_isContainMouse(circle_Area_ID) == true)?
+    (
+        DBG(" SLIDER Mouse Button Press IN Circle");
+        _SLIDER_setIsCircleAreaPressed(SLIDER_ID,true);
+    );
+    //================================================================
+);
+//====================================================================
+function SLIDER_mouseButtonReleased( SLIDER_ID,MOUSEINFO_ID )local (tempstr)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(SLIDER_ID) ==true) ?
+    (
+        //============================================================
+        DBG(" SLIDER Mouse Button Released");
+    );
+    //================================================================
+    _SLIDER_setIsCircleAreaPressed(SLIDER_ID,false);
+    //================================================================
+);
+//====================================================================
+function SLIDER_mouseWheeled(SLIDER_ID,MOUSEINFO_ID )
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(SLIDER_ID) ==true) ?
+    (
+        DBG(" SLIDER Mouse Wheeld");
+        
+        COMPONENT_setValue( SLIDER_ID
+                          ,   COMPONENT_getValue(SLIDER_ID) 
+                            + MOUSEINFO_getMouseWheelDiffV_ABS(MOUSEINFO_ID)/30
+                          );
+       
+        //============================================================
+        DBG_FLOAT(COMPONENT_getValue(SLIDER_ID) );
+        //============================================================
+        DBG(" SLIDER -- SLIDER Changed");
+        slider( SLIDER_getSliderIndex(SLIDER_ID) ) = COMPONENT_getValue(SLIDER_ID) ;
+        slider_automate(2 ^ SLIDER_getSliderIndex(SLIDER_ID) -1 );
+    );
+    //================================================================
+);
+//====================================================================
+
+

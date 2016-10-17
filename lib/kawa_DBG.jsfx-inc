@@ -1,0 +1,192 @@
+//====================================================================
+//funciton Llist
+//====================================================================
+
+//====================================================================
+//function DBG_MSG(message) //singlue functions
+//====================================================================
+
+//====================================================================
+//function DBGMESSAGE_create(size)
+//====================================================================
+//function DBGMESSAGE_getActive(DBGMSG_ID)     //is visible 
+//function DBGMESSAGE_isActive (DBGMSG_ID)     
+//function DBGMESSAGE_setActive(DBGMSG_ID,v)   
+//function DBGMESSAGE_toggleActive(DBGMSG_ID)
+//====================================================================
+//function DBGMESSAGE_addDBG(DBGMSG_ID,str)
+//function DBGMESSAGE_add(DBGMSG_ID,str) //aliase of DBGMESSAGE_addDBG
+//function DBGMESSAGE_addFloat(DBGMSG_ID,floatNum) 
+//function DBGMESSAGE_addAllStrcutElement(DBGMSG_ID,targetSTRUCT_ID) 
+//====================================================================
+//function DBGMESSAGE_drawAllMessage(DBGMSG_ID)local (circleBUF_ID,bufSize,count_2,oneMsg)
+//====================================================================
+
+
+//====================================================================
+// STATIC DBG message struct
+//====================================================================
+//function DBG(str)
+//function DBG_FLOAT(floatNum)
+//function DBG_toggle()
+//====================================================================
+
+
+//====================================================================
+@init
+//====================================================================
+
+//====================================================================
+function DBG_MSG(message)
+(
+    gfx_x=0;
+    gfx_y=0;
+    gfx_r=1;gfx_g=1;gfx_b=1;gfx_a=1;
+    gfx_drawstr(message);
+);
+//====================================================================
+
+
+//====================================================================
+function DBGMESSAGE_create(size)local (DBGMSG_ID,size_,circle_BUFF_ID)
+(
+    size_ = (size == 0) ? 50 :size;
+    //================================================================
+    circle_BUFF_ID =CIRCLEBUFFER_create(size_) ; //step increment CircleBUFF ID;
+    //================================================================
+    DBGMSG_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+   
+    //================================================================
+    STATIC_MASTER_BUFF[DBGMSG_ID] = "DBG_MESSAGE";//elemNUM
+    STATIC_MASTER_BUFF[DBGMSG_ID+1] = 4;//elemNUM
+    STATIC_MASTER_BUFF[DBGMSG_ID+2] = circle_BUFF_ID;//circleBuf ID
+    STATIC_MASTER_BUFF[DBGMSG_ID+3] = STATIC_TEMP_STRING_START_SLOT_NUM;//lastest String Slot cursol
+    STATIC_MASTER_BUFF[DBGMSG_ID+4] = 100;//is Active
+    
+    //================================================================
+    STATIC_MASTER_BUFF_ID += 5;
+    //================================================================
+    DBGMSG_ID; //return 
+    //================================================================
+);
+//====================================================================
+function DBGMESSAGE_getActive(DBGMSG_ID)     (STATIC_MASTER_BUFF[DBGMSG_ID+4];);
+function DBGMESSAGE_isActive (DBGMSG_ID)     (DBGMESSAGE_getActive(DBGMSG_ID););
+function DBGMESSAGE_setActive(DBGMSG_ID,v)   (STATIC_MASTER_BUFF[DBGMSG_ID+4]=v;);
+function DBGMESSAGE_toggleActive(DBGMSG_ID)
+(       
+    DBGMESSAGE_setActive( DBGMSG_ID
+                        ,( DBGMESSAGE_getActive(DBGMSG_ID) == false ) );
+);
+
+//====================================================================
+function _DBGMESSAGE_getStringSlotCursol(DBGMSG_ID)           ( STATIC_MASTER_BUFF[DBGMSG_ID+3];);
+function _DBGMESSAGE_setStringSlotCursol(DBGMSG_ID,newCursol) ( STATIC_MASTER_BUFF[DBGMSG_ID+3] = newCursol;);
+function _DBGMESSAGE_resetStringSlotCursol(DBGMSG_ID)         ( STATIC_MASTER_BUFF[DBGMSG_ID+3] = STATIC_TEMP_STRING_START_SLOT_NUM;);
+//====================================================================
+function _DBGMESSAGE_getCircleBuff(DBGMSG_ID)                 ( STATIC_MASTER_BUFF[DBGMSG_ID+2];);
+//====================================================================
+function DBGMESSAGE_addDBG(DBGMSG_ID,str)local (circleBUF_ID,temp_str)
+(
+    circleBUF_ID = _DBGMESSAGE_getCircleBuff(DBGMSG_ID);
+    CIRCLEBUFFER_push_front(circleBUF_ID,str);
+    //================================================================
+);
+//====================================================================
+function DBGMESSAGE_add(DBGMSG_ID,str) //aliase of 
+(
+    DBGMESSAGE_addDBG(DBGMSG_ID,str);
+    //================================================================
+);
+//====================================================================
+function DBGMESSAGE_addFloat(DBGMSG_ID,floatNum)local (str,strslot) //aliase of 
+(
+    str = STATIC_TEMP_STRING_START_SLOT_NUM;
+    sprintf ( str,"%f",floatNum);
+    DBGMESSAGE_addDBG(DBGMSG_ID,str);
+    //================================================================
+    STATIC_TEMP_STRING_START_SLOT_NUM += 1;
+    ( STATIC_TEMP_STRING_START_SLOT_NUM>1023)
+    ?(STATIC_TEMP_STRING_START_SLOT_NUM =STATIC_TEMP_STRING_START_SLOT_NUM_START);
+    //================================================================
+);
+//====================================================================
+function DBGMESSAGE_addAllStrcutElement(DBGMSG_ID,targetSTRUCT_ID) local (countABC,elementNUM,tempStr,temp)
+(
+    elementNUM = STRUCT_getElementNum ( targetSTRUCT_ID);
+    //================================================================
+    countABC = 0;
+    tempStr = _DBGMESSAGE_getStringSlotCursol(DBGMSG_ID)+1;
+    //================================================================
+    while( countABC <= elementNUM)
+    (
+        temp = STATIC_MASTER_BUFF[targetSTRUCT_ID+countABC];
+        sprintf(tempStr,"[%i] : %f :%s ", countABC,temp,temp);
+        DBGMESSAGE_addDBG(DBGMSG_ID,tempStr);
+        //============================================================
+        tempStr +=1;
+        countABC +=1;
+    );
+    //================================================================
+    _DBGMESSAGE_setStringSlotCursol(DBGMSG_ID,tempStr);
+    //================================================================
+    sprintf(temp,"");
+);
+//====================================================================
+
+//====================================================================
+function DBGMESSAGE_drawAllMessage(DBGMSG_ID)local (circleBUF_ID,bufSize,count_2,oneMsg)
+(
+    ( DBGMESSAGE_isActive(DBGMSG_ID) == true )?
+    (
+        circleBUF_ID = _DBGMESSAGE_getCircleBuff(DBGMSG_ID);
+        bufSize = CIRCLEBUFFER_getBufferSize(circleBUF_ID);
+        //============================================================
+        count_2 =0;
+        //============================================================
+        while( count_2 < bufSize)
+        (
+            oneMsg  = CIRCLEBUFFER_getValueFromPos(circleBUF_ID,count_2);
+            
+            gfx_x=0;
+            gfx_y=gfx_texth * count_2;
+            gfx_r=1;gfx_g=1;gfx_b=1;gfx_a=1;
+            gfx_printf(oneMsg) ;
+            //========================================================
+            count_2+=1;
+        );
+        //============================================================
+    );
+    _DBGMESSAGE_resetStringSlotCursol(DBGMSG_ID);
+);
+//====================================================================
+
+
+//====================================================================
+STATIC_DBG_ID  = DBGMESSAGE_create(50);
+DBGMESSAGE_setActive(STATIC_DBG_ID,1);
+DBG = STATIC_DBG_ID;
+//====================================================================
+function DBG(str)
+(
+    DBGMESSAGE_add(STATIC_DBG_ID,str);
+);
+//====================================================================
+function DBG_FLOAT(floatNum)
+(
+    DBGMESSAGE_addFloat(STATIC_DBG_ID,floatNum);
+);
+//====================================================================
+function DBG_toggle()
+(
+    DBGMESSAGE_toggleActive(STATIC_DBG_ID);
+)；
+//====================================================================
+
+
+
+
+
+
+

@@ -1,0 +1,139 @@
+//====================================================================
+@init
+//====================================================================
+
+
+//====================================================================
+// inherit List
+// * Rectangle
+// * Canvas
+//====================================================================
+function BUTTON_create(name) local (BUTTON_ID)
+(
+    //================================================================
+    BUTTON_ID = COMPONENT_create(name);//element NUM 6
+    //================================================================
+    STATIC_MASTER_BUFF[BUTTON_ID ]     = "BUTTON";        // classTYPE
+    //same as COMPONENT
+    //STATIC_MASTER_BUFF[BUTTON_ID + 1]  = 17;            // elementNUM
+    //================================================================
+    //STATIC_MASTER_BUFF_ID +=18; // next entry Bufff Point
+    //================================================================
+
+    //================================================================
+    MAP_setValue( COMPONENT_getColorMap(BUTTON_ID)
+                ,"textColor"
+                , COLOR_create(0,0,0,1));
+    //================================================================
+    MAP_setValue( COMPONENT_getColorMap(BUTTON_ID)
+                ,"textColor_mouseon"
+                , COLOR_create(1,0,0,1));
+    //================================================================
+    
+    // init prepare.
+    //================================================================
+    BUTTON_ID; //retrun
+);
+//====================================================================
+
+//====================================================================
+function BUTTON_isON(BUTTON_ID)       ( (COMPONENT_getValue(BUTTON_ID) > 0););
+function BUTTON_isOFF(BUTTON_ID)      ( (BUTTON_isON(BUTTON_ID) == false ););
+function BUTTON_setON(BUTTON_ID)      ( COMPONENT_setValue(BUTTON_ID,1););
+function BUTTON_ON(BUTTON_ID)         ( COMPONENT_setValue(BUTTON_ID,1););
+function BUTTON_setOFF(BUTTON_ID)     ( COMPONENT_setValue(BUTTON_ID,0););
+function BUTTON_OFF(BUTTON_ID)        ( COMPONENT_setValue(BUTTON_ID,0););
+function BUTTON_toggleOnOff(BUTTON_ID)( COMPONENT_setValue(BUTTON_ID,(BUTTON_isON(BUTTON_ID)==false) ););
+//====================================================================
+
+//====================================================================
+function BUTTON_resized(BUTTON_ID,parrentRECT )
+( 
+    0; 
+);
+//====================================================================
+function BUTTON_draw(BUTTON_ID)local (tempText)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(BUTTON_ID) ==true) ?
+    (
+        COMPONENT_changeColorGfx( BUTTON_ID,"bakcground_mouseon");
+    ):(
+        COMPONENT_changeColorGfx( BUTTON_ID,"bakcground");
+    );
+    //================================================================
+    RECTANGLE_drawFill(BUTTON_ID,true); //test
+    //================================================================
+    ( RECTANGLE_isContainMouse(BUTTON_ID) ==true) ?
+    (
+        COMPONENT_changeColorGfx( BUTTON_ID,"textColor_mouseon");
+    ):(
+        COMPONENT_changeColorGfx( BUTTON_ID,"textColor");
+    );
+    //================================================================
+    tempText = #;
+    sprintf( tempText ,COMPONENT_getName(BUTTON_ID) );
+    //================================================================
+    (BUTTON_isON(BUTTON_ID) ==true)?
+    (
+        strcat(tempText, ":ON " );
+        COMPONENT_changeColorGfx( BUTTON_ID,"textColor_mouseon");
+    ):(
+        strcat(tempText, ":OFF" );
+    );
+    //================================================================
+    RECTANGLE_drawStrInCenterFitFont(BUTTON_ID,tempText);
+    //================================================================
+);
+//====================================================================
+function BUTTON_mouseMoved(BUTTON_ID,MOUSEINFO_ID)
+(
+    ( RECTANGLE_isContainMouse(BUTTON_ID) ==true) ?
+    (
+        DBG(" BUTTON  Mouse Moved");
+    );
+   //=================================================================
+);
+//====================================================================
+function BUTTON_mouseButtonPressd(BUTTON_ID,MOUSEINFO_ID )local(circle_Area_ID)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(BUTTON_ID) ==true) ?
+    (
+        DBG(" BUTTON Mouse Button Press IN");
+        COMPONENT_setIsMousePressStartedInThisComp(BUTTON_ID,true);
+        ;
+    ):(
+        COMPONENT_setIsMousePressStartedInThisComp(BUTTON_ID,false);
+    );
+    //================================================================
+);
+//====================================================================
+function BUTTON_mouseButtonReleased( BUTTON_ID,MOUSEINFO_ID )local (tempstr)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(BUTTON_ID) ==true) ?
+    (
+        //============================================================
+        DBG(" BUTTON Mouse Button Released");
+        //============================================================
+        (COMPONENT_isMousePressStartedInThisComp(BUTTON_ID) ==true)?
+        (
+            BUTTON_toggleOnOff(BUTTON_ID);
+        );
+    );
+    //================================================================
+);
+//====================================================================
+function BUTTON_mouseWheeled(BUTTON_ID,MOUSEINFO_ID )
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(BUTTON_ID) ==true) ?
+    (
+        DBG(" BUTTON Mouse Wheeld");
+    );
+    //================================================================
+);
+//====================================================================
+
+
