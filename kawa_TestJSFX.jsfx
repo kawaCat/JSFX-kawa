@@ -70,9 +70,11 @@ slider1:0.25<0.0,1>parameter1
 
     // canvase test
     //================================================================
-    CANVS_WAVE_L = CANVAS_create(100,100);
-    CANVS_WAVE_R = CANVAS_create(100,100);
+    CANVS_WAVE_L = CANVAS_create(gfx_w,gfx_h);
+    CANVS_WAVE_R = CANVAS_create(gfx_w,gfx_h);
     //================================================================
+    
+ 
     
 @slider
 //====================================================================

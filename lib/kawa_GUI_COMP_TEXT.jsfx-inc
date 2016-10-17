@@ -81,7 +81,7 @@ function TEXT_draw(TEXT_ID)local (tempText)
         TEXT_drawDBValueModeText( TEXT_ID);
     ):(
         RECTANGLE_drawStrInCenterFitFont(TEXT_ID,COMPONENT_getName(TEXT_ID));
-    )
+    );
     //================================================================
     
     //================================================================

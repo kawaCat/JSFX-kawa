@@ -106,7 +106,7 @@ function XYSLIDER_resized(XYSLIDER_ID,parrentRECT )
 //====================================================================
 function XYSLIDER_draw(XYSLIDER_ID)
 local ( radius,lineH,x,y,w,h,circle_Area_ID
-	  , tempStr,tempStrW,tempStrH,XXXX,YYYY,margin)
+      , tempStr,tempStrW,tempStrH,XXXX,YYYY,margin)
 (
     //================================================================
     x = RECTANGLE_getX(XYSLIDER_ID);

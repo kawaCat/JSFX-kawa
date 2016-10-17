@@ -152,14 +152,14 @@ function MOUSEINFO_create() local(MOUSEINFO_ID)
     //================================================================
     STATIC_MASTER_BUFF[MOUSEINFO_ID+2]   = mouse_x;       // mouseX
     STATIC_MASTER_BUFF[MOUSEINFO_ID+3]   = mouse_y;       // mouseY
-    STATIC_MASTER_BUFF[MOUSEINFO_ID+4]   = 0;             // last MouseX
-    STATIC_MASTER_BUFF[MOUSEINFO_ID+5]   = 0;             // last MouseY
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+4]   = mouse_x;       // last MouseX
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+5]   = mouse_y;       // last MouseY
     STATIC_MASTER_BUFF[MOUSEINFO_ID+6]   = mouse_cap;     // mouse cap
-    STATIC_MASTER_BUFF[MOUSEINFO_ID+7]   = 0;             // last MouseCap
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+7]   = mouse_cap;     // last MouseCap
     STATIC_MASTER_BUFF[MOUSEINFO_ID+8]   = mouse_wheel;   // mouse_wheel
-    STATIC_MASTER_BUFF[MOUSEINFO_ID+9]   = 0;             // last mouse_wheel
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+9]   = mouse_wheel;   // last mouse_wheel
     STATIC_MASTER_BUFF[MOUSEINFO_ID+10]  = mouse_hwheel;  // mouse_hwheel
-    STATIC_MASTER_BUFF[MOUSEINFO_ID+11]  = 0;             // last mouse_hwheel
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+11]  = mouse_hwheel;  // last mouse_hwheel
     //================================================================
     STATIC_MASTER_BUFF_ID +=12;//next buffer entry point.
     //================================================================

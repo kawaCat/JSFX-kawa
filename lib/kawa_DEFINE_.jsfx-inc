@@ -37,5 +37,5 @@ STATIC_CIRCLE_BUFF          = STATIC_CIRCLE_BUFF_START;
 STATIC_CIRCLE_BUFF_ID       = 0;      //cursol Pointer
 //====================================================================
 STATIC_MAP_BUFF             = STATIC_MAP_BUFF_START;  
-STATIC_MAP_BUFF_ID          = 0;	  //cursol Pointer
+STATIC_MAP_BUFF_ID          = 0;      //cursol Pointer
 //====================================================================

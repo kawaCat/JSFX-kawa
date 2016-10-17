@@ -62,7 +62,7 @@ function LAYER_create(name) local (LAYER_ID,_childComponentBUFF,name_,_lastRecta
     _childComponentBUFF =ARRAY_create(1000);// max ArraSize is 1000;
     _lastRectangle_ID = RECTANGLE_create(0,0,-100,-100);
     //================================================================
-    LAYER_ID = RECTANGLE_create(0,0,-100,-100);//element NUM 6
+    LAYER_ID = RECTANGLE_create(0,0,gfx_w,gfx_h);//element NUM 6
 
     //================================================================
     STATIC_MASTER_BUFF[LAYER_ID ]     = "LAYER"; // elementNUM
@@ -195,31 +195,31 @@ function _LAYER_resized(LAYER_ID,targetCOMPONENT_ID,parrentRECT )
         //============================================================
         ( strcmp(struct_Type ,"COMPONENT")== 0 )?
         (
-            COMPONENT_resized(targetCOMPONENT_ID,parrentRECT);
+            COMPONENT_resized(targetCOMPONENT_ID,LAYER_ID);
             //========================================================
         ):(strcmp(struct_Type ,"SLIDER")== 0 )?
         (
-            SLIDER_resized(targetCOMPONENT_ID,parrentRECT);
+            SLIDER_resized(targetCOMPONENT_ID,LAYER_ID);
             //========================================================
         ):(strcmp(struct_Type ,"SLIDERTYPE2")== 0 )?
         (
-            SLIDERTYPE2_resized(targetCOMPONENT_ID,parrentRECT);
+            SLIDERTYPE2_resized(targetCOMPONENT_ID,LAYER_ID);
             //========================================================
         ):(strcmp(struct_Type ,"XYSLIDER")== 0 )?
         (
-            XYSLIDER_resized(targetCOMPONENT_ID,parrentRECT);
+            XYSLIDER_resized(targetCOMPONENT_ID,LAYER_ID);
             //========================================================
         ):(strcmp(struct_Type ,"BUTTON")== 0 )?
         (
-            BUTTON_resized(targetCOMPONENT_ID,parrentRECT);
+            BUTTON_resized(targetCOMPONENT_ID,LAYER_ID);
             //========================================================
         ):(strcmp(struct_Type ,"TEXT")== 0 )?
         (
-            TEXT_resized(targetCOMPONENT_ID,parrentRECT);
+            TEXT_resized(targetCOMPONENT_ID,LAYER_ID);
             //========================================================
         ):( strcmp(struct_Type ,"KNOB")== 0 )?
         (
-            KNOB_resized(targetCOMPONENT_ID,parrentRECT);
+            KNOB_resized(targetCOMPONENT_ID,LAYER_ID);
             //========================================================
         )
         //============================================================
@@ -459,7 +459,9 @@ function LAYER_update(LAYER_ID,parrentRectID)
                                                , LAYER_ID) ==false ) ) ;
         //============================================================
         
-      
+        //============================================================
+        RECTANGLE_copyTo(_LAYER_getLastLayerAreaRect(LAYER_ID),LAYER_ID);
+        //============================================================
         
         //============================================================
         childCompoArray_ID = LAYER_getChildComponentArray(LAYER_ID);
@@ -480,9 +482,7 @@ function LAYER_update(LAYER_ID,parrentRectID)
     );
     //================================================================
     //store Rectangle info to last Rectangle 
-    //============================================================
-    RECTANGLE_copyTo(_LAYER_getLastLayerAreaRect(LAYER_ID),LAYER_ID);
-    //============================================================
+   
 );
 //====================================================================
 
@@ -530,8 +530,13 @@ function LAYER_draw(LAYER_ID)
         //============================================================
         while ( count_ < childNUM )
         (
-            //========================================================
-            _LAYER_draw(LAYER_ID,ARRAY_getAt(childCompoArray_ID,count_));
+            (    RECTANGLE_getWidth(ARRAY_getAt(childCompoArray_ID,count_ ) ) > 0 
+              && RECTANGLE_getHeight(ARRAY_getAt(childCompoArray_ID,count_) ) > 0 
+            ) ?
+            (
+                //====================================================
+                _LAYER_draw(LAYER_ID,ARRAY_getAt(childCompoArray_ID,count_));
+            );
             //========================================================
             count_ +=1;
         );

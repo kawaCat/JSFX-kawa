@@ -88,7 +88,7 @@ function COMPONENT_create(name)
     color_Map_ID =  createDefaultColorMAP();
     componentInfoMap =  MAP_create();
     //================================================================
-    COMPONENT_ID = RECTANGLE_create(0,0,0,0);//element NUM 6
+    COMPONENT_ID = RECTANGLE_create(0,0,gfx_w,gfx_h);//element NUM 6
     //================================================================
     STATIC_MASTER_BUFF[COMPONENT_ID ]     = "COMPONENT";       // classTYPE
     STATIC_MASTER_BUFF[COMPONENT_ID + 1]  = 18;                // elementNUM

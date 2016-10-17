@@ -445,8 +445,8 @@ function MAP_ELEM_create(keyName,velue)local(MAP_ELEM_ID)
     MAP_ELEM_ID;
 );
 //====================================================================
-function MAP_ELEM_getKeyName( MAP_ELEM_ID)(STATIC_MASTER_BUFF[MAP_ELEM_ID+2]);
-function MAP_ELEM_getValue  ( MAP_ELEM_ID)(STATIC_MASTER_BUFF[MAP_ELEM_ID+3]);
+function MAP_ELEM_getKeyName( MAP_ELEM_ID)  (STATIC_MASTER_BUFF[MAP_ELEM_ID+2]);
+function MAP_ELEM_getValue  ( MAP_ELEM_ID)  (STATIC_MASTER_BUFF[MAP_ELEM_ID+3]);
 function MAP_ELEM_setValue  ( MAP_ELEM_ID,v)(STATIC_MASTER_BUFF[MAP_ELEM_ID+3] =v;);
 //====================================================================
 
@@ -470,10 +470,7 @@ function MAP_create() local (MAP_ID,array_id)
 //====================================================================
 function MAP_getArrayID(MAP_ID)(STATIC_MAP_BUFF_START[MAP_ID+2];);
 //====================================================================
-function MAP_getSize(MAP_ID)
-(
-    ARRAY_getBufferSize( MAP_getArrayID(MAP_ID) );
-);
+function MAP_getSize(MAP_ID)(ARRAY_getBufferSize( MAP_getArrayID(MAP_ID) ););
 //====================================================================
 function MAP_setValue(MAP_ID,keyName,Value)
     local(doubleCheck,count,tempElem,array_ID,tempKeyName,bufferSize)
