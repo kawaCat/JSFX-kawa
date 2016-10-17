@@ -818,7 +818,6 @@ function CANVAS_create(width,height)local (CANVAS_ID,canvasSLOTID,ww_,hh_)
 );
 //====================================================================
 function CANVAS_isCreatedCanvas(CANVAS_ID)(STATIC_MASTER_BUFF[CANVAS_ID +9];);
-//====================================================================
 function _CANVAS_setisCreatedCanvas(CANVAS_ID,v)(STATIC_MASTER_BUFF[CANVAS_ID +9] = v;);
 //====================================================================
 function CANVAS_recreateCanvas(CANVAS_ID)local (width,height,canvasSlot)

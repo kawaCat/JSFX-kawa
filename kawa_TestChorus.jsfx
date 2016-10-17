@@ -124,8 +124,8 @@ slider2:0.25<0.0,0.9>WIDTH
                           ,0);
     //================================================================
     gfx_a =0.6;
-    CANVAS_blitImage(CANVS_WAVE_R,0,0,1,0);
-    CANVAS_blitImage(CANVS_WAVE_L,0,0,1,0);
+    CANVAS_blitImage4(CANVS_WAVE_R,1,0);
+    CANVAS_blitImage4(CANVS_WAVE_L,1,0);
     gfx_a =1;
     //================================================================
     // final background

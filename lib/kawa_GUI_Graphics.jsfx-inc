@@ -4,34 +4,34 @@
 //====================================================================
 
 //====================================================================
-//function drawWaveBufferToCanvas(CANVAS_ID,waveMax,waveMin,oneBar_Width,vAmp,alpha,hueOffset)
-//function drawBackGrond_1(gradiationNUM,hueStart_,hueWidth_)
-//function drawBackGrond_2(gradiationNUM,hueStart_,hueWidth_)
-//function drawSinWaveCircle(num,radius,rate,speed) 
-//function drawDotGrid(xwidth,ywidth,radius)
+//      drawWaveBufferToCanvas  (CANVAS_ID,waveMax,waveMin,oneBar_Width,vAmp,alpha,hueOffset)
+//      drawBackGrond_1         (gradiationNUM,hueStart_,hueWidth_)
+//      drawBackGrond_2         (gradiationNUM,hueStart_,hueWidth_)
+//      drawSinWaveCircle       (num,radius,rate,speed) 
+//      drawDotGrid             (xwidth,ywidth,radius)
 //====================================================================
-//function COLOR_changeColor(COLOR_ID)
-//function COLOR_toGFX(COLOR_ID)( COLOR_changeColor(COLOR_ID);); //aliase function of COLOR_changeColor
-//function POINT_drawString( POINT_ID,text)
+//      COLOR_changeColor       (COLOR_ID)
+//      COLOR_toGFX(COLOR_ID)   (COLOR_changeColor(COLOR_ID);); //aliase function of COLOR_changeColor
+//      POINT_drawString        (POINT_ID,text)
 //====================================================================
-//function CANVAS_blitImage(CANVAS_ID,dest_xpos,dest_ypos,scale,rotation)
-//function CANVAS_blitImage2(CANVAS_ID,dest_xpos,dest_ypos,scale,rotation,roffsetX,roffsetY)
-//function CANVAS_blitImage3(CANVAS_ID,dest_xpos,dest_ypos,scale,rotation)
-//function POINT_drawCircle(POINT_ID,radius,antialiase)
-//function POINT_drawCircleFill(POINT_ID,radius,antialiase)
+//      CANVAS_blitImage        (CANVAS_ID,dest_xpos,dest_ypos,scale,rotation)
+//      CANVAS_blitImage2       (CANVAS_ID,dest_xpos,dest_ypos,scale,rotation,roffsetX,roffsetY)
+//      CANVAS_blitImage3       (CANVAS_ID,dest_xpos,dest_ypos,scale,rotation)
+//      POINT_drawCircle        (POINT_ID,radius,antialiase)
+//      POINT_drawCircleFill    (POINT_ID,radius,antialiase)
 //====================================================================
 
 //====================================================================
-//function CIRCLE_draw(CIRCLE_ID,antialiase)
-//function CIRCLE_drawFill(CIRCLE_ID,antialiase)
-//function RECTANGLE_drawFill(RECT_ID,antialiase)
-//function RECTANGLE_drawFill(RECT_ID,antialiase)
-//function RECTANGLE_drawStrInCenter(RECT_ID,str)
-//function RECTANGLE_drawStrInCenterFitFont(RECT_ID,str)
-//function drawDecibelValue( x,y,Value,fontsize) 
+//      CIRCLE_draw                     (CIRCLE_ID,antialiase)
+//      CIRCLE_drawFill                 (CIRCLE_ID,antialiase)
+//      RECTANGLE_drawFill              (RECT_ID,antialiase)
+//      RECTANGLE_drawFill              (RECT_ID,antialiase)
+//      RECTANGLE_drawStrInCenter       (RECT_ID,str)
+//      RECTANGLE_drawStrInCenterFitFont(RECT_ID,str)
+//      drawDecibelValue                ( x,y,Value,fontsize) 
 //====================================================================
-//function drawFillArc(_cx,_cy,_r,_sA,_eA,_div)
-//function drawFillArc2(_cx,_cy,_r,_r2,_sA,_eA,_div)
+//      drawFillArc  ( cx,cy,radius,startAngleA,endAngleA,div)
+//      drawFillArc2 ( cx,cy,outRadius,inRadius,startAngleA,endAngleA,div)
 //====================================================================
 
 
@@ -310,6 +310,20 @@ function CANVAS_blitImage3(CANVAS_ID,dest_xpos,dest_ypos,scale,rotation)local (c
             ,RECTANGLE_getWidth(CANVAS_ID )/8
             , RECTANGLE_getHeight(CANVAS_ID )/8
             );
+    //================================================================
+    gfx_x = lastX;gfx_y = lastY;
+);
+//====================================================================
+
+//====================================================================
+function CANVAS_blitImage4(CANVAS_ID,scale,rotation)
+    local ( lastX,lastY)
+(
+    lastX = gfx_x;lastY = gfx_y;
+    //================================================================
+    gfx_x = RECTANGLE_getX( CANVAS_ID );
+    gfx_y = RECTANGLE_getY( CANVAS_ID ) ;
+    gfx_blit( CANVAS_getCanvaseSlotID (CANVAS_ID),scale,rotation);
     //================================================================
     gfx_x = lastX;gfx_y = lastY;
 );

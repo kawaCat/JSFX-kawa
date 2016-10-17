@@ -5,40 +5,40 @@
 //====================================================================
 // angle Radian
 //--------------------------------------------------------------------
-//function degreeToRadian ( degree)
-//function radianToDegree ( radian)
-//function rad            (degree) //aliase of degreeToRadian()
-//function deg            (radian) //aliase of radianToDegree()
+//      degreeToRadian  (degree)
+//      radianToDegree  (radian)
+//      rad             (degree) //aliase of degreeToRadian()
+//      deg             (radian) //aliase of radianToDegree()
 //====================================================================
 
 //====================================================================
 // distance function
 //--------------------------------------------------------------------
-//function getManhattanDist(x1,y1,x2,y2)
-//function getEuclideanDist(x1,y1,x2,y2)
-//function getChebyshevDist(x1,y1,x2,y2)
+//      getManhattanDist (x1,y1,x2,y2)
+//      getEuclideanDist (x1,y1,x2,y2)
+//      getChebyshevDist (x1,y1,x2,y2)
 //====================================================================
 
 //====================================================================
-//function _rotPoint_2           (x_,y,ox,oy,AngleRadian_)
-//function HSBtoRGB             (hue, saturation , value) 
+//      rotPoint_2       (x_,y,ox,oy,AngleRadian_)
+//      HSBtoRGB         (hue, saturation , value) 
 //====================================================================
 
 
 //====================================================================
-// function stringCat                     (str1,str2) 
-// function stringCompareFromNum          (strNum1,strNum2) 
-// function get_float_from_string         (str) //http://forum.cockos.com/showthread.php?t=140211
+//      stringCat             (str1,str2) 
+//      stringCompareFromNum  (strNum1,strNum2) 
+//      get_float_from_string (str) //http://forum.cockos.com/showthread.php?t=140211
 //====================================================================
 
 //====================================================================
 // struct functions
 //====================================================================
-//function STRUCT_getStructType           ( SRC_STRUCT_ID)
-//function STRUCT_getElementNum           ( SRC_STRUCT_ID)
-//function STRICT_copyTo                  ( destSTRUCT_ID , srcSTRUCT_ID) 
-//function STRUCT_duplicateInstance       ( SRC_STRUCT_ID) //return new
-//function STRUCT_Clone                   ( SRC_STRCUT_ID) 
+//      STRUCT_getStructType           ( SRC_STRUCT_ID)
+//      STRUCT_getElementNum           ( SRC_STRUCT_ID)
+//      STRICT_copyTo                  ( destSTRUCT_ID , srcSTRUCT_ID) 
+//      STRUCT_duplicateInstance       ( SRC_STRUCT_ID) //return new
+//      STRUCT_Clone                   ( SRC_STRCUT_ID) 
 //====================================================================
 
 

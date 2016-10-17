@@ -8,43 +8,43 @@
 //====================================================================
 
 //====================================================================
-//function LAYER_create(name)
+//  LAYER_create(name)
 //====================================================================
-//function LAYER_getParrentApp ( LAYER_ID)         
-//function LAYER_setParrentApp ( LAYER_ID,p)        
+//      LAYER_getParrentApp         ( LAYER_ID)         
+//      LAYER_setParrentApp         ( LAYER_ID,p)        
 //====================================================================
-//function LAYER_getIsResized  ( LAYER_ID)         
-//function LAYER_setIsResized  ( LAYER_ID,b)       
+//      LAYER_getIsResized          ( LAYER_ID)         
+//      LAYER_setIsResized          ( LAYER_ID,b)       
 //====================================================================
-//function LAYER_isResized     ( LAYER_ID)         
-//function LAYER_isAreaResized ( LAYER_ID)         
+//      LAYER_isResized             ( LAYER_ID)         
+//      LAYER_isAreaResized         ( LAYER_ID)         
 //====================================================================
-//function LAYER_isActive(LAYER_ID)               
-//function LAYER_getIsActive(LAYER_ID)             
-//function LAYER_setIsActive(LAYER_ID,v)
-//function LAYER_setActive(LAYER_ID,v) //aliase of LAYER_setIsActive
-//function LAYER_toggleIsActive( LAYER_ID)
-//====================================================================
-
-//====================================================================
-//function LAYER_getName(LAYER_ID) ( STATIC_MASTER_BUFF[LAYER_ID + 9];);
-//function LAYER_getChildComponentArray(LAYER_ID)(STATIC_MASTER_BUFF[LAYER_ID + 8]; );
-//function LAYER_getChildCount(LAYER_ID) local ( childCompoArray_ID,childNUM)
-//====================================================================
-//function LAYER_addChildComponent(LAYER_ID,childLAYER_ID)
-//function LAYER_removeChildComponent(LAYER_ID,childLAYER_ID)
+//      LAYER_isActive              ( LAYER_ID)               
+//      LAYER_getIsActive           ( LAYER_ID)             
+//      LAYER_setIsActive           ( LAYER_ID,v)
+//      LAYER_setActive             ( LAYER_ID,v) //aliase of LAYER_setIsActive
+//      LAYER_toggleIsActive        ( LAYER_ID)
 //====================================================================
 
 //====================================================================
-//call from top App
+//      LAYER_getName                (LAYER_ID)     
+//      LAYER_getChildComponentArray (LAYER_ID)
+//      LAYER_getChildCount          (LAYER_ID) 
 //====================================================================
-//function LAYER_update(LAYER_ID,parrentRectID)
-//function LAYER_resized(LAYER_ID,parrentRectID)
-//function LAYER_draw(LAYER_ID)
-//function LAYER_mouseMove(LAYER_ID,MOUSEINFO_ID)
-//function LAYER_mouseButtonPressd(LAYER_ID,MOUSEINFO_ID)
-//function LAYER_mouseButtonReleased(LAYER_ID,MOUSEINFO_ID)
-//function LAYER_mouseWheeled(LAYER_ID,MOUSEINFO_ID)
+//      LAYER_addChildComponent      (LAYER_ID,childLAYER_ID)
+//      LAYER_removeChildComponent   (LAYER_ID,childLAYER_ID)
+//====================================================================
+
+//====================================================================
+// call from top App
+//====================================================================
+//      LAYER_update                (LAYER_ID,parrentRectID)
+//      LAYER_resized               (LAYER_ID,parrentRectID)
+//      LAYER_draw                  (LAYER_ID)
+//      LAYER_mouseMove             (LAYER_ID,MOUSEINFO_ID)
+//      LAYER_mouseButtonPressd     (LAYER_ID,MOUSEINFO_ID)
+//      LAYER_mouseButtonReleased   (LAYER_ID,MOUSEINFO_ID)
+//      LAYER_mouseWheeled          (LAYER_ID,MOUSEINFO_ID)
 //====================================================================
 
 

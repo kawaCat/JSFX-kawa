@@ -5,53 +5,52 @@
 //====================================================================
 
 //====================================================================
-//function COMPONENT_create(name) 
+//  COMPONENT_create(name) 
 //====================================================================
-//function COMPONENT_getMinValue                     (COMPONENT_ID)           
-//function COMPONENT_setMinValue                     (COMPONENT_ID,v)         
-//function COMPONENT_getMaxValue                     (COMPONENT_ID)           
-//function COMPONENT_setMaxValue                     (COMPONENT_ID,v)         
+//      COMPONENT_getMinValue                     (COMPONENT_ID)           
+//      COMPONENT_setMinValue                     (COMPONENT_ID,v)         
+//      COMPONENT_getMaxValue                     (COMPONENT_ID)           
+//      COMPONENT_setMaxValue                     (COMPONENT_ID,v)         
 //====================================================================
-//function COMPONENT_isActive                        (COMPONENT_ID)             
-//function COMPONENT_getIsActive                     (COMPONENT_ID)          
-//function COMPONENT_setIsActive                     (COMPONENT_ID,v)        
+//      COMPONENT_isActive                        (COMPONENT_ID)             
+//      COMPONENT_getIsActive                     (COMPONENT_ID)          
+//      COMPONENT_setIsActive                     (COMPONENT_ID,v)        
 //====================================================================
-//function COMPONENT_toggleIsActive                  (COMPONENT_ID)
+//      COMPONENT_toggleIsActive                  (COMPONENT_ID)
 //====================================================================
-//function COMPONENT_getParrentLAYRE                 (COMPONENT_ID)     
-//function COMPONENT_setParrentLAYRE                 (COMPONENT_ID,p)   
-//function COMPONENT_isExistParrentLAYRE             (COMPONENT_ID) 
+//      COMPONENT_getParrentLAYRE                 (COMPONENT_ID)     
+//      COMPONENT_setParrentLAYRE                 (COMPONENT_ID,p)   
+//      COMPONENT_isExistParrentLAYRE             (COMPONENT_ID) 
 //====================================================================
-//function COMPONENT_getValue                        (COMPONENT_ID)                                   
-//function COMPONENT_setValue                        (COMPONENT_ID,value)                             
+//      COMPONENT_getValue                        (COMPONENT_ID)                                   
+//      COMPONENT_setValue                        (COMPONENT_ID,value)                             
 //====================================================================
-//function COMPONENT_getValueString                  (COMPONENT_ID) 
+//      COMPONENT_getValueString                  (COMPONENT_ID) 
 //====================================================================
-//function COMPONENT_getName                         (COMPONENT_ID)                                    
-//function COMPONENT_setName                         (COMPONENT_ID,name)                               
-//function COMPONENT_isMousePressStartedInThisComp   (COMPONENT_ID)              
-//function COMPONENT_setIsMousePressStartedInThisComp(COMPONENT_ID,bool)      
+//      COMPONENT_getName                         (COMPONENT_ID)                                    
+//      COMPONENT_setName                         (COMPONENT_ID,name)                               
+//      COMPONENT_isMousePressStartedInThisComp   (COMPONENT_ID)              
+//      COMPONENT_setIsMousePressStartedInThisComp(COMPONENT_ID,bool)      
 //====================================================================
-//function COMPONENT_getComponentAlpha               (COMPONENT_ID)                          
-//function COMPONENT_setComponentAlpha               (COMPONENT_ID,a)                       
+//      COMPONENT_getComponentAlpha               (COMPONENT_ID)                          
+//      COMPONENT_setComponentAlpha               (COMPONENT_ID,a)                       
 //====================================================================
-//function COMPONENT_getColorMap                     (COMPONENT_ID) 
-//function COMPONENT_getColor                        (COMPONENT_ID,colorKeyName)
-//function COMPONENT_setColor                        (COMPONENT_ID,colorKeyName,color_ID_)
-//function COMPONENT_changeColorGfx                  (COMPONENT_ID,colorKeyName)
+//      COMPONENT_getColorMap                     (COMPONENT_ID) 
+//      COMPONENT_getColor                        (COMPONENT_ID,colorKeyName)
+//      COMPONENT_setColor                        (COMPONENT_ID,colorKeyName,color_ID_)
+//      COMPONENT_changeColorGfx                  (COMPONENT_ID,colorKeyName)
 //====================================================================
-//function COMPONENT_getDBGText                      (COMPONENT_ID,optMsG)
-//====================================================================
-
-//====================================================================
-//function COMPONENT_resized                         (COMPONENT_ID,parrentLeyerRect)
-//function COMPONENT_draw                            (COMPONENT_ID)
-//function COMPONENT_mouseMoved                      (COMPONENT_ID,MOUSEINFO_ID)
-//function COMPONENT_mouseButtonPressd               (COMPONENT_ID,MOUSEINFO_ID )
-//function COMPONENT_mouseButtonReleased             (COMPONENT_ID,MOUSEINFO_ID )
-//function COMPONENT_mouseWheeled                    (COMPONENT_ID,MOUSEINFO_ID )
+//      COMPONENT_getDBGText                      (COMPONENT_ID,optMsG)
 //====================================================================
 
+//====================================================================
+//      COMPONENT_resized                         (COMPONENT_ID,parrentLeyerRect)
+//      COMPONENT_draw                            (COMPONENT_ID)
+//      COMPONENT_mouseMoved                      (COMPONENT_ID,MOUSEINFO_ID)
+//      COMPONENT_mouseButtonPressd               (COMPONENT_ID,MOUSEINFO_ID )
+//      COMPONENT_mouseButtonReleased             (COMPONENT_ID,MOUSEINFO_ID )
+//      COMPONENT_mouseWheeled                    (COMPONENT_ID,MOUSEINFO_ID )
+//====================================================================
 
 
 //====================================================================

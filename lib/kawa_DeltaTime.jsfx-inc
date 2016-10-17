@@ -3,15 +3,15 @@
 //====================================================================
 //DELTATIME COUNTER Struct
 //====================================================================
-//function DELTATIME_create(speedDiv)  //speed  Div 0.1 ~
+//  DELTATIME_create(speedDiv)  //speed  Div 0.1 ~
 //--------------------------------------------------------------------
-//function DELTATIME_getDeltaTime         (DELTATIME_ID)
-//function DELTATIME_getDeltaTimeWithStep (DELTATIME_ID)
-//function DELTATIME_getSpeedDiv          (DELTATIME_ID)
-//function DELTATIME_setSpeedDiv          (DELTATIME_ID,speedDiv)
-//function DELTATIME_getLastTime          (DELTATIME_ID)
-//function DELTATIME_setLastTime          (DELTATIME_ID,t) 
-//function DELTATIME_step                 (DELTATIME_ID)
+//    DELTATIME_getDeltaTime         (DELTATIME_ID)
+//    DELTATIME_getDeltaTimeWithStep (DELTATIME_ID)
+//    DELTATIME_getSpeedDiv          (DELTATIME_ID)
+//    DELTATIME_setSpeedDiv          (DELTATIME_ID,speedDiv)
+//    DELTATIME_getLastTime          (DELTATIME_ID)
+//    DELTATIME_setLastTime          (DELTATIME_ID,t) 
+//    DELTATIME_step                 (DELTATIME_ID)
 //====================================================================
 
 

@@ -3,32 +3,31 @@
 //====================================================================
 
 //====================================================================
-//function DBG_MSG(message) //singlue functions
+//  DBG_MSG(message) //singlue functions
 //====================================================================
 
 //====================================================================
-//function DBGMESSAGE_create(size)
+//  DBGMESSAGE_create(size)
 //====================================================================
-//function DBGMESSAGE_getActive(DBGMSG_ID)     //is visible 
-//function DBGMESSAGE_isActive (DBGMSG_ID)     
-//function DBGMESSAGE_setActive(DBGMSG_ID,v)   
-//function DBGMESSAGE_toggleActive(DBGMSG_ID)
+//      DBGMESSAGE_getActive           (DBGMSG_ID)     //is visible 
+//      DBGMESSAGE_isActive            (DBGMSG_ID)     
+//      DBGMESSAGE_setActive           (DBGMSG_ID,v)   
+//      DBGMESSAGE_toggleActive        (DBGMSG_ID)
 //====================================================================
-//function DBGMESSAGE_addDBG(DBGMSG_ID,str)
-//function DBGMESSAGE_add(DBGMSG_ID,str) //aliase of DBGMESSAGE_addDBG
-//function DBGMESSAGE_addFloat(DBGMSG_ID,floatNum) 
-//function DBGMESSAGE_addAllStrcutElement(DBGMSG_ID,targetSTRUCT_ID) 
+//      DBGMESSAGE_addDBG              (DBGMSG_ID,str)
+//      DBGMESSAGE_add                 (DBGMSG_ID,str) //aliase of DBGMESSAGE_addDBG
+//      DBGMESSAGE_addFloat            (DBGMSG_ID,floatNum) 
+//      DBGMESSAGE_addAllStrcutElement (DBGMSG_ID,targetSTRUCT_ID) 
 //====================================================================
-//function DBGMESSAGE_drawAllMessage(DBGMSG_ID)local (circleBUF_ID,bufSize,count_2,oneMsg)
+//      DBGMESSAGE_drawAllMessage      (DBGMSG_ID)local (circleBUF_ID,bufSize,count_2,oneMsg)
 //====================================================================
-
 
 //====================================================================
 // STATIC DBG message struct
 //====================================================================
-//function DBG(str)
-//function DBG_FLOAT(floatNum)
-//function DBG_toggle()
+//  DBG(str)
+//  DBG_FLOAT(floatNum)
+//  DBG_toggle()
 //====================================================================
 
 
