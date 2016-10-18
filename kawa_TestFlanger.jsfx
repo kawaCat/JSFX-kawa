@@ -1,22 +1,21 @@
 //====================================================================
-desc:kawa TestJSFX
+desc:kawa TestFlanger
 //====================================================================
 
 // imports
 //====================================================================
 import kawa_ALL.jsfx-inc
-//=================================================================
-
-
 //====================================================================
+
 // sliders
 //--------------------------------------------------------------------
-slider1:0.25<0.0,1>parameter1
+slider1:0.1<0.0,1.0>RATE 
+slider2:0.6<0.0,1.0>WIDTH
 //====================================================================
-
 
 @init
 //====================================================================
+
     // create APP ID
     //================================================================
     APP_ID = APP_create();
@@ -25,48 +24,22 @@ slider1:0.25<0.0,1>parameter1
     //create Layer ID
     //================================================================
     LAYER_001 = LAYER_create("LAYER01");
-    LAYER_002 = LAYER_create("LAYER02");
     //================================================================
 
     //create Component and add to layer 1 .
     //================================================================
     TEST_comp  = COMPONENT_create("TEST");
-    SLIDER_2_comp = SLIDERTYPE2_create("TEST2");
-    KONB_ID  = KNOB_create( "knobTest") ;
-    COMPONENT_setSliderIndex(KONB_ID,1); 
-    //----------------------------------------------------------------
-    TEXT_DB_L = TEXT_create("text 1"); 
-    TEXT_DB_R = TEXT_create("text 2");
-    TEXT_setIsDBValueMode(TEXT_DB_L, true );
-    TEXT_setIsDBValueMode(TEXT_DB_R, true );
-    TEXT_setDBValueModeTextPreFix(TEXT_DB_L, "(L)");
-    TEXT_setDBValueModeTextPreFix(TEXT_DB_R, "(R)");
-    //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_001 , TEXT_DB_L);
-    LAYER_addChildComponent(LAYER_001 , TEXT_DB_R);
+    XYSlider_1 = XYSLIDER_create("XYSlider_1");
     //----------------------------------------------------------------
     LAYER_addChildComponent(LAYER_001 , TEST_comp);
-    LAYER_addChildComponent(LAYER_001 , SLIDER_2_comp);
-    LAYER_addChildComponent(LAYER_001 , KONB_ID);
+    LAYER_addChildComponent(LAYER_001 , XYSlider_1);
     //================================================================
-
-    // layer 2
-    //================================================================
-    BUTTON_comp   = BUTTON_create("TEST3");
-    SLIDER_1_comp = SLIDER_create("TEST4");
-    //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_002 , BUTTON_comp);
-    LAYER_addChildComponent(LAYER_002 , SLIDER_1_comp);
-    //================================================================
-
 
     // layer add to app
     //================================================================
     APP_addChildComponent(APP_ID,LAYER_001);
-    APP_addChildComponent(APP_ID,LAYER_002);
     //================================================================
     LAYER_setActive(LAYER_001,true);
-    LAYER_setActive(LAYER_002,false);
     //================================================================
 
     // canvase test
@@ -75,54 +48,86 @@ slider1:0.25<0.0,1>parameter1
     CANVS_WAVE_R = CANVAS_create(gfx_w,gfx_h);
     //================================================================
     
+    delaySize = srate;
+    DELAY_ARRAY_L = CURSOLBUFFER_create(delaySize);
+    DELAY_ARRAY_R = CURSOLBUFFER_create(delaySize);
+    //================================================================
+    
+    //================================================================
+    DBG_toggle(DBG); // visible off
+    //================================================================
+
 @slider
 //====================================================================
-    COMPONENT_setValue( SLIDER_2_comp,slider1,false );
-    COMPONENT_setValue( KONB_ID,slider1,false );
-  
-
+    //XYSLIDER_setYValue(XYSlider_1,slider1,false);
+    //XYSLIDER_setXValue(XYSlider_1,slider2,false);
+    
 @block
 //====================================================================
-    COMPONENT_setValue( TEXT_DB_L ,max(max_L,abs(minL)),false);
-    COMPONENT_setValue( TEXT_DB_R ,max(max_R,abs(minR)),false);
-    //================================================================
     max_L = 0;min_L = 0;
     max_R = 0;min_R = 0;
     //================================================================
-   
-
+    
 @sample
 //====================================================================
     max_L = max(max_L,spl0);
     min_L = min(min_L,spl0);
     max_R = max(max_R,spl1);
     min_R = min(min_R,spl1);
+    //================================================================
+ 
+    //================================================================
+    rateX= slider1;
+    valueX = 0.5 + sin( (2*$pi* rateX * timeX)/srate)/2;
+    timeX +=1;(timeX>=srate/rateX)?( timeX=0;);
+    //================================================================
+    rateY = slider2;
+    valueY = 0.5 + sin( (2*$pi* rateY * timeY)/srate)/2;
+    timeY +=1;(timeY>=srate/rateY)?( timeY=0;);
+    //================================================================
+    
+    //================================================================
+    CURSOLBUFFER_push( DELAY_ARRAY_L,spl0 );    
+    CURSOLBUFFER_push( DELAY_ARRAY_R,spl1 );  
+    
+    //================================================================
+    XYSLIDER_setXValue(XYSlider_1,valueX,false);
+    XYSLIDER_setYValue(XYSlider_1,valueY,false);
+    
+    chorusWidth = srate* ( 0.002 * XYSLIDER_getYValue(XYSlider_1) );
+    //================================================================
+    delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
+                                            , -chorusWidth * XYSLIDER_getXValue(XYSlider_1) );
+    delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
+                                            , -chorusWidth * XYSLIDER_getXValue(XYSlider_1) );
+    //================================================================
+    spl0 = spl0 + delay_L;
+    spl1 = spl1 + delay_R;
+    //================================================================
 
 @gfx 200 400
 //====================================================================
-
     // direct draw background to
     //================================================================
-    drawBackGrond_color( 10, 120 , 12*4);
-    drawSinWaveCircle(100,0.8,1,0.0043);
+    drawBackGrond_color(5,0,60);
     drawSinWaveCircle(100,0.8,1,0.0043);
     //================================================================
-    
+
     // canvase test
     //================================================================
     drawWaveBufferToCanvas(CANVS_WAVE_L
                           ,max_L
                           ,min_L
-                          ,40 * COMPONENT_getValue(KONB_ID)
-                          ,0.5
+                          ,5
+                          ,0.3
                           ,1
                           ,80);
 
     drawWaveBufferToCanvas(CANVS_WAVE_R
                           ,max_R
                           ,min_R
-                          ,40 * COMPONENT_getValue(SLIDER_2_comp)
-                          ,0.6
+                          ,5
+                          ,0.4
                           ,1
                           ,0);
     //================================================================
@@ -133,40 +138,30 @@ slider1:0.25<0.0,1>parameter1
     //================================================================
     // final background
     //================================================================
-    drawDotGrid(20,20,0.04);
+    drawDotGrid(16,16,0.6);
     //================================================================
-
-
+   
     // for debug
     //================================================================
     DBGMESSAGE_drawAllMessage(DBG);
     //================================================================
 
-
     // App update. check and compare with last event state.(resize or mouse)
     //================================================================
     APP_update(APP_ID);
-  
-    //================================================================
-    ( mouse_cap & 2 ==2 && lastCAP != mouse_cap )?
-    (
-        (LAYER_isActive(LAYER_001)==true )?
-        (
-            LAYER_setActive(LAYER_001,false );
-            LAYER_setActive(LAYER_002,true );
-        ):(
-            LAYER_setActive(LAYER_001,true );
-            LAYER_setActive(LAYER_002,false );
-        );
-        //============================================================
-    );
+    
     //================================================================
     ( mouse_cap & 64 ==64 && lastCAP != mouse_cap )?
     (
         DBG_toggle(DBG);
     );
-    //================================================================
     lastCAP = mouse_cap;
+    //================================================================
+    ( APP_isMouseButtonPressed(APP_ID)  ==true) ?
+    ( 0;);
+    
+    ( APP_isMouseButtonReleased(APP_ID) ==true) ?
+    ( 0;);
     //================================================================
     
     
@@ -174,14 +169,12 @@ slider1:0.25<0.0,1>parameter1
     //================================================================
     ( APP_isWindowResized(APP_ID) ==true) ?
     (
-        DBG("CALLL RESIzED");
         RECTANGLE_copyTo      ( CANVS_WAVE_L,APP_ID);
         RECTANGLE_copyTo      ( CANVS_WAVE_R,APP_ID);
         CANVAS_recreateCanvas ( CANVS_WAVE_L ); 
         CANVAS_recreateCanvas ( CANVS_WAVE_R );
         //============================================================
         RECTANGLE_copyTo      ( LAYER_001,APP_ID);  // layer resize 
-        RECTANGLE_copyTo      ( LAYER_002,APP_ID);  // layer resize 
         //============================================================
     );
     //================================================================
@@ -192,54 +185,24 @@ slider1:0.25<0.0,1>parameter1
         RECTANGLE_copyTo         (TEST_comp,LAYER_001);
         RECTANGLE_cropFromTopP   (TEST_comp,0.025);
         //============================================================
-        RECTANGLE_copyTo         (SLIDER_2_comp,LAYER_001);
-        RECTANGLE_cropFromTopP   (SLIDER_2_comp,0.07);
-        RECTANGLE_cropFromRightP (SLIDER_2_comp,1-( 0.61803));
-        RECTANGLE_reduce         (SLIDER_2_comp,5,5);
-        //============================================================
-        RECTANGLE_copyTo         (TEXT_DB_L,LAYER_001);
-        RECTANGLE_cropFromTopP   (TEXT_DB_L,0.392);
-        RECTANGLE_reduceP        (TEXT_DB_L,0.18,0.18);
-        //============================================================
-        RECTANGLE_copyTo         (TEXT_DB_R,LAYER_001);
-        RECTANGLE_cropFromBottomP(TEXT_DB_R,0.382);
-        RECTANGLE_reduceP        (TEXT_DB_R,0.18,0.18);
-        //============================================================
-        RECTANGLE_copyTo         (KONB_ID,LAYER_001);
-        RECTANGLE_reduceP        (KONB_ID,0.28,0.28);
-        RECTANGLE_reduce         (KONB_ID,5,5);
+        RECTANGLE_copyTo         (XYSlider_1,LAYER_001);
+        RECTANGLE_reduceP        (XYSlider_1,0.1,0.1);
     );
     //================================================================
-
-
-    //================================================================
-    ( LAYER_isAreaResized(LAYER_002) == true) ?
-    (
-        RECTANGLE_copyTo        (BUTTON_comp,LAYER_002);
-        //============================================================
-        RECTANGLE_cropFromLeftP (BUTTON_comp,0.5);
-        RECTANGLE_reduceP       (BUTTON_comp,0.1,0.1);
-        //============================================================
-        RECTANGLE_copyTo        (SLIDER_1_comp,LAYER_002);
-        RECTANGLE_cropFromRightP(SLIDER_1_comp,0.5);
-        RECTANGLE_reduceP       (SLIDER_1_comp,0.1,0.1);
-        //============================================================
-        RECTANGLE_copyTo        (TEXT_DB_L,APP_ID);
-    );
-    //================================================================
-
     // if animation
     //================================================================
     COMPONENT_setComponentAlpha(TEST_comp,abs(sin($pi*2*mod*2)));
     mod += 0.01;(mod > 1 )?(mod=0;);
     //================================================================
-
+    //RECTANGLE_setX( LAYER_001,40*sin($pi*2*mod));
+    
+    //================================================================
     // plugin Title Str
     //================================================================
     pluginTitleStrMarginX = 10;
     pluginTitleStrMarginY = 4;
     pluginTitleStr = #;
-    sprintf ( pluginTitleStr,"kawa Test ");
+    sprintf ( pluginTitleStr,"kawa Test Flanger");
     //================================================================
     gfx_measurestr(pluginTitleStr,pluginTitleStr_w,pluginTitleStr_h);
     //================================================================
@@ -257,5 +220,7 @@ slider1:0.25<0.0,1>parameter1
     gfx_drawstr( pluginTitleStr);
     //================================================================
     
+
 //====================================================================
 // 続
+

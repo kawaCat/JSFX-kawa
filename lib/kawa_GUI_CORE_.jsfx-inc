@@ -757,7 +757,10 @@ function RECTANGLE_isContainPoint(RECT_ID,targetX,targetY)
     check3 = __RECTANGLE_isContainPoint__check_(targetX,targetY,xx3,yy3,xx4,yy4);
     check4 = __RECTANGLE_isContainPoint__check_(targetX,targetY,xx4,yy4,xx1,yy1);
     
-    ( abs(check1+check2+check3+check4) >=4) ?
+    (      RECTANGLE_getWidth (RECT_ID) > 0  
+        && RECTANGLE_getHeight(RECT_ID) > 0  
+        && abs(check1+check2+check3+check4) >=4 
+    ) ?
     ( 
         out = true;
     ):(
@@ -820,19 +823,34 @@ function CANVAS_create(width,height)local (CANVAS_ID,canvasSLOTID,ww_,hh_)
 function CANVAS_isCreatedCanvas(CANVAS_ID)(STATIC_MASTER_BUFF[CANVAS_ID +9];);
 function _CANVAS_setisCreatedCanvas(CANVAS_ID,v)(STATIC_MASTER_BUFF[CANVAS_ID +9] = v;);
 //====================================================================
-function CANVAS_recreateCanvas(CANVAS_ID)local (width,height,canvasSlot)
+
+//====================================================================
+function CANVAS_recreateCanvas(CANVAS_ID)local (width,height,canvasSlot,cW,cH)
 (
+    //================================================================
     width  = RECTANGLE_getWidth(CANVAS_ID); 
     height = RECTANGLE_getHeight(CANVAS_ID);
     //================================================================
     canvasSlot = STATIC_MASTER_BUFF[ CANVAS_ID +8 ];
-    gfx_setimgdim(canvasSlot, 0,0);//force clear
-    gfx_setimgdim(canvasSlot, width,height);
-    
-    //check is  exectue process in @gfx section . collectry create image in @gfx section.
-    ( gfx_w != 0 )?
+    //================================================================
+    gfx_getimgdim(canvasSlot,cW,cH);
+    //================================================================
+    (    cW > 0  
+      && cH > 0
+      &&  CANVAS_isCreatedCanvas(CANVAS_ID) ==false
+      )?
     (
         _CANVAS_setisCreatedCanvas(CANVAS_ID,true);
+    ):(
+        //============================================================
+        gfx_setimgdim(canvasSlot, 0,0);//force clear
+        gfx_setimgdim(canvasSlot, width,height);
+        //check is  exectue process in @gfx section . collectry create image in @gfx section.
+        ( gfx_w != 0 )?
+        (
+            _CANVAS_setisCreatedCanvas(CANVAS_ID,true);
+        );
+        //============================================================
     );
     //================================================================
 );

@@ -14,16 +14,16 @@ function XYSLIDER_create(name) local (XYSLIDER_ID,_childComponentBUFF,name_,circ
     XYSLIDER_ID = COMPONENT_create(name);//element NUM 6
     //================================================================
     STATIC_MASTER_BUFF[XYSLIDER_ID ]     = "XYSLIDER";        // classTYPE
-    STATIC_MASTER_BUFF[XYSLIDER_ID + 1]  = 24;                 // elementNUM
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 1]  = 25;                // elementNUM
     //================================================================
-    STATIC_MASTER_BUFF[XYSLIDER_ID + 19] = circle_Area_ID;
-    STATIC_MASTER_BUFF[XYSLIDER_ID + 20] = false;           // is Pressd incircleArea
-    STATIC_MASTER_BUFF[XYSLIDER_ID + 21] = -1;               // sliderXIndex
-    STATIC_MASTER_BUFF[XYSLIDER_ID + 22] = -1;               // sliderYIndex
-    STATIC_MASTER_BUFF[XYSLIDER_ID + 23] = 0.5;               // X value
-    STATIC_MASTER_BUFF[XYSLIDER_ID + 24] = 0.5;               // Y value
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 20] = circle_Area_ID;
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 21] = false;             // is Pressd incircleArea
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 22] = -1;                // sliderXIndex
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 23] = -1;                // sliderYIndex
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 24] = 0.5;               // X value
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 25] = 0.5;               // Y value
     //================================================================
-    STATIC_MASTER_BUFF_ID +=25; // next entry Bufff Point
+    STATIC_MASTER_BUFF_ID +=26; // next entry Bufff Point
     //================================================================
     // init prepare.
     //================================================================
@@ -34,19 +34,48 @@ function XYSLIDER_create(name) local (XYSLIDER_ID,_childComponentBUFF,name_,circ
     XYSLIDER_ID; //retrun
 );
 //====================================================================
-function XYSLIDER_getXValue(XYSLIDER_ID)                       ( STATIC_MASTER_BUFF[XYSLIDER_ID + 23];);
-function XYSLIDER_setXValue(XYSLIDER_ID,v)                     ( STATIC_MASTER_BUFF[XYSLIDER_ID + 23]=v;);
-function XYSLIDER_getYValue(XYSLIDER_ID)                       ( STATIC_MASTER_BUFF[XYSLIDER_ID + 24];);
-function XYSLIDER_setYValue(XYSLIDER_ID,v)                     ( STATIC_MASTER_BUFF[XYSLIDER_ID + 24]=v;);
+function XYSLIDER_getXValue(XYSLIDER_ID)                       ( STATIC_MASTER_BUFF[XYSLIDER_ID + 24];);
+function XYSLIDER_getYValue(XYSLIDER_ID)                       ( STATIC_MASTER_BUFF[XYSLIDER_ID + 25];);
+function _XYSLIDER_setXValue(XYSLIDER_ID,v)                    ( STATIC_MASTER_BUFF[XYSLIDER_ID + 24]=v;);
+function _XYSLIDER_setYValue(XYSLIDER_ID,v)                    ( STATIC_MASTER_BUFF[XYSLIDER_ID + 25]=v;);
 //====================================================================
-function XYSLIDER_getSliderIndexX(XYSLIDER_ID)                 ( STATIC_MASTER_BUFF[XYSLIDER_ID + 21];);
-function XYSLIDER_setSliderIndexX(XYSLIDER_ID,idx)             ( STATIC_MASTER_BUFF[XYSLIDER_ID + 21]=idx;);
-function XYSLIDER_getSliderIndexY(XYSLIDER_ID)                 ( STATIC_MASTER_BUFF[XYSLIDER_ID + 22];);
-function XYSLIDER_setSliderIndexY(XYSLIDER_ID,idx)             ( STATIC_MASTER_BUFF[XYSLIDER_ID + 22]=idx;);
+function XYSLIDER_getSliderIndexX(XYSLIDER_ID)                 ( STATIC_MASTER_BUFF[XYSLIDER_ID + 22];);
+function XYSLIDER_getSliderIndexY(XYSLIDER_ID)                 ( STATIC_MASTER_BUFF[XYSLIDER_ID + 23];);
+function XYSLIDER_setSliderIndexX(XYSLIDER_ID,idx)             ( STATIC_MASTER_BUFF[XYSLIDER_ID + 22]=idx;);
+function XYSLIDER_setSliderIndexY(XYSLIDER_ID,idx)             ( STATIC_MASTER_BUFF[XYSLIDER_ID + 23]=idx;);
 //====================================================================
-function XYSLIDER_getCircleArea(XYSLIDER_ID)                   ( STATIC_MASTER_BUFF[XYSLIDER_ID + 19];);
-function XYSLIDER_isCircleAreaPressed(XYSLIDER_ID)             ( STATIC_MASTER_BUFF[XYSLIDER_ID + 20];);
-function _XYSLIDER_setIsCircleAreaPressed(XYSLIDER_ID,v)       ( STATIC_MASTER_BUFF[XYSLIDER_ID + 20] =v;);
+
+//====================================================================
+function XYSLIDER_setXValue(XYSLIDER_ID,v,isSendReaper)
+( 
+    _XYSLIDER_setXValue(XYSLIDER_ID,v);
+    //================================================================
+    (isSendReaper == true)?
+    (
+        slider( XYSLIDER_getSliderIndexX(XYSLIDER_ID) ) = v;
+        slider_automate(2 ^ XYSLIDER_getSliderIndexX(XYSLIDER_ID)-1);
+    );
+    //================================================================
+);
+//====================================================================
+function XYSLIDER_setYValue(XYSLIDER_ID,v,isSendReaper)
+( 
+    //================================================================
+    _XYSLIDER_setYValue(XYSLIDER_ID,v);
+    //================================================================
+    (isSendReaper == true)?
+    (
+        slider( XYSLIDER_getSliderIndexY(XYSLIDER_ID) ) = v;
+        slider_automate(2 ^ XYSLIDER_getSliderIndexY(XYSLIDER_ID)-1);
+    );
+    //================================================================
+);
+//====================================================================
+
+//====================================================================
+function XYSLIDER_getCircleArea(XYSLIDER_ID)                   ( STATIC_MASTER_BUFF[XYSLIDER_ID + 20];);
+function XYSLIDER_isCircleAreaPressed(XYSLIDER_ID)             ( STATIC_MASTER_BUFF[XYSLIDER_ID + 21];);
+function _XYSLIDER_setIsCircleAreaPressed(XYSLIDER_ID,v)       ( STATIC_MASTER_BUFF[XYSLIDER_ID + 21] =v;);
 //====================================================================
 // meterWidth
 //====================================================================
@@ -256,10 +285,8 @@ function XYSLIDER_mouseMoved(XYSLIDER_ID,MOUSEINFO_ID)local(XXX,YYY)
         YYY = _XYSLIDER_positionToYValue( XYSLIDER_ID
                                         , MOUSEINFO_getMouseY(MOUSEINFO_ID));
         //============================================================
-        //COMPONENT_setValue(XYSLIDER_ID,XXX);
-        
-        XYSLIDER_setXValue(XYSLIDER_ID,XXX) ;
-        XYSLIDER_setYValue(XYSLIDER_ID,YYY) ;
+        XYSLIDER_setXValue(XYSLIDER_ID,XXX,true) ;
+        XYSLIDER_setYValue(XYSLIDER_ID,YYY,true) ;
         //============================================================
         //============================================================
         DBG(" XY SLIDER -- X Changed");
@@ -268,11 +295,6 @@ function XYSLIDER_mouseMoved(XYSLIDER_ID,MOUSEINFO_ID)local(XXX,YYY)
         DBG(" XY SLIDER --  Y Changed");
         DBG_FLOAT(XYSLIDER_getYValue(XYSLIDER_ID) );
         //============================================================
-        slider( XYSLIDER_getSliderIndexX(XYSLIDER_ID) ) = XXX;
-        slider( XYSLIDER_getSliderIndexY(XYSLIDER_ID) ) = YYY;
-        //============================================================
-        slider_automate(2 ^ XYSLIDER_getSliderIndexX(XYSLIDER_ID) -1 );
-        slider_automate(2 ^ XYSLIDER_getSliderIndexY(XYSLIDER_ID) -1);
     );
     //================================================================
 );
@@ -321,13 +343,12 @@ function XYSLIDER_mouseWheeled(XYSLIDER_ID,MOUSEINFO_ID )
         COMPONENT_setValue( XYSLIDER_ID
                           ,   COMPONENT_getValue(XYSLIDER_ID) 
                             + MOUSEINFO_getMouseWheelDiffV_ABS(MOUSEINFO_ID)/30
+                          , true
                           );
        
         //============================================================
         DBG_FLOAT(COMPONENT_getValue(XYSLIDER_ID) );
         //============================================================
-        DBG(" SLIDER -- SLIDER Changed");
-        //slider( XYSLIDER_getSliderIndex(XYSLIDER_ID) ) = xxx;
     );
     //================================================================
 );

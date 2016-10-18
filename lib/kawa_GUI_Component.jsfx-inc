@@ -88,10 +88,10 @@ function COMPONENT_create(name)
     color_Map_ID =  createDefaultColorMAP();
     componentInfoMap =  MAP_create();
     //================================================================
-    COMPONENT_ID = RECTANGLE_create(0,0,gfx_w,gfx_h);//element NUM 6
+    COMPONENT_ID = RECTANGLE_create(-1000,-1000,gfx_w,gfx_h);//element NUM 6
     //================================================================
     STATIC_MASTER_BUFF[COMPONENT_ID ]     = "COMPONENT";       // classTYPE
-    STATIC_MASTER_BUFF[COMPONENT_ID + 1]  = 18;                // elementNUM
+    STATIC_MASTER_BUFF[COMPONENT_ID + 1]  = 19;                // elementNUM
     //================================================================
     STATIC_MASTER_BUFF[COMPONENT_ID + 8]  = 0 ;                // not use
     STATIC_MASTER_BUFF[COMPONENT_ID + 9]  = name;              // ComponentName
@@ -106,8 +106,9 @@ function COMPONENT_create(name)
     STATIC_MASTER_BUFF[COMPONENT_ID + 16] = 0;                 // min Value
     STATIC_MASTER_BUFF[COMPONENT_ID + 17] = 1.0;               // max Value
     STATIC_MASTER_BUFF[COMPONENT_ID + 18] = componentInfoMap;  // max Value
+    STATIC_MASTER_BUFF[COMPONENT_ID + 19] = 0;                 // slider Index
     //================================================================
-    STATIC_MASTER_BUFF_ID +=19; // next entry Bufff Point
+    STATIC_MASTER_BUFF_ID +=20; // next entry Bufff Point
     //================================================================
     
     //================================================================
@@ -117,6 +118,9 @@ function COMPONENT_create(name)
     //================================================================
     COMPONENT_ID; //retrun
 );
+//====================================================================
+function COMPONENT_getSliderindex( COMPONENT_ID)       ( STATIC_MASTER_BUFF[COMPONENT_ID+19];);
+function COMPONENT_setSliderindex( COMPONENT_ID,idx)   ( STATIC_MASTER_BUFF[COMPONENT_ID+19]=idx;);
 //====================================================================
 function COMPONENT_getComponentInfoMap   ( COMPONENT_ID)   ( STATIC_MASTER_BUFF[COMPONENT_ID+18];);
 //====================================================================
@@ -162,12 +166,20 @@ function COMPONENT_setParrentLAYRE(COMPONENT_ID,p)     ( STATIC_MASTER_BUFF[COMP
 function COMPONENT_isExistParrentLAYRE(COMPONENT_ID)   (  ( STATIC_MASTER_BUFF[COMPONENT_ID + 14] != -123456); ); // !!
 //====================================================================
 function COMPONENT_getValue(COMPONENT_ID)                                   ( STATIC_MASTER_BUFF[COMPONENT_ID + 11];);
-function COMPONENT_setValue(COMPONENT_ID,value)                             
+function COMPONENT_setValue(COMPONENT_ID,value,isSendReaper)                             
 ( 
     STATIC_MASTER_BUFF[COMPONENT_ID + 11] = min( max( value
                                                     , COMPONENT_getMinValue(COMPONENT_ID)) 
-                                                , COMPONENT_getMaxValue(COMPONENT_ID));
-    
+                                                    , COMPONENT_getMaxValue(COMPONENT_ID));
+    //================================================================
+    (isSendReaper ==true)?
+    (
+        slider( COMPONENT_getSliderIndex(COMPONENT_ID) ) = COMPONENT_getValue(COMPONENT_ID);;
+        slider_automate(2 ^ COMPONENT_getSliderIndex(COMPONENT_ID) -1 );
+        DBG("value Changed");
+        DBG_float(  COMPONENT_getValue(COMPONENT_ID));
+    );
+    //================================================================
 );
 //====================================================================
 function COMPONENT_getValueString( COMPONENT_ID) local ( out )

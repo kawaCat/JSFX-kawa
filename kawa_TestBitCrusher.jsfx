@@ -54,10 +54,6 @@ slider2:0.25<0.0,0.9>FREQ
     DBG_toggle(DBG); // visible off
     //================================================================
     
-    //================================================================
-    APP_update(APP_ID);
-    //================================================================
-    
     //bitCrusher params
     //================================================================
     fBits = 1;
@@ -72,8 +68,8 @@ slider2:0.25<0.0,0.9>FREQ
 
 @slider
 //====================================================================
-    XYSLIDER_setYValue(XYSlider_1,slider1);
-    XYSLIDER_setXValue(XYSlider_1,slider2);
+    XYSLIDER_setYValue(XYSlider_1,slider1,false);
+    XYSLIDER_setXValue(XYSlider_1,slider2,false);
     fStep=fBits*254+2;
     
 @block
@@ -207,7 +203,6 @@ slider2:0.25<0.0,0.9>FREQ
     COMPONENT_setComponentAlpha(TEST_comp,abs(sin($pi*2*mod*2)));
     mod += 0.01;(mod > 1 )?(mod=0;);
     //================================================================
-    
     RECTANGLE_setX( LAYER_001,40*sin($pi*2*mod));
     
     // plugin Title Str
@@ -236,4 +231,4 @@ slider2:0.25<0.0,0.9>FREQ
 
 //====================================================================
 // 続
-// 未完
+

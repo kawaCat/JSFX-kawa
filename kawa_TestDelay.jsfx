@@ -34,8 +34,8 @@ slider3:0.25<0.0,1.0>FEEDBACK
     KONB_ID_L  = KNOB_create( "Delay L") ;
     KONB_ID_R  = KNOB_create( "Delay R") ;
     
-    KNOB_setSliderIndex(KONB_ID_L,1);
-    KNOB_setSliderIndex(KONB_ID_R,2);
+    COMPONENT_setSliderIndex(KONB_ID_L,1);
+    COMPONENT_setSliderIndex(KONB_ID_R,2);
     //----------------------------------------------------------------
     TEXT_DB_L = TEXT_create("text 1");
     TEXT_DB_R = TEXT_create("text 2");
@@ -84,19 +84,15 @@ slider3:0.25<0.0,1.0>FEEDBACK
     DBG_toggle(DBG); // visible off
     //================================================================
     
-    //================================================================
-    APP_update(APP_ID);
-    //================================================================
-    
 @slider
 //====================================================================
-    COMPONENT_setValue(KONB_ID_L,slider1);
-    COMPONENT_setValue(KONB_ID_R,slider2);
+    COMPONENT_setValue(KONB_ID_L,slider1,false);
+    COMPONENT_setValue(KONB_ID_R,slider2,false);
 
 @block
 //====================================================================
-    COMPONENT_setValue( TEXT_DB_L ,max(max_L,abs(minL)));
-    COMPONENT_setValue( TEXT_DB_R ,max(max_R,abs(minR)));
+    COMPONENT_setValue( TEXT_DB_L ,max(max_L,abs(minL)),false);
+    COMPONENT_setValue( TEXT_DB_R ,max(max_R,abs(minR)),false);
     //================================================================
     max_L = 0;min_L = 0;
     max_R = 0;min_R = 0;
@@ -176,6 +172,7 @@ slider3:0.25<0.0,1.0>FEEDBACK
     // App update. check and compare with last event state.(resize or mouse)
     //================================================================
     APP_update(APP_ID);
+    //================================================================
     
     //================================================================
     ( mouse_cap & 2 ==2 && lastCAP != mouse_cap )?
@@ -195,9 +192,7 @@ slider3:0.25<0.0,1.0>FEEDBACK
     //================================================================
     
     DBGMESSAGE_setActive(DBG,COMPONENT_getValue(BUTTON_comp));
-    
-    
-    
+
     //================================================================
     ( APP_isMouseButtonPressed(APP_ID)  ==true) ?
     ( 0;);
@@ -305,4 +300,4 @@ slider3:0.25<0.0,1.0>FEEDBACK
 
 //====================================================================
 // 続
-// 未完
+

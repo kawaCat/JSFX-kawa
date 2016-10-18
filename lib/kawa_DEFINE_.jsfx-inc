@@ -22,7 +22,8 @@ STATIC_TEMP_STRING_START_SLOT_NUM_START  = 900;
 STATIC_TEMP_STRING_START_SLOT_NUM        = STATIC_TEMP_STRING_START_SLOT_NUM_START; 
 //====================================================================
 STATIC_CANVAS_SLOT_CURSOL                = 1; // 0..127 max 127 Component
-STATIC_CLEAR_CANVAS_SLOT                 = 127;//use clear canvas image. temporaly.
+STATIC_CLEAR_CANVAS_SLOT                 = 126;//use clear canvas image. temporaly.
+STATIC_MASTER_CANVAS_SLOT                = 127;//use clear canvas image. temporaly.
 //====================================================================
 
 

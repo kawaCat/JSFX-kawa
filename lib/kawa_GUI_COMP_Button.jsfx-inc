@@ -39,11 +39,11 @@ function BUTTON_create(name) local (BUTTON_ID)
 //====================================================================
 function BUTTON_isON(BUTTON_ID)       ( (COMPONENT_getValue(BUTTON_ID) > 0););
 function BUTTON_isOFF(BUTTON_ID)      ( (BUTTON_isON(BUTTON_ID) == false ););
-function BUTTON_setON(BUTTON_ID)      ( COMPONENT_setValue(BUTTON_ID,1););
-function BUTTON_ON(BUTTON_ID)         ( COMPONENT_setValue(BUTTON_ID,1););
-function BUTTON_setOFF(BUTTON_ID)     ( COMPONENT_setValue(BUTTON_ID,0););
-function BUTTON_OFF(BUTTON_ID)        ( COMPONENT_setValue(BUTTON_ID,0););
-function BUTTON_toggleOnOff(BUTTON_ID)( COMPONENT_setValue(BUTTON_ID,(BUTTON_isON(BUTTON_ID)==false) ););
+function BUTTON_setON(BUTTON_ID,isSedeReaper)      ( COMPONENT_setValue(BUTTON_ID,1,isSedeReaper););
+function BUTTON_ON(BUTTON_ID,isSedeReaper)         ( COMPONENT_setValue(BUTTON_ID,1,isSedeReaper););
+function BUTTON_setOFF(BUTTON_ID,isSedeReaper)     ( COMPONENT_setValue(BUTTON_ID,0,isSedeReaper););
+function BUTTON_OFF(BUTTON_ID,isSedeReaper)        ( COMPONENT_setValue(BUTTON_ID,0,isSedeReaper););
+function BUTTON_toggleOnOff(BUTTON_ID,isSedeReaper)( COMPONENT_setValue(BUTTON_ID,(BUTTON_isON(BUTTON_ID)==false),isSedeReaper); );
 //====================================================================
 
 //====================================================================
@@ -102,7 +102,6 @@ function BUTTON_mouseButtonPressd(BUTTON_ID,MOUSEINFO_ID )local(circle_Area_ID)
     (
         DBG(" BUTTON Mouse Button Press IN");
         COMPONENT_setIsMousePressStartedInThisComp(BUTTON_ID,true);
-        ;
     ):(
         COMPONENT_setIsMousePressStartedInThisComp(BUTTON_ID,false);
     );
@@ -119,7 +118,7 @@ function BUTTON_mouseButtonReleased( BUTTON_ID,MOUSEINFO_ID )local (tempstr)
         //============================================================
         (COMPONENT_isMousePressStartedInThisComp(BUTTON_ID) ==true)?
         (
-            BUTTON_toggleOnOff(BUTTON_ID);
+            BUTTON_toggleOnOff(BUTTON_ID,true);
         );
     );
     //================================================================

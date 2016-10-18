@@ -1,16 +1,16 @@
 
 //====================================================================
-//DELTATIME COUNTER Struct
+// DELTATIME Counter
 //====================================================================
-//  DELTATIME_create(speedDiv)  //speed  Div 0.1 ~
-//--------------------------------------------------------------------
-//    DELTATIME_getDeltaTime         (DELTATIME_ID)
-//    DELTATIME_getDeltaTimeWithStep (DELTATIME_ID)
-//    DELTATIME_getSpeedDiv          (DELTATIME_ID)
-//    DELTATIME_setSpeedDiv          (DELTATIME_ID,speedDiv)
-//    DELTATIME_getLastTime          (DELTATIME_ID)
-//    DELTATIME_setLastTime          (DELTATIME_ID,t) 
-//    DELTATIME_step                 (DELTATIME_ID)
+//  DELTATIME_create()local(DELTATIME_ID) //speed  Div 0.1 ~
+//====================================================================
+//    DELTATIME_getDeltaTime              (DELTATIME_ID)   
+//    DELTATIME_getLastTime               (DELTATIME_ID)    
+//    DELTATIME_setLastTime               (DELTATIME_ID,t)  
+//    DELTATIME_stepByTime                (DELTATIME_ID,speedDiv_)
+//    DELTATIME_stepByValue               (DELTATIME_ID,addValue)
+//    DELTATIME_getDeltaTimeWithStepTime  (DELTATIME_ID,speedDiv) 
+//    DELTATIME_getDeltaTimeWithStepValue (DELTATIME_ID,addValue) 
 //====================================================================
 
 

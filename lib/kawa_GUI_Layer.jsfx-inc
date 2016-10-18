@@ -62,7 +62,7 @@ function LAYER_create(name) local (LAYER_ID,_childComponentBUFF,name_,_lastRecta
     _childComponentBUFF =ARRAY_create(1000);// max ArraSize is 1000;
     _lastRectangle_ID = RECTANGLE_create(0,0,-100,-100);
     //================================================================
-    LAYER_ID = RECTANGLE_create(0,0,gfx_w,gfx_h);//element NUM 6
+    LAYER_ID = RECTANGLE_create(-1000,-1000,gfx_w,gfx_h);//element NUM 6
 
     //================================================================
     STATIC_MASTER_BUFF[LAYER_ID ]     = "LAYER"; // elementNUM

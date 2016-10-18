@@ -55,11 +55,10 @@ function drawWaveBufferToCanvas(CANVAS_ID,waveMax,waveMin,oneBar_Width,vAmp,alph
     lastDest = gfx_dest;
     vAmp_ = vAmp;
     //================================================================
-    CLEAR_CANVAS_SLOT =127; // last canvas Slot for use temp work.
-    gfx_setimgdim( CLEAR_CANVAS_SLOT,0,0);    
-    gfx_setimgdim( CLEAR_CANVAS_SLOT,2048,2048);    
+    gfx_setimgdim( STATIC_CLEAR_CANVAS_SLOT,0,0);    //clear
+    gfx_setimgdim( STATIC_CLEAR_CANVAS_SLOT,2048,2048);
     //================================================================
-    gfx_dest=CLEAR_CANVAS_SLOT;
+    gfx_dest=STATIC_CLEAR_CANVAS_SLOT;
     //================================================================
     gfx_x=0;gfx_y=0;
     gfx_r =1;gfx_g=1;gfx_b=1;gfx_a=1;
@@ -72,7 +71,7 @@ function drawWaveBufferToCanvas(CANVAS_ID,waveMax,waveMin,oneBar_Width,vAmp,alph
     //================================================================
     
     //================================================================
-    gfx_blit( CLEAR_CANVAS_SLOT 
+    gfx_blit( STATIC_CLEAR_CANVAS_SLOT 
             , 1,0 //scale ,rot
             , onebarWidth
             , 0
