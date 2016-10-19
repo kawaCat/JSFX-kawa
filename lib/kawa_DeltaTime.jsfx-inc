@@ -25,20 +25,25 @@ function DELTATIME_create()local(DELTATIME_ID) //speed  Div 0.1 ~
 (
     DELTATIME_ID = STATIC_MASTER_BUFF_ID;
     //================================================================
-    STATIC_MASTER_BUFF[DELTATIME_ID]   = "DELTATIME";// --elementNum
-    STATIC_MASTER_BUFF[DELTATIME_ID+1] = 3;// --elementNum
-    STATIC_MASTER_BUFF[DELTATIME_ID+2] = 0.0;// currentAnimTime
-    STATIC_MASTER_BUFF[DELTATIME_ID+3] = time_precise()/1000;  // lastTime
+    STATIC_MASTER_BUFF[DELTATIME_ID]   = "DELTATIME";   // class name
+    STATIC_MASTER_BUFF[DELTATIME_ID+1] = 5;             // total Element Num 
     //================================================================
-    STATIC_MASTER_BUFF_ID += 4;
+    STATIC_MASTER_BUFF[DELTATIME_ID+2] = 0.0;           // non use
+    STATIC_MASTER_BUFF[DELTATIME_ID+3] = 0.0;           // currentAnimTime
+    STATIC_MASTER_BUFF[DELTATIME_ID+4] = time_precise()/1000;  // lastTime
+    STATIC_MASTER_BUFF[DELTATIME_ID+5] = STATIC_MASTER_BUFF[DELTATIME_ID+1];  // element Num Only DeletaTime Class
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(DELTATIME_ID)+1;
     //================================================================
     DELTATIME_ID;
 );
 //====================================================================
-function DELTATIME_getDeltaTime(DELTATIME_ID)   ( STATIC_MASTER_BUFF[DELTATIME_ID+2]; );
+function _DELTATIME_getElementNum(DELTATIME_ID) ( STATIC_MASTER_BUFF[DELTATIME_ID + 5];);// protected
 //====================================================================
-function DELTATIME_getLastTime(DELTATIME_ID)    (STATIC_MASTER_BUFF[DELTATIME_ID+3];);
-function DELTATIME_setLastTime(DELTATIME_ID,t)  (STATIC_MASTER_BUFF[DELTATIME_ID+3]=t;);
+function DELTATIME_getDeltaTime(DELTATIME_ID)   ( STATIC_MASTER_BUFF[DELTATIME_ID + 3]; );
+//====================================================================
+function DELTATIME_getLastTime (DELTATIME_ID)   ( STATIC_MASTER_BUFF[DELTATIME_ID + 4];);
+function DELTATIME_setLastTime (DELTATIME_ID,t) ( STATIC_MASTER_BUFF[DELTATIME_ID + 4]=t;);
 //====================================================================
 function _DELTATIME_round(newTime) local (out)
 (
@@ -50,13 +55,20 @@ function _DELTATIME_round(newTime) local (out)
 //====================================================================
 function _DELTATIME_addDeltaTime(DELTATIME_ID,t) local (newDt)
 ( 
-    STATIC_MASTER_BUFF[DELTATIME_ID+2] +=t; 
-    newDt =_DELTATIME_round(STATIC_MASTER_BUFF[DELTATIME_ID+2]);
+    STATIC_MASTER_BUFF[  DELTATIME_ID
+                       + STRCUT_getBaseClassElementNum(DELTATIME_ID)
+                       + 3] +=t; 
+    newDt =_DELTATIME_round(STATIC_MASTER_BUFF[  DELTATIME_ID
+                                               + STRCUT_getBaseClassElementNum(DELTATIME_ID)
+                                               + 3]);
     //================================================================
-    STATIC_MASTER_BUFF[DELTATIME_ID+2] = newDt;
+    STATIC_MASTER_BUFF[ DELTATIME_ID
+                      + STRCUT_getBaseClassElementNum(DELTATIME_ID)
+                      + 3] = newDt;
+    //================================================================
 );
 //====================================================================
-function DELTATIME_stepByTime(DELTATIME_ID,speedDiv_)local (lastTime,time_p,distance,dt)
+function DELTATIME_stepByTime(DELTATIME_ID,speedDiv_) local (lastTime,time_p,distance,dt)
 (
     time_p =time_precise();
     lastTime = DELTATIME_getLastTime(DELTATIME_ID);
@@ -68,7 +80,7 @@ function DELTATIME_stepByTime(DELTATIME_ID,speedDiv_)local (lastTime,time_p,dist
     //================================================================
 );
 //====================================================================
-function DELTATIME_stepByValue(DELTATIME_ID,addValue)local (lastTime,time_p,distance,dt)
+function DELTATIME_stepByValue(DELTATIME_ID,addValue) local (lastTime,time_p,distance,dt)
 (
     //================================================================
     _DELTATIME_addDeltaTime(DELTATIME_ID,addValue);
@@ -78,14 +90,14 @@ function DELTATIME_stepByValue(DELTATIME_ID,addValue)local (lastTime,time_p,dist
 function DELTATIME_getDeltaTimeWithStepTime(DELTATIME_ID,speedDiv) local (dt)
 (
     DELTATIME_stepByTime(DELTATIME_ID,speedDiv);
-    dt =  DELTATIME_getDeltaTime(DELTATIME_ID);
+    dt = DELTATIME_getDeltaTime(DELTATIME_ID);
     dt;
 );
 //====================================================================
 function DELTATIME_getDeltaTimeWithStepValue(DELTATIME_ID,addValue) local (dt)
 (
     DELTATIME_stepByValue(DELTATIME_ID,addValue);
-    dt =  DELTATIME_getDeltaTime(DELTATIME_ID);
+    dt = DELTATIME_getDeltaTime(DELTATIME_ID);
     dt;
 );
 //====================================================================

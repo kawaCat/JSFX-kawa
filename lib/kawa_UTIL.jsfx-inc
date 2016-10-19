@@ -224,17 +224,11 @@ function stringCompareFromNum(strNum1,strNum2) local (out,strSlot1_,strSlot2_)
 //====================================================================
 // struct functions
 //====================================================================
-function STRUCT_getStructType( SRC_STRUCT_ID)local (out)
-(
-    out = STATIC_MASTER_BUFF[SRC_STRUCT_ID];
-    out;
-);
+function STRUCT_getStructType( SRC_STRUCT_ID)          ( STATIC_MASTER_BUFF[SRC_STRUCT_ID+0]; );
 //====================================================================
-function STRUCT_getElementNum(SRC_STRUCT_ID)local(out)
-(
-    out = STATIC_MASTER_BUFF[SRC_STRUCT_ID+1];
-    out;
-);
+function STRUCT_getElementNum(SRC_STRUCT_ID)           ( STATIC_MASTER_BUFF[SRC_STRUCT_ID+1]; );
+//====================================================================
+function STRCUT_getBaseClassElementNum( SRC_STRUCT_ID) ( STATIC_MASTER_BUFF[SRC_STRUCT_ID+2]; );
 //====================================================================
 function STRICT_copyTo(destSTRUCT_ID,srcSTRUCT_ID) local (elementNum,count_1)
 (

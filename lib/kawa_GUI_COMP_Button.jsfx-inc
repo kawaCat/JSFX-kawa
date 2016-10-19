@@ -4,20 +4,27 @@
 
 
 //====================================================================
-// inherit List
+// Inheritance List
 // * Rectangle
-// * Canvas
+// * Component
 //====================================================================
-function BUTTON_create(name) local (BUTTON_ID)
+function BUTTON_create(name) local (BUTTON_ID,baseClassElementNum)
 (
     //================================================================
-    BUTTON_ID = COMPONENT_create(name);//element NUM 6
+    BUTTON_ID = COMPONENT_create(name);
     //================================================================
     STATIC_MASTER_BUFF[BUTTON_ID ]     = "BUTTON";        // classTYPE
-    //same as COMPONENT
-    //STATIC_MASTER_BUFF[BUTTON_ID + 1]  = 17;            // elementNUM
     //================================================================
-    //STATIC_MASTER_BUFF_ID +=18; // next entry Bufff Point
+    baseClassElementNum =_COMPONENT_getElementNum(BUTTON_ID);
+    //================================================================
+    
+    //================================================================
+    STATIC_MASTER_BUFF[BUTTON_ID + 1]  = baseClassElementNum +1;// total elementNUM
+    STATIC_MASTER_BUFF[BUTTON_ID + baseClassElementNum + 1]  = STATIC_MASTER_BUFF[BUTTON_ID + 1]; // element num in  BUTTON CLASS
+    //================================================================
+    
+    //================================================================
+    STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (BUTTON_ID)+1; // increment next entry Bufff Point
     //================================================================
 
     //================================================================
@@ -30,15 +37,23 @@ function BUTTON_create(name) local (BUTTON_ID)
                 , COLOR_create(1,0,0,1));
     //================================================================
     
+    COMPONENT_setComponentInfoValue( BUTTON_ID,"buttonOnText_Post", ":ON ") ;
+    COMPONENT_setComponentInfoValue( BUTTON_ID,"buttonOffText_Post",":OFF") ;
+    
     // init prepare.
     //================================================================
     BUTTON_ID; //retrun
 );
 //====================================================================
-
+function _BUTTON_getElementNum(BUTTON_ID)          ( STATIC_MASTER_BUFF[BUTTON_ID + _COMPONENT_getElementNum(BUTTON_ID)+1];); //protected
 //====================================================================
-function BUTTON_isON(BUTTON_ID)       ( (COMPONENT_getValue(BUTTON_ID) > 0););
-function BUTTON_isOFF(BUTTON_ID)      ( (BUTTON_isON(BUTTON_ID) == false ););
+function BUTTON_getOnTextPostFix(BUTTON_ID)        ( COMPONENT_getComponentInfoValue(BUTTON_ID,"buttonOnText_Post"););
+function BUTTON_getOffTextPostFix(BUTTON_ID)       ( COMPONENT_getComponentInfoValue(BUTTON_ID,"buttonOffText_Post"););
+function BUTTON_setOnTextPostFix(BUTTON_ID,str)    ( COMPONENT_setComponentInfoValue(BUTTON_ID,"buttonOnText_Post",str););
+function BUTTON_setOffTextPostFix(BUTTON_ID,str)   ( COMPONENT_setComponentInfoValue(BUTTON_ID,"buttonOffText_Post",str););
+//====================================================================
+function BUTTON_isON(BUTTON_ID)                    ( (COMPONENT_getValue(BUTTON_ID) > 0););
+function BUTTON_isOFF(BUTTON_ID)                   ( (BUTTON_isON(BUTTON_ID) == false ););
 function BUTTON_setON(BUTTON_ID,isSedeReaper)      ( COMPONENT_setValue(BUTTON_ID,1,isSedeReaper););
 function BUTTON_ON(BUTTON_ID,isSedeReaper)         ( COMPONENT_setValue(BUTTON_ID,1,isSedeReaper););
 function BUTTON_setOFF(BUTTON_ID,isSedeReaper)     ( COMPONENT_setValue(BUTTON_ID,0,isSedeReaper););
@@ -76,10 +91,10 @@ function BUTTON_draw(BUTTON_ID)local (tempText)
     //================================================================
     (BUTTON_isON(BUTTON_ID) ==true)?
     (
-        strcat(tempText, ":ON " );
+        strcat(tempText, BUTTON_getOnTextPostFix(BUTTON_ID));
         COMPONENT_changeColorGfx( BUTTON_ID,"textColor_mouseon");
     ):(
-        strcat(tempText, ":OFF" );
+        strcat(tempText, BUTTON_getOffTextPostFix(BUTTON_ID));
     );
     //================================================================
     RECTANGLE_drawStrInCenterFitFont(BUTTON_ID,tempText);

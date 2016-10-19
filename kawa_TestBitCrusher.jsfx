@@ -207,25 +207,7 @@ slider2:0.25<0.0,0.9>FREQ
     
     // plugin Title Str
     //================================================================
-    pluginTitleStrMarginX = 10;
-    pluginTitleStrMarginY = 4;
-    pluginTitleStr = #;
-    sprintf ( pluginTitleStr,"kawa Test Bit Crusher");
-    //================================================================
-    gfx_measurestr(pluginTitleStr,pluginTitleStr_w,pluginTitleStr_h);
-    //================================================================
-    gfx_x = gfx_w - pluginTitleStr_w -pluginTitleStrMarginX;
-    gfx_y = gfx_h - pluginTitleStr_h -pluginTitleStrMarginY;
-    //================================================================
-    gfx_r =0;gfx_g=0;gfx_b=0;gfx_a=1;
-    gfx_rect( gfx_x -pluginTitleStrMarginX
-            , gfx_y -pluginTitleStrMarginY
-            , pluginTitleStr_w+pluginTitleStrMarginX*3
-            , pluginTitleStr_h+pluginTitleStrMarginY*3
-            );
-    //================================================================
-    gfx_r =1;gfx_g=1;gfx_b=1;gfx_a=1;
-    gfx_drawstr( pluginTitleStr);
+    RECTANGLE_drawBottomRightText( APP_ID,"kawa Test Bit Crusher");
     //================================================================
     
 

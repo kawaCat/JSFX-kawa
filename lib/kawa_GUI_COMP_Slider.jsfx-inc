@@ -4,23 +4,28 @@
 
 
 //====================================================================
-// inherit List
+// Inheritance List
 // * Rectangle
-// * Canvas
+// * Component
 //====================================================================
-function SLIDER_create(name) local (SLIDER_ID,_childComponentBUFF,name_,circle_Area_ID)
+function SLIDER_create(name) 
+local (SLIDER_ID,circle_Area_ID,baseClassElementNum )
 (
     circle_Area_ID = CIRCLE_create(0,0,10);
     //================================================================
-    SLIDER_ID = COMPONENT_create(name);//element NUM 6
+    SLIDER_ID = COMPONENT_create(name);
+    baseClassElementNum = _COMPONENT_getElementNum(SLIDER_ID);
     //================================================================
-    STATIC_MASTER_BUFF[SLIDER_ID ]     = "SLIDER";        // classTYPE
-    STATIC_MASTER_BUFF[SLIDER_ID + 1]  = 21;                 // elementNUM
+    
     //================================================================
-    STATIC_MASTER_BUFF[SLIDER_ID + 20] = circle_Area_ID;
-    STATIC_MASTER_BUFF[SLIDER_ID + 21] = false;           // is Pressd incircleArea
+    STATIC_MASTER_BUFF[SLIDER_ID ]     = "SLIDER";                // classTYPE
+    STATIC_MASTER_BUFF[SLIDER_ID + 1]  = baseClassElementNum + 3; // total elementNUM
     //================================================================
-    STATIC_MASTER_BUFF_ID +=22; // next entry Bufff Point
+    STATIC_MASTER_BUFF[SLIDER_ID + baseClassElementNum + 1] = circle_Area_ID;
+    STATIC_MASTER_BUFF[SLIDER_ID + baseClassElementNum + 2] = false;           // is Pressd in Circle Area
+    STATIC_MASTER_BUFF[SLIDER_ID + baseClassElementNum + 3] = STATIC_MASTER_BUFF[SLIDER_ID + 1];//element Num in SLIDER Class
+    //================================================================
+    STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (SLIDER_ID)+1; // next entry Bufff Point
     //================================================================
     // init prepare.
     //================================================================
@@ -31,9 +36,11 @@ function SLIDER_create(name) local (SLIDER_ID,_childComponentBUFF,name_,circle_A
     SLIDER_ID; //retrun
 );
 //====================================================================
-function SLIDER_getCircleArea(SLIDER_ID)                   ( STATIC_MASTER_BUFF[SLIDER_ID + 20];);
-function SLIDER_isCircleAreaPressed(SLIDER_ID)             ( STATIC_MASTER_BUFF[SLIDER_ID + 21];);
-function _SLIDER_setIsCircleAreaPressed(SLIDER_ID,v)       ( STATIC_MASTER_BUFF[SLIDER_ID + 21] =v;);
+function _SLIDER_getElementNum(SLIDER_ID)                  ( STATIC_MASTER_BUFF[SLIDER_ID + _COMPONENT_getElementNum(SLIDER_ID)+3];); //protected
+//====================================================================
+function SLIDER_getCircleArea(SLIDER_ID)                   ( STATIC_MASTER_BUFF[SLIDER_ID + _COMPONENT_getElementNum(SLIDER_ID)+1];);
+function SLIDER_isCircleAreaPressed(SLIDER_ID)             ( STATIC_MASTER_BUFF[SLIDER_ID + _COMPONENT_getElementNum(SLIDER_ID)+2];);
+function _SLIDER_setIsCircleAreaPressed(SLIDER_ID,v)       ( STATIC_MASTER_BUFF[SLIDER_ID + _COMPONENT_getElementNum(SLIDER_ID)+2] =v;);
 //====================================================================
 // meterWidth
 //====================================================================

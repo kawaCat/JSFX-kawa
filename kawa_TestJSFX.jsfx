@@ -17,7 +17,7 @@ slider1:0.25<0.0,1>parameter1
 
 @init
 //====================================================================
-    // create APP ID
+    //create APP ID
     //================================================================
     APP_ID = APP_create();
     //================================================================
@@ -31,6 +31,7 @@ slider1:0.25<0.0,1>parameter1
     //create Component and add to layer 1 .
     //================================================================
     TEST_comp  = COMPONENT_create("TEST");
+    TEST_comp2  = COMPONENT_create("TES2T");
     SLIDER_2_comp = SLIDERTYPE2_create("TEST2");
     KONB_ID  = KNOB_create( "knobTest") ;
     COMPONENT_setSliderIndex(KONB_ID,1); 
@@ -46,6 +47,7 @@ slider1:0.25<0.0,1>parameter1
     LAYER_addChildComponent(LAYER_001 , TEXT_DB_R);
     //----------------------------------------------------------------
     LAYER_addChildComponent(LAYER_001 , TEST_comp);
+    LAYER_addChildComponent(LAYER_001 , TEST_comp2);
     LAYER_addChildComponent(LAYER_001 , SLIDER_2_comp);
     LAYER_addChildComponent(LAYER_001 , KONB_ID);
     //================================================================
@@ -74,7 +76,7 @@ slider1:0.25<0.0,1>parameter1
     CANVS_WAVE_L = CANVAS_create(gfx_w,gfx_h);
     CANVS_WAVE_R = CANVAS_create(gfx_w,gfx_h);
     //================================================================
-    
+
 @slider
 //====================================================================
     COMPONENT_setValue( SLIDER_2_comp,slider1,false );
@@ -111,20 +113,20 @@ slider1:0.25<0.0,1>parameter1
     // canvase test
     //================================================================
     drawWaveBufferToCanvas(CANVS_WAVE_L
-                          ,max_L
-                          ,min_L
-                          ,40 * COMPONENT_getValue(KONB_ID)
-                          ,0.5
-                          ,1
-                          ,80);
-
+                              ,max_L
+                              ,min_L
+                              ,40 * COMPONENT_getValue(KONB_ID)
+                              ,0.5
+                              ,1
+                              ,80);
+    //================================================================    
     drawWaveBufferToCanvas(CANVS_WAVE_R
-                          ,max_R
-                          ,min_R
-                          ,40 * COMPONENT_getValue(SLIDER_2_comp)
-                          ,0.6
-                          ,1
-                          ,0);
+                              ,max_R
+                              ,min_R
+                              ,40 * COMPONENT_getValue(SLIDER_2_comp)
+                              ,0.6
+                              ,1
+                              ,0);
     //================================================================
     gfx_a =0.6;
     CANVAS_blitImage4(CANVS_WAVE_R,1,0);
@@ -169,12 +171,11 @@ slider1:0.25<0.0,1>parameter1
     lastCAP = mouse_cap;
     //================================================================
     
-    
     // alignment position when resized.
     //================================================================
     ( APP_isWindowResized(APP_ID) ==true) ?
     (
-        DBG("CALLL RESIzED");
+        //============================================================
         RECTANGLE_copyTo      ( CANVS_WAVE_L,APP_ID);
         RECTANGLE_copyTo      ( CANVS_WAVE_R,APP_ID);
         CANVAS_recreateCanvas ( CANVS_WAVE_L ); 
@@ -189,8 +190,12 @@ slider1:0.25<0.0,1>parameter1
     //================================================================
     ( LAYER_isAreaResized(LAYER_001) ==true)   ?
     (
+    
         RECTANGLE_copyTo         (TEST_comp,LAYER_001);
         RECTANGLE_cropFromTopP   (TEST_comp,0.025);
+        
+        RECTANGLE_copyTo         (TEST_comp2,LAYER_001);
+        RECTANGLE_cropFromBottomP(TEST_comp2,0.025);
         //============================================================
         RECTANGLE_copyTo         (SLIDER_2_comp,LAYER_001);
         RECTANGLE_cropFromTopP   (SLIDER_2_comp,0.07);
@@ -209,7 +214,7 @@ slider1:0.25<0.0,1>parameter1
         RECTANGLE_reduceP        (KONB_ID,0.28,0.28);
         RECTANGLE_reduce         (KONB_ID,5,5);
     );
-    //================================================================
+//    //================================================================
 
 
     //================================================================
@@ -224,7 +229,6 @@ slider1:0.25<0.0,1>parameter1
         RECTANGLE_cropFromRightP(SLIDER_1_comp,0.5);
         RECTANGLE_reduceP       (SLIDER_1_comp,0.1,0.1);
         //============================================================
-        RECTANGLE_copyTo        (TEXT_DB_L,APP_ID);
     );
     //================================================================
 
@@ -236,25 +240,7 @@ slider1:0.25<0.0,1>parameter1
 
     // plugin Title Str
     //================================================================
-    pluginTitleStrMarginX = 10;
-    pluginTitleStrMarginY = 4;
-    pluginTitleStr = #;
-    sprintf ( pluginTitleStr,"kawa Test ");
-    //================================================================
-    gfx_measurestr(pluginTitleStr,pluginTitleStr_w,pluginTitleStr_h);
-    //================================================================
-    gfx_x = gfx_w - pluginTitleStr_w -pluginTitleStrMarginX;
-    gfx_y = gfx_h - pluginTitleStr_h -pluginTitleStrMarginY;
-    //================================================================
-    gfx_r =0;gfx_g=0;gfx_b=0;gfx_a=1;
-    gfx_rect( gfx_x -pluginTitleStrMarginX
-            , gfx_y -pluginTitleStrMarginY
-            , pluginTitleStr_w+pluginTitleStrMarginX*3
-            , pluginTitleStr_h+pluginTitleStrMarginY*3
-            );
-    //================================================================
-    gfx_r =1;gfx_g=1;gfx_b=1;gfx_a=1;
-    gfx_drawstr( pluginTitleStr);
+      RECTANGLE_drawBottomRightText( APP_ID,"kawa Test");
     //================================================================
     
 //====================================================================

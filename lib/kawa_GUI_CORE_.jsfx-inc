@@ -148,7 +148,7 @@ function MOUSEINFO_create() local(MOUSEINFO_ID)
     MOUSEINFO_ID = STATIC_MASTER_BUFF_ID;//buffer entry point
     //================================================================
     STATIC_MASTER_BUFF[MOUSEINFO_ID]     = "MOUSE_INFO";  // classNAME
-    STATIC_MASTER_BUFF[MOUSEINFO_ID+1]   = 11 ;           // element NUM
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+1]   = 12 ;           // total element NUM
     //================================================================
     STATIC_MASTER_BUFF[MOUSEINFO_ID+2]   = mouse_x;       // mouseX
     STATIC_MASTER_BUFF[MOUSEINFO_ID+3]   = mouse_y;       // mouseY
@@ -161,11 +161,15 @@ function MOUSEINFO_create() local(MOUSEINFO_ID)
     STATIC_MASTER_BUFF[MOUSEINFO_ID+10]  = mouse_hwheel;  // mouse_hwheel
     STATIC_MASTER_BUFF[MOUSEINFO_ID+11]  = mouse_hwheel;  // last mouse_hwheel
     //================================================================
-    STATIC_MASTER_BUFF_ID +=12;//next buffer entry point.
+    STATIC_MASTER_BUFF[MOUSEINFO_ID+12] = STATIC_MASTER_BUFF[MOUSEINFO_ID+1];//element Num in MOUSEINFO Class
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(MOUSEINFO_ID)+1;
     //================================================================
     MOUSEINFO_ID;//return 
     //================================================================
 );
+//====================================================================
+function _MOUSEINFO_getElementNum(COLOR_ID)               (STATIC_MASTER_BUFF[MOUSEINFO_ID+12];); // protected
 //====================================================================
 function MOUSEINFO_getMouseX(MOUSEINFO_ID)                (STATIC_MASTER_BUFF[MOUSEINFO_ID+2];);
 function MOUSEINFO_getMouseY(MOUSEINFO_ID)                (STATIC_MASTER_BUFF[MOUSEINFO_ID+3];);
@@ -310,17 +314,22 @@ function MOUSEINFO_getMouseWheelDiffH_ABS(MOUSEINFO_ID)local (out)
 function COLOR_create(r,g,b,a)local(COLOR_ID)
 (
     COLOR_ID = STATIC_MASTER_BUFF_ID;
-    STATIC_MASTER_BUFF[COLOR_ID]   = "COLOR"; // classNAME
-    STATIC_MASTER_BUFF[COLOR_ID+1] = 5; // element Num
+    STATIC_MASTER_BUFF[COLOR_ID]   = "COLOR"; // class NAME
+    STATIC_MASTER_BUFF[COLOR_ID+1] = 6;       // total element Num
     //================================================================
     STATIC_MASTER_BUFF[COLOR_ID+2] = r;
     STATIC_MASTER_BUFF[COLOR_ID+3] = g;
     STATIC_MASTER_BUFF[COLOR_ID+4] = b;
     STATIC_MASTER_BUFF[COLOR_ID+5] = a;
     //================================================================
-    STATIC_MASTER_BUFF_ID +=6;
+    STATIC_MASTER_BUFF[COLOR_ID+6] = STATIC_MASTER_BUFF[COLOR_ID+1];//element Num in COLOR Class
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(COLOR_ID)+1;
+    //================================================================
     COLOR_ID;
 );
+//====================================================================
+function _COLOR_getElementNum(COLOR_ID) ( STATIC_MASTER_BUFF[COLOR_ID+6];); // protected
 //====================================================================
 function COLOR_getR(COLOR_ID)(STATIC_MASTER_BUFF[COLOR_ID+2]);
 function COLOR_getG(COLOR_ID)(STATIC_MASTER_BUFF[COLOR_ID+3];);
@@ -364,15 +373,18 @@ local ( hsb)
 function POINT_create(x,y)local (POINT_ID)
 (
     POINT_ID = STATIC_MASTER_BUFF_ID;
-    STATIC_MASTER_BUFF[POINT_ID]   ="POINT"; // struct NAME
-    STATIC_MASTER_BUFF[POINT_ID+1] =3;       // element Num
+    STATIC_MASTER_BUFF[POINT_ID]   = "POINT"; // class name
+    STATIC_MASTER_BUFF[POINT_ID+1] = 4;       // total element Num
     //================================================================
-    STATIC_MASTER_BUFF[POINT_ID+2] =x;
-    STATIC_MASTER_BUFF[POINT_ID+3] =y;
+    STATIC_MASTER_BUFF[POINT_ID+2] = x;
+    STATIC_MASTER_BUFF[POINT_ID+3] = y;
+    STATIC_MASTER_BUFF[POINT_ID+4] = STATIC_MASTER_BUFF[POINT_ID+1];//element Num in POINT Class
     //================================================================
-    STATIC_MASTER_BUFF_ID +=4;
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(POINT_ID)+1;
     POINT_ID;
 );
+//====================================================================
+function _POINT_getElementNum(POINT_ID) ( STATIC_MASTER_BUFF[POINT_ID+4];); // protected
 //====================================================================
 function POINT_getX(POINT_ID)(STATIC_MASTER_BUFF[POINT_ID+2];);
 function POINT_getY(POINT_ID)(STATIC_MASTER_BUFF[POINT_ID+3];);
@@ -438,14 +450,19 @@ function getChebyshevDist(POINT_ID_A,POINT_ID_B)local(x1,y1,x2,y2,distHoriz,dist
 function CIRCLE_create(x,y,radius)local (CIRCLE_ID)
 (
     CIRCLE_ID = STATIC_MASTER_BUFF_ID;
-    STATIC_MASTER_BUFF[CIRCLE_ID]   ="CIRCLE";
-    STATIC_MASTER_BUFF[CIRCLE_ID+1]   =4;
-    STATIC_MASTER_BUFF[CIRCLE_ID+2] =x;
-    STATIC_MASTER_BUFF[CIRCLE_ID+3] =y;
-    STATIC_MASTER_BUFF[CIRCLE_ID+4] =radius;
-    STATIC_MASTER_BUFF_ID +=5;
+    STATIC_MASTER_BUFF[CIRCLE_ID]   = "CIRCLE";
+    STATIC_MASTER_BUFF[CIRCLE_ID+1] = 5;
+    STATIC_MASTER_BUFF[CIRCLE_ID+2] = x;
+    STATIC_MASTER_BUFF[CIRCLE_ID+3] = y;
+    STATIC_MASTER_BUFF[CIRCLE_ID+4] = radius;
+    //================================================================
+    STATIC_MASTER_BUFF[CIRCLE_ID+5] = STATIC_MASTER_BUFF[CIRCLE_ID+1];//element Num only CIRCLE Class
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(CIRCLE_ID)+1;
     CIRCLE_ID;
 );
+//====================================================================
+function _CIRCLE_getElementNum(CIRCLE_ID) ( STATIC_MASTER_BUFF[CIRCLE_ID+5];); // protected
 //====================================================================
 function CIRCLE_getCX(CIRCLE_ID)(STATIC_MASTER_BUFF[CIRCLE_ID+2];);
 function CIRCLE_getCY(CIRCLE_ID)(STATIC_MASTER_BUFF[CIRCLE_ID+3];);
@@ -484,20 +501,28 @@ function CIRCLE_isContainMouse(CIRCLE_ID)local (out)
 function RECTANGLE_create(x,y,w,h)local (RECT_ID)
 (
     RECT_ID = STATIC_MASTER_BUFF_ID;
-    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID]  ="RECTANGLE"; //elementNUM
-    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+1]  = 7; //elementNUM
+    STATIC_MASTER_BUFF[RECT_ID]   ="RECTANGLE";  // class name
+    STATIC_MASTER_BUFF[RECT_ID+1] = 11;         // total element NUM
     //================================================================
-    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+2]= x;
-    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+3]= y;
-    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+4]= w;
-    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+5]= h;
-    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+6]= x+w;//x2
-    STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+7]= y+h;//y2
+    STATIC_MASTER_BUFF[RECT_ID+2] = x;
+    STATIC_MASTER_BUFF[RECT_ID+3] = y;
+    STATIC_MASTER_BUFF[RECT_ID+4] = w;
+    STATIC_MASTER_BUFF[RECT_ID+5] = h;
+    STATIC_MASTER_BUFF[RECT_ID+6] = x+w;//x2
+    STATIC_MASTER_BUFF[RECT_ID+7] = y+h;//y2
+    STATIC_MASTER_BUFF[RECT_ID+8] = STATIC_MASTER_BUFF[STATIC_MASTER_BUFF_ID+1] ;//element num in RECTANGLE class
+    STATIC_MASTER_BUFF[RECT_ID+9] = angle;  // todo
+    STATIC_MASTER_BUFF[RECT_ID+10]= scale;  // todo
+    STATIC_MASTER_BUFF[RECT_ID+11]= matrix; // todo
     //================================================================
-    STATIC_MASTER_BUFF_ID +=8;
+    
+    //================================================================
+    STATIC_MASTER_BUFF_ID += STRUCT_getElementNum(RECT_ID)+1;
     RECT_ID;
 );
 
+//====================================================================
+function _RECTANGLE_getElementNum(RECT_ID) ( STATIC_MASTER_BUFF[RECT_ID+8];); // protected
 //====================================================================
 function RECTANGLE_updateInfo(RECT_ID)
 ( 
@@ -518,12 +543,12 @@ function RECTANGLE_updateInfo(RECT_ID)
     STATIC_MASTER_BUFF[RECT_ID+7] = STATIC_MASTER_BUFF[RECT_ID+3]+STATIC_MASTER_BUFF[RECT_ID+5]
 );
 //====================================================================
-function RECTANGLE_getX(RECT_ID)     (STATIC_MASTER_BUFF[RECT_ID+2];);
-function RECTANGLE_getY(RECT_ID)     (STATIC_MASTER_BUFF[RECT_ID+3];);
-function RECTANGLE_getWidth(RECT_ID) (STATIC_MASTER_BUFF[RECT_ID+4];);
-function RECTANGLE_getHeight(RECT_ID)(STATIC_MASTER_BUFF[RECT_ID+5];);
-function RECTANGLE_getX2(RECT_ID)    (STATIC_MASTER_BUFF[RECT_ID+6];);
-function RECTANGLE_getY2(RECT_ID)    (STATIC_MASTER_BUFF[RECT_ID+7];);
+function RECTANGLE_getX(RECT_ID)                (STATIC_MASTER_BUFF[RECT_ID+2];);
+function RECTANGLE_getY(RECT_ID)                (STATIC_MASTER_BUFF[RECT_ID+3];);
+function RECTANGLE_getWidth(RECT_ID)            (STATIC_MASTER_BUFF[RECT_ID+4];);
+function RECTANGLE_getHeight(RECT_ID)           (STATIC_MASTER_BUFF[RECT_ID+5];);
+function RECTANGLE_getX2(RECT_ID)               (STATIC_MASTER_BUFF[RECT_ID+6];);
+function RECTANGLE_getY2(RECT_ID)               (STATIC_MASTER_BUFF[RECT_ID+7];);
 //====================================================================
 function RECTANGLE_setX(RECT_ID,newX)           (STATIC_MASTER_BUFF[RECT_ID+2] = newX;     RECTANGLE_updateInfo(RECT_ID) );
 function RECTANGLE_setY(RECT_ID,newY)           (STATIC_MASTER_BUFF[RECT_ID+3] = newY;     RECTANGLE_updateInfo(RECT_ID) );
@@ -801,27 +826,33 @@ function RECTANGLE_compare(RECT_ID,targetRECT_ID)local ( out )
 // inherit List
 // * Rectangle
 //====================================================================
-function CANVAS_create(width,height)local (CANVAS_ID,canvasSLOTID,ww_,hh_)
+function CANVAS_create(width,height)
+local (CANVAS_ID,canvasSLOTID,ww_,hh_,baseClassElementNum)
 (
+    //================================================================
     CANVAS_ID = RECTANGLE_create(0,0,width ,height);
+    baseClassElementNum = _RECTANGLE_getElementNum(CANVAS_ID); 
     //================================================================
-    STATIC_MASTER_BUFF[CANVAS_ID ]   = "CANVAS"; // element NUM;
-    STATIC_MASTER_BUFF[CANVAS_ID +1]   = 9; // element NUM;
+
     //================================================================
-    STATIC_MASTER_BUFF[CANVAS_ID +8] = STATIC_CANVAS_SLOT_CURSOL; // canvas SLOT
-    STATIC_MASTER_BUFF[CANVAS_ID +9] = false; // isCreatedFlag
+    STATIC_MASTER_BUFF[CANVAS_ID ] = "CANVAS";                     // class name
+    STATIC_MASTER_BUFF[CANVAS_ID +1]   = baseClassElementNum +3;   // total element NUM;
     //================================================================
-    STATIC_MASTER_BUFF_ID += 10; // step cursol
+    STATIC_MASTER_BUFF[CANVAS_ID + baseClassElementNum + 1] = STATIC_CANVAS_SLOT_CURSOL;        // canvas SLOT
+    STATIC_MASTER_BUFF[CANVAS_ID + baseClassElementNum + 2] = false;                            // isCreatedFlag
+    STATIC_MASTER_BUFF[CANVAS_ID + baseClassElementNum + 3] = STATIC_MASTER_BUFF[CANVAS_ID +1]; // Element Num in CANVAS class.
     //================================================================
-    
+    STATIC_MASTER_BUFF_ID += STRUCT_getElementNum(CANVAS_ID)+1; // step cursol
     //================================================================
     STATIC_CANVAS_SLOT_CURSOL +=1;
     //================================================================
     CANVAS_ID;
 );
 //====================================================================
-function CANVAS_isCreatedCanvas(CANVAS_ID)(STATIC_MASTER_BUFF[CANVAS_ID +9];);
-function _CANVAS_setisCreatedCanvas(CANVAS_ID,v)(STATIC_MASTER_BUFF[CANVAS_ID +9] = v;);
+function _CANVAS_getElementNum(CANVAS_ID)       ( STATIC_MASTER_BUFF[CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+3];);// protected
+//====================================================================
+function CANVAS_isCreatedCanvas(CANVAS_ID)      ( STATIC_MASTER_BUFF[CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+2];);
+function _CANVAS_setisCreatedCanvas(CANVAS_ID,v)( STATIC_MASTER_BUFF[CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+2] = v;);
 //====================================================================
 
 //====================================================================
@@ -831,7 +862,7 @@ function CANVAS_recreateCanvas(CANVAS_ID)local (width,height,canvasSlot,cW,cH)
     width  = RECTANGLE_getWidth(CANVAS_ID); 
     height = RECTANGLE_getHeight(CANVAS_ID);
     //================================================================
-    canvasSlot = STATIC_MASTER_BUFF[ CANVAS_ID +8 ];
+    canvasSlot = STATIC_MASTER_BUFF[ CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+1];
     //================================================================
     gfx_getimgdim(canvasSlot,cW,cH);
     //================================================================
@@ -862,7 +893,7 @@ function CANVAS_getCanvaseSlotID(CANVAS_ID)local (out)
         CANVAS_recreateCanvas(CANVAS_ID);
     );
     //================================================================
-    out = STATIC_MASTER_BUFF[ CANVAS_ID +8 ];
+    out = STATIC_MASTER_BUFF[ CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+1 ];
     out;
 );
 //====================================================================

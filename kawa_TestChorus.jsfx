@@ -61,8 +61,8 @@ slider2:0.25<0.0,0.9>WIDTH
 
 @slider
 //====================================================================
-    XYSLIDER_setYValue(XYSlider_1,slider1,false);
-    XYSLIDER_setXValue(XYSlider_1,slider2,false);
+    XYSLIDER_setXValue(XYSlider_1,slider1,false);
+    XYSLIDER_setYValue(XYSlider_1,slider2,false);
     
 @block
 //====================================================================
@@ -79,20 +79,23 @@ slider2:0.25<0.0,0.9>WIDTH
     //================================================================
  
     //================================================================
-    CURSOLBUFFER_push( DELAY_ARRAY_L
-                     ,spl0 );    
-    CURSOLBUFFER_push( DELAY_ARRAY_R
-                     ,spl1 );  
+    CURSOLBUFFER_push( DELAY_ARRAY_L ,spl0 );
+    CURSOLBUFFER_push( DELAY_ARRAY_R ,spl1 );
     
-    speed += 0.0002 * XYSLIDER_getXValue(XYSlider_1);
-    (speed > 1)? (speed = 0;);
     
-    chorusWidth = srate* ( 0.001 * XYSLIDER_getYValue(XYSlider_1) );
+    //================================================================
+    rateX= slider1 * 8;//Max 12hz
+    valueX =  sin( ($pi* rateX * timeX )/srate);
+    timeX +=1;(timeX>=srate/rateX)?( timeX=0;);
+    //================================================================
+  
+    
+    chorusWidth = ( srate* 0.0001 )*10* XYSLIDER_getYValue(XYSlider_1) ;
     //================================================================
     delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
-                                            , -chorusWidth * sin($pi * speed) );
+                                            , -chorusWidth * valueX-1 );
     delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
-                                            , -chorusWidth * sin($pi * speed) );
+                                            , -chorusWidth * valueX-1 );
     //================================================================
     spl0 = spl0 + delay_L;
     spl1 = spl1 + delay_R;
@@ -190,27 +193,8 @@ slider2:0.25<0.0,0.9>WIDTH
     
     // plugin Title Str
     //================================================================
-    pluginTitleStrMarginX = 10;
-    pluginTitleStrMarginY = 4;
-    pluginTitleStr = #;
-    sprintf ( pluginTitleStr,"kawa Test Chorus");
+    RECTANGLE_drawBottomRightText( APP_ID,"kawa Test Chorus");
     //================================================================
-    gfx_measurestr(pluginTitleStr,pluginTitleStr_w,pluginTitleStr_h);
-    //================================================================
-    gfx_x = gfx_w - pluginTitleStr_w -pluginTitleStrMarginX;
-    gfx_y = gfx_h - pluginTitleStr_h -pluginTitleStrMarginY;
-    //================================================================
-    gfx_r =0;gfx_g=0;gfx_b=0;gfx_a=1;
-    gfx_rect( gfx_x -pluginTitleStrMarginX
-            , gfx_y -pluginTitleStrMarginY
-            , pluginTitleStr_w+pluginTitleStrMarginX*3
-            , pluginTitleStr_h+pluginTitleStrMarginY*3
-            );
-    //================================================================
-    gfx_r =1;gfx_g=1;gfx_b=1;gfx_a=1;
-    gfx_drawstr( pluginTitleStr);
-    //================================================================
-    
 
 //====================================================================
 // 続

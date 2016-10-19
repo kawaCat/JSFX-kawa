@@ -57,11 +57,13 @@ function DBGMESSAGE_create(size)local (DBGMSG_ID,size_,circle_BUFF_ID)
     //================================================================
    
     //================================================================
-    STATIC_MASTER_BUFF[DBGMSG_ID] = "DBG_MESSAGE";//elemNUM
-    STATIC_MASTER_BUFF[DBGMSG_ID+1] = 4;//elemNUM
-    STATIC_MASTER_BUFF[DBGMSG_ID+2] = circle_BUFF_ID;//circleBuf ID
-    STATIC_MASTER_BUFF[DBGMSG_ID+3] = STATIC_TEMP_STRING_START_SLOT_NUM;//lastest String Slot cursol
-    STATIC_MASTER_BUFF[DBGMSG_ID+4] = 100;//is Active
+    STATIC_MASTER_BUFF[DBGMSG_ID] = "DBG_MESSAGE";                      // Class Type
+    STATIC_MASTER_BUFF[DBGMSG_ID+1] = 4;                                // total Element Num
+    //================================================================
+    STATIC_MASTER_BUFF[DBGMSG_ID+2] = circle_BUFF_ID;                   // circleBuf ID
+    STATIC_MASTER_BUFF[DBGMSG_ID+3] = STATIC_TEMP_STRING_START_SLOT_NUM;// lastest String Slot cursol
+    STATIC_MASTER_BUFF[DBGMSG_ID+4] = 100;                              // is Active
+    STATIC_MASTER_BUFF[DBGMSG_ID+5] = STATIC_MASTER_BUFF[DBGMSG_ID+1];  // element Num in DBGMESSAGE class
     
     //================================================================
     STATIC_MASTER_BUFF_ID += 5;
@@ -69,6 +71,8 @@ function DBGMESSAGE_create(size)local (DBGMSG_ID,size_,circle_BUFF_ID)
     DBGMSG_ID; //return 
     //================================================================
 );
+//====================================================================
+function _DBGMESSAGE_getElementNum(DBGMSG_ID)(STATIC_MASTER_BUFF[DBGMSG_ID + 5];);// protected
 //====================================================================
 function DBGMESSAGE_getActive(DBGMSG_ID)     (STATIC_MASTER_BUFF[DBGMSG_ID+4];);
 function DBGMESSAGE_isActive (DBGMSG_ID)     (DBGMESSAGE_getActive(DBGMSG_ID););
@@ -151,7 +155,7 @@ function DBGMESSAGE_drawAllMessage(DBGMSG_ID)local (circleBUF_ID,bufSize,count_2
             gfx_x=0;
             gfx_y=gfx_texth * count_2;
             gfx_r=1;gfx_g=1;gfx_b=1;gfx_a=1;
-            gfx_printf(oneMsg) ;
+            gfx_drawstr(oneMsg) ;
             //========================================================
             count_2+=1;
         );

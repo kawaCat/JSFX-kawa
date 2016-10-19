@@ -54,53 +54,54 @@ import kawa_GUI_CORE_.jsfx-inc
 //====================================================================
 
 //====================================================================
-// inherit List
+// Inheritance List
 // * Rectangle
 //====================================================================
-function LAYER_create(name) local (LAYER_ID,_childComponentBUFF,name_,_lastRectangle_ID)
+function LAYER_create(name) 
+    local (LAYER_ID,_childComponentBUFF,name_,_lastRectangle_ID,baseClassElementNum)
 (
     _childComponentBUFF =ARRAY_create(1000);// max ArraSize is 1000;
     _lastRectangle_ID = RECTANGLE_create(0,0,-100,-100);
     //================================================================
-    LAYER_ID = RECTANGLE_create(-1000,-1000,gfx_w,gfx_h);//element NUM 6
+    LAYER_ID = RECTANGLE_create(-1000,-1000,gfx_w,gfx_h); 
+    baseClassElementNum =_RECTANGLE_getElementNum(LAYER_ID);
+    //================================================================
+    STATIC_MASTER_BUFF[LAYER_ID ]     = "LAYER";                 // class Name 
+    STATIC_MASTER_BUFF[LAYER_ID + 1]  = baseClassElementNum + 8; // total Element NUM
+    //================================================================
+    STATIC_MASTER_BUFF[LAYER_ID + baseClassElementNum + 1] = _childComponentBUFF;              // childComponent Array
+    STATIC_MASTER_BUFF[LAYER_ID + baseClassElementNum + 2] = name;                             // layerName
+    STATIC_MASTER_BUFF[LAYER_ID + baseClassElementNum + 3] = 0;                                // parrentAPP_ID;h
+    STATIC_MASTER_BUFF[LAYER_ID + baseClassElementNum + 4] = 0;                                // non USE
+    STATIC_MASTER_BUFF[LAYER_ID + baseClassElementNum + 5] = true;                             // isActive
+    STATIC_MASTER_BUFF[LAYER_ID + baseClassElementNum + 6] = false;                            // isResized
+    STATIC_MASTER_BUFF[LAYER_ID + baseClassElementNum + 7] = _lastRectangle_ID;                // last Area
+    STATIC_MASTER_BUFF[LAYER_ID + baseClassElementNum + 8] = STATIC_MASTER_BUFF[LAYER_ID + 1]; // element Num only LAYER Class.
+    //================================================================
+    STATIC_MASTER_BUFF_ID  += STRUCT_getElementNum (LAYER_ID)+1; //increment next entry Point
+    //================================================================
 
-    //================================================================
-    STATIC_MASTER_BUFF[LAYER_ID ]     = "LAYER"; // elementNUM
-    STATIC_MASTER_BUFF[LAYER_ID + 1]  = 14; // elementNUM
-    //================================================================
-    STATIC_MASTER_BUFF[LAYER_ID + 8]  = _childComponentBUFF;//lastWidth
-    STATIC_MASTER_BUFF[LAYER_ID + 9]  = name;               // layerName
-    STATIC_MASTER_BUFF[LAYER_ID + 10] = 0;                  // parrentAPP_ID;h
-    STATIC_MASTER_BUFF[LAYER_ID + 11] = 0;                  // non USE
-    STATIC_MASTER_BUFF[LAYER_ID + 12] = true;               // isActive
-    STATIC_MASTER_BUFF[LAYER_ID + 13] = false;               // isResized
-    STATIC_MASTER_BUFF[LAYER_ID + 14] = _lastRectangle_ID;  // last Area
-    //================================================================
-    STATIC_MASTER_BUFF_ID +=15;
-    //================================================================
-    // init prepare.
     //================================================================
     LAYER_ID; //retrun
 );
 //====================================================================
-function _LAYER_getLastLayerAreaRect(LAYER_ID)   ( STATIC_MASTER_BUFF[LAYER_ID+14];);
+function _LAYER_getElementNum(LAYER_ID)       ( STATIC_MASTER_BUFF[LAYER_ID +_RECTANGLE_getElementNum(LAYER_ID) + 8];);// protected
 //====================================================================
-function LAYER_getParrentApp( LAYER_ID)          ( STATIC_MASTER_BUFF[LAYER_ID+10];);
-function LAYER_setParrentApp( LAYER_ID,p)        ( STATIC_MASTER_BUFF[LAYER_ID+10]=p;);
-//====================================================================
-function LAYER_getIsResized  ( LAYER_ID)         ( STATIC_MASTER_BUFF[LAYER_ID + 13];);
-function LAYER_setIsResized  ( LAYER_ID,b)       ( STATIC_MASTER_BUFF[LAYER_ID + 13]=b;);
-//====================================================================
-function LAYER_isResized     ( LAYER_ID)         ( LAYER_getIsResized(LAYER_ID););
-function LAYER_isAreaResized ( LAYER_ID)         ( LAYER_isResized( LAYER_ID);); //aliase of LAYER_isResized
+function _LAYER_getLastLayerAreaRect(LAYER_ID)( STATIC_MASTER_BUFF[LAYER_ID +_RECTANGLE_getElementNum(LAYER_ID) + 7];);
+function LAYER_getParrentApp ( LAYER_ID)      ( STATIC_MASTER_BUFF[LAYER_ID +_RECTANGLE_getElementNum(LAYER_ID) + 3];);
+function LAYER_setParrentApp ( LAYER_ID,p)    ( STATIC_MASTER_BUFF[LAYER_ID +_RECTANGLE_getElementNum(LAYER_ID) + 3]=p;);
+function LAYER_getIsResized  ( LAYER_ID)      ( STATIC_MASTER_BUFF[LAYER_ID +_RECTANGLE_getElementNum(LAYER_ID) + 6];);
+function LAYER_setIsResized  ( LAYER_ID,b)    ( STATIC_MASTER_BUFF[LAYER_ID +_RECTANGLE_getElementNum(LAYER_ID) + 6]=b;);
+function LAYER_isResized     ( LAYER_ID)      ( LAYER_getIsResized(LAYER_ID););
+function LAYER_isAreaResized ( LAYER_ID)      ( LAYER_isResized(LAYER_ID);); //aliase of LAYER_isResized
 //====================================================================
 
 //====================================================================
-function LAYER_isActive(LAYER_ID)                ( STATIC_MASTER_BUFF[LAYER_ID+12];);
-function LAYER_getIsActive(LAYER_ID)             ( LAYER_isActive(LAYER_ID););
+function LAYER_isActive(LAYER_ID)             ( STATIC_MASTER_BUFF[LAYER_ID+_RECTANGLE_getElementNum(LAYER_ID)+5];);
+function LAYER_getIsActive(LAYER_ID)          ( LAYER_isActive(LAYER_ID););
 function LAYER_setIsActive(LAYER_ID,v)
 ( 
-    STATIC_MASTER_BUFF[LAYER_ID+12]=v;
+    STATIC_MASTER_BUFF[LAYER_ID + _RECTANGLE_getElementNum(LAYER_ID) + 5]=v;
     LAYER_setIsResized(LAYER_ID,v);
     DBG("ACTIVE_CAHNGE");
 );
@@ -115,9 +116,8 @@ function LAYER_toggleIsActive( LAYER_ID)
 //====================================================================
 
 //====================================================================
-function LAYER_getName(LAYER_ID) ( STATIC_MASTER_BUFF[LAYER_ID + 9];);
-//====================================================================
-function LAYER_getChildComponentArray(LAYER_ID)(STATIC_MASTER_BUFF[LAYER_ID + 8]; );
+function LAYER_getName(LAYER_ID)               ( STATIC_MASTER_BUFF[LAYER_ID +_RECTANGLE_getElementNum(LAYER_ID) + 2];);
+function LAYER_getChildComponentArray(LAYER_ID)( STATIC_MASTER_BUFF[LAYER_ID +_RECTANGLE_getElementNum(LAYER_ID) + 1];);
 //====================================================================
 function LAYER_getChildCount(LAYER_ID) local ( childCompoArray_ID,childNUM)
 (
@@ -436,7 +436,6 @@ function _LAYER_mouseWheeled(LAYER_ID,targetCOMPONENT_ID,MOUSEINFO_ID)
         )
         //============================================================
         ;
-        //============================================================
     );
     //================================================================
 );
@@ -459,6 +458,7 @@ function LAYER_update(LAYER_ID,parrentRectID)
                                                , LAYER_ID) ==false ) ) ;
         //============================================================
         
+        //store Rectangle info to last Rectangle 
         //============================================================
         RECTANGLE_copyTo(_LAYER_getLastLayerAreaRect(LAYER_ID),LAYER_ID);
         //============================================================
@@ -478,11 +478,8 @@ function LAYER_update(LAYER_ID,parrentRectID)
             count_ +=1;
         );
         //============================================================
-        
     );
     //================================================================
-    //store Rectangle info to last Rectangle 
-   
 );
 //====================================================================
 

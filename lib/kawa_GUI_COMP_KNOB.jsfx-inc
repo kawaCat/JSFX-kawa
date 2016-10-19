@@ -4,24 +4,25 @@
 
 
 //====================================================================
-// inherit List
+// Inheritance List
 // * Rectangle
-// * Canvas
+// * Component
 //====================================================================
 function KNOB_create(name) 
-local (KNOB_ID,_childComponentBUFF,name_,circle_Area_ID,textArea_Rect)
+local (KNOB_ID,textArea_Rect,baseClassElementNum)
 (
     textArea_Rect =RECTANGLE_create(0,0,0,0);
     //================================================================
     KNOB_ID = COMPONENT_create(name);
+    baseClassElementNum =_COMPONENT_getElementNum(KNOB_ID);
     //================================================================
-    STATIC_MASTER_BUFF[KNOB_ID ]     = "KNOB";        // classTYPE
-    STATIC_MASTER_BUFF[KNOB_ID + 1]  = 23;                 // elementNUM
+    STATIC_MASTER_BUFF[KNOB_ID ]     = "KNOB";                   // classTYPE
+    STATIC_MASTER_BUFF[KNOB_ID + 1]  = baseClassElementNum+ 2;   // total elementNUM
     //================================================================
-    STATIC_MASTER_BUFF[KNOB_ID + 20] = 0; //non use ~ 22
-    STATIC_MASTER_BUFF[KNOB_ID + 23] = textArea_Rect;               
+    STATIC_MASTER_BUFF[KNOB_ID + baseClassElementNum + 1] = textArea_Rect;
+    STATIC_MASTER_BUFF[KNOB_ID + baseClassElementNum + 2] = STATIC_MASTER_BUFF[KNOB_ID + 1];// element Num in KNOB class.
     //================================================================
-    STATIC_MASTER_BUFF_ID +=24; // next entry Bufff Point
+    STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (KNOB_ID)+1; // next entry Bufff Point
     //================================================================
     // init prepare.
     //================================================================
@@ -43,7 +44,9 @@ local (KNOB_ID,_childComponentBUFF,name_,circle_Area_ID,textArea_Rect)
     //================================================================
 );
 //====================================================================
-function KNOB_getTextAreaRect(KNOB_ID) ( STATIC_MASTER_BUFF[KNOB_ID + 23];);
+function _KNOB_getElementNum(KNOB_ID)  (STATIC_MASTER_BUFF[KNOB_ID + _COMPONENT_getElementNum(KNOB_ID)+ 2];); //protected
+//====================================================================
+function KNOB_getTextAreaRect(KNOB_ID) ( STATIC_MASTER_BUFF[KNOB_ID + _COMPONENT_getElementNum(KNOB_ID)+ 1];);
 //====================================================================
 function _KNOB_getInnerMargin(KNOB_ID) local (out)
 (
