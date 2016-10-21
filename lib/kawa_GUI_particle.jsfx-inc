@@ -1,0 +1,465 @@
+
+
+
+
+//====================================================================
+// particle  Class
+//====================================================================
+
+
+
+
+
+//====================================================================
+@init
+//====================================================================
+function PARTICLESINGLE_create(x,y,radius)local (PARTICLESINGLE_ID)
+(   
+    PARTICLESINGLE_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID]   = "PARTICLE_SINGLE"; //class Name
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+1] = 16;                // total element Num
+    //================================================================
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+2] = x;                 // startX
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+3] = y;                 // startY
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+4] = radius;            // startRadius
+    //================================================================
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+5] = 0;                 // fource X
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+6] = 0;                 // fource Y
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+7] = 0;                // fource Radius
+    //================================================================
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+8]  = x;                 // origin X
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+9]  = y;                 // origin Y
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+10] = 0;                 // rotation Angle
+    //================================================================
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+11] = 0;                 // current LIFE  Frame
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+12] = 60;                // LIFE  Frame
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+13] = 1;                 // alpha 
+    //================================================================
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+14] = STATIC_MASTER_BUFF[PARTICLESINGLE_ID+1];//element Num only this Class
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+15] = false;             // is use  fade in Out alpha
+    STATIC_MASTER_BUFF[PARTICLESINGLE_ID+16] = false;             // is circle Fill ?
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(PARTICLESINGLE_ID)+1;
+    PARTICLESINGLE_ID;
+);
+//====================================================================
+function _PARTICLESINGLE_getElementNum(PARTICLESINGLE_ID)    (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+13];); // protected
+//====================================================================
+function PARTICLESINGLE_getX(PARTICLESINGLE_ID)                   (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+2];);
+function PARTICLESINGLE_getY(PARTICLESINGLE_ID)                   (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+3];);
+function PARTICLESINGLE_getRadius(PARTICLESINGLE_ID)              (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+4];);
+function PARTICLESINGLE_getFourceX(PARTICLESINGLE_ID)             (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+5];);
+function PARTICLESINGLE_getFourceY(PARTICLESINGLE_ID)             (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+6];);
+function PARTICLESINGLE_getFourceRadius(PARTICLESINGLE_ID)        (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+7];);
+function PARTICLESINGLE_getOriginX(PARTICLESINGLE_ID)             (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+8];);
+function PARTICLESINGLE_getOriginY(PARTICLESINGLE_ID)             (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+9];);
+function PARTICLESINGLE_getRotationAngle(PARTICLESINGLE_ID)       (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+10];);
+function PARTICLESINGLE_getCurrentLife(PARTICLESINGLE_ID)         (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+11];);
+function PARTICLESINGLE_getLife(PARTICLESINGLE_ID)                (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+12];);
+function PARTICLESINGLE_getAlpha(PARTICLESINGLE_ID)               (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+13];);
+function PARTICLESINGLE_getIsUseFadeInOutAlpha(PARTICLESINGLE_ID) (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+15];);
+function PARTICLESINGLE_isUseFadeInOutAlpha(PARTICLESINGLE_ID)    (PARTICLESINGLE_getIsUseFadeInOutAlpha(PARTICLESINGLE_ID););
+function PARTICLESINGLE_getIsCircleFill(PARTICLESINGLE_ID)        (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+16];);
+function PARTICLESINGLE_isCircleFill(PARTICLESINGLE_ID)           (PARTICLESINGLE_getIsCircleFill(PARTICLESINGLE_ID););
+//====================================================================
+function PARTICLESINGLE_setX(PARTICLESINGLE_ID,v)                  (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+2] =v;);
+function PARTICLESINGLE_setY(PARTICLESINGLE_ID,v)                  (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+3] =v;);
+function PARTICLESINGLE_setRadius(PARTICLESINGLE_ID,v)             (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+4] =v;);
+function PARTICLESINGLE_setFourceX(PARTICLESINGLE_ID,v)            (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+5] =v;);
+function PARTICLESINGLE_setFourceY(PARTICLESINGLE_ID,v)            (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+6] =v;);
+function PARTICLESINGLE_setFourceRadius(PARTICLESINGLE_ID,v)       (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+7] =v;);
+function PARTICLESINGLE_setOriginX(PARTICLESINGLE_ID,v)            (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+8] =v;);
+function PARTICLESINGLE_setOriginY(PARTICLESINGLE_ID,v)            (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+9] =v;);
+function PARTICLESINGLE_setRotationAngle(PARTICLESINGLE_ID,v)      (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+10]=v;);
+function PARTICLESINGLE_setCurrentLife(PARTICLESINGLE_ID,v)        (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+11]=v;);
+function PARTICLESINGLE_setLife(PARTICLESINGLE_ID,v)               (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+12]=v;);
+function PARTICLESINGLE_setAlpha(PARTICLESINGLE_ID,v)              (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+13]=v;);
+function PARTICLESINGLE_setIsUseFadeInOutAlpha(PARTICLESINGLE_ID,v)(STATIC_MASTER_BUFF[PARTICLESINGLE_ID+15]=v;);
+function PARTICLESINGLE_setIsCircleFill(PARTICLESINGLE_ID,v)       (STATIC_MASTER_BUFF[PARTICLESINGLE_ID+16]=v;);
+//====================================================================
+function PARTICLESINGLE_isActive(PARTICLESINGLE_ID)
+(
+    (PARTICLESINGLE_getCurrentLife(PARTICLESINGLE_ID) > 0 );
+);
+function PARTICLESINGLE_setToDie(PARTICLESINGLE_ID)( PARTICLESINGLE_setLife(PARTICLESINGLE_ID,0););
+//====================================================================
+function PARTICLESINGLE_syncLifeToLife(PARTICLESINGLE_ID)
+( 
+    PARTICLESINGLE_setCurrentLife( PARTICLESINGLE_ID
+                                 , PARTICLESINGLE_getLife(PARTICLESINGLE_ID));
+);
+//====================================================================
+function _PARTICLESINGLE_calcAlphaV(PARTICLESINGLE_ID)
+    local(curentTime_,incV,out,fadInOutTime)
+(
+    out = 0;
+    //================================================================
+    curentTime_ = PARTICLESINGLE_getCurrentLife(PARTICLESINGLE_ID)/PARTICLESINGLE_getLife(PARTICLESINGLE_ID);
+    //================================================================
+    
+    //================================================================
+    fadInOutTime = 0.1;
+    //================================================================
+    (curentTime_ > (1-fadInOutTime) )?
+    (
+        //fade Out
+        out = 1-(curentTime_-fadInOutTime)/fadInOutTime ;
+    ):(curentTime_ > fadInOutTime)?
+    (
+        // idle
+        out = 1;
+    ):(
+        //fade In
+        out = curentTime_/fadInOutTime ;
+    );
+    //================================================================
+    out;
+);
+//====================================================================
+function _PARTICLESINGLE_decrementLife(PARTICLESINGLE_ID )
+(
+    ( PARTICLESINGLE_getCurrentLife(PARTICLESINGLE_ID)-1 > 0)?
+    (
+        //============================================================
+        PARTICLESINGLE_setCurrentLife(PARTICLESINGLE_ID
+                                     ,PARTICLESINGLE_getCurrentLife(PARTICLESINGLE_ID) -1);
+        //============================================================
+    ):(
+        PARTICLESINGLE_setCurrentLife(PARTICLESINGLE_ID ,0);
+    );
+    //================================================================
+);
+//====================================================================
+function PARTICLESINGLE_update(PARTICLESINGLE_ID)
+(
+    ( PARTICLESINGLE_isActive(PARTICLESINGLE_ID) == true) ?
+    (
+        PARTICLESINGLE_setX(  PARTICLESINGLE_ID
+                           ,  PARTICLESINGLE_getX(PARTICLESINGLE_ID)
+                            + PARTICLESINGLE_getFourceX(PARTICLESINGLE_ID) );
+        //============================================================
+        PARTICLESINGLE_setY(  PARTICLESINGLE_ID
+                           ,  PARTICLESINGLE_getY(PARTICLESINGLE_ID)
+                            + PARTICLESINGLE_getFourceY(PARTICLESINGLE_ID) );
+        //============================================================
+        PARTICLESINGLE_setRadius(  PARTICLESINGLE_ID
+                                ,  PARTICLESINGLE_getRadius(PARTICLESINGLE_ID)
+                                 + PARTICLESINGLE_getFourceRadius(PARTICLESINGLE_ID) );
+        //============================================================
+        
+        //============================================================
+        _PARTICLESINGLE_decrementLife(PARTICLESINGLE_ID );
+        //============================================================
+    );
+    //================================================================
+);
+//====================================================================
+function PARTICLESINGLE_draw(PARTICLESINGLE_ID)
+    local (lastGfx_x,lastGfx_y,lastR,lastG,lastB,lastA)
+(
+    //================================================================
+    ( PARTICLESINGLE_isActive(PARTICLESINGLE_ID) ==true) ?
+    (
+        lastGfx_x =gfx_x;lastGfx_y =gfx_y;
+        lastR = gfx_r;lastG = gfx_g;lastB = gfx_b;lastA = gfx_a;
+        //============================================================
+        
+        //============================================================
+        gfx_r = 1;gfx_g = 1;gfx_b = 1;
+        //============================================================
+        
+        //============================================================
+        ( PARTICLESINGLE_isUseFadeInOutAlpha(PARTICLESINGLE_ID) == true)?
+        (
+            gfx_a = PARTICLESINGLE_getAlpha(PARTICLESINGLE_ID) * _PARTICLESINGLE_calcAlphaV(PARTICLESINGLE_ID);
+        ):(
+            gfx_a = PARTICLESINGLE_getAlpha(PARTICLESINGLE_ID) ;
+        );
+        //============================================================
+        
+        //============================================================
+        gfx_circle( PARTICLESINGLE_getX(PARTICLESINGLE_ID)
+                  , PARTICLESINGLE_getY(PARTICLESINGLE_ID)
+                  , PARTICLESINGLE_getRadius(PARTICLESINGLE_ID)
+                  , (PARTICLESINGLE_isCircleFill ( PARTICLESINGLE_ID) == true)
+                  , true);
+        //============================================================
+
+        //============================================================
+        gfx_x = lastGfx_x;gfx_y = lastGfx_y;
+        gfx_r = lastR;gfx_g = lastG;gfx_b = lastB;gfx_a = lastA;
+        //============================================================
+    );
+    //================================================================
+);
+//====================================================================
+function PARTICLESINGLE_drawAndUpdate(PARTICLESINGLE_ID)
+(
+    PARTICLESINGLE_draw(PARTICLESINGLE_ID);
+    PARTICLESINGLE_update(PARTICLESINGLE_ID);
+    //================================================================
+);
+//====================================================================
+
+
+
+//====================================================================
+function PARTICLE_CONTROLLER_create()
+    local ( PARTICLE_CONTROLLER_ID
+          , maxParticleNum
+          , count_Abc
+          , tempParticleElem
+          , _particleElementBuffer
+          )
+(
+    maxParticleNum = 300;
+    //================================================================
+    _particleElementBuffer = CIRCLEBUFFER_create(maxParticleNum);// max Size is maxParticleNum;
+    //================================================================
+    
+    //================================================================
+    PARTICLE_CONTROLLER_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID]   = "PARTICLE_SINGLE"; //class Name
+    STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+1] = 5;                // total element Num
+    //================================================================
+    STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+2] = _particleElementBuffer; // particleElement buffer
+    STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+3] = STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+1]; // particleElement buffer
+    STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+4] = maxParticleNum;  // maxparticleNum
+    STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+5] = 0;               // cursol pos
+    //================================================================
+    STATIC_MASTER_BUFF_ID += STRUCT_getElementNum(PARTICLE_CONTROLLER_ID)+1;//increament next Entry Point;
+    //================================================================
+    
+    // prepare
+    //================================================================
+    count_Abc = 0;
+    while ( count_Abc < maxParticleNum )
+    (
+        tempParticleElem = PARTICLESINGLE_create(0,0,10);
+        PARTICLESINGLE_setToDie(tempParticleElem);
+        //============================================================
+        CIRCLEBUFFER_push_front(_particleElementBuffer,tempParticleElem);
+        //============================================================
+        count_Abc +=1;
+    );
+    //================================================================
+    
+    //================================================================
+    PARTICLE_CONTROLLER_ID;
+);
+//====================================================================
+function _PARTICLE_CONTROLLER_getElementNum(PARTICLE_CONTROLLER_ID)             (STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+3];); // protected
+//====================================================================
+function PARTICLE_CONTROLLER_getParticleElementBuffer(PARTICLE_CONTROLLER_ID)   (STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+2] ;);
+function PARTICLE_CONTROLLER_getMaxParticleNum       (PARTICLE_CONTROLLER_ID)   (STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+4] ;);
+function _PARTICLE_CONTROLLER_getInsertCursolPos     (PARTICLE_CONTROLLER_ID)   (STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+5] ;);
+//====================================================================
+function _PARTICLE_CONTROLLER_setInsertCursolPos     (PARTICLE_CONTROLLER_ID,v) (STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+5]= v;);
+//====================================================================
+function _PARTICLE_CONTROLLER_stepInsertCursolPos    (PARTICLE_CONTROLLER_ID) local ( newPos )
+(
+    newPos = _PARTICLE_CONTROLLER_getInsertCursolPos(PARTICLE_CONTROLLER_ID) +1 ;
+    //================================================================
+    (    newPos > PARTICLE_CONTROLLER_getMaxParticleNum (PARTICLE_CONTROLLER_ID) ) ?
+    (
+        _PARTICLE_CONTROLLER_setInsertCursolPos(PARTICLE_CONTROLLER_ID,0);
+    ):(
+        _PARTICLE_CONTROLLER_setInsertCursolPos(PARTICLE_CONTROLLER_ID,newPos);
+    );
+    //================================================================
+);
+//====================================================================
+function PARTICLE_CONTROLLER_update(PARTICLE_CONTROLLER_ID)
+    local (elementBuff,count_1,buffSize,targetParticleElement)
+(
+    elementBuff = PARTICLE_CONTROLLER_getParticleElementBuffer(PARTICLE_CONTROLLER_ID);
+    buffSize = CIRCLEBUFFER_getBufferSize(elementBuff);
+    count_1 = 0;
+    //================================================================
+    while ( count_1 < buffSize)
+    (
+        targetParticleElement = CIRCLEBUFFER_getAt(elementBuff,count_1);
+        //============================================================
+        struct_Type = STRUCT_getStructType( targetParticleElement );
+        //============================================================
+        ( strcmp(struct_Type ,"PARTICLE_SINGLE")== 0 )?
+        (
+            PARTICLESINGLE_drawAndUpdate(targetParticleElement);
+        );
+        //============================================================
+        count_1 +=1;
+    );
+    //================================================================
+);
+//====================================================================
+function PARTICLE_CONTROLLER_updateAndDraw(PARTICLE_CONTROLLER_ID)
+(
+    PARTICLE_CONTROLLER_update(PARTICLE_CONTROLLER_ID);
+);
+//====================================================================
+
+
+
+
+//====================================================================
+function PARTICLE_CONTROLLER_addParticleType1(PARTICLE_CONTROLLER_ID)
+    local (elementBuff,count_1,buffSize,targetParticleElement,force,radiusTemp,count_B)
+(
+    elementBuff = PARTICLE_CONTROLLER_getParticleElementBuffer(PARTICLE_CONTROLLER_ID);
+    //================================================================
+    count_B = 0;
+    //================================================================
+    while ( count_B < 6)
+    (
+        force = 10;
+        radiusTemp = 4*rand();
+        //============================================================
+        // nocreate , fly weight pattern ?
+        //============================================================
+        // tempParticleElem = PARTICLESINGLE_create( mouse_x
+        //                                         , mouse_y
+        //                                         , radiusTemp);
+        //============================================================
+        tempParticleElem = CIRCLEBUFFER_getAt( elementBuff
+                                             , _PARTICLE_CONTROLLER_getInsertCursolPos(PARTICLE_CONTROLLER_ID)
+                                             );
+        //============================================================
+        PARTICLESINGLE_setX     (tempParticleElem      , mouse_x ) ;     
+        PARTICLESINGLE_setY     (tempParticleElem      , mouse_y ) ;     
+        PARTICLESINGLE_setRadius(tempParticleElem      , radiusTemp ) ;     
+        //============================================================
+        PARTICLESINGLE_setFourceX(tempParticleElem      , force*rand()-force/2 ) ;     
+        PARTICLESINGLE_setFourceY(tempParticleElem      , force*rand()-force/2 ) ;     
+        PARTICLESINGLE_setFourceRadius(tempParticleElem , (force*rand()-force/2) * 0.3 ) ;
+        PARTICLESINGLE_setLife(tempParticleElem         , 10+40*rand()-1) ;
+        PARTICLESINGLE_syncLifeToLife(tempParticleElem);
+        PARTICLESINGLE_setAlpha (tempParticleElem,1);
+        PARTICLESINGLE_setIsCircleFill (tempParticleElem,false);
+        PARTICLESINGLE_setIsUseFadeInOutAlpha(tempParticleElem,false);
+        //============================================================
+        count_B +=1;
+        _PARTICLE_CONTROLLER_stepInsertCursolPos(PARTICLE_CONTROLLER_ID);
+    );
+    //================================================================
+);
+//====================================================================
+function PARTICLE_CONTROLLER_addParticleType2(PARTICLE_CONTROLLER_ID)
+    local (elementBuff,count_1,buffSize,targetParticleElement,force,radiusTemp,count_B)
+(
+    elementBuff = PARTICLE_CONTROLLER_getParticleElementBuffer(PARTICLE_CONTROLLER_ID);
+    //================================================================
+    count_B = 0;
+    //================================================================
+    while ( count_B < 5)
+    (
+        force = 10;
+        radiusTemp = 4*rand();
+        //============================================================
+        tempParticleElem = CIRCLEBUFFER_getAt( elementBuff
+                                             , _PARTICLE_CONTROLLER_getInsertCursolPos(PARTICLE_CONTROLLER_ID)
+                                             );
+        //============================================================
+        PARTICLESINGLE_setX     (tempParticleElem      , mouse_x ) ;     
+        PARTICLESINGLE_setY     (tempParticleElem      , mouse_y ) ;     
+        PARTICLESINGLE_setRadius(tempParticleElem      , radiusTemp ) ;     
+        //============================================================
+        PARTICLESINGLE_setFourceX(tempParticleElem      , (force*rand()-force/2 )* 3 );     
+        PARTICLESINGLE_setFourceY(tempParticleElem      , (force*rand()-force/2 )* 3 );     
+        PARTICLESINGLE_setFourceRadius(tempParticleElem , 0 ) ;
+        PARTICLESINGLE_setLife(tempParticleElem         , 10+40*rand()-1) ;
+        PARTICLESINGLE_syncLifeToLife(tempParticleElem);
+        PARTICLESINGLE_setAlpha (tempParticleElem,1);
+        PARTICLESINGLE_setIsCircleFill (tempParticleElem,false);
+        PARTICLESINGLE_setIsUseFadeInOutAlpha(tempParticleElem,false);
+        //============================================================
+        count_B +=1;
+        _PARTICLE_CONTROLLER_stepInsertCursolPos(PARTICLE_CONTROLLER_ID);
+    );
+    //================================================================
+);
+//====================================================================
+function PARTICLE_CONTROLLER_addParticleType3_XY(PARTICLE_CONTROLLER_ID,x_,y_,isCircleFill)
+    local (elementBuff,count_1,buffSize,targetParticleElement,force,radiusTemp,count_B)
+(
+    elementBuff = PARTICLE_CONTROLLER_getParticleElementBuffer(PARTICLE_CONTROLLER_ID);
+    //================================================================
+    count_B = 0;
+    //================================================================
+    while ( count_B < 3)
+    (
+        force = 5;
+        radiusTemp = 2*rand();
+        //============================================================
+        // nocreate , fly weight pattern ?
+        //============================================================
+        tempParticleElem = CIRCLEBUFFER_getAt( elementBuff
+                                             , _PARTICLE_CONTROLLER_getInsertCursolPos(PARTICLE_CONTROLLER_ID)
+                                             );
+        //============================================================
+        PARTICLESINGLE_setX     (tempParticleElem      , x_ ) ;     
+        PARTICLESINGLE_setY     (tempParticleElem      , y_ ) ;     
+        PARTICLESINGLE_setRadius(tempParticleElem      , radiusTemp ) ;     
+        //============================================================
+        PARTICLESINGLE_setFourceX(tempParticleElem      , force*rand()-force/2 ) ;     
+        PARTICLESINGLE_setFourceY(tempParticleElem      , force*rand()-force/2 ) ;     
+        PARTICLESINGLE_setFourceRadius(tempParticleElem , (force*rand()-force/2) * 0.3 ) ;
+        PARTICLESINGLE_setLife(tempParticleElem         , 10+40*rand()-1) ;
+        PARTICLESINGLE_syncLifeToLife(tempParticleElem);
+        PARTICLESINGLE_setIsUseFadeInOutAlpha(tempParticleElem,false);
+        PARTICLESINGLE_setAlpha (tempParticleElem,1);
+        PARTICLESINGLE_setIsCircleFill (tempParticleElem,isCircleFill);
+        PARTICLESINGLE_setIsUseFadeInOutAlpha(tempParticleElem,false);
+        //============================================================
+        count_B +=1;
+        _PARTICLE_CONTROLLER_stepInsertCursolPos(PARTICLE_CONTROLLER_ID);
+    );
+    //================================================================
+);
+//====================================================================
+function PARTICLE_CONTROLLER_addParticleType2_XY(PARTICLE_CONTROLLER_ID,x_,y_,isCircleFill)
+    local (elementBuff,count_1,buffSize,targetParticleElement,force,radiusTemp,count_B)
+(
+    elementBuff = PARTICLE_CONTROLLER_getParticleElementBuffer(PARTICLE_CONTROLLER_ID);
+    //================================================================
+    count_B = 0;
+    //================================================================
+    while ( count_B < 5)
+    (
+        force = 10;
+        radiusTemp = 4*rand();
+        //============================================================
+        tempParticleElem = CIRCLEBUFFER_getAt( elementBuff
+                                             , _PARTICLE_CONTROLLER_getInsertCursolPos(PARTICLE_CONTROLLER_ID)
+                                             );
+        //============================================================
+        PARTICLESINGLE_setX     (tempParticleElem      , x_ ) ;     
+        PARTICLESINGLE_setY     (tempParticleElem      , y_ ) ;     
+        PARTICLESINGLE_setRadius(tempParticleElem      , radiusTemp ) ;     
+        //============================================================
+        PARTICLESINGLE_setFourceX(tempParticleElem      , (force*rand()-force/2 )* 2 );     
+        PARTICLESINGLE_setFourceY(tempParticleElem      , (force*rand()-force/2 )* 2 );     
+        PARTICLESINGLE_setFourceRadius(tempParticleElem , (force*rand()-force/2 ) * 0.3 ) ;
+        PARTICLESINGLE_setLife(tempParticleElem         , 10+40*rand()-1) ;
+        PARTICLESINGLE_syncLifeToLife(tempParticleElem);
+        PARTICLESINGLE_setIsCircleFill (tempParticleElem,isCircleFill);
+        ( isCircleFill ==true)?
+        (
+            PARTICLESINGLE_setAlpha (tempParticleElem,0.4);
+        ):(
+            PARTICLESINGLE_setAlpha (tempParticleElem,1);
+        );
+        PARTICLESINGLE_setIsUseFadeInOutAlpha(tempParticleElem,true);
+        //============================================================
+        count_B +=1;
+        _PARTICLE_CONTROLLER_stepInsertCursolPos(PARTICLE_CONTROLLER_ID);
+    );
+    //================================================================
+);
+//====================================================================
+
+
+
+
+

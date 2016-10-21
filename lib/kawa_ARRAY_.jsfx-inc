@@ -402,9 +402,6 @@ function CURSOLBUFFER_getOffsettedValue(CIRCLEBUFFER_ID,offsetPos)//aliase of fu
     CURSOLBUFFER_getValueOffsetFromLastPushedPos(CIRCLEBUFFER_ID,offsetPos);
 );
 //====================================================================
-
-
-//====================================================================
 function CURSOLBUFFER_push(CIRCLEBUFFER_ID,v) 
     local (insertPos,bufferPointer)
 (

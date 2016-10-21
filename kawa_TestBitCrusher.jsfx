@@ -54,6 +54,10 @@ slider2:0.25<0.0,0.9>FREQ
     DBG_toggle(DBG); // visible off
     //================================================================
     
+    // for particle 
+    PARTICLE_controller = PARTICLE_CONTROLLER_create();
+    //================================================================
+    
     //bitCrusher params
     //================================================================
     fBits = 1;
@@ -70,7 +74,6 @@ slider2:0.25<0.0,0.9>FREQ
 //====================================================================
     XYSLIDER_setYValue(XYSlider_1,slider1,false);
     XYSLIDER_setXValue(XYSlider_1,slider2,false);
-    fStep=fBits*254+2;
     
 @block
 //====================================================================
@@ -152,6 +155,29 @@ slider2:0.25<0.0,0.9>FREQ
     //================================================================
     DBGMESSAGE_drawAllMessage(DBG);
     //================================================================
+    
+    // for particle 
+    PARTICLE_CONTROLLER_update ( PARTICLE_controller );
+    //================================================================
+    ( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ?      
+    //( APP_isMouseButtonPressed(APP_ID)  ==true) ?
+    //(true)?
+    (
+        PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
+        0;
+    );
+    //================================================================
+    (time_precise() -lastPTime_  > 0.25)?
+    (
+        PARTICLE_CONTROLLER_addParticleType2_XY (PARTICLE_controller
+                                                ,gfx_w/2
+                                                ,gfx_h/2
+                                                ,false
+                                               );
+       lastPTime_ = time_precise();
+    );
+    //================================================================
+
 
     // App update. check and compare with last event state.(resize or mouse)
     //================================================================

@@ -27,20 +27,28 @@ function BUTTON_create(name) local (BUTTON_ID,baseClassElementNum)
     STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (BUTTON_ID)+1; // increment next entry Bufff Point
     //================================================================
 
-    //================================================================
-    MAP_setValue( COMPONENT_getColorMap(BUTTON_ID)
-                ,"textColor"
-                , COLOR_create(0,0,0,1));
-    //================================================================
-    MAP_setValue( COMPONENT_getColorMap(BUTTON_ID)
-                ,"textColor_mouseon"
-                , COLOR_create(1,0,0,1));
+
+    // init prepare.
     //================================================================
     
-    COMPONENT_setComponentInfoValue( BUTTON_ID,"buttonOnText_Post", ":ON ") ;
+    //================================================================
+    COMPONENT_addColor( BUTTON_ID
+                      ,"textColor"
+                      , COLOR_create(0,0,0,1));
+    //================================================================
+    COMPONENT_addColor( BUTTON_ID
+                      ,"textColor_mouseon"
+                      , COLOR_create(0,1,1,1));
+    //================================================================
+    COMPONENT_addColor( BUTTON_ID
+                      ,"butonOnBackGroundColor"
+                      , COLOR_create(0,0,1,1));
+    //================================================================
+    
+    COMPONENT_setComponentInfoValue( BUTTON_ID,"buttonOnText_Post" ,":ON ") ;
     COMPONENT_setComponentInfoValue( BUTTON_ID,"buttonOffText_Post",":OFF") ;
     
-    // init prepare.
+   
     //================================================================
     BUTTON_ID; //retrun
 );
@@ -70,9 +78,12 @@ function BUTTON_resized(BUTTON_ID,parrentRECT )
 function BUTTON_draw(BUTTON_ID)local (tempText)
 (
     //================================================================
-    ( RECTANGLE_isContainMouse(BUTTON_ID) ==true) ?
+    (   RECTANGLE_isContainMouse(BUTTON_ID) ==true ) ?
     (
         COMPONENT_changeColorGfx( BUTTON_ID,"bakcground_mouseon");
+    ):( BUTTON_isON(BUTTON_ID) == true ) ?
+    (
+        COMPONENT_changeColorGfx( BUTTON_ID,"butonOnBackGroundColor");
     ):(
         COMPONENT_changeColorGfx( BUTTON_ID,"bakcground");
     );

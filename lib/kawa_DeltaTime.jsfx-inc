@@ -55,16 +55,10 @@ function _DELTATIME_round(newTime) local (out)
 //====================================================================
 function _DELTATIME_addDeltaTime(DELTATIME_ID,t) local (newDt)
 ( 
-    STATIC_MASTER_BUFF[  DELTATIME_ID
-                       + STRCUT_getBaseClassElementNum(DELTATIME_ID)
-                       + 3] +=t; 
-    newDt =_DELTATIME_round(STATIC_MASTER_BUFF[  DELTATIME_ID
-                                               + STRCUT_getBaseClassElementNum(DELTATIME_ID)
-                                               + 3]);
+    STATIC_MASTER_BUFF[  DELTATIME_ID + 3] +=t; 
+    newDt =_DELTATIME_round(STATIC_MASTER_BUFF[  DELTATIME_ID + 3]);
     //================================================================
-    STATIC_MASTER_BUFF[ DELTATIME_ID
-                      + STRCUT_getBaseClassElementNum(DELTATIME_ID)
-                      + 3] = newDt;
+    STATIC_MASTER_BUFF[ DELTATIME_ID + 3] = newDt;
     //================================================================
 );
 //====================================================================

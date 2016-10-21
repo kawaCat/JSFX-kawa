@@ -35,6 +35,7 @@ slider1:0.25<0.0,1>parameter1
     SLIDER_2_comp = SLIDERTYPE2_create("TEST2");
     KONB_ID  = KNOB_create( "knobTest") ;
     COMPONENT_setSliderIndex(KONB_ID,1); 
+    COMPONENT_setSliderIndex(SLIDER_2_comp,1); 
     //----------------------------------------------------------------
     TEXT_DB_L = TEXT_create("text 1"); 
     TEXT_DB_R = TEXT_create("text 2");
@@ -76,6 +77,8 @@ slider1:0.25<0.0,1>parameter1
     CANVS_WAVE_L = CANVAS_create(gfx_w,gfx_h);
     CANVS_WAVE_R = CANVAS_create(gfx_w,gfx_h);
     //================================================================
+    
+    PARTICLE_controller = PARTICLE_CONTROLLER_create();
 
 @slider
 //====================================================================
@@ -142,6 +145,28 @@ slider1:0.25<0.0,1>parameter1
     // for debug
     //================================================================
     DBGMESSAGE_drawAllMessage(DBG);
+    //================================================================
+
+    // for particle 
+    PARTICLE_CONTROLLER_update ( PARTICLE_controller );
+    //================================================================
+    ( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ?      
+    //( APP_isMouseButtonPressed(APP_ID)  ==true) ?
+    //(true)?
+    (
+        PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
+        0;
+    );
+    //================================================================
+     (time_precise() -lastPTime_  > 0.25)?
+    (
+        PARTICLE_CONTROLLER_addParticleType2_XY (PARTICLE_controller
+                                                ,gfx_w/2
+                                                ,gfx_h/2
+                                                ,false
+                                               );
+       lastPTime_ = time_precise();
+    );
     //================================================================
 
 
@@ -214,7 +239,7 @@ slider1:0.25<0.0,1>parameter1
         RECTANGLE_reduceP        (KONB_ID,0.28,0.28);
         RECTANGLE_reduce         (KONB_ID,5,5);
     );
-//    //================================================================
+    //================================================================
 
 
     //================================================================
@@ -242,6 +267,10 @@ slider1:0.25<0.0,1>parameter1
     //================================================================
       RECTANGLE_drawBottomRightText( APP_ID,"kawa Test");
     //================================================================
+    
+    
+    
+   
     
 //====================================================================
 // 続

@@ -1,23 +1,23 @@
 //====================================================================
-desc:kawa TestDelay
+desc:kawa TestParticle
 //====================================================================
 
 // imports
 //====================================================================
 import kawa_ALL.jsfx-inc
-//====================================================================
+//=================================================================
 
+
+//====================================================================
 // sliders
 //--------------------------------------------------------------------
-slider1:0.1 <0.0,1.0>DELAY L
-slider2:0.25<0.0,0.9>DELAY R
-slider3:0.25<0.0,1.0>FEEDBACK
+//slider1:0.25<0.0,1>parameter1
 //====================================================================
+
 
 @init
 //====================================================================
-
-    // create APP ID
+    //create APP ID
     //================================================================
     APP_ID = APP_create();
     //================================================================
@@ -25,50 +25,34 @@ slider3:0.25<0.0,1.0>FEEDBACK
     //create Layer ID
     //================================================================
     LAYER_001 = LAYER_create("LAYER01");
-    LAYER_002 = LAYER_create("LAYER02");
     //================================================================
 
     //create Component and add to layer 1 .
     //================================================================
     TEST_comp  = COMPONENT_create("TEST");
-    KONB_ID_L  = KNOB_create( "Delay L") ;
-    KONB_ID_R  = KNOB_create( "Delay R") ;
-    
-    COMPONENT_setSliderIndex(KONB_ID_L,1);
-    COMPONENT_setSliderIndex(KONB_ID_R,2);
+    TEST_comp2 = COMPONENT_create("TEST2");
     //----------------------------------------------------------------
-    TEXT_DB_L = TEXT_create("text 1");
-    TEXT_DB_R = TEXT_create("text 2");
-    TEXT_setIsDBValueMode(TEXT_DB_L, true );
-    TEXT_setIsDBValueMode(TEXT_DB_R, true );
-    TEXT_setDBValueModeTextPreFix(TEXT_DB_L, "(L)");
-    TEXT_setDBValueModeTextPreFix(TEXT_DB_R, "(R)");
+    BUTTON_01 = BUTTON_create("BT:01");
+    BUTTON_02 = BUTTON_create("BT:02");
+    BUTTON_03 = BUTTON_create("BT:03");
+    BUTTON_04 = BUTTON_create("BT:04");
+    BUTTON_05 = BUTTON_create("BT:05");
     //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_001 , TEXT_DB_L);
-    LAYER_addChildComponent(LAYER_001 , TEXT_DB_R);
+    LAYER_addChildComponent(LAYER_001 , BUTTON_01);
+    LAYER_addChildComponent(LAYER_001 , BUTTON_02);
+    LAYER_addChildComponent(LAYER_001 , BUTTON_03);
+    LAYER_addChildComponent(LAYER_001 , BUTTON_04);
+    LAYER_addChildComponent(LAYER_001 , BUTTON_05);
     //----------------------------------------------------------------
     LAYER_addChildComponent(LAYER_001 , TEST_comp);
-    LAYER_addChildComponent(LAYER_001 , SLIDER_2_comp);
-    LAYER_addChildComponent(LAYER_001 , KONB_ID_L);
-    LAYER_addChildComponent(LAYER_001 , KONB_ID_R);
-    //================================================================
-
-    // layer 2
-    //================================================================
-    BUTTON_comp   = BUTTON_create("DBG");
-    SLIDER_1_comp = SLIDER_create("TEST4");
-    //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_002 , BUTTON_comp);
-    LAYER_addChildComponent(LAYER_002 , SLIDER_1_comp);
+    LAYER_addChildComponent(LAYER_001 , TEST_comp2);
     //================================================================
 
     // layer add to app
     //================================================================
     APP_addChildComponent(APP_ID,LAYER_001);
-    APP_addChildComponent(APP_ID,LAYER_002);
     //================================================================
     LAYER_setActive(LAYER_001,true);
-    LAYER_setActive(LAYER_002,false);
     //================================================================
 
     // canvase test
@@ -77,85 +61,54 @@ slider3:0.25<0.0,1.0>FEEDBACK
     CANVS_WAVE_R = CANVAS_create(gfx_w,gfx_h);
     //================================================================
     
-    delaySize = srate;
-    DELAY_ARRAY_L = CURSOLBUFFER_create(delaySize);
-    DELAY_ARRAY_R = CURSOLBUFFER_create(delaySize);
-    //================================================================
-    DBG_toggle(DBG); // visible off
-    //================================================================
-    
-    // for particle 
     PARTICLE_controller = PARTICLE_CONTROLLER_create();
     //================================================================
-    
+
 @slider
 //====================================================================
-    COMPONENT_setValue(KONB_ID_L,slider1,false);
-    COMPONENT_setValue(KONB_ID_R,slider2,false);
+    
 
 @block
 //====================================================================
-    COMPONENT_setValue( TEXT_DB_L ,max(max_L,abs(minL)),false);
-    COMPONENT_setValue( TEXT_DB_R ,max(max_R,abs(minR)),false);
-    //================================================================
     max_L = 0;min_L = 0;
     max_R = 0;min_R = 0;
     //================================================================
-    
+   
+
 @sample
 //====================================================================
     max_L = max(max_L,spl0);
     min_L = min(min_L,spl0);
     max_R = max(max_R,spl1);
     min_R = min(min_R,spl1);
-    //================================================================
- 
-    //================================================================
-    CURSOLBUFFER_push( DELAY_ARRAY_L
-                     ,(spl0+spl1)/2+delay_L*0.9*slider3 );    
-    CURSOLBUFFER_push( DELAY_ARRAY_R
-                     ,(spl0+spl1)/2+delay_R*0.9*slider3 );  
-    
-    //================================================================
-    delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
-                                            , -delaySize * 0.5
-                                            * COMPONENT_getValue(KONB_ID_L)
-                                            );
-    delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
-                                            , -delaySize * 0.5
-                                            * COMPONENT_getValue(KONB_ID_R)
-                                            );
-    //================================================================
-    spl0 =spl0+ delay_L;
-    spl1 =spl1+ delay_R;
-    //================================================================
 
 @gfx 200 400
 //====================================================================
+
     // direct draw background to
     //================================================================
     drawBackGrond_color( 10, 120 , 12*4);
     drawSinWaveCircle(100,0.8,1,0.0043);
     drawSinWaveCircle(100,0.8,1,0.0043);
     //================================================================
-
+    
     // canvase test
     //================================================================
     drawWaveBufferToCanvas(CANVS_WAVE_L
-                          ,max_L
-                          ,min_L
-                          ,40 *  COMPONENT_getValue(KONB_ID_L)
-                          ,0.5
-                          ,1
-                          ,80);
-
+                              ,max_L
+                              ,min_L
+                              ,3
+                              ,0.5
+                              ,1
+                              ,80);
+    //================================================================    
     drawWaveBufferToCanvas(CANVS_WAVE_R
-                          ,max_R
-                          ,min_R
-                          ,40 *  COMPONENT_getValue(KONB_ID_R)
-                          ,0.6
-                          ,1
-                          ,0);
+                              ,max_R
+                              ,min_R
+                              ,3
+                              ,0.6
+                              ,1
+                              ,0);
     //================================================================
     gfx_a =0.6;
     CANVAS_blitImage4(CANVS_WAVE_R,1,0);
@@ -164,9 +117,10 @@ slider3:0.25<0.0,1.0>FEEDBACK
     //================================================================
     // final background
     //================================================================
-    drawDotGrid(20,20,0.06);
+    drawDotGrid(20,20,0.04);
     //================================================================
-   
+
+
     // for debug
     //================================================================
     DBGMESSAGE_drawAllMessage(DBG);
@@ -175,9 +129,9 @@ slider3:0.25<0.0,1.0>FEEDBACK
     // for particle 
     PARTICLE_CONTROLLER_update ( PARTICLE_controller );
     //================================================================
-    ( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ?      
+    //( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ?      
     //( APP_isMouseButtonPressed(APP_ID)  ==true) ?
-    //(true)?
+    (true)?
     (
         PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
         0;
@@ -188,52 +142,30 @@ slider3:0.25<0.0,1.0>FEEDBACK
         PARTICLE_CONTROLLER_addParticleType2_XY (PARTICLE_controller
                                                 ,gfx_w/2
                                                 ,gfx_h/2
-                                                ,false
                                                );
        lastPTime_ = time_precise();
     );
     //================================================================
-    
-    
-    //================================================================
+
+
     // App update. check and compare with last event state.(resize or mouse)
     //================================================================
     APP_update(APP_ID);
+  
     //================================================================
-    
-    //================================================================
-    ( mouse_cap & 2 ==2 && lastCAP != mouse_cap )?
+    ( mouse_cap & 64 ==64 && lastCAP != mouse_cap )?
     (
-        (LAYER_isActive(LAYER_001)==true )?
-        (
-            LAYER_setActive(LAYER_001,false );
-            LAYER_setActive(LAYER_002,true );
-        ):(
-            LAYER_setActive(LAYER_001,true );
-            LAYER_setActive(LAYER_002,false );
-        );
-        //============================================================
+        DBG_toggle(DBG);
     );
     //================================================================
     lastCAP = mouse_cap;
     //================================================================
     
-    DBGMESSAGE_setActive(DBG,COMPONENT_getValue(BUTTON_comp));
-
-    //================================================================
-    ( APP_isMouseButtonPressed(APP_ID)  ==true) ?
-    ( 0;);
-    
-    ( APP_isMouseButtonReleased(APP_ID) ==true) ?
-    ( 0;);
-    //================================================================
-    
-    
-
     // alignment position when resized.
     //================================================================
     ( APP_isWindowResized(APP_ID) ==true) ?
     (
+        //============================================================
         RECTANGLE_copyTo      ( CANVS_WAVE_L,APP_ID);
         RECTANGLE_copyTo      ( CANVS_WAVE_R,APP_ID);
         CANVAS_recreateCanvas ( CANVS_WAVE_L ); 
@@ -244,49 +176,44 @@ slider3:0.25<0.0,1.0>FEEDBACK
         //============================================================
     );
     //================================================================
-   
-  
+
     //================================================================
     ( LAYER_isAreaResized(LAYER_001) ==true)   ?
     (
-        RECTANGLE_copyTo          (TEST_comp,LAYER_001);
-        RECTANGLE_cropFromTopP    (TEST_comp,0.025);
         //============================================================
-        RECTANGLE_copyTo          (TEXT_DB_L,LAYER_001);
-        RECTANGLE_cropFromTopP    (TEXT_DB_L,0.3);
-        RECTANGLE_reduceP         (TEXT_DB_L,0.18,0.18);
+        RECTANGLE_copyTo         (TEST_comp,LAYER_001);
+        RECTANGLE_cropFromTopP   (TEST_comp,0.025);
         //============================================================
-        RECTANGLE_copyTo          (TEXT_DB_R,LAYER_001);
-        RECTANGLE_cropFromBottomP (TEXT_DB_R,0.3);
-        RECTANGLE_reduceP         (TEXT_DB_R,0.18,0.18);
+        RECTANGLE_copyTo         (TEST_comp2,LAYER_001);
+        RECTANGLE_cropFromBottomP(TEST_comp2,0.025);
         //============================================================
-        RECTANGLE_copyTo          (KONB_ID_L,LAYER_001);
-        RECTANGLE_removeFromRightP(KONB_ID_L,0.4);
-        RECTANGLE_reduceP         (KONB_ID_L,0.28,0.28);
-        RECTANGLE_reduce          (KONB_ID_L,5,5);
+        RECTANGLE_copyTo         ( BUTTON_01,LAYER_001);
+        RECTANGLE_reduceP        ( BUTTON_01,0,0.1);
+        RECTANGLE_cropFromTopP   ( BUTTON_01,0.1);
+        RECTANGLE_cropFromLeftP  ( BUTTON_01,1/5);
         //============================================================
-        RECTANGLE_copyTo          (KONB_ID_R,LAYER_001);
-        RECTANGLE_removeFromLeftP (KONB_ID_R,0.4);
-        RECTANGLE_reduceP         (KONB_ID_R,0.28,0.28);
-        RECTANGLE_reduce          (KONB_ID_R,5,5);
+        RECTANGLE_copyTo         ( BUTTON_02,BUTTON_01);
+        RECTANGLE_move           ( BUTTON_02,RECTANGLE_getWidth(BUTTON_02),0);
+        //============================================================
+        RECTANGLE_copyTo         ( BUTTON_03,BUTTON_02);
+        RECTANGLE_move           ( BUTTON_03,RECTANGLE_getWidth(BUTTON_03),0);
+        //============================================================
+        RECTANGLE_copyTo         ( BUTTON_04,BUTTON_03);
+        RECTANGLE_move           ( BUTTON_04,RECTANGLE_getWidth(BUTTON_04),0);
+        //============================================================
+        RECTANGLE_copyTo         ( BUTTON_05,BUTTON_04);
+        RECTANGLE_move           ( BUTTON_04,RECTANGLE_getWidth(BUTTON_05),0);
+        //============================================================
+        RECTANGLE_reduce( BUTTON_01,3,3);
+        RECTANGLE_reduce( BUTTON_02,3,3);
+        RECTANGLE_reduce( BUTTON_03,3,3);
+        RECTANGLE_reduce( BUTTON_04,3,3);
+        RECTANGLE_reduce( BUTTON_05,3,3);
         //============================================================
     );
     //================================================================
 
-    //================================================================
-    ( LAYER_isAreaResized(LAYER_002) == true) ?
-    (
-        RECTANGLE_copyTo        (BUTTON_comp,LAYER_002);
-        //============================================================
-        RECTANGLE_cropFromLeftP (BUTTON_comp,0.5);
-        RECTANGLE_reduceP       (BUTTON_comp,0.1,0.1);
-        //============================================================
-        RECTANGLE_copyTo        (SLIDER_1_comp,LAYER_002);
-        RECTANGLE_cropFromRightP(SLIDER_1_comp,0.5);
-        RECTANGLE_reduceP       (SLIDER_1_comp,0.1,0.1);
-        //============================================================
-        RECTANGLE_copyTo        (TEXT_DB_L,APP_ID);
-    );
+
     //================================================================
 
     // if animation
@@ -294,15 +221,12 @@ slider3:0.25<0.0,1.0>FEEDBACK
     COMPONENT_setComponentAlpha(TEST_comp,abs(sin($pi*2*mod*2)));
     mod += 0.01;(mod > 1 )?(mod=0;);
     //================================================================
-    
-    RECTANGLE_setX( LAYER_002,100*sin($pi*2*mod));
-    //================================================================
-    
+
     // plugin Title Str
     //================================================================
-    RECTANGLE_drawBottomRightText( APP_ID,"kawa Test Chorus");
+      RECTANGLE_drawBottomRightText( APP_ID,"kawa Particle TEST");
     //================================================================
-
+    
+    
 //====================================================================
 // 続
-

@@ -36,11 +36,11 @@ local (SLIDER_ID,circle_Area_ID,baseClassElementNum )
     SLIDER_ID; //retrun
 );
 //====================================================================
-function _SLIDER_getElementNum(SLIDER_ID)                  ( STATIC_MASTER_BUFF[SLIDER_ID + _COMPONENT_getElementNum(SLIDER_ID)+3];); //protected
+function _SLIDER_getElementNum(SLIDER_ID)            ( STATIC_MASTER_BUFF[SLIDER_ID+_COMPONENT_getElementNum(SLIDER_ID)+3];); //protected
 //====================================================================
-function SLIDER_getCircleArea(SLIDER_ID)                   ( STATIC_MASTER_BUFF[SLIDER_ID + _COMPONENT_getElementNum(SLIDER_ID)+1];);
-function SLIDER_isCircleAreaPressed(SLIDER_ID)             ( STATIC_MASTER_BUFF[SLIDER_ID + _COMPONENT_getElementNum(SLIDER_ID)+2];);
-function _SLIDER_setIsCircleAreaPressed(SLIDER_ID,v)       ( STATIC_MASTER_BUFF[SLIDER_ID + _COMPONENT_getElementNum(SLIDER_ID)+2] =v;);
+function SLIDER_getCircleArea(SLIDER_ID)             ( STATIC_MASTER_BUFF[SLIDER_ID+_COMPONENT_getElementNum(SLIDER_ID)+1];);
+function SLIDER_isCircleAreaPressed(SLIDER_ID)       ( STATIC_MASTER_BUFF[SLIDER_ID+_COMPONENT_getElementNum(SLIDER_ID)+2];);
+function _SLIDER_setIsCircleAreaPressed(SLIDER_ID,v) ( STATIC_MASTER_BUFF[SLIDER_ID+_COMPONENT_getElementNum(SLIDER_ID)+2] =v;);
 //====================================================================
 // meterWidth
 //====================================================================

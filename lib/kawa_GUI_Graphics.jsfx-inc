@@ -193,7 +193,7 @@ function drawSinWaveCircle(num,radius,rate,speed)
         x = incWidth * count_ -radius;
         y = sin( $pi *2 *  time_ + incDelta*count_ +$pi )* gfx_h/2.3 + gfx_h/2;
         gfx_circle(x,y,radius,true);
-        //===========================================================
+        //============================================================
         count_+=1;
     );
     //================================================================
@@ -275,7 +275,7 @@ function CANVAS_blitImage2(CANVAS_ID,dest_xpos,dest_ypos,scale,rotation,roffsetX
     //================================================================
     gfx_x = dest_xpos;
     gfx_y = dest_ypos;
-    gfx_blit(canvasSlot,scale,rotation
+    gfx_blit( canvasSlot,scale,rotation
             , dest_xpos,dest_ypos
             , RECTANGLE_getWidth(CANVAS_ID )
             , RECTANGLE_getHeight(CANVAS_ID )
@@ -284,7 +284,7 @@ function CANVAS_blitImage2(CANVAS_ID,dest_xpos,dest_ypos,scale,rotation,roffsetX
             , RECTANGLE_getWidth(CANVAS_ID )
             , RECTANGLE_getHeight(CANVAS_ID )
             //--------------------------------------------------------
-            ,roffsetX,roffsetY
+            , roffsetX,roffsetY
             );
     //================================================================
     gfx_x = lastX;gfx_y = lastY;
@@ -297,7 +297,7 @@ function CANVAS_blitImage3(CANVAS_ID,dest_xpos,dest_ypos,scale,rotation)local (c
     //================================================================
     gfx_x = dest_xpos;
     gfx_y = dest_ypos;
-    gfx_blit(canvasSlot,scale,rotation
+    gfx_blit( canvasSlot,scale,rotation
             , dest_xpos,dest_ypos
             , RECTANGLE_getWidth(CANVAS_ID )
             , RECTANGLE_getHeight(CANVAS_ID )
@@ -306,7 +306,7 @@ function CANVAS_blitImage3(CANVAS_ID,dest_xpos,dest_ypos,scale,rotation)local (c
             , RECTANGLE_getWidth(CANVAS_ID )
             , RECTANGLE_getHeight(CANVAS_ID )
             //--------------------------------------------------------
-            ,RECTANGLE_getWidth(CANVAS_ID )/8
+            , RECTANGLE_getWidth(CANVAS_ID )/8
             , RECTANGLE_getHeight(CANVAS_ID )/8
             );
     //================================================================

@@ -58,6 +58,10 @@ slider2:0.25<0.0,0.9>WIDTH
     //================================================================
     DBG_toggle(DBG); // visible off
     //================================================================
+    
+    // for particle 
+    PARTICLE_controller = PARTICLE_CONTROLLER_create();
+    //================================================================
 
 @slider
 //====================================================================
@@ -79,13 +83,13 @@ slider2:0.25<0.0,0.9>WIDTH
     //================================================================
  
     //================================================================
-    CURSOLBUFFER_push( DELAY_ARRAY_L ,spl0 );
+    CURSOLBUFFER_push( DELAY_ARRAY_L ,spl0  );
     CURSOLBUFFER_push( DELAY_ARRAY_R ,spl1 );
     
     
     //================================================================
-    rateX= slider1 * 8;//Max 12hz
-    valueX =  sin( ($pi* rateX * timeX )/srate);
+    rateX= slider1 * 5;//Max 12hz
+    valueX = abs( sin( (2* $pi* rateX * timeX )/srate));
     timeX +=1;(timeX>=srate/rateX)?( timeX=0;);
     //================================================================
   
@@ -93,9 +97,9 @@ slider2:0.25<0.0,0.9>WIDTH
     chorusWidth = ( srate* 0.0001 )*10* XYSLIDER_getYValue(XYSlider_1) ;
     //================================================================
     delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
-                                            , -chorusWidth * valueX-1 );
+                                            , -chorusWidth * valueX  );
     delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
-                                            , -chorusWidth * valueX-1 );
+                                            , -chorusWidth * valueX  );
     //================================================================
     spl0 = spl0 + delay_L;
     spl1 = spl1 + delay_R;
@@ -140,6 +144,28 @@ slider2:0.25<0.0,0.9>WIDTH
     // for debug
     //================================================================
     DBGMESSAGE_drawAllMessage(DBG);
+    //================================================================
+    
+    // for particle 
+    PARTICLE_CONTROLLER_update ( PARTICLE_controller );
+    //================================================================
+    ( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ?      
+    //( APP_isMouseButtonPressed(APP_ID)  ==true) ?
+    //(true)?
+    (
+        PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
+        0;
+    );
+    //================================================================
+    (time_precise() -lastPTime_  > 0.25)?
+    (
+        PARTICLE_CONTROLLER_addParticleType2_XY (PARTICLE_controller
+                                                ,gfx_w/2
+                                                ,gfx_h/2
+                                                ,false
+                                               );
+       lastPTime_ = time_precise();
+    );
     //================================================================
 
     // App update. check and compare with last event state.(resize or mouse)

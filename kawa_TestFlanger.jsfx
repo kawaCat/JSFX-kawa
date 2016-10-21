@@ -34,6 +34,10 @@ slider3:0.0<0,1,{FLANGER,PHASER}>MODE
     PHASER_ModeButton_comp   = BUTTON_create("FLANGER");
     BUTTON_setOnTextPostFix (PHASER_ModeButton_comp,"");
     BUTTON_setOffTextPostFix(PHASER_ModeButton_comp,"");
+    COMPONENT_changeColor( PHASER_ModeButton_comp
+                      ,"butonOnBackGroundColor"
+                      ,1,1,0,1);
+    //================================================================
     COMPONENT_setSliderIndex(PHASER_ModeButton_comp,3);
     COMPONENT_changeColor(PHASER_ModeButton_comp,"textColor_mouseon",0,0,0,1);
     //----------------------------------------------------------------
@@ -63,6 +67,10 @@ slider3:0.0<0,1,{FLANGER,PHASER}>MODE
     //================================================================
     DBG_toggle(DBG); // visible off
     //================================================================
+    
+    // for particle 
+    PARTICLE_controller = PARTICLE_CONTROLLER_create();
+    //================================================================
 
 @slider
 //====================================================================
@@ -88,18 +96,18 @@ slider3:0.0<0,1,{FLANGER,PHASER}>MODE
     (BUTTON_isON(PHASER_ModeButton_comp) ==true)? //phaser mode
     (
         //============================================================
-        rateX= slider1 *0.3;
+        rateX = slider1 * 0.60 + 0.001;
         valueX = 0.5 + sin( (2*$pi* rateX * timeX )/srate)/2;
         timeX +=1;(timeX>=srate/rateX)?( timeX=0;);
         //============================================================
-        rateY = slider2 *0.3;
+        rateY = slider2 * 0.03 + 0.001;
         valueY = 0.5 + sin( (2*$pi* rateY * timeY)/srate)/2;
         timeY +=1;(timeY>=srate/rateY)?( timeY=0;);
         //============================================================
         
         //============================================================
-        CURSOLBUFFER_push( DELAY_ARRAY_L,spl0 -delay_L*0.35 );    
-        CURSOLBUFFER_push( DELAY_ARRAY_R,spl1 -delay_R*0.35 );  
+        CURSOLBUFFER_push( DELAY_ARRAY_L,spl0 -delay_L*0.6 );    
+        CURSOLBUFFER_push( DELAY_ARRAY_R,spl1 -delay_R*0.6 );  
         
         //============================================================
         XYSLIDER_setXValue(XYSlider_1,valueX,false);
@@ -111,7 +119,7 @@ slider3:0.0<0,1,{FLANGER,PHASER}>MODE
                                                 , -srate/rateX * 0.000001 * XYSLIDER_getYValue(XYSlider_1)
                                                   -chorusWidth * XYSLIDER_getXValue(XYSlider_1) );
         delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
-                                                , -srate/rateY * 0.000080  * XYSLIDER_getXValue(XYSlider_1)
+                                                , -srate/rateY * 0.000050  * XYSLIDER_getXValue(XYSlider_1)
                                                   -chorusWidth * XYSLIDER_getXValue(XYSlider_1) );
         //============================================================
         
@@ -186,6 +194,24 @@ slider3:0.0<0,1,{FLANGER,PHASER}>MODE
     // for debug
     //================================================================
     DBGMESSAGE_drawAllMessage(DBG);
+    //================================================================
+    
+    // for particle 
+    PARTICLE_CONTROLLER_update ( PARTICLE_controller );
+    //================================================================
+    ( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ?      
+    //( APP_isMouseButtonPressed(APP_ID)  ==true) ?
+    //(true)?
+    (
+        PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
+        0;
+    );
+    //================================================================
+    PARTICLE_CONTROLLER_addParticleType3_XY (PARTICLE_controller
+                                            ,XYSLIDER_getCircleAreaCX(XYSlider_1)
+                                            ,XYSLIDER_getCircleAreaCY(XYSlider_1)
+                                            ,false
+                                            );
     //================================================================
 
     // App update. check and compare with last event state.(resize or mouse)

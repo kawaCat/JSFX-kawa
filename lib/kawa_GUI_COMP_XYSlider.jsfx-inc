@@ -84,6 +84,19 @@ function XYSLIDER_getCircleArea(XYSLIDER_ID)            ( STATIC_MASTER_BUFF[XYS
 function XYSLIDER_isCircleAreaPressed(XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+2];);
 function _XYSLIDER_setIsCircleAreaPressed(XYSLIDER_ID,v)( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+2]=v;);
 //====================================================================
+function XYSLIDER_getCircleAreaCX(XYSLIDER_ID)
+(
+    CIRcLE_getCX ( XYSLIDER_getCircleArea(XYSLIDER_ID));
+);
+//====================================================================
+function XYSLIDER_getCircleAreaCY(XYSLIDER_ID)
+(
+    CIRcLE_getCY ( XYSLIDER_getCircleArea(XYSLIDER_ID));
+);
+//====================================================================
+
+
+//====================================================================
 // meterWidth
 //====================================================================
 function _XYSLIDER_getMeterWidth(XYSLIDER_ID)
@@ -97,7 +110,7 @@ function _XYSLIDER_getMeterWidth(XYSLIDER_ID)
     //================================================================
     radius = CIRCLE_getRadius(circle_Pointer_ID);
     //================================================================
-    out = w -radius/2;
+    out = w -radius*2;
 );
 //====================================================================
 function _XYSLIDER_getMeterHeight(XYSLIDER_ID)
@@ -110,7 +123,7 @@ function _XYSLIDER_getMeterHeight(XYSLIDER_ID)
     circle_Pointer_ID = XYSLIDER_getCircleArea(XYSLIDER_ID);
     radius = CIRCLE_getRadius(circle_Pointer_ID);
     //================================================================
-    out = h -radius/2;
+    out = h -radius*2;
 );
 //====================================================================
 function _XYSLIDER_positionToXValue(XYSLIDER_ID,x_) 
@@ -119,8 +132,9 @@ local (out,meterWidth,tempX,radius)
     //================================================================
     meterWidth = _XYSLIDER_getMeterWidth(XYSLIDER_ID);
     tempX = RECTANGLE_getX(XYSLIDER_ID);
+    radius = CIRCLE_getRadius(XYSLIDER_getCircleArea(XYSLIDER_ID));
     //================================================================
-    out = max( 0,min( (x_- tempX )/(meterWidth) ,1));
+    out = max( 0,min( (x_- tempX -radius)/(meterWidth) ,1));
 );
 //====================================================================
 function _XYSLIDER_positionToYValue(XYSLIDER_ID,y_) local (out,meterHeight,tempY,radius)
@@ -128,8 +142,9 @@ function _XYSLIDER_positionToYValue(XYSLIDER_ID,y_) local (out,meterHeight,tempY
     //================================================================
     meterHeight = _XYSLIDER_getMeterHeight(XYSLIDER_ID);
     tempY = RECTANGLE_getY(XYSLIDER_ID);
+    radius = CIRCLE_getRadius(XYSLIDER_getCircleArea(XYSLIDER_ID));
     //================================================================
-    out = max( 0,min( (y_- tempY )/(meterHeight) ,1));
+    out = max( 0,min( (y_- tempY-radius )/(meterHeight) ,1));
 );
 //====================================================================
 

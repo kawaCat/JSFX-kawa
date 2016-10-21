@@ -9,7 +9,7 @@
 // * Component
 //====================================================================
 function KNOB_create(name) 
-local (KNOB_ID,textArea_Rect,baseClassElementNum)
+    local (KNOB_ID,textArea_Rect,baseClassElementNum)
 (
     textArea_Rect =RECTANGLE_create(0,0,0,0);
     //================================================================
@@ -46,7 +46,7 @@ local (KNOB_ID,textArea_Rect,baseClassElementNum)
 //====================================================================
 function _KNOB_getElementNum(KNOB_ID)  (STATIC_MASTER_BUFF[KNOB_ID + _COMPONENT_getElementNum(KNOB_ID)+ 2];); //protected
 //====================================================================
-function KNOB_getTextAreaRect(KNOB_ID) ( STATIC_MASTER_BUFF[KNOB_ID + _COMPONENT_getElementNum(KNOB_ID)+ 1];);
+function KNOB_getTextAreaRect(KNOB_ID) (STATIC_MASTER_BUFF[KNOB_ID + _COMPONENT_getElementNum(KNOB_ID)+ 1];);
 //====================================================================
 function _KNOB_getInnerMargin(KNOB_ID) local (out)
 (
