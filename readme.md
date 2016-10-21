@@ -44,16 +44,11 @@ tested on Reaper 5.24.
 
 ## Scale
 
-* 拡大する必要ないけど、なんとなく拡大する。
-
 
 <img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/Scaling_Test.gif" width="400px" />
 
 
 ## Rotation
-
-* 必要ないけど、なんとなく回転する。
-
 
 
 <img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/Rotation_Test.gif"  width="400px" />
