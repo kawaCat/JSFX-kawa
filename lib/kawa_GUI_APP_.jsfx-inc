@@ -472,8 +472,6 @@ function APP_update(APP_ID)
 
         // blit to frame buffer
         //============================================================
-        gfx_dest =-1;//frame buffer
-        //============================================================
         gfx_x =0;gfx_y =0;gfx_a =1;gfx_r =0;gfx_g =0;gfx_b =0;
         //============================================================
         dTimeCounter = DELTATIME_getDeltaTimeWithStepValue(APP_getDELTATIME_ID(APP_ID),0.01);
@@ -495,7 +493,7 @@ function APP_update(APP_ID)
         gfx_x = -(gfx_w/2) * canvasS +(gfx_w/2);
         gfx_y = -(gfx_h/2) * canvasS +(gfx_h/2);
         //============================================================
-        gfx_dest = -1;
+        gfx_dest = -1;//frame buffer
         gfx_blit(CANVAS_getCanvaseSlotID( APP_ID), canvasS, canvasR);
         //============================================================
 

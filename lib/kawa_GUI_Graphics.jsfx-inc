@@ -48,68 +48,74 @@ ___tempHSB ; // !!
 function drawWaveBufferToCanvas(CANVAS_ID,waveMax,waveMin,oneBar_Width,vAmp,alpha,hueOffset)
     local ( lastDest,tempCanvasSlot,halfHeight
           , yy1,yy2,tempCanvas,vAmp_,CLEAR_CANVAS_SLOT
-          , onebarWidth,val)
+          , onebarWidth,val,cH,cW)
 (
-    onebarWidth = ceil( oneBar_Width );
-    onebarWidth = max (1,onebarWidth);
-    lastDest = gfx_dest;
-    vAmp_ = vAmp;
     //================================================================
-    gfx_setimgdim( STATIC_CLEAR_CANVAS_SLOT,0,0);    //clear
-    gfx_setimgdim( STATIC_CLEAR_CANVAS_SLOT,2048,2048);
-    //================================================================
-    gfx_dest=STATIC_CLEAR_CANVAS_SLOT;
-    //================================================================
-    gfx_x=0;gfx_y=0;
-    gfx_r =1;gfx_g=1;gfx_b=1;gfx_a=1;
-    //================================================================
-    gfx_blit( CANVAS_getCanvaseSlotID(CANVAS_ID), 1,0 );//scale ,rot );
-    //================================================================
-    CANVAS_clearCanvas(CANVAS_ID);
-    //================================================================
-    gfx_dest=CANVAS_getCanvaseSlotID(CANVAS_ID);
-    //================================================================
-    
-    //================================================================
-    gfx_blit( STATIC_CLEAR_CANVAS_SLOT 
-            , 1,0 //scale ,rot
-            , onebarWidth
-            , 0
-            , RECTANGLE_getWidth(CANVAS_ID) -onebarWidth
-            , RECTANGLE_getHeight(CANVAS_ID)
-            //--------------------------------------------------------
-            , 0, 0
-            , RECTANGLE_getWidth(CANVAS_ID) -onebarWidth
-            , RECTANGLE_getHeight(CANVAS_ID)
-            );
-    //================================================================
+    gfx_getimgdim(CANVAS_getCanvaseSlotID(CANVAS_ID),cW,cH);
+    ( cW >0 && cH >0)?
+    (
+        //============================================================
+        onebarWidth = ceil( oneBar_Width );
+        onebarWidth = max (1,onebarWidth);
+        lastDest = gfx_dest;
+        vAmp_ = vAmp;
+        //============================================================
+        gfx_setimgdim( STATIC_CLEAR_CANVAS_SLOT,0,0);    //clear
+        gfx_setimgdim( STATIC_CLEAR_CANVAS_SLOT,2048,2048);
+        //============================================================
+        gfx_dest=STATIC_CLEAR_CANVAS_SLOT;
+        //============================================================
+        gfx_x=0;gfx_y=0;
+        gfx_r =1;gfx_g=1;gfx_b=1;gfx_a=1;
+        //============================================================
+        gfx_blit( CANVAS_getCanvaseSlotID(CANVAS_ID), 1,0 );//scale ,rot );
+        //============================================================
+        CANVAS_clearCanvas(CANVAS_ID);
+        //============================================================
+        gfx_dest=CANVAS_getCanvaseSlotID(CANVAS_ID);
+        //============================================================
+        
+        //============================================================
+        gfx_blit( STATIC_CLEAR_CANVAS_SLOT 
+                , 1,0 //scale ,rot
+                , onebarWidth
+                , 0
+                , RECTANGLE_getWidth(CANVAS_ID) -onebarWidth
+                , RECTANGLE_getHeight(CANVAS_ID)
+                //----------------------------------------------------
+                , 0, 0
+                , RECTANGLE_getWidth(CANVAS_ID) -onebarWidth
+                , RECTANGLE_getHeight(CANVAS_ID)
+                );
+        //============================================================
 
-    //================================================================
-    halfHeight =  (RECTANGLE_getHeight(CANVAS_ID)/2);
-    yy1 =  halfHeight - abs( halfHeight * waveMax) *vAmp_;
-    yy2 =  halfHeight + abs( halfHeight * waveMin) *vAmp_;
-    val = max(waveMax,abs(waveMin));
-    ___tempHSB.HSBtoRGB(-180+30*val +hueOffset, 0   , 1*hueOffset);
-    gfx_r =___tempHSB.r/255;gfx_g=___tempHSB.g/255;gfx_b=___tempHSB.b/255;gfx_a=1;
-    //================================================================
-    gfx_rect( RECTANGLE_getWidth(CANVAS_ID) -onebarWidth
-            , yy1
-            , onebarWidth
-            , yy2-yy1
-            ,true,true );
-    //================================================================z
-    gfx_r =0;gfx_g=0;gfx_b=0;gfx_a=0.5;
-    //================================================================
-    gfx_line(RECTANGLE_getWidth(CANVAS_ID) -onebarWidth
-            , halfHeight
-            , RECTANGLE_getWidth(CANVAS_ID)
-            ,halfHeight
-            ,true
-            );
-    //================================================================
-    gfx_dest= lastDest;
-    //================================================================
-    gfx_a=1;
+        //============================================================
+        halfHeight =  (RECTANGLE_getHeight(CANVAS_ID)/2);
+        yy1 =  halfHeight - abs( halfHeight * waveMax) *vAmp_;
+        yy2 =  halfHeight + abs( halfHeight * waveMin) *vAmp_;
+        val = max(waveMax,abs(waveMin));
+        ___tempHSB.HSBtoRGB(-180+30*val +hueOffset, 0   , 1*hueOffset);
+        gfx_r =___tempHSB.r/255;gfx_g=___tempHSB.g/255;gfx_b=___tempHSB.b/255;gfx_a=1;
+        //============================================================
+        gfx_rect( RECTANGLE_getWidth(CANVAS_ID) -onebarWidth
+                , yy1
+                , onebarWidth
+                , yy2-yy1
+                ,true,true );
+        //============================================================
+        gfx_r =0;gfx_g=0;gfx_b=0;gfx_a=0.5;
+        //============================================================
+        gfx_line(RECTANGLE_getWidth(CANVAS_ID) -onebarWidth
+                , halfHeight
+                , RECTANGLE_getWidth(CANVAS_ID)
+                ,halfHeight
+                ,true
+                );
+        //============================================================
+        gfx_dest= lastDest;
+        //============================================================
+        gfx_a=1;
+    );
 );
 //====================================================================
 

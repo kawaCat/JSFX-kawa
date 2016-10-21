@@ -57,8 +57,8 @@ import kawa_ALL.jsfx-inc
 
     // canvase test
     //================================================================
-    CANVS_WAVE_L = CANVAS_create(gfx_w,gfx_h);
-    CANVS_WAVE_R = CANVAS_create(gfx_w,gfx_h);
+    CANVS_WAVE_L = CANVAS_create(400,0);
+    CANVS_WAVE_R = CANVAS_create(400,0);
     //================================================================
     
     PARTICLE_controller = PARTICLE_CONTROLLER_create();
@@ -142,6 +142,7 @@ import kawa_ALL.jsfx-inc
         PARTICLE_CONTROLLER_addParticleType2_XY (PARTICLE_controller
                                                 ,gfx_w/2
                                                 ,gfx_h/2
+                                                ,true
                                                );
        lastPTime_ = time_precise();
     );
@@ -163,7 +164,8 @@ import kawa_ALL.jsfx-inc
     
     // alignment position when resized.
     //================================================================
-    ( APP_isWindowResized(APP_ID) ==true) ?
+    (    APP_isWindowResized(APP_ID) ==true
+      && APP_isGFX_Enable(APP_ID) ==true ) ?
     (
         //============================================================
         RECTANGLE_copyTo      ( CANVS_WAVE_L,APP_ID);
