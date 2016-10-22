@@ -57,8 +57,8 @@ import kawa_ALL.jsfx-inc
 
     // canvase test
     //================================================================
-    CANVS_WAVE_L = CANVAS_create(400,0);
-    CANVS_WAVE_R = CANVAS_create(400,0);
+    CANVS_WAVE_L = CANVAS_create(gfx_w,gfx_h);
+    CANVS_WAVE_R = CANVAS_create(gfx_w,gfx_h);
     //================================================================
     
     PARTICLE_controller = PARTICLE_CONTROLLER_create();
@@ -97,7 +97,7 @@ import kawa_ALL.jsfx-inc
     drawWaveBufferToCanvas(CANVS_WAVE_L
                               ,max_L
                               ,min_L
-                              ,3
+                              ,1
                               ,0.5
                               ,1
                               ,80);
@@ -105,7 +105,7 @@ import kawa_ALL.jsfx-inc
     drawWaveBufferToCanvas(CANVS_WAVE_R
                               ,max_R
                               ,min_R
-                              ,3
+                              ,1
                               ,0.6
                               ,1
                               ,0);
@@ -226,7 +226,7 @@ import kawa_ALL.jsfx-inc
 
     // plugin Title Str
     //================================================================
-      RECTANGLE_drawBottomRightText( APP_ID,"kawa Particle TEST");
+    RECTANGLE_drawBottomRightText( APP_ID,"kawa Particle TEST");
     //================================================================
     
     

@@ -115,7 +115,8 @@ function ARRAY_setBufferSize(ARRAY_ID,v)
 function ARRAY_getAt(ARRAY_ID,pos) local (out,bufferSize)
 (
     bufferSize = ARRAY_getBufferSize (ARRAY_ID );
-    ( bufferSize < pos) ? 
+    ( bufferSize < pos
+     || pos < 0) ? 
     (
         out = 0;
     ):(
@@ -136,6 +137,9 @@ function ARRAY_changeValueAt(ARRAY_ID,pos,value) local (bufferSize)
     );
     //================================================================
 );
+//====================================================================
+function ARRAY_setValueAt(ARRAY_ID,pos,value)( ARRAY_changeValueAt(ARRAY_ID,pos,value););
+function ARRAY_getValueAt(ARRAY_ID,pos)      ( ARRAY_getAt(ARRAY_ID,pos););
 //====================================================================
 function ARRAY_push_back(ARRAY_ID,value) local(bufferSize)
 (

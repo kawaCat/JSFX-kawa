@@ -170,15 +170,31 @@ function COMPONENT_getParrentLAYRE(COMPONENT_ID)       (    STATIC_MASTER_BUFF[C
 function COMPONENT_setParrentLAYRE(COMPONENT_ID,p)     (    STATIC_MASTER_BUFF[COMPONENT_ID +_RECTANGLE_getElementNum(COMPONENT_ID)+7]  = p;);
 function COMPONENT_isExistParrentLAYRE(COMPONENT_ID)   (  ( STATIC_MASTER_BUFF[COMPONENT_ID +_RECTANGLE_getElementNum(COMPONENT_ID)+7] != -123456); ); // !!
 //====================================================================
-function COMPONENT_getValue(COMPONENT_ID)              (    STATIC_MASTER_BUFF[COMPONENT_ID +_RECTANGLE_getElementNum(COMPONENT_ID)+4];);
+function COMPONENT_getValue(COMPONENT_ID)       
+(    
+    STATIC_MASTER_BUFF[COMPONENT_ID +_RECTANGLE_getElementNum(COMPONENT_ID)+4];
+    //================================================================
+);
+//====================================================================
+function COMPONENT_getParameteredValue(COMPONENT_ID) local (minV,maxV,value,out)          
+(    
+
+    minV = COMPONENT_getMinValue(COMPONENT_ID);
+    maxV = COMPONENT_getMaxValue(COMPONENT_ID);
+    //================================================================
+    value = STATIC_MASTER_BUFF[COMPONENT_ID +_RECTANGLE_getElementNum(COMPONENT_ID)+4];
+    //================================================================
+    out = minV+  ( maxV-minV) * value;
+    //================================================================
+    out;
+);
+//====================================================================
 function COMPONENT_setValue(COMPONENT_ID,value,isSendReaper) 
 ( 
     STATIC_MASTER_BUFF[  COMPONENT_ID 
                        + _RECTANGLE_getElementNum(COMPONENT_ID)
                        + 4
-                       ] = min( max( value
-                                      , COMPONENT_getMinValue(COMPONENT_ID)) 
-                                      , COMPONENT_getMaxValue(COMPONENT_ID));
+                       ] = min( max( value,0),1);
     //================================================================
     (isSendReaper ==true)?
     (

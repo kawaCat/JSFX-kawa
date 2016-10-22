@@ -578,6 +578,16 @@ function RECTANGLE_move(RECT_ID,moveX,moveY)local(x,y)
     RECTANGLE_setY(RECT_ID,y+moveY);
 );
 //====================================================================
+function RECTANGLE_moveP(RECT_ID,moveXp,moveYp)local(x,y,w,h)
+(
+    x = RECTANGLE_getX(RECT_ID);
+    y = RECTANGLE_getY(RECT_ID);
+    w = RECTANGLE_getWidth(RECT_ID);
+    h = RECTANGLE_getHeight(RECT_ID);
+    RECTANGLE_setX(RECT_ID,x+w * moveXp);
+    RECTANGLE_setY(RECT_ID,y+h * moveYp);
+);
+//====================================================================
 function RECTANGLE_removeFromTop(RECT_ID,removeValue)local(y,h)
 (
     y = RECTANGLE_getY(RECT_ID);

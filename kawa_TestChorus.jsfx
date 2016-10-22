@@ -149,9 +149,7 @@ slider2:0.25<0.0,0.9>WIDTH
     // for particle 
     PARTICLE_CONTROLLER_update ( PARTICLE_controller );
     //================================================================
-    ( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ?      
-    //( APP_isMouseButtonPressed(APP_ID)  ==true) ?
-    //(true)?
+    ( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ? 
     (
         PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
         0;

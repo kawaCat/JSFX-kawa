@@ -1,17 +1,18 @@
 //====================================================================
-desc:kawa TestJSFX
+desc:kawa TestTone
 //====================================================================
 
 // imports
 //====================================================================
 import kawa_ALL.jsfx-inc
-//=================================================================
+//====================================================================
 
 
 //====================================================================
 // sliders
 //--------------------------------------------------------------------
-slider1:0.25<0.0,1>parameter1
+slider1:0.25<0.0,1>-RATE
+slider2:0.25<0.0,1>-GAIN
 //====================================================================
 
 
@@ -25,51 +26,49 @@ slider1:0.25<0.0,1>parameter1
     //create Layer ID
     //================================================================
     LAYER_001 = LAYER_create("LAYER01");
-    LAYER_002 = LAYER_create("LAYER02");
     //================================================================
 
     //create Component and add to layer 1 .
     //================================================================
     TEST_comp  = COMPONENT_create("TEST");
-    TEST_comp2  = COMPONENT_create("TES2T");
-    SLIDER_2_comp = SLIDERTYPE2_create("TEST2");
-    KONB_ID  = KNOB_create( "knobTest") ;
-    COMPONENT_setSliderIndex(KONB_ID,1); 
-    COMPONENT_setSliderIndex(SLIDER_2_comp,1); 
+    TEST_comp2 = COMPONENT_create("TEST2");
     //----------------------------------------------------------------
-    TEXT_DB_L = TEXT_create("text 1"); 
-    TEXT_DB_R = TEXT_create("text 2");
-    TEXT_setIsDBValueMode(TEXT_DB_L, true );
-    TEXT_setIsDBValueMode(TEXT_DB_R, true );
-    TEXT_setDBValueModeTextPreFix(TEXT_DB_L, "(L)");
-    TEXT_setDBValueModeTextPreFix(TEXT_DB_R, "(R)");
+    BUTTON_01 = BUTTON_create("BLIT ");
+    BUTTON_02 = BUTTON_create(" SIN ");
+    BUTTON_03 = BUTTON_create(" SAW ");
+    BUTTON_04 = BUTTON_create("RECT ");
+    BUTTON_05 = BUTTON_create(" TRI ");
     //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_001 , TEXT_DB_L);
-    LAYER_addChildComponent(LAYER_001 , TEXT_DB_R);
+    KNOB_HZ_ID  = KNOB_create( "Hz") ;
+    COMPONENT_setMinValue(KNOB_HZ_ID,40);
+    COMPONENT_setMaxValue(KNOB_HZ_ID,4400);
+    COMPONENT_setValue(KNOB_HZ_ID,(440-40)/(4400-40),false);
+    COMPONENT_setSliderIndex(KNOB_HZ_ID,1);
+    //----------------------------------------------------------------
+    KNOB_GAIN_ID  = KNOB_create( "GAIN") ;
+    COMPONENT_setMinValue(KNOB_GAIN_ID,0);
+    COMPONENT_setMaxValue(KNOB_GAIN_ID,2);
+    COMPONENT_setValue(KNOB_GAIN_ID,0.25,false);
+    KNOB_setDBTextMode(KNOB_GAIN_ID,true);
+    COMPONENT_setSliderIndex(KNOB_GAIN_ID,2);
+    //----------------------------------------------------------------
+    LAYER_addChildComponent(LAYER_001 , KNOB_HZ_ID);
+    LAYER_addChildComponent(LAYER_001 , KNOB_GAIN_ID);
+    LAYER_addChildComponent(LAYER_001 , BUTTON_01);
+    LAYER_addChildComponent(LAYER_001 , BUTTON_02);
+    LAYER_addChildComponent(LAYER_001 , BUTTON_03);
+    LAYER_addChildComponent(LAYER_001 , BUTTON_04);
+    LAYER_addChildComponent(LAYER_001 , BUTTON_05);
     //----------------------------------------------------------------
     LAYER_addChildComponent(LAYER_001 , TEST_comp);
     LAYER_addChildComponent(LAYER_001 , TEST_comp2);
-    LAYER_addChildComponent(LAYER_001 , SLIDER_2_comp);
-    LAYER_addChildComponent(LAYER_001 , KONB_ID);
     //================================================================
-
-    // layer 2
-    //================================================================
-    BUTTON_comp   = BUTTON_create("TEST3");
-    SLIDER_1_comp = SLIDER_create("TEST4");
-    //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_002 , BUTTON_comp);
-    LAYER_addChildComponent(LAYER_002 , SLIDER_1_comp);
-    //================================================================
-
 
     // layer add to app
     //================================================================
     APP_addChildComponent(APP_ID,LAYER_001);
-    APP_addChildComponent(APP_ID,LAYER_002);
     //================================================================
     LAYER_setActive(LAYER_001,true);
-    LAYER_setActive(LAYER_002,false);
     //================================================================
 
     // canvase test
@@ -79,18 +78,23 @@ slider1:0.25<0.0,1>parameter1
     //================================================================
     
     PARTICLE_controller = PARTICLE_CONTROLLER_create();
+    //================================================================
+    
+    //DSP
+    //================================================================
+    WAVE_TABLE01 = WAVETABLE_create();
+    WAVETABLE_prepareForPlay(WAVE_TABLE01);
+    WAVETABLE_setOscType (WAVE_TABLE01,WT_OSC_TYPE_SINE );
+    //================================================================ 
+    
 
 @slider
 //====================================================================
-    COMPONENT_setValue( SLIDER_2_comp,slider1,false );
-    COMPONENT_setValue( KONB_ID,slider1,false );
-  
-
+    COMPONENT_setValue(KNOB_HZ_ID,slider1,false);
+    COMPONENT_setValue(KNOB_GAIN_ID,slider2,false);
+    
 @block
 //====================================================================
-    COMPONENT_setValue( TEXT_DB_L ,max(max_L,abs(minL)),false);
-    COMPONENT_setValue( TEXT_DB_R ,max(max_R,abs(minR)),false);
-    //================================================================
     max_L = 0;min_L = 0;
     max_R = 0;min_R = 0;
     //================================================================
@@ -102,15 +106,61 @@ slider1:0.25<0.0,1>parameter1
     min_L = min(min_L,spl0);
     max_R = max(max_R,spl1);
     min_R = min(min_R,spl1);
+    
+    (BUTTON_isOn(BUTTON_01) ==true)?
+    (
+        WAVETABLE_setTableMode(WAVE_TABLE01,WT_TABLE_MODE_BANDLIMIT);
+    ):
+    (
+        WAVETABLE_setTableMode(WAVE_TABLE01,WT_TABLE_MODE_NORAML);
+    );
+    //================================================================
+    
+    WAVETABLE_setFrequency(WAVE_TABLE01,(4400)*COMPONENT_getValue(KNOB_HZ_ID));
+    WAVETABLE_tickReadIndex(WAVE_TABLE01);
+    //================================================================
+    (BUTTON_isOn(BUTTON_02) ==true)?
+    (
+        WAVETABLE_setOscType (WAVE_TABLE01,WT_OSC_TYPE_SINE );
+        sine = WAVETABLE_doOscillate(WAVE_TABLE01,false);
+        spl0 +=  sine * COMPONENT_getParameteredValue(KNOB_GAIN_ID);
+        spl1 +=  sine * COMPONENT_getParameteredValue(KNOB_GAIN_ID);
+        //============================================================
+    );
+    (BUTTON_isOn(BUTTON_03) ==true)?
+    (
+        WAVETABLE_setOscType (WAVE_TABLE01,WT_OSC_TYPE_SAW);
+        sine = WAVETABLE_doOscillate(WAVE_TABLE01,false);
+        spl0 +=  sine * COMPONENT_getParameteredValue(KNOB_GAIN_ID);
+        spl1 +=  sine * COMPONENT_getParameteredValue(KNOB_GAIN_ID);
+        //============================================================
+    );
+    (BUTTON_isOn(BUTTON_04) ==true)?
+    (
+        WAVETABLE_setOscType (WAVE_TABLE01,WT_OSC_TYPE_TRI);
+        sine = WAVETABLE_doOscillate(WAVE_TABLE01,false);
+        spl0 +=  sine * COMPONENT_getParameteredValue(KNOB_GAIN_ID);
+        spl1 +=  sine * COMPONENT_getParameteredValue(KNOB_GAIN_ID);
+        //============================================================
+    );
+    (BUTTON_isOn(BUTTON_05) ==true)?
+    (
+        WAVETABLE_setOscType (WAVE_TABLE01,WT_OSC_TYPE_SQUARE);
+        sine = WAVETABLE_doOscillate(WAVE_TABLE01,false);
+        spl0 +=  sine * COMPONENT_getParameteredValue(KNOB_GAIN_ID);
+        spl1 +=  sine * COMPONENT_getParameteredValue(KNOB_GAIN_ID);
+        //============================================================
+    );
+    //================================================================
 
 @gfx 200 400
 //====================================================================
 
     // direct draw background to
     //================================================================
-    drawBackGrond_color( 10, 120 , 12*4);
-    drawSinWaveCircle(100,0.8,1,0.0043);
-    drawSinWaveCircle(100,0.8,1,0.0043);
+    drawBackGrond_black( 10);
+    drawSinWaveCircle(50,1,0.8,0.0043);
+    drawSinWaveCircle(50,1,0.8,0.0043);
     //================================================================
     
     // canvase test
@@ -118,7 +168,7 @@ slider1:0.25<0.0,1>parameter1
     drawWaveBufferToCanvas(CANVS_WAVE_L
                               ,max_L
                               ,min_L
-                              ,40 * COMPONENT_getValue(KONB_ID)
+                              ,3
                               ,0.5
                               ,1
                               ,80);
@@ -126,7 +176,7 @@ slider1:0.25<0.0,1>parameter1
     drawWaveBufferToCanvas(CANVS_WAVE_R
                               ,max_R
                               ,min_R
-                              ,40 * COMPONENT_getValue(SLIDER_2_comp)
+                              ,3
                               ,0.6
                               ,1
                               ,0);
@@ -138,9 +188,8 @@ slider1:0.25<0.0,1>parameter1
     //================================================================
     // final background
     //================================================================
-    drawDotGrid(20,20,0.04);
+    drawDotGrid(10,10,0.04);
     //================================================================
-
 
     // for debug
     //================================================================
@@ -150,13 +199,7 @@ slider1:0.25<0.0,1>parameter1
     // for particle 
     PARTICLE_CONTROLLER_update ( PARTICLE_controller );
     //================================================================
-    ( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ?      
-    (
-        PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
-        0;
-    );
-    //================================================================
-     (time_precise() -lastPTime_  > 0.25)?
+    (time_precise() -lastPTime_  > 0.55)?
     (
         PARTICLE_CONTROLLER_addParticleType2_XY (PARTICLE_controller
                                                 ,gfx_w/2
@@ -173,19 +216,6 @@ slider1:0.25<0.0,1>parameter1
     APP_update(APP_ID);
   
     //================================================================
-    ( mouse_cap & 2 ==2 && lastCAP != mouse_cap )?
-    (
-        (LAYER_isActive(LAYER_001)==true )?
-        (
-            LAYER_setActive(LAYER_001,false );
-            LAYER_setActive(LAYER_002,true );
-        ):(
-            LAYER_setActive(LAYER_001,true );
-            LAYER_setActive(LAYER_002,false );
-        );
-        //============================================================
-    );
-    //================================================================
     ( mouse_cap & 64 ==64 && lastCAP != mouse_cap )?
     (
         DBG_toggle(DBG);
@@ -196,7 +226,8 @@ slider1:0.25<0.0,1>parameter1
     
     // alignment position when resized.
     //================================================================
-    ( APP_isWindowResized(APP_ID) ==true) ?
+    (    APP_isWindowResized(APP_ID) ==true
+      && APP_isGFX_Enable(APP_ID) ==true ) ?
     (
         //============================================================
         RECTANGLE_copyTo      ( CANVS_WAVE_L,APP_ID);
@@ -213,48 +244,52 @@ slider1:0.25<0.0,1>parameter1
     //================================================================
     ( LAYER_isAreaResized(LAYER_001) ==true)   ?
     (
-    
+        //============================================================
         RECTANGLE_copyTo         (TEST_comp,LAYER_001);
         RECTANGLE_cropFromTopP   (TEST_comp,0.025);
-        
+        //============================================================
         RECTANGLE_copyTo         (TEST_comp2,LAYER_001);
         RECTANGLE_cropFromBottomP(TEST_comp2,0.025);
         //============================================================
-        RECTANGLE_copyTo         (SLIDER_2_comp,LAYER_001);
-        RECTANGLE_cropFromTopP   (SLIDER_2_comp,0.07);
-        RECTANGLE_cropFromRightP (SLIDER_2_comp,1-( 0.61803));
-        RECTANGLE_reduce         (SLIDER_2_comp,5,5);
+        RECTANGLE_copyTo         ( BUTTON_01,LAYER_001);
+        RECTANGLE_moveP          ( BUTTON_01,0,0.025);
+        RECTANGLE_cropFromTopP   ( BUTTON_01,0.1);
+        RECTANGLE_cropFromLeftP  ( BUTTON_01,1/5);
         //============================================================
-        RECTANGLE_copyTo         (TEXT_DB_L,LAYER_001);
-        RECTANGLE_cropFromTopP   (TEXT_DB_L,0.392);
-        RECTANGLE_reduceP        (TEXT_DB_L,0.18,0.18);
+        RECTANGLE_copyTo         ( BUTTON_02,BUTTON_01);
+        RECTANGLE_move           ( BUTTON_02,RECTANGLE_getWidth(BUTTON_02),0);
         //============================================================
-        RECTANGLE_copyTo         (TEXT_DB_R,LAYER_001);
-        RECTANGLE_cropFromBottomP(TEXT_DB_R,0.382);
-        RECTANGLE_reduceP        (TEXT_DB_R,0.18,0.18);
+        RECTANGLE_copyTo         ( BUTTON_03,BUTTON_02);
+        RECTANGLE_move           ( BUTTON_03,RECTANGLE_getWidth(BUTTON_03),0);
         //============================================================
-        RECTANGLE_copyTo         (KONB_ID,LAYER_001);
-        RECTANGLE_reduceP        (KONB_ID,0.28,0.28);
-        RECTANGLE_reduce         (KONB_ID,5,5);
+        RECTANGLE_copyTo         ( BUTTON_04,BUTTON_03);
+        RECTANGLE_move           ( BUTTON_04,RECTANGLE_getWidth(BUTTON_04),0);
+        //============================================================
+        RECTANGLE_copyTo         ( BUTTON_05,BUTTON_04);
+        RECTANGLE_move           ( BUTTON_04,RECTANGLE_getWidth(BUTTON_05),0);
+        //============================================================
+        RECTANGLE_reduce( BUTTON_01,3,3);
+        RECTANGLE_reduce( BUTTON_02,3,3);
+        RECTANGLE_reduce( BUTTON_03,3,3);
+        RECTANGLE_reduce( BUTTON_04,3,3);
+        RECTANGLE_reduce( BUTTON_05,3,3);
+        //============================================================
+        
+        //============================================================
+        RECTANGLE_copyTo         (KNOB_HZ_ID,LAYER_001);
+        RECTANGLE_removeFromTop  (KNOB_HZ_ID,RECTANGLE_getY2(BUTTON_05));
+        RECTANGLE_cropFromLeftP  (KNOB_HZ_ID,0.5);
+        RECTANGLE_reduce         (KNOB_HZ_ID,10,10);
+        //============================================================
+        RECTANGLE_copyTo         (KNOB_GAIN_ID,LAYER_001);
+        RECTANGLE_removeFromTop  (KNOB_GAIN_ID,RECTANGLE_getY2(BUTTON_05));
+        RECTANGLE_cropFromRightP (KNOB_GAIN_ID,0.5);
+        RECTANGLE_reduce         (KNOB_GAIN_ID,10,10);
+        
     );
     //================================================================
 
-
     //================================================================
-    ( LAYER_isAreaResized(LAYER_002) == true) ?
-    (
-        RECTANGLE_copyTo        (BUTTON_comp,LAYER_002);
-        //============================================================
-        RECTANGLE_cropFromLeftP (BUTTON_comp,0.5);
-        RECTANGLE_reduceP       (BUTTON_comp,0.1,0.1);
-        //============================================================
-        RECTANGLE_copyTo        (SLIDER_1_comp,LAYER_002);
-        RECTANGLE_cropFromRightP(SLIDER_1_comp,0.5);
-        RECTANGLE_reduceP       (SLIDER_1_comp,0.1,0.1);
-        //============================================================
-    );
-    //================================================================
-
     // if animation
     //================================================================
     COMPONENT_setComponentAlpha(TEST_comp,abs(sin($pi*2*mod*2)));
@@ -263,12 +298,8 @@ slider1:0.25<0.0,1>parameter1
 
     // plugin Title Str
     //================================================================
-      RECTANGLE_drawBottomRightText( APP_ID,"kawa Test");
+    RECTANGLE_drawBottomRightText( APP_ID,"kawa Particle TEST");
     //================================================================
-    
-    
-    
-   
     
 //====================================================================
 // 続

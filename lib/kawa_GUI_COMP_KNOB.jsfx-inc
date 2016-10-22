@@ -17,10 +17,11 @@ function KNOB_create(name)
     baseClassElementNum =_COMPONENT_getElementNum(KNOB_ID);
     //================================================================
     STATIC_MASTER_BUFF[KNOB_ID ]     = "KNOB";                   // classTYPE
-    STATIC_MASTER_BUFF[KNOB_ID + 1]  = baseClassElementNum+ 2;   // total elementNUM
+    STATIC_MASTER_BUFF[KNOB_ID + 1]  = baseClassElementNum+ 3;   // total elementNUM
     //================================================================
     STATIC_MASTER_BUFF[KNOB_ID + baseClassElementNum + 1] = textArea_Rect;
     STATIC_MASTER_BUFF[KNOB_ID + baseClassElementNum + 2] = STATIC_MASTER_BUFF[KNOB_ID + 1];// element Num in KNOB class.
+    STATIC_MASTER_BUFF[KNOB_ID + baseClassElementNum + 3] = false; // DB textmode
     //================================================================
     STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (KNOB_ID)+1; // next entry Bufff Point
     //================================================================
@@ -46,6 +47,8 @@ function KNOB_create(name)
 //====================================================================
 function _KNOB_getElementNum(KNOB_ID)  (STATIC_MASTER_BUFF[KNOB_ID + _COMPONENT_getElementNum(KNOB_ID)+ 2];); //protected
 //====================================================================
+function KNOB_getDBTextMode(KNOB_ID)   (STATIC_MASTER_BUFF[KNOB_ID + _COMPONENT_getElementNum(KNOB_ID)+ 3];);
+function KNOB_setDBTextMode(KNOB_ID,v) (STATIC_MASTER_BUFF[KNOB_ID + _COMPONENT_getElementNum(KNOB_ID)+ 3]=v;);
 function KNOB_getTextAreaRect(KNOB_ID) (STATIC_MASTER_BUFF[KNOB_ID + _COMPONENT_getElementNum(KNOB_ID)+ 1];);
 //====================================================================
 function _KNOB_getInnerMargin(KNOB_ID) local (out)
@@ -119,8 +122,17 @@ function KNOB_draw(KNOB_ID)local (x,y,w,h,margin,tempText,radius)
         COMPONENT_changeColorGfx( KNOB_ID   ,"textColor");
     );
     //================================================================
+    
     tempText =#;
-    sprintf(tempText,"%2.2f",COMPONENT_getValue(KNOB_ID));
+    
+    ( KNOB_getDBTextMode(KNOB_ID) ==true )?
+    (
+        sprintf(tempText,"%+2.2fdB",valueToDecivel( COMPONENT_getParameteredValue(KNOB_ID) ));;
+    ):
+    (
+        sprintf(tempText,"%2.2f",COMPONENT_getParameteredValue(KNOB_ID));
+    );
+    //================================================================
     RECTANGLE_drawStrInCenterFitFont(KNOB_ID,tempText);
     //================================================================
 );
