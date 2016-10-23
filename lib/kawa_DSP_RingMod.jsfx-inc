@@ -1,0 +1,42 @@
+
+
+
+
+@init
+//====================================================================
+
+//====================================================================
+// Ring Modulator
+//====================================================================
+function RINGMOD_create()local(RINGMOD_ID,dc_offset) //speed  Div 0.1 ~
+(
+    dc_offset = DCOFFSET_create();
+    RINGMOD_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[RINGMOD_ID]   = "RINGMOD";   // class name
+    STATIC_MASTER_BUFF[RINGMOD_ID+1] = 3;           // total Element Num 
+    //================================================================
+    STATIC_MASTER_BUFF[RINGMOD_ID+2] = dc_offset;   // lastItm
+    STATIC_MASTER_BUFF[RINGMOD_ID+3] = STATIC_MASTER_BUFF[RINGMOD_ID+1];  // element Num Only DeletaTime Class
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(RINGMOD_ID)+1;
+    //================================================================
+    RINGMOD_ID;
+);
+//====================================================================
+function _RINGMOD_getDCOffsetID(RINGMOD_ID) ( STATIC_MASTER_BUFF[RINGMOD_ID+2];);
+//====================================================================
+function RINGMOD_process(RINGMOD_ID,inSample ) local  ( dcOffset,out,tempOtm)
+(
+    //================================================================
+    temp =  max(min(inSample,1),-1);
+    //================================================================
+    dcOffset = _RINGMOD_getDCOffsetID(RINGMOD_ID);
+    out = DCOFFSET_process(dcOffset,((temp*temp )) *2 );
+    //================================================================
+    out = max(min(out,1),-1);
+    //================================================================
+    out;
+    //================================================================
+);
+//====================================================================

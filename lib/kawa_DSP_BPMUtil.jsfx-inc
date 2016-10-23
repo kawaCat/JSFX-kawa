@@ -1,0 +1,66 @@
+
+
+
+
+
+// BPM Utiltly functions
+//====================================================================
+@init
+//====================================================================
+
+// get Time ( sec )
+//====================================================================
+function get1thNote_Time (Tempo)   ((60/Tempo)*4;);
+function get2thNote_Time (Tempo)   ((60/Tempo)*2;);
+function get4thNote_Time (Tempo)   ((60/Tempo););
+function get8thNote_Time (Tempo)   ((60/Tempo)/2;);
+function get16thNote_Time(Tempo)   ((60/Tempo)/4;);
+function get32thNote_Time(Tempo)   ((60/Tempo)/8;);
+//====================================================================
+
+// get Rate (Hz)
+//====================================================================
+function get1thNote_Rate (Tempo)   ( 1/(get1thNote_Time(Tempo));  );
+function get2thNote_Rate (Tempo)   ( 1/(get2thNote_Time(Tempo));  );
+function get4thNote_Rate (Tempo)   ( 1/(get4thNote_Time(Tempo));  );
+function get8thNote_Rate (Tempo)   ( 1/(get8thNote_Time(Tempo));  );
+function get16thNote_Rate(Tempo)   ( 1/(get16thNote_Time(Tempo)); );
+function get32thNote_Rate(Tempo)   ( 1/(get32thNote_Time(Tempo)); );
+//====================================================================
+
+// get Sample Num 
+//====================================================================
+function get1thNote_Sample (Tempo,sampleRate_) ( sampleRate_ * get1thNote_Time (Tempo); );
+function get2thNote_Sample (Tempo,sampleRate_) ( sampleRate_ * get2thNote_Time (Tempo); );
+function get4thNote_Sample (Tempo,sampleRate_) ( sampleRate_ * get4thNote_Time (Tempo); );
+function get8thNote_Sample (Tempo,sampleRate_) ( sampleRate_ * get8thNote_Time (Tempo); );
+function get16thNote_Sample(Tempo,sampleRate_) ( sampleRate_ * get16thNote_Time(Tempo); );
+function get32thNote_Sample(Tempo,sampleRate_) ( sampleRate_ * get32thNote_Time(Tempo); );
+//====================================================================
+
+// project QN Num
+//====================================================================
+function get1thNote_Pqn    (Tempo) ( 4/1; );
+function get2thNote_Pqn    (Tempo) ( 2/1; );
+function get4thNote_Pqn    (Tempo) ( 1/1; );
+function get8thNote_Pqn    (Tempo) ( 1/2; );
+function get16thNote_Pqn   (Tempo) ( 1/4; );
+function get32thNote_Pqn   (Tempo) ( 1/8; );
+//====================================================================
+
+//convert 
+//====================================================================
+function sample2Ppq        (sampleNum,Tempo,sampleRate_) ( sampleNum / get4thNote_Sample(Tempo,sampleRate_););
+function sample2Sec        (sampleNum,sampleRate_)       ( sampleNum / ( sampleRate_ ) ;);
+function sample2Rate       (sampleNum,sampleRate_)       ( sampleNum / sampleRate_ ;);
+//====================================================================
+function pqn2SampleNum     (pqnNum,Tempo,sampleRate_)    ( pqnNum    * get4thNote_Sample(Tempo,sampleRate_););
+function pqn2Rate          (pqnNum,Tempo,sampleRate_)    ( sample2Rate(pqn2SampleNum( pqnNum,Tempo,sampleRate_),sampleRate_););
+function pqn2Sec           (pqnNum,Tempo,sampleRate_)    ( sample2Sec (pqn2SampleNum( pqnNum,Tempo,sampleRate_),sampleRate_););
+//====================================================================
+function time2Sample       (sec,sampleRate_)             ( sec * sampleRate_ ;);
+function time2Rate         (sec)                         ( 1 / sec ;);
+function time2Pqn          (sec,Tempo)                   ( sec / get4thNote_Time(Tempo););
+//====================================================================
+
+

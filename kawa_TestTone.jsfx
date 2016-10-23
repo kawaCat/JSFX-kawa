@@ -58,7 +58,7 @@ slider7:0 <0,1,1>-BLIT_ON
     KNOB_GAIN_ID  = KNOB_create( "GAIN") ;
     COMPONENT_setMinValue(KNOB_GAIN_ID,0);
     COMPONENT_setMaxValue(KNOB_GAIN_ID,2);
-    COMPONENT_setValue(KNOB_GAIN_ID,0.25,false);
+    COMPONENT_setValue(KNOB_GAIN_ID,0.5,false);
     KNOB_setDBTextMode(KNOB_GAIN_ID,true);
     COMPONENT_setSliderIndex(KNOB_GAIN_ID,2);
     //----------------------------------------------------------------
@@ -92,12 +92,12 @@ slider7:0 <0,1,1>-BLIT_ON
     
     //DSP
     //================================================================
-    WAVE_TABLE01 = WAVETABLE_create();
+    WAVE_TABLE01 = WAVETABLE_create(srate*5);
     WAVETABLE_prepareForPlay(WAVE_TABLE01);
     WAVETABLE_setOscType (WAVE_TABLE01,WT_OSC_TYPE_SINE );
     //================================================================ 
+   
     
-
 @slider
 //====================================================================
     COMPONENT_setValue(KNOB_HZ_ID,slider1,false);

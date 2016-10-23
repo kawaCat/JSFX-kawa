@@ -1,0 +1,45 @@
+
+
+//====================================================================
+@init
+
+//====================================================================
+// DCOffset 
+// based on :JS: DC Filter [filters/dc_remove]
+//====================================================================
+function DCOFFSET_create() local ( DCOFFSET_ID )
+(
+    DCOFFSET_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[DCOFFSET_ID]   = "DCOFFSET";   // class name
+    STATIC_MASTER_BUFF[DCOFFSET_ID+1] = 4;             // total Element Num 
+    //================================================================
+    STATIC_MASTER_BUFF[DCOFFSET_ID+2] = 0.0;           // lastItm
+    STATIC_MASTER_BUFF[DCOFFSET_ID+3] = 0.0;           // lastOtm
+    STATIC_MASTER_BUFF[DCOFFSET_ID+4] = STATIC_MASTER_BUFF[DCOFFSET_ID+1];  // element Num Only this Class
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(DCOFFSET_ID)+1;
+    //================================================================
+    DCOFFSET_ID;
+);
+//====================================================================
+function _DCOFFSET_getLastItem(DCOFFSET_ID)   ( STATIC_MASTER_BUFF[DCOFFSET_ID+2] ;);
+function _DCOFFSET_getLastOtem(DCOFFSET_ID)   ( STATIC_MASTER_BUFF[DCOFFSET_ID+3] ;);
+function _DCOFFSET_setLastItem(DCOFFSET_ID,v) ( STATIC_MASTER_BUFF[DCOFFSET_ID+2] =v;);
+function _DCOFFSET_setLastOtem(DCOFFSET_ID,v) ( STATIC_MASTER_BUFF[DCOFFSET_ID+3] =v;);
+//====================================================================
+function DCOFFSET_process(DCOFFSET_ID,inSample ) local  (out)
+(
+    //================================================================
+    out =  0.999 *    _DCOFFSET_getLastOtem(DCOFFSET_ID)
+         + inSample - _DCOFFSET_getLastItem(DCOFFSET_ID);
+    _DCOFFSET_setLastItem(DCOFFSET_ID,inSample);
+    _DCOFFSET_setLastOtem(DCOFFSET_ID,out);
+    //================================================================
+    out;
+    //================================================================
+);
+//====================================================================
+
+
+//====================================================================

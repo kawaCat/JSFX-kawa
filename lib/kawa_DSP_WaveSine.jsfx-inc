@@ -282,7 +282,8 @@ function _WAVETABLE_init_(WAVETABLE_ID)
 (
     //STATIC_MASTER_BUFF[WAVETABLE_ID+3] = srate;
     //================================================================
-    wtSize = srate * (1/MIN_WAVETABLE_OSC_HZ);
+    // wtSize = srate * (1/MIN_WAVETABLE_OSC_HZ);
+    wtSize = WAVETABLE_getSampleRate(WAVETABLE_ID) * (1/MIN_WAVETABLE_OSC_HZ);
     //================================================================
     sizeCheck = (wtSize) & 1024;
     //================================================================
@@ -657,7 +658,7 @@ function WAVETABLE_setSampleRate   (WAVETABLE_ID,newSampleRate)local(newWtsize)
 //====================================================================
 
 //====================================================================
-function WAVETABLE_create()
+function WAVETABLE_create( sampleRate_)
     local ( WAVETABLE_ID
           , SinArray
           , SawArray
@@ -669,7 +670,7 @@ function WAVETABLE_create()
           , waveTableSize
           )
 (
-    waveTableSize =  srate * (1/MIN_WAVETABLE_OSC_HZ);
+    waveTableSize =  sampleRate_ * (1/MIN_WAVETABLE_OSC_HZ);
     //================================================================
     SinArray   = ARRAY_create(waveTableSize);
     SawArray   = ARRAY_create(waveTableSize);
@@ -692,7 +693,7 @@ function WAVETABLE_create()
     STATIC_MASTER_BUFF[WAVETABLE_ID+1]  = 19;                      // total Element Num 
     //================================================================
     STATIC_MASTER_BUFF[WAVETABLE_ID+2]  = 440 ;                    // frequency(Hz)
-    STATIC_MASTER_BUFF[WAVETABLE_ID+3]  = srate;                   // sampleRate
+    STATIC_MASTER_BUFF[WAVETABLE_ID+3]  = sampleRate_ ;            // sampleRate
     STATIC_MASTER_BUFF[WAVETABLE_ID+4]  = STATIC_MASTER_BUFF[WAVESINE_ID+1];  // element Num Only DeletaTime Class
     //================================================================
     STATIC_MASTER_BUFF[WAVETABLE_ID+5]  = 0;                       // read Index

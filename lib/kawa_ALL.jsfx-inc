@@ -10,7 +10,10 @@ import kawa_DeltaTime.jsfx-inc
 import kawa_ARRAY_.jsfx-inc
 import kawa_DBG.jsfx-inc
 //====================================================================
+import kawa_DSP_BPMUtil.jsfx-inc
+import kawa_DSP_DCOffset.jsfx-inc
 import kawa_DSP_WaveSine.jsfx-inc
+import kawa_DSP_RingMod.jsfx-inc
 //====================================================================
 import kawa_GUI_CORE_.jsfx-inc
 import kawa_GUI_Graphics.jsfx-inc

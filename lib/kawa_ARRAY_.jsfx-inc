@@ -292,7 +292,7 @@ function CURSOLBUFFER_create (MaxSizeInt) local(CURSOLBUFFER_ID )
     //================================================================
     //todo check value
     //================================================================
-    STATIC_CIRCLE_BUFF_ID += 6+ MaxSizeInt;
+    STATIC_CIRCLE_BUFF_ID += 5+ MaxSizeInt+1;
     CURSOLBUFFER_ID;
     //================================================================
 );

@@ -97,9 +97,9 @@ slider2:0.25<0.0,0.9>WIDTH
     chorusWidth = ( srate* 0.0001 )*10* XYSLIDER_getYValue(XYSlider_1) ;
     //================================================================
     delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
-                                            , -chorusWidth * valueX  );
+                                            , -chorusWidth * valueX -1 );
     delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
-                                            , -chorusWidth * valueX  );
+                                            , -chorusWidth * valueX -1  );
     //================================================================
     spl0 = spl0 + delay_L;
     spl1 = spl1 + delay_R;
