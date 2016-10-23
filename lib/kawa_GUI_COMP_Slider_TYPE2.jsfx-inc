@@ -71,6 +71,14 @@ function _SLIDERTYPE2_positionToValue(SLIDERTYPE2_ID,x_,y_) local (out,meterWidt
 
 
 //====================================================================
+function SLIDERTYPE2_update(SLIDERTYPE2_ID) 
+(   
+    // store last value
+    COMPONENT_setLastValue( SLIDERTYPE2_ID
+                          , COMPONENT_getValue( SLIDERTYPE2_ID));
+    //================================================================
+);
+//====================================================================
 function SLIDERTYPE2_resized(SLIDERTYPE2_ID,parrentRECT )
 (
     0;

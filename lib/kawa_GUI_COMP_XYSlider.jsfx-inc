@@ -18,7 +18,7 @@ function XYSLIDER_create(name)
     
     //================================================================
     STATIC_MASTER_BUFF[XYSLIDER_ID ]     = "XYSLIDER";                  // classTYPE
-    STATIC_MASTER_BUFF[XYSLIDER_ID + 1]  = baseClassElementNum + 7;     // total elementNUM
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 1]  = baseClassElementNum + 9;     // total elementNUM
     //================================================================
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 1] = circle_Area_ID;
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 2] = false;  // is Pressd incircleArea
@@ -27,6 +27,8 @@ function XYSLIDER_create(name)
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 5] = 0.5;    // X value
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 6] = 0.5;    // Y value
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 7]  = STATIC_MASTER_BUFF[XYSLIDER_ID + 1] ;// element Num in TEXT class.
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 8]  = 0 ;// last X value
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 9]  = 0 ;// last Y value.
     //================================================================
     STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (XYSLIDER_ID)+1; // next entry Bufff Point
     //================================================================
@@ -50,6 +52,11 @@ function XYSLIDER_getSliderIndexX(XYSLIDER_ID)    ( STATIC_MASTER_BUFF[XYSLIDER_
 function XYSLIDER_getSliderIndexY(XYSLIDER_ID)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 4];);
 function XYSLIDER_setSliderIndexX(XYSLIDER_ID,idx)( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 3]=idx;);
 function XYSLIDER_setSliderIndexY(XYSLIDER_ID,idx)( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 4]=idx;);
+//====================================================================
+function XYSLIDER_getLastValueX(XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 8];);
+function XYSLIDER_getLastValueY(XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 9];);
+function XYSLIDER_setLastValueX(XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 8]=v;);
+function XYSLIDER_setLastValueY(XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 9]=v;);
 //====================================================================
 
 //====================================================================
@@ -149,6 +156,32 @@ function _XYSLIDER_positionToYValue(XYSLIDER_ID,y_) local (out,meterHeight,tempY
 //====================================================================
 
 
+
+//====================================================================
+function XYSLIDER_isXValueChanged( XYSLIDER_ID)
+(
+    ( XYSLIDER_getLastValueX( XYSLIDER_ID) !=  XYSLIDER_getXValue(XYSLIDER_ID) );
+);
+//====================================================================
+function XYSLIDER_isYValueChanged( XYSLIDER_ID)
+(
+    (  XYSLIDER_getLastValueY( XYSLIDER_ID) !=  XYSLIDER_getYValue(XYSLIDER_ID));
+);
+//====================================================================
+
+
+//====================================================================
+function XYSLIDER_update(XYSLIDER_ID) 
+(   
+    COMPONENT_update( XYSLIDER_ID);// store last value
+    //================================================================
+    XYSLIDER_setLastValueX( XYSLIDER_ID
+                          , XYSLIDER_getXValue( XYSLIDER_ID));
+    //================================================================
+    XYSLIDER_setLastValueY( XYSLIDER_ID
+                          , XYSLIDER_getYValue( XYSLIDER_ID));
+    //================================================================
+);
 //====================================================================
 function XYSLIDER_resized(XYSLIDER_ID,parrentRECT )
 (

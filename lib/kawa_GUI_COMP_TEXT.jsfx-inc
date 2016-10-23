@@ -69,6 +69,13 @@ function TEXT_drawDBValueModeText( TEXT_ID)local(tempstr,decibels)
 );
 //====================================================================
 
+
+//====================================================================
+function TEXT_update(TEXT_ID) 
+(   
+    COMPONENT_update( TEXT_ID);// store last value
+    //================================================================
+);
 //====================================================================
 function TEXT_resized(TEXT_ID,parrentRECT )
 ( 

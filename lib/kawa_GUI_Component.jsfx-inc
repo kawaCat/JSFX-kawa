@@ -94,7 +94,7 @@ function COMPONENT_create(name)
     baseClassElementNum =_RECTANGLE_getElementNum(COMPONENT_ID);
     //================================================================
     STATIC_MASTER_BUFF[COMPONENT_ID ]     = "COMPONENT";             // classTYPE
-    STATIC_MASTER_BUFF[COMPONENT_ID + 1]  = baseClassElementNum + 13;                     // elementNUM
+    STATIC_MASTER_BUFF[COMPONENT_ID + 1]  = baseClassElementNum + 14;                     // elementNUM
     //================================================================
     STATIC_MASTER_BUFF[COMPONENT_ID + baseClassElementNum + 1] = 0 ;                      // not use
     STATIC_MASTER_BUFF[COMPONENT_ID + baseClassElementNum + 2] = name;                    // ComponentName
@@ -111,6 +111,7 @@ function COMPONENT_create(name)
     STATIC_MASTER_BUFF[COMPONENT_ID + baseClassElementNum + 11] = componentInfoMap;       // max Value
     STATIC_MASTER_BUFF[COMPONENT_ID + baseClassElementNum + 12] = 0;                      // slider Index
     STATIC_MASTER_BUFF[COMPONENT_ID + baseClassElementNum + 13] = STATIC_MASTER_BUFF[COMPONENT_ID + 1];// element Num in COMPONENT Class
+    STATIC_MASTER_BUFF[COMPONENT_ID + baseClassElementNum + 14] = 0;                      // last value
     //================================================================
     STATIC_MASTER_BUFF_ID  +=STRUCT_getElementNum (COMPONENT_ID)+1; //increment next entry Point
     //================================================================
@@ -124,6 +125,9 @@ function COMPONENT_create(name)
 );
 //====================================================================
 function _COMPONENT_getElementNum(COMPONENT_ID)            ( STATIC_MASTER_BUFF[COMPONENT_ID+_RECTANGLE_getElementNum(COMPONENT_ID)+13];);// protected
+//====================================================================
+function COMPONENT_getLastValue( COMPONENT_ID)             ( STATIC_MASTER_BUFF[COMPONENT_ID+_RECTANGLE_getElementNum(COMPONENT_ID)+14];);
+function COMPONENT_setLastValue( COMPONENT_ID,v)           ( STATIC_MASTER_BUFF[COMPONENT_ID+_RECTANGLE_getElementNum(COMPONENT_ID)+14]=v;);
 //====================================================================
 function COMPONENT_getSliderindex( COMPONENT_ID)           ( STATIC_MASTER_BUFF[COMPONENT_ID+_RECTANGLE_getElementNum(COMPONENT_ID)+12];);
 function COMPONENT_setSliderindex( COMPONENT_ID,idx)       ( STATIC_MASTER_BUFF[COMPONENT_ID+_RECTANGLE_getElementNum(COMPONENT_ID)+12]=idx;);
@@ -278,11 +282,22 @@ function COMPONENT_getDBGText(COMPONENT_ID,optMsG) local (out)
     out;
 );
 //====================================================================
+function COMPONENT_isValueChanged( COMPONENT_ID)
+(
+    (  COMPONENT_getLastValue( COMPONENT_ID) !=  COMPONENT_getValue(COMPONENT_ID));
+);
+//====================================================================
 
 //====================================================================
-// meterWidth
+//
 //====================================================================
-
+function COMPONENT_update(COMPONENT_ID) 
+(   
+    // store last value
+    COMPONENT_setLastValue( COMPONENT_ID
+                          , COMPONENT_getValue( COMPONENT_ID));
+    //================================================================
+);
 //====================================================================
 function COMPONENT_resized(COMPONENT_ID,parrentLeyerRect)
 (

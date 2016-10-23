@@ -74,12 +74,22 @@ tested on Reaper 5.24.
 
 ## Change Log
 
+
+**2016/10/23**
+
+* Add: "Flanger" FeedBack Parameter.
+* Add: add Particle Shape Type, "RECTANGLE" ,"TRIANGLE", "HEX","STAR" polygons.
+* Add: WaveTable class/struct and "kawa_TestTone.jsfx"
+* Add: Knob Component DbText mode.
+* Improve: Component getValue bihavior.
+* Fix: dbValue bug.
+
+
 **2016/10/21**
 
 * Add: Phaser Mode at TestFlanger.jsfx
 * Add: add test Particle Jsfx
 * Adjustment: adustment internal value.
-
 
 
 **2016/10/17**

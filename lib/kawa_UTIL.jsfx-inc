@@ -28,7 +28,7 @@
 //====================================================================
 
 //====================================================================
-//      rotPoint_2       (x_,y,ox,oy,AngleRadian_)
+//      _ rotPoint_2       (x_,y,ox,oy,AngleRadian_)
 //      HSBtoRGB         (hue, saturation , value) 
 //====================================================================
 
@@ -89,7 +89,24 @@ function _rotPoint_2(x_,y_,ox,oy,AngleRadian_)local(lx,ly,px,py)
     this.y = oy +py;
 );
 //====================================================================
-
+function rotPoint_X(x_,y_,ox,oy,AngleRadian_)local(lx,ly,px,py,out)
+(
+    lx = x_ -ox;
+    ly = y_ -oy;
+    px = lx * cos(AngleRadian_) - ly *sin(AngleRadian_);
+    out = ox +px;
+    out; //x out
+);
+//====================================================================
+function rotPoint_Y(x_,y_,ox,oy,AngleRadian_)local(lx,ly,px,py)
+(
+    lx = x_ -ox;
+    ly = y_ -oy;
+    py = lx * sin(AngleRadian_) + ly *cos(AngleRadian_);
+    out = oy +py;;
+    out; //y out
+);
+//====================================================================
 
 //====================================================================
 // decibels

@@ -31,7 +31,7 @@ slider1:0.25<0.0,1>parameter1
     //create Component and add to layer 1 .
     //================================================================
     TEST_comp  = COMPONENT_create("TEST");
-    TEST_comp2  = COMPONENT_create("TES2T");
+    TEST_comp2 = COMPONENT_create("TES2T");
     SLIDER_2_comp = SLIDERTYPE2_create("TEST2");
     KONB_ID  = KNOB_create( "knobTest") ;
     COMPONENT_setSliderIndex(KONB_ID,1); 
@@ -57,6 +57,7 @@ slider1:0.25<0.0,1>parameter1
     //================================================================
     BUTTON_comp   = BUTTON_create("TEST3");
     SLIDER_1_comp = SLIDER_create("TEST4");
+    COMPONENT_setSliderIndex(SLIDER_1_comp,1); 
     //----------------------------------------------------------------
     LAYER_addChildComponent(LAYER_002 , BUTTON_comp);
     LAYER_addChildComponent(LAYER_002 , SLIDER_1_comp);
@@ -84,7 +85,8 @@ slider1:0.25<0.0,1>parameter1
 //====================================================================
     COMPONENT_setValue( SLIDER_2_comp,slider1,false );
     COMPONENT_setValue( KONB_ID,slider1,false );
-  
+    COMPONENT_setValue( SLIDER_1_comp,slider1,false );
+    
 
 @block
 //====================================================================

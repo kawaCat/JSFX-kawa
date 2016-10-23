@@ -71,6 +71,12 @@ function _SLIDER_positionToValue(SLIDER_ID,x_,y_) local (out,meterWidth,x,radius
 
 
 //====================================================================
+function SLIDER_update(SLIDER_ID) 
+(   
+    COMPONENT_update( SLIDER_ID);// store last value
+    //================================================================
+);
+//====================================================================
 function SLIDER_resized(SLIDER_ID,parrentRECT )
 (
     0;

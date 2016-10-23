@@ -488,6 +488,185 @@ function drawStrWithBlackBackGround(x,y,str)
 );
 //====================================================================
 
+//====================================================================
+function drawTriangle(cx,cy,radius,rotationRad,isFill)
+local (  p1x,p1y
+        ,p2x,p2y
+        ,p3x,p3y )
+(
+    p1x = rotPoint_X(cx ,cy-radius,cx,cy,rad(120*0)+rotationRad);
+    p1y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(120*0)+rotationRad);
+    //================================================================
+    p2x = rotPoint_X(cx ,cy-radius,cx,cy,rad(120*1)+rotationRad);
+    p2y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(120*1)+rotationRad);
+    //================================================================
+    p3x = rotPoint_X(cx ,cy-radius,cx,cy,rad(120*2)+rotationRad);
+    p3y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(120*2)+rotationRad);
+    //================================================================
+    (isFill ==true)?
+    (
+        //============================================================
+        gfx_triangle( p1x,p1y,p2x,p2y 
+                    , p2x,p2y,p3x,p3y 
+                    , p3x,p3y,p1x,p1y );
+    ):(
+        //============================================================
+        gfx_line(p1x,p1y,p2x,p2y );
+        gfx_line(p2x,p2y,p3x,p3y );
+        gfx_line(p3x,p3y,p1x,p1y );
+    );
+    //================================================================
+);
+//====================================================================
+function drawRectAngle(cx,cy,radius,rotationRad,isFill)
+local (  p1x,p1y
+        ,p2x,p2y
+        ,p3x,p3y 
+        ,p4x,p4y )
+(
+    p1x = rotPoint_X(cx ,cy-radius,cx,cy,rad(90*0)+rotationRad);
+    p1y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(90*0)+rotationRad);
+    //================================================================
+    p2x = rotPoint_X(cx ,cy-radius,cx,cy,rad(90*1)+rotationRad);
+    p2y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(90*1)+rotationRad);
+    //================================================================
+    p3x = rotPoint_X(cx ,cy-radius,cx,cy,rad(90*2)+rotationRad);
+    p3y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(90*2)+rotationRad);
+    //================================================================
+    p4x = rotPoint_X(cx ,cy-radius,cx,cy,rad(90*3)+rotationRad);
+    p4y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(90*3)+rotationRad);
+    //================================================================
+    (isFill ==true)?
+    (
+        //============================================================
+        gfx_triangle( p1x,p1y,p2x,p2y 
+                     ,p2x,p2y,p3x,p3y 
+                     ,p3x,p3y,p4x,p4y 
+                     ,p4x,p4y,p1x,p1y );
+    ):(
+        //============================================================
+        gfx_line(p1x,p1y,p2x,p2y );
+        gfx_line(p2x,p2y,p3x,p3y );
+        gfx_line(p3x,p3y,p4x,p4y );
+        gfx_line(p4x,p4y,p1x,p1y );
+    );
+);
+//====================================================================
+function drawHex(cx,cy,radius,rotationRad,isFill)
+    local (  p1x,p1y
+            ,p2x,p2y
+            ,p3x,p3y
+            ,p4x,p4y
+            ,p5x,p5y 
+            ,p6x,p6y )
+(
+    p1x = rotPoint_X(cx ,cy-radius,cx,cy,rad(60*0)+rotationRad);
+    p1y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(60*0)+rotationRad);
+    //================================================================
+    p2x = rotPoint_X(cx ,cy-radius,cx,cy,rad(60*1)+rotationRad);
+    p2y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(60*1)+rotationRad);
+    //================================================================
+    p3x = rotPoint_X(cx ,cy-radius,cx,cy,rad(60*2)+rotationRad);
+    p3y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(60*2)+rotationRad);
+    //================================================================
+    p4x = rotPoint_X(cx ,cy-radius,cx,cy,rad(60*3)+rotationRad);
+    p4y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(60*3)+rotationRad);
+    //================================================================
+    p5x = rotPoint_X(cx ,cy-radius,cx,cy,rad(60*4)+rotationRad);
+    p5y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(60*4)+rotationRad);
+    //================================================================
+    p6x = rotPoint_X(cx ,cy-radius,cx,cy,rad(60*5)+rotationRad);
+    p6y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(60*5)+rotationRad);
+    //================================================================
+    (isFill ==true)?
+    (
+        //============================================================
+        gfx_triangle(  p1x,p1y,p2x,p2y 
+                     , p2x,p2y,p3x,p3y 
+                     , p3x,p3y,p4x,p4y 
+                     , p4x,p4y,p5x,p5y 
+                     , p5x,p5y,p6x,p6y 
+                     , p6x,p6y,p1x,p1y );
+    ):(
+        //============================================================
+        gfx_line(p1x,p1y,p2x,p2y );
+        gfx_line(p2x,p2y,p3x,p3y );
+        gfx_line(p3x,p3y,p4x,p4y );
+        gfx_line(p4x,p4y,p5x,p5y );
+        gfx_line(p5x,p5y,p6x,p6y );
+        gfx_line(p6x,p6y,p1x,p1y );
+    );
+    //================================================================
+);
+//====================================================================
+function drawStar(cx,cy,radius,rotationRad,isFill)
+    local (  p1x,p1y
+            ,p2x,p2y
+            ,p3x,p3y
+            ,p4x,p4y
+            ,p5x,p5y 
+            ,pB1x,pB1y 
+            ,pB2x,pB2y 
+            ,pB3x,pB3y 
+            ,pB4x,pB4y 
+            ,pB5x,pB5y 
+        )
+(
+    p1x = rotPoint_X(cx ,cy-radius,cx,cy,rad(72*0)+rotationRad); // rad(360/5)*0
+    p1y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(72*0)+rotationRad);
+    //================================================================
+    p2x = rotPoint_X(cx ,cy-radius,cx,cy,rad(72*1)+rotationRad);
+    p2y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(72*1)+rotationRad);
+    //================================================================
+    p3x = rotPoint_X(cx ,cy-radius,cx,cy,rad(72*2)+rotationRad); 
+    p3y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(72*2)+rotationRad);
+    //================================================================
+    p4x = rotPoint_X(cx ,cy-radius,cx,cy,rad(72*3)+rotationRad); 
+    p4y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(72*3)+rotationRad);
+    //================================================================
+    p5x = rotPoint_X(cx ,cy-radius,cx,cy,rad(72*4)+rotationRad); 
+    p5y = rotPoint_Y(cx ,cy-radius,cx,cy,rad(72*4)+rotationRad);
+    //================================================================
+    pB1x = rotPoint_X(cx ,cy-radius*0.5,cx,cy,rad(36*1)+rotationRad); // rad(360/5/2)*0
+    pB1y = rotPoint_Y(cx ,cy-radius*0.5,cx,cy,rad(36*1)+rotationRad);
+    //================================================================
+    pB2x = rotPoint_X(cx ,cy-radius*0.5,cx,cy,rad(36*3)+rotationRad); // rad(360/5/2)*0
+    pB2y = rotPoint_Y(cx ,cy-radius*0.5,cx,cy,rad(36*3)+rotationRad);
+    //================================================================
+    pB3x = rotPoint_X(cx ,cy-radius*0.5,cx,cy,rad(36*5)+rotationRad); // rad(360/5/2)*0
+    pB3y = rotPoint_Y(cx ,cy-radius*0.5,cx,cy,rad(36*5)+rotationRad);
+    //================================================================
+    pB4x = rotPoint_X(cx ,cy-radius*0.5,cx,cy,rad(36*7)+rotationRad); // rad(360/5/2)*0
+    pB4y = rotPoint_Y(cx ,cy-radius*0.5,cx,cy,rad(36*7)+rotationRad);
+    //================================================================
+    pB5x = rotPoint_X(cx ,cy-radius*0.5,cx,cy,rad(36*9)+rotationRad); // rad(360/5/2)*0
+    pB5y = rotPoint_Y(cx ,cy-radius*0.5,cx,cy,rad(36*9)+rotationRad);
+    //================================================================
+    (isFill ==true)?
+    (
+        gfx_triangle( cx,cy, p1x,p1y,   pB1x,pB1y);
+        gfx_triangle( cx,cy, pB1x,pB1y, p2x ,p2y );
+        gfx_triangle( cx,cy, p2x,p2y,   pB2x,pB2y );
+        gfx_triangle( cx,cy, pB2x,pB2y, p3x,p3y );
+        gfx_triangle( cx,cy, p3x,p3y,   pB3x,pB3y );
+        gfx_triangle( cx,cy, pB3x,pB3y, p4x,p4y );
+        gfx_triangle( cx,cy, p4x,p4y,   pB4x,pB4y );
+        gfx_triangle( cx,cy, pB4x,pB4y, p5x,p5y );
+        gfx_triangle( cx,cy, p5x,p5y,   pB5x,pB5y );
+        gfx_triangle( cx,cy, pB5x,pB5y, p1x,p1y );
+    ):
+    (
+        gfx_line(p1x,p1y,pB1x,pB1y );gfx_line(pB1x,pB1y,p2x,p2y );
+        gfx_line(p2x,p2y,pB2x,pB2y );gfx_line(pB2x,pB2y,p3x,p3y );
+        gfx_line(p3x,p3y,pB3x,pB3y );gfx_line(pB3x,pB3y,p4x,p4y );
+        gfx_line(p4x,p4y,pB4x,pB4y );gfx_line(pB4x,pB4y,p5x,p5y );
+        gfx_line(p5x,p5y,pB5x,pB5y );gfx_line(pB5x,pB5y,p1x,p1y );
+        //============================================================
+    );
+);
+//====================================================================
+
+
 
 //====================================================================
 // !!
@@ -608,7 +787,6 @@ function drawFillArc2(_cx,_cy,_r,_r2,_sA,_eA,_div)
     //================================================================
 );
 //====================================================================
-
 function RECTANGLE_drawBottomRightText( RECTANGLE_ID,str)
 (
     //================================================================
@@ -618,6 +796,8 @@ function RECTANGLE_drawBottomRightText( RECTANGLE_ID,str)
     pluginTitleStrMarginY = 4;
     pluginTitleStr = #;
     sprintf ( pluginTitleStr,str);
+    strcat (pluginTitleStr,"  : " );
+    strcat (pluginTitleStr,STATICE_BUILD_DATE );
     //================================================================
     gfx_measurestr(pluginTitleStr,pluginTitleStr_w,pluginTitleStr_h);
     //================================================================

@@ -12,6 +12,11 @@ import kawa_ALL.jsfx-inc
 // sliders
 //--------------------------------------------------------------------
 //slider1:0.25<0.0,1>parameter1
+slider1:0 <0,1,>-RECT_ON
+slider2:1 <0,1,>-CIRCLE_ON
+slider3:0 <0,1,>-HEX_ON
+slider4:0 <0,1,>-TRI_ON
+slider5:0 <0,1,>-STAR_ON
 //====================================================================
 
 
@@ -32,11 +37,27 @@ import kawa_ALL.jsfx-inc
     TEST_comp  = COMPONENT_create("TEST");
     TEST_comp2 = COMPONENT_create("TEST2");
     //----------------------------------------------------------------
-    BUTTON_01 = BUTTON_create("BT:01");
-    BUTTON_02 = BUTTON_create("BT:02");
-    BUTTON_03 = BUTTON_create("BT:03");
-    BUTTON_04 = BUTTON_create("BT:04");
-    BUTTON_05 = BUTTON_create("BT:05");
+    BUTTON_01 = BUTTON_create("REC");
+    BUTTON_02 = BUTTON_create("CIR");
+    BUTTON_03 = BUTTON_create("HEX");
+    BUTTON_04 = BUTTON_create("TRI");
+    BUTTON_05 = BUTTON_create("STA");
+    COMPONENT_setSliderIndex(BUTTON_01,1);
+    COMPONENT_setSliderIndex(BUTTON_02,2);
+    COMPONENT_setSliderIndex(BUTTON_03,3);
+    COMPONENT_setSliderIndex(BUTTON_04,4);
+    COMPONENT_setSliderIndex(BUTTON_05,5);
+    //----------------------------------------------------------------
+    BUTTON_setOnTextPostFix (BUTTON_01,"");
+    BUTTON_setOffTextPostFix(BUTTON_01,""); 
+    BUTTON_setOnTextPostFix (BUTTON_02,"");
+    BUTTON_setOffTextPostFix(BUTTON_02,""); 
+    BUTTON_setOnTextPostFix (BUTTON_03,"");
+    BUTTON_setOffTextPostFix(BUTTON_03,""); 
+    BUTTON_setOnTextPostFix (BUTTON_04,"");
+    BUTTON_setOffTextPostFix(BUTTON_04,""); 
+    BUTTON_setOnTextPostFix (BUTTON_05,"");
+    BUTTON_setOffTextPostFix(BUTTON_05,""); 
     //----------------------------------------------------------------
     LAYER_addChildComponent(LAYER_001 , BUTTON_01);
     LAYER_addChildComponent(LAYER_001 , BUTTON_02);
@@ -63,10 +84,15 @@ import kawa_ALL.jsfx-inc
     
     PARTICLE_controller = PARTICLE_CONTROLLER_create();
     //================================================================
-
+    particle_type = PARTICE_DRAW_TYPE_CIRCLE;
+    
 @slider
 //====================================================================
-    
+    COMPONENT_setValue(BUTTON_01,slider1,false);
+    COMPONENT_setValue(BUTTON_02,slider2,false);
+    COMPONENT_setValue(BUTTON_03,slider3,false);
+    COMPONENT_setValue(BUTTON_04,slider4,false);
+    COMPONENT_setValue(BUTTON_05,slider5,false);
 
 @block
 //====================================================================
@@ -133,9 +159,63 @@ import kawa_ALL.jsfx-inc
     //( APP_isMouseButtonPressed(APP_ID)  ==true) ?
     (true)?
     (
-        PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
-        0;
+        (   BUTTON_isON(BUTTON_01) == true 
+         || BUTTON_isON(BUTTON_02) == true 
+         || BUTTON_isON(BUTTON_03) == true 
+         || BUTTON_isON(BUTTON_04) == true 
+         || BUTTON_isON(BUTTON_05) == true 
+        ) ?
+        (
+            //========================================================
+            PARTICLE_CONTROLLER_addParticleType4(PARTICLE_controller,particle_type);
+        );
+        //============================================================
     );
+    //================================================================
+    ( COMPONENT_isValueChanged( BUTTON_01 )==true)?
+    (   
+        particle_type = PARTICE_DRAW_TYPE_RECT;
+        BUTTON_OFF( BUTTON_02,true);
+        BUTTON_OFF( BUTTON_03,true);
+        BUTTON_OFF( BUTTON_04,true);
+        BUTTON_OFF( BUTTON_05,true);
+        //============================================================
+    ):( COMPONENT_isValueChanged( BUTTON_02 )==true)?
+    (
+        particle_type = PARTICE_DRAW_TYPE_CIRCLE;
+        BUTTON_OFF( BUTTON_01,true);
+        BUTTON_OFF( BUTTON_03,true);
+        BUTTON_OFF( BUTTON_04,true);
+        BUTTON_OFF( BUTTON_05,true);
+        //============================================================
+    ):( COMPONENT_isValueChanged( BUTTON_03 )==true)?
+    (
+        particle_type = PARTICE_DRAW_TYPE_HEX;
+        BUTTON_OFF( BUTTON_01,true);
+        BUTTON_OFF( BUTTON_02,true);
+        BUTTON_OFF( BUTTON_04,true);
+        BUTTON_OFF( BUTTON_05,true);
+        //============================================================
+    ):(COMPONENT_isValueChanged( BUTTON_04 )==true)?
+    (
+        particle_type = PARTICE_DRAW_TYPE_TRI;
+        BUTTON_OFF( BUTTON_01,true);
+        BUTTON_OFF( BUTTON_02,true);
+        BUTTON_OFF( BUTTON_03,true);
+        BUTTON_OFF( BUTTON_05,true);
+        //============================================================
+    ):( COMPONENT_isValueChanged( BUTTON_05 )==true)?
+    (
+        particle_type = PARTICE_DRAW_TYPE_STAR;
+        BUTTON_OFF( BUTTON_01,true);
+        BUTTON_OFF( BUTTON_02,true);
+        BUTTON_OFF( BUTTON_03,true);
+        BUTTON_OFF( BUTTON_04,true);
+        //============================================================
+    );
+    //================================================================
+    
+    
     //================================================================
     (time_precise() -lastPTime_  > 0.25)?
     (
@@ -190,7 +270,7 @@ import kawa_ALL.jsfx-inc
         RECTANGLE_cropFromBottomP(TEST_comp2,0.025);
         //============================================================
         RECTANGLE_copyTo         ( BUTTON_01,LAYER_001);
-        RECTANGLE_reduceP        ( BUTTON_01,0,0.1);
+        RECTANGLE_removeFromTop  ( BUTTON_01,RECTANGLE_getY2(TEST_comp));
         RECTANGLE_cropFromTopP   ( BUTTON_01,0.1);
         RECTANGLE_cropFromLeftP  ( BUTTON_01,1/5);
         //============================================================
@@ -204,7 +284,7 @@ import kawa_ALL.jsfx-inc
         RECTANGLE_move           ( BUTTON_04,RECTANGLE_getWidth(BUTTON_04),0);
         //============================================================
         RECTANGLE_copyTo         ( BUTTON_05,BUTTON_04);
-        RECTANGLE_move           ( BUTTON_04,RECTANGLE_getWidth(BUTTON_05),0);
+        RECTANGLE_move           ( BUTTON_05,RECTANGLE_getWidth(BUTTON_05),0);
         //============================================================
         RECTANGLE_reduce( BUTTON_01,3,3);
         RECTANGLE_reduce( BUTTON_02,3,3);

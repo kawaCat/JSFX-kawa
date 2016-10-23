@@ -70,6 +70,13 @@ function BUTTON_toggleOnOff(BUTTON_ID,isSedeReaper)( COMPONENT_setValue(BUTTON_I
 //====================================================================
 
 //====================================================================
+function BUTTON_update(BUTTON_ID) 
+(   
+    // store last value
+    COMPONENT_update( BUTTON_ID);
+    //================================================================
+);
+//====================================================================
 function BUTTON_resized(BUTTON_ID,parrentRECT )
 ( 
     0; 

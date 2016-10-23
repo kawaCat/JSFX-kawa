@@ -185,6 +185,49 @@ function LAYER_removeChildComponent(LAYER_ID,childLAYER_ID)
 //====================================================================
 // COMPONENT SELECTOR
 //====================================================================
+function _LAYER_update(LAYER_ID,targetCOMPONENT_ID ) 
+    local (struct_Type)
+(
+    //================================================================
+    ( COMPONENT_isActive(targetCOMPONENT_ID) == true )?
+    (
+        struct_Type = STRUCT_getStructType( targetCOMPONENT_ID );
+        //============================================================
+        ( strcmp(struct_Type ,"COMPONENT")== 0 )?
+        (
+            COMPONENT_update(targetCOMPONENT_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"SLIDER")== 0 )?
+        (
+            SLIDER_update(targetCOMPONENT_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"SLIDERTYPE2")== 0 )?
+        (
+            SLIDERTYPE2_update(targetCOMPONENT_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"XYSLIDER")== 0 )?
+        (
+            XYSLIDER_update(targetCOMPONENT_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"BUTTON")== 0 )?
+        (
+            BUTTON_update(targetCOMPONENT_ID);
+            //========================================================
+        ):(strcmp(struct_Type ,"TEXT")== 0 )?
+        (
+            TEXT_update(targetCOMPONENT_ID);
+            //========================================================
+        ):( strcmp(struct_Type ,"KNOB")== 0 )?
+        (
+            KNOB_update(targetCOMPONENT_ID);
+            //========================================================
+        )
+        //============================================================
+        ;
+    );
+    //================================================================
+);
+//====================================================================
 function _LAYER_resized(LAYER_ID,targetCOMPONENT_ID,parrentRECT ) 
     local (struct_Type)
 (
@@ -474,6 +517,8 @@ function LAYER_update(LAYER_ID,parrentRectID)
                                             , "parrentLayer_Resized"
                                             , LAYER_isAreaResized ( LAYER_ID)
                                             ) ;
+            //========================================================
+            _LAYER_update(LAYER_ID,ARRAY_getAt(childCompoArray_ID,count_) ) ;
             //========================================================
             count_ +=1;
         );

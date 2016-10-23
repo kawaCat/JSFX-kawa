@@ -12,6 +12,7 @@ import kawa_ALL.jsfx-inc
 slider1:0.1<0.0,1.0>RATE 
 slider2:0.6<0.0,1.0>WIDTH
 slider3:0.0<0,1,{FLANGER,PHASER}>MODE
+slider4:0.0<0,1>FEEDBACK( x100 %)
 //====================================================================
 
 @init
@@ -106,8 +107,8 @@ slider3:0.0<0,1,{FLANGER,PHASER}>MODE
         //============================================================
         
         //============================================================
-        CURSOLBUFFER_push( DELAY_ARRAY_L,spl0 -delay_L*0.6 );    
-        CURSOLBUFFER_push( DELAY_ARRAY_R,spl1 -delay_R*0.6 );  
+        CURSOLBUFFER_push( DELAY_ARRAY_L,spl0 -delay_L*0.8*slider4 );    
+        CURSOLBUFFER_push( DELAY_ARRAY_R,spl1 -delay_R*0.8*slider4 );  
         
         //============================================================
         XYSLIDER_setXValue(XYSlider_1,valueX,false);
@@ -135,8 +136,8 @@ slider3:0.0<0,1,{FLANGER,PHASER}>MODE
         //============================================================
         
         //============================================================
-        CURSOLBUFFER_push( DELAY_ARRAY_L,spl0 );    
-        CURSOLBUFFER_push( DELAY_ARRAY_R,spl1 );  
+        CURSOLBUFFER_push( DELAY_ARRAY_L,spl0 +delay_L*slider4*0.8 );    
+        CURSOLBUFFER_push( DELAY_ARRAY_R,spl1 +delay_R*slider4*0.8 );  
         
         //============================================================
         XYSLIDER_setXValue(XYSlider_1,valueX,false);
