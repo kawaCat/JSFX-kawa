@@ -1,0 +1,46 @@
+
+
+//====================================================================
+@init
+
+//====================================================================
+// Mid Side Process
+//====================================================================
+function MSPROCESS_create() local ( MSPROCESS_ID )
+(
+    MSPROCESS_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[MSPROCESS_ID]   = "MSPROCESS";   // class name
+    STATIC_MASTER_BUFF[MSPROCESS_ID+1] = 5;             // total Element Num 
+    //================================================================
+    STATIC_MASTER_BUFF[MSPROCESS_ID+2] = 0.0;           // mid
+    STATIC_MASTER_BUFF[MSPROCESS_ID+3] = 0.0;           // sideL
+    STATIC_MASTER_BUFF[MSPROCESS_ID+4] = 0.0;           // sideR
+    STATIC_MASTER_BUFF[MSPROCESS_ID+5] = STATIC_MASTER_BUFF[MSPROCESS_ID+1];  // element Num Only this Class
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(MSPROCESS_ID)+1;
+    //================================================================
+    MSPROCESS_ID;
+);
+//====================================================================
+function MSPROCESS_getMid   (MSPROCESS_ID)     ( STATIC_MASTER_BUFF[MSPROCESS_ID+2] ;);
+function MSPROCESS_getSideL (MSPROCESS_ID)     ( STATIC_MASTER_BUFF[MSPROCESS_ID+3] ;);
+function MSPROCESS_getSideR (MSPROCESS_ID)     ( STATIC_MASTER_BUFF[MSPROCESS_ID+4] ;);
+//====================================================================
+function _MSPROCESS_setMid  (MSPROCESS_ID,v)   ( STATIC_MASTER_BUFF[MSPROCESS_ID+2] = v;);
+function _MSPROCESS_setSideL(MSPROCESS_ID,v)   ( STATIC_MASTER_BUFF[MSPROCESS_ID+3] = v;);
+function _MSPROCESS_setSideR(MSPROCESS_ID,v)   ( STATIC_MASTER_BUFF[MSPROCESS_ID+4] = v;);
+//====================================================================
+function MSPROCESS_process(MSPROCESS_ID,inL,inR ) local  (mid_,sideL_,sideR_)
+(
+    mid_ = (inL+inR)/2;
+    //================================================================
+    sideL_ = inL - mid_; // streo wide L 
+    sideR_ = inR - mid_; // streo wide R 
+    //================================================================
+    _MSPROCESS_setMid    (MSPROCESS_ID,mid_) ;
+    _MSPROCESS_setSideL  (MSPROCESS_ID,sideL_);
+    _MSPROCESS_setSideR  (MSPROCESS_ID,sideR_);
+    //================================================================
+);
+//====================================================================

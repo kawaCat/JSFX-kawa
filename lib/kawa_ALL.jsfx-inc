@@ -12,6 +12,7 @@ import kawa_DBG.jsfx-inc
 //====================================================================
 import kawa_DSP_BPMUtil.jsfx-inc
 import kawa_DSP_DCOffset.jsfx-inc
+import kawa_DSP_MSProcess.jsfx-inc
 import kawa_DSP_WaveSine.jsfx-inc
 import kawa_DSP_RingMod.jsfx-inc
 //====================================================================

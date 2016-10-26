@@ -1,0 +1,148 @@
+//====================================================================
+desc:kawa TestMidSide
+//====================================================================
+
+// imports
+//====================================================================
+import kawa_ALL.jsfx-inc
+//====================================================================
+
+//====================================================================
+// sliders
+//--------------------------------------------------------------------
+slider1:0.25<0.0,1>-MID
+slider2:0.25<0.0,1>-SIDE
+//====================================================================
+
+@init
+//====================================================================
+    //create APP ID
+    //================================================================
+    APP_ID = APP_create();
+    //================================================================
+
+    //create Layer ID
+    //================================================================
+    LAYER_001 = LAYER_create("LAYER01");
+    //================================================================
+
+    //create Component and add to layer 1 .
+    //================================================================
+    TEST_comp  = COMPONENT_create("TEST");
+    TEST_comp2 = COMPONENT_create("TEST2");
+    //----------------------------------------------------------------
+    BUTTON_01 = BUTTON_create(" MID");
+    BUTTON_02 = BUTTON_create("SIDE");
+    COMPONENT_setSliderIndex(BUTTON_01,1);
+    COMPONENT_setSliderIndex(BUTTON_02,2);
+    //----------------------------------------------------------------
+    LAYER_addChildComponent(LAYER_001 , BUTTON_01);
+    LAYER_addChildComponent(LAYER_001 , BUTTON_02);
+    LAYER_addChildComponent(LAYER_001 , TEST_comp);
+    LAYER_addChildComponent(LAYER_001 , TEST_comp2);
+    //================================================================
+
+    // layer add to app
+    //================================================================
+    APP_addChildComponent(APP_ID,LAYER_001);
+    //================================================================
+    LAYER_setActive(LAYER_001,true);
+    //================================================================
+    
+    //================================================================
+    DBG_toggle(DBG); //visible off
+    //================================================================
+    
+    MS_processID =MSPROCESS_create();
+    //================================================================
+    
+@slider
+//====================================================================
+    COMPONENT_setValue(BUTTON_01,slider1,false);
+    COMPONENT_setValue(BUTTON_02,slider2,false);
+    //================================================================
+    
+@block
+//====================================================================
+    
+
+@sample
+//====================================================================
+
+    MSPROCESS_process ( MS_processID  , spl0,spl1);
+    //================================================================
+    
+    _mid_ = MSPROCESS_getMid( MS_processID);
+    //================================================================
+    _sideL_ = MSPROCESS_getSideL( MS_processID); // streo wide L 
+    _sideR_ = MSPROCESS_getSideR( MS_processID); // streo wide R 
+    //================================================================
+    spl0 = _mid_*COMPONENT_getValue(BUTTON_01) + _sideL_*COMPONENT_getValue(BUTTON_02);
+    spl1 = _mid_*COMPONENT_getValue(BUTTON_01) + _sideR_*COMPONENT_getValue(BUTTON_02);
+    //================================================================
+
+@gfx 200 400
+//====================================================================
+
+    drawDotGrid(10,10,0.04);
+    //================================================================
+
+    // for debug
+    //================================================================
+    DBGMESSAGE_drawAllMessage(DBG);
+    //================================================================
+
+    // App update. check and compare with last event state.(resize or mouse)
+    //================================================================
+    APP_update(APP_ID);
+    
+    // alignment position when resized.
+    //================================================================
+    (    APP_isWindowResized(APP_ID) ==true ) ?
+    (
+        //============================================================
+        RECTANGLE_copyTo      ( LAYER_001,APP_ID);  // layer resize 
+        //============================================================
+    );
+    //================================================================
+    ( LAYER_isAreaResized(LAYER_001) ==true)   ?
+    (
+        RECTANGLE_copyTo          (TEST_comp,LAYER_001);
+        RECTANGLE_cropFromTopP    (TEST_comp,0.025);
+        RECTANGLE_copyTo          (TEST_comp2,LAYER_001);
+        RECTANGLE_cropFromBottomP (TEST_comp2,0.025);
+        //============================================================
+        RECTANGLE_copyTo           ( BUTTON_01,LAYER_001);
+        RECTANGLE_removeFromTop    ( BUTTON_01,RECTANGLE_getY2(TEST_comp));
+        RECTANGLE_removeFromBottom ( BUTTON_01,RECTANGLE_getHeight(TEST_comp2));
+        RECTANGLE_reduceP          ( BUTTON_01,0.020,0.020);
+        RECTANGLE_cropFromTopP     ( BUTTON_01,0.5);
+        //============================================================
+        RECTANGLE_copyTo           ( BUTTON_02,LAYER_001);
+        RECTANGLE_removeFromTop    ( BUTTON_02,RECTANGLE_getY2(TEST_comp));
+        RECTANGLE_removeFromBottom ( BUTTON_02,RECTANGLE_getHeight(TEST_comp2));
+        RECTANGLE_reduceP          ( BUTTON_02,0.020,0.020);
+        RECTANGLE_cropFromBottomP  ( BUTTON_02,0.5);
+        //============================================================
+        RECTANGLE_reduce( BUTTON_01,3,3);
+        RECTANGLE_reduce( BUTTON_02,3,3);
+        //============================================================
+        
+        //============================================================
+    );
+    //================================================================
+
+    //================================================================
+    // if animation
+    //================================================================
+    COMPONENT_setComponentAlpha(TEST_comp,abs(sin($pi*2*mod*2)));
+    mod += 0.01;(mod > 1 )?(mod=0;);
+    //================================================================
+
+    // plugin Title Str
+    //================================================================
+    RECTANGLE_drawBottomRightText( APP_ID,"kawa Mid Side");
+    //================================================================
+    
+//====================================================================
+// 続
