@@ -1,0 +1,306 @@
+//====================================================================
+
+//====================================================================
+// Filter Type 
+//====================================================================
+//    RBJ_FILTER_TYPE_LPF   = 1;
+//    RBJ_FILTER_TYPE_HPF   = 2;
+//    RBJ_FILTER_TYPE_BPF   = 3;　// Q 0.01 ~ 1 ?
+//    RBJ_FILTER_TYPE_NOTCH = 4; // Q 0.01 ~ 1 ?
+//    RBJ_FILTER_TYPE_APF   = 5; // All path   filter
+//    RBJ_FILTER_TYPE_PEAK  = 6; // peaking    Filter // Q 0.01 ~ 30 ?
+//    RBJ_FILTER_TYPE_LSF   = 7; // low shelf  Filter // Q 0.01 ~ 1  ?
+//    RBJ_FILTER_TYPE_HSF   = 8; // high Shelf Filter // Q 0.01 ~ 1  ?
+//====================================================================
+
+//====================================================================
+// RBJFilter (BiQuad) IIR filter
+//====================================================================
+// "Cookbook formulae for audio EQ biquad filter coefficients," from Robert Bristow-Johnson.
+// http://www.musicdsp.org/files/Audio-EQ-Cookbook.txt
+// http://www.digitalfilter.com/jpindex.html
+// http://www.g200kg.com/jp/docs/makingeffects/78743dea3f70c8c2f081b7d5187402ec75e6a6b8.html
+// http://blog.sfpgmr.net/entry/2016/08/02/213029
+//====================================================================
+//  RBJFILTER_create(sampleRate_)
+//====================================================================
+//    RBJFILTER_getFreq         (RBJFILTER_ID)
+//    RBJFILTER_getQ            (RBJFILTER_ID)
+//    RBJFILTER_getDBGain       (RBJFILTER_ID)
+//    RBJFILTER_getFilterType   (RBJFILTER_ID)
+//    RBJFILTER_getSampleRate   (RBJFILTER_ID)
+//====================================================================
+//    RBJFILTER_setFreq         (RBJFILTER_ID,v)
+//    RBJFILTER_setQ            (RBJFILTER_ID,v)
+//    RBJFILTER_setDBGain       (RBJFILTER_ID,v)
+//    RBJFILTER_setFilterType   (RBJFILTER_ID,v)
+//    RBJFILTER_setSampleRate   (RBJFILTER_ID,v)
+//====================================================================
+//    RBJFILTER_process         (RBJFILTER_ID,inSample ) 
+//====================================================================
+
+@init
+//====================================================================
+
+//====================================================================
+RBJ_FILTER_TYPE_LPF   = 1;
+RBJ_FILTER_TYPE_HPF   = 2;
+RBJ_FILTER_TYPE_BPF   = 3;
+RBJ_FILTER_TYPE_NOTCH = 4;
+RBJ_FILTER_TYPE_APF   = 5; // All path   filter
+RBJ_FILTER_TYPE_PEAK  = 6; // peaking    Filter
+RBJ_FILTER_TYPE_LSF   = 7; // low shelf  Filter
+RBJ_FILTER_TYPE_HSF   = 8; // high Shelf Filter
+//====================================================================
+
+
+//====================================================================
+// RBJFilter (BiQuad) IIR filter
+//====================================================================
+// "Cookbook formulae for audio EQ biquad filter coefficients," from Robert Bristow-Johnson.
+// http://www.musicdsp.org/files/Audio-EQ-Cookbook.txt
+// http://www.digitalfilter.com/jpindex.html
+// http://www.g200kg.com/jp/docs/makingeffects/78743dea3f70c8c2f081b7d5187402ec75e6a6b8.html
+// http://blog.sfpgmr.net/entry/2016/08/02/213029
+//====================================================================
+function _RBJFILTER_getElementNum  (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+2];);
+//====================================================================
+function _RBJFILTER_getA1A0        (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+3];);
+function _RBJFILTER_getA2A0        (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+4];);
+function _RBJFILTER_getB0A0        (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+5];);
+function _RBJFILTER_getB1A0        (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+6];);
+function _RBJFILTER_getB2A0        (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+7];);
+function _RBJFILTER_getX1          (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+13];);
+function _RBJFILTER_getX2          (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+14];);
+function _RBJFILTER_getY1          (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+15];);
+function _RBJFILTER_getY2          (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+16];);
+//====================================================================
+function _RBJFILTER_setA1A0        (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+3]  = v;);
+function _RBJFILTER_setA2A0        (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+4]  = v;);
+function _RBJFILTER_setB0A0        (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+5]  = v;);
+function _RBJFILTER_setB1A0        (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+6]  = v;);
+function _RBJFILTER_setB2A0        (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+7]  = v;);
+function _RBJFILTER_setX1          (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+13] = v;);
+function _RBJFILTER_setX2          (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+14] = v;);
+function _RBJFILTER_setY1          (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+15] = v;);
+function _RBJFILTER_setY2          (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+16] = v;);
+//====================================================================
+
+//====================================================================
+function RBJFILTER_getFreq         (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+8];);
+function RBJFILTER_getQ            (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+9];);
+function RBJFILTER_getDBGain       (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+10];);
+function RBJFILTER_getFilterType   (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+11];);
+function RBJFILTER_getSampleRate   (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+12];);
+//====================================================================
+function RBJFILTER_calculateCoeff  (RBJFILTER_ID)
+    local (  f0
+           , Q
+           , sampleRate
+           , omega
+           , dBgain
+           , sn
+           , cs
+           , alpha
+           , A
+           , sqrtA2alpha
+           , fitlerType
+           , a0,a1,a2,b0,b1,b2
+           )
+(
+    //================================================================
+    f0 = RBJFILTER_getFreq (RBJFILTER_ID);
+    Q  = RBJFILTER_getQ    (RBJFILTER_ID);
+    sampleRate = RBJFILTER_getSampleRate (RBJFILTER_ID);
+    //================================================================
+    omega = ( 2.0 * $pi * f0 )/ sampleRate;
+    dBgain = RBJFILTER_getDBGain(RBJFILTER_ID);
+    //================================================================
+    
+    //================================================================
+    A = 10 ^ (dBgain/40);  // = sqrt( 10^(dBgain/20) );
+    sqrtA2alpha =  2*sqrt(A)*alpha;
+    //================================================================
+    Q = A * Q;
+    //================================================================
+    sn = sin(omega);
+    cs = cos(omega);
+    alpha = sn / (2.0 * Q);
+    //================================================================
+
+    //================================================================
+    fitlerType = RBJFILTER_getFilterType (RBJFILTER_ID);
+    //================================================================
+    (   fitlerType == RBJ_FILTER_TYPE_LPF)?
+    (
+        //============================================================
+        // LPF
+        b0 = (1 - cs) / 2;
+        b1 =  1 - cs;
+        b2 = (1 - cs) / 2;
+        a0 =  1 + alpha;
+        a1 = -2 * cs;
+        a2 =  1 - alpha;
+        //============================================================
+    ):( fitlerType == RBJ_FILTER_TYPE_HPF)?
+    (
+        //============================================================
+        // HPF
+        b0 =  (1 + cs) / 2;
+        b1 = -(1 + cs);
+        b2 =  (1 + cs) / 2;
+        a0 =   1 + alpha;
+        a1 =  -2 * cs;
+        a2 =   1 - alpha;
+        //============================================================
+    ):( fitlerType == RBJ_FILTER_TYPE_BPF)?
+    (
+        //============================================================
+        // BPF
+        b0 =  Q * alpha;
+        b1 =  0;
+        b2 = -Q * alpha;
+        a0 =  1 + alpha;
+        a1 = -2 * cs;
+        a2 =  1 - alpha;
+        //============================================================
+    ):( fitlerType == RBJ_FILTER_TYPE_NOTCH)?
+    (   
+        //============================================================
+        // notch
+        b0 =  1;
+        b1 = -2 * cs;
+        b2 =  1;
+        a0 =  1 + alpha;
+        a1 = -2 * cs;
+        a2 =  1 - alpha;
+        //============================================================
+    ):( fitlerType == RBJ_FILTER_TYPE_APF)?
+    (
+        //============================================================
+        // APF //All Path Filter
+        b0 =  1 - alpha;
+        b1 = -2 * cs;
+        b2 =  1 + alpha;
+        a0 =  1 + alpha;
+        a1 = -2 * cs;
+        a2 =  1 - alpha;
+        //============================================================
+    ):( fitlerType == RBJ_FILTER_TYPE_PEAK)?
+    (
+        //============================================================
+        // peaking filter
+        b0 =   1 + alpha*A;
+        b1 =  -2 * cs;
+        b2 =   1 - alpha*A;
+        a0 =   1 + alpha/A;
+        a1 =  -2 * cs;
+        a2 =   1 - alpha/A;
+        //============================================================
+    ):( fitlerType == RBJ_FILTER_TYPE_LSF)?
+    (
+        //============================================================
+        //low shellf
+        b0 =    A*( (A+1) - (A-1)*cs + sqrtA2alpha );
+        b1 =  2*A*( (A-1) - (A+1)*cs );
+        b2 =    A*( (A+1) - (A-1)*cs - sqrtA2alpha );
+        a0 =        (A+1) + (A-1)*cs + sqrtA2alpha;
+        a1 =   -2*( (A-1) + (A+1)*cs );
+        a2 =        (A+1) + (A-1)*cs - sqrtA2alpha;
+        //============================================================
+    ):( fitlerType == RBJ_FILTER_TYPE_HSF)?
+    (
+        //============================================================
+        // high shellf
+        b0 =    A*( (A+1) + (A-1)*cs + sqrtA2alpha );
+        b1 = -2*A*( (A-1) + (A+1)*cs );
+        b2 =    A*( (A+1) + (A-1)*cs - sqrtA2alpha );
+        a0 =        (A+1) - (A-1)*cs + sqrtA2alpha ; 
+        a1 =    2*( (A-1) - (A+1)*cs );
+        a2 =        (A+1) - (A-1)*cs - sqrtA2alpha;
+        //============================================================
+    )
+    ;
+    //================================================================
+    _RBJFILTER_setA1A0(RBJFILTER_ID,a1/a0);
+    _RBJFILTER_setA2A0(RBJFILTER_ID,a2/a0);
+    _RBJFILTER_setB0A0(RBJFILTER_ID,b0/a0);
+    _RBJFILTER_setB1A0(RBJFILTER_ID,b1/a0);
+    _RBJFILTER_setB2A0(RBJFILTER_ID,b2/a0);
+    //================================================================
+);
+//====================================================================
+
+//====================================================================
+function RBJFILTER_setFreq       (RBJFILTER_ID,v)( STATIC_MASTER_BUFF[RBJFILTER_ID+8] = v;RBJFILTER_calculateCoeff(RBJFILTER_ID););
+function RBJFILTER_setQ          (RBJFILTER_ID,v)( STATIC_MASTER_BUFF[RBJFILTER_ID+9] = v;RBJFILTER_calculateCoeff(RBJFILTER_ID););
+function RBJFILTER_setDBGain     (RBJFILTER_ID,v)( STATIC_MASTER_BUFF[RBJFILTER_ID+10]= v;RBJFILTER_calculateCoeff(RBJFILTER_ID););
+function RBJFILTER_setFilterType (RBJFILTER_ID,v)( STATIC_MASTER_BUFF[RBJFILTER_ID+11]= v;RBJFILTER_calculateCoeff(RBJFILTER_ID););
+function RBJFILTER_setSampleRate (RBJFILTER_ID,v)( STATIC_MASTER_BUFF[RBJFILTER_ID+12]= v;RBJFILTER_calculateCoeff(RBJFILTER_ID););
+//====================================================================
+function RBJFILTER_process(RBJFILTER_ID,inSample ) 
+    local ( out,b0a0,b1a0,b2a0,a1a0,a2a0,x1,x2,y1,y2)
+(
+    a1a0 = _RBJFILTER_getA1A0(RBJFILTER_ID);
+    a2a0 = _RBJFILTER_getA2A0(RBJFILTER_ID);
+    b0a0 = _RBJFILTER_getB0A0(RBJFILTER_ID);
+    b1a0 = _RBJFILTER_getB1A0(RBJFILTER_ID);
+    b2a0 = _RBJFILTER_getB2A0(RBJFILTER_ID);
+    //================================================================
+    x1   = _RBJFILTER_getX1(RBJFILTER_ID);
+    x2   = _RBJFILTER_getX2(RBJFILTER_ID);
+    y1   = _RBJFILTER_getY1(RBJFILTER_ID);
+    y2   = _RBJFILTER_getY2(RBJFILTER_ID);
+    //================================================================
+    
+    //================================================================
+    out =   b0a0 * inSample 
+          + b1a0 * x1 
+          + b2a0 * x2 
+          - a1a0 * y1 
+          - a2a0 * y2;
+    //================================================================
+    _RBJFILTER_setX2(RBJFILTER_ID,x1);
+    _RBJFILTER_setX1(RBJFILTER_ID,inSample);
+    //================================================================
+    _RBJFILTER_setY2(RBJFILTER_ID,y1);
+    _RBJFILTER_setY1(RBJFILTER_ID,out);
+    //================================================================
+    out;
+);
+//====================================================================
+function RBJFILTER_create(sampleRate_)local(RBJFILTER_ID) 
+(
+    RBJFILTER_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[RBJFILTER_ID]    = "RBJFILTER";   // class name
+    STATIC_MASTER_BUFF[RBJFILTER_ID+1]  = 16;            // total Element Num 
+    //================================================================
+    STATIC_MASTER_BUFF[RBJFILTER_ID+2]  = STATIC_MASTER_BUFF[RBJFILTER_ID+1];  // element Num in this calss.
+    STATIC_MASTER_BUFF[RBJFILTER_ID+3]  = 0;    // b0/a0
+    STATIC_MASTER_BUFF[RBJFILTER_ID+4]  = 0;    // b1/a0
+    STATIC_MASTER_BUFF[RBJFILTER_ID+5]  = 0;    // b2/a0
+    STATIC_MASTER_BUFF[RBJFILTER_ID+6]  = 0;    // a1/a0 
+    STATIC_MASTER_BUFF[RBJFILTER_ID+7]  = 0;    // a2/a0
+    STATIC_MASTER_BUFF[RBJFILTER_ID+8]  = 1000; // frequency (Hz)
+    STATIC_MASTER_BUFF[RBJFILTER_ID+9]  = 1;    // Q
+    STATIC_MASTER_BUFF[RBJFILTER_ID+10] = 0;    // dbGain
+    STATIC_MASTER_BUFF[RBJFILTER_ID+11] = RBJ_FILTER_TYPE_LPF; // filter Type
+    STATIC_MASTER_BUFF[RBJFILTER_ID+12] = sampleRate_;         // sampleRate
+    STATIC_MASTER_BUFF[RBJFILTER_ID+13] = 0;    // lastSample X1
+    STATIC_MASTER_BUFF[RBJFILTER_ID+14] = 0;    // lastSample X2
+    STATIC_MASTER_BUFF[RBJFILTER_ID+15] = 0;    // lastSample Y1
+    STATIC_MASTER_BUFF[RBJFILTER_ID+16] = 0;    // lastSample Y2
+    //================================================================
+    STATIC_MASTER_BUFF_ID += STRUCT_getElementNum(RBJFILTER_ID)+1; // next entry points.
+    //================================================================
+    //prepare and init
+    //================================================================
+    RBJFILTER_calculateCoeff(RBJFILTER_ID);
+    //================================================================
+    
+    //================================================================
+    RBJFILTER_ID;
+);
+//====================================================================
+

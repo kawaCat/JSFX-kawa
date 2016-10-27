@@ -367,7 +367,7 @@ function _PARTICLE_CONTROLLER_stepInsertCursolPos(PARTICLE_CONTROLLER_ID)
 );
 //====================================================================
 function PARTICLE_CONTROLLER_update(PARTICLE_CONTROLLER_ID)
-    local (elementBuff,count_1,buffSize,targetParticleElement)
+    local (elementBuff,count_1,buffSize,targetParticleElement,struct_Type)
 (
     elementBuff = PARTICLE_CONTROLLER_getParticleElementBuffer(PARTICLE_CONTROLLER_ID);
     buffSize = CIRCLEBUFFER_getBufferSize(elementBuff);
@@ -397,7 +397,7 @@ function PARTICLE_CONTROLLER_updateAndDraw(PARTICLE_CONTROLLER_ID)
 
 //====================================================================
 function PARTICLE_CONTROLLER_addParticleType1(PARTICLE_CONTROLLER_ID)
-    local (elementBuff,count_1,buffSize,targetParticleElement,force,radiusTemp,count_B)
+    local (elementBuff,count_1,buffSize,targetParticleElement,force,radiusTemp,count_B,tempParticleElem)
 (
     elementBuff = PARTICLE_CONTROLLER_getParticleElementBuffer(PARTICLE_CONTROLLER_ID);
     //================================================================
@@ -439,7 +439,7 @@ function PARTICLE_CONTROLLER_addParticleType1(PARTICLE_CONTROLLER_ID)
 );
 //====================================================================
 function PARTICLE_CONTROLLER_addParticleType2(PARTICLE_CONTROLLER_ID)
-    local (elementBuff,count_1,buffSize,targetParticleElement,force,radiusTemp,count_B)
+    local (elementBuff,count_1,buffSize,targetParticleElement,force,radiusTemp,count_B,tempParticleElem)
 (
     elementBuff = PARTICLE_CONTROLLER_getParticleElementBuffer(PARTICLE_CONTROLLER_ID);
     //================================================================
@@ -474,7 +474,7 @@ function PARTICLE_CONTROLLER_addParticleType2(PARTICLE_CONTROLLER_ID)
 );
 //====================================================================
 function PARTICLE_CONTROLLER_addParticleType3_XY(PARTICLE_CONTROLLER_ID,x_,y_,isCircleFill)
-    local (elementBuff,count_1,buffSize,targetParticleElement,force,radiusTemp,count_B)
+    local (elementBuff,count_1,buffSize,targetParticleElement,force,radiusTemp,count_B,tempParticleElem)
 (
     elementBuff = PARTICLE_CONTROLLER_getParticleElementBuffer(PARTICLE_CONTROLLER_ID);
     //================================================================
@@ -513,7 +513,7 @@ function PARTICLE_CONTROLLER_addParticleType3_XY(PARTICLE_CONTROLLER_ID,x_,y_,is
 );
 //====================================================================
 function PARTICLE_CONTROLLER_addParticleType2_XY(PARTICLE_CONTROLLER_ID,x_,y_,isCircleFill)
-    local (elementBuff,count_1,buffSize,targetParticleElement,force,radiusTemp,count_B)
+    local (elementBuff,count_1,buffSize,targetParticleElement,force,radiusTemp,count_B,tempParticleElem)
 (
     elementBuff = PARTICLE_CONTROLLER_getParticleElementBuffer(PARTICLE_CONTROLLER_ID);
     //================================================================
@@ -562,7 +562,7 @@ function PARTICLE_CONTROLLER_addParticleType2_XY(PARTICLE_CONTROLLER_ID,x_,y_,is
 );
 //====================================================================
 function PARTICLE_CONTROLLER_addParticleType4(PARTICLE_CONTROLLER_ID,particleType)
-    local (elementBuff,count_1,buffSize,targetParticleElement,force,radiusTemp,count_B)
+    local (elementBuff,count_1,buffSize,targetParticleElement,force,radiusTemp,count_B,tempParticleElem)
 (
     elementBuff = PARTICLE_CONTROLLER_getParticleElementBuffer(PARTICLE_CONTROLLER_ID);
     //================================================================

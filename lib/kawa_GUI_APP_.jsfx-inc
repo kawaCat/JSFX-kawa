@@ -233,7 +233,7 @@ function _APP_isCheckWindowSize(APP_ID) local (out ,lastW,lastH)
     out;
 );
 //====================================================================
-function _APP_isMouseButtonCapPressed(mousecap) local (out)
+function _APP_isMouseButtonCapPressed(mousecap) 
 (
     (
         ( mousecap & 1 ) == 1    // left

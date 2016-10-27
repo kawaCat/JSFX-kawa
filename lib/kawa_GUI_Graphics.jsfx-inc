@@ -550,6 +550,7 @@ local (  p1x,p1y
         gfx_line(p3x,p3y,p4x,p4y );
         gfx_line(p4x,p4y,p1x,p1y );
     );
+    //================================================================
 );
 //====================================================================
 function drawHex(cx,cy,radius,rotationRad,isFill)
@@ -788,6 +789,12 @@ function drawFillArc2(_cx,_cy,_r,_r2,_sA,_eA,_div)
 );
 //====================================================================
 function RECTANGLE_drawBottomRightText( RECTANGLE_ID,str)
+    local (pluginTitleStrMarginX
+          ,pluginTitleStrMarginY
+          ,pluginTitleStr
+          ,pluginTitleStr_w
+          ,pluginTitleStr_h
+          )
 (
     //================================================================
     // plugin Title Str

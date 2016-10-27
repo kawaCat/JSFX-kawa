@@ -98,7 +98,7 @@ function rotPoint_X(x_,y_,ox,oy,AngleRadian_)local(lx,ly,px,py,out)
     out; //x out
 );
 //====================================================================
-function rotPoint_Y(x_,y_,ox,oy,AngleRadian_)local(lx,ly,px,py)
+function rotPoint_Y(x_,y_,ox,oy,AngleRadian_)local(lx,ly,px,py,out)
 (
     lx = x_ -ox;
     ly = y_ -oy;
@@ -218,7 +218,6 @@ function HSBtoRGB(hue, saturation , value)
 // string function
 //====================================================================
 function _stringCat(str1,str2) local (tempstr)
-    local ( outStr )
 (
     tempstr =#;
     sprintf(tempstr,"");
@@ -229,7 +228,6 @@ function _stringCat(str1,str2) local (tempstr)
 );
 //====================================================================
 function stringCat(str1,str2) local (tempstr)
-    local ( outStr )
 (
     tempstr =#;
     sprintf(tempstr,_stringCat(str1,str2));

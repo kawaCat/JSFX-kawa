@@ -498,7 +498,8 @@ function CIRCLE_isContainMouse(CIRCLE_ID)local (out)
 //===================================================================
 // Rectangle struct
 //===================================================================
-function RECTANGLE_create(x,y,w,h)local (RECT_ID)
+function RECTANGLE_create(x,y,w,h)
+    local (RECT_ID,angle,scale,matrix)
 (
     RECT_ID = STATIC_MASTER_BUFF_ID;
     STATIC_MASTER_BUFF[RECT_ID]   ="RECTANGLE";  // class name

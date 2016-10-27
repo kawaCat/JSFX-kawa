@@ -110,7 +110,7 @@ function WAVESINE_setCountTime    (WAVESINE_ID,v) (STATIC_MASTER_BUFF[WAVESINE_I
 function WAVESINE_setSampleRate   (WAVESINE_ID,v) (STATIC_MASTER_BUFF[WAVESINE_ID+4] = v; );
 function _WAVESINE_setLastWaveSine(WAVESINE_ID,v) (STATIC_MASTER_BUFF[WAVESINE_ID+5] = v; );
 //====================================================================
-function _WAVESINE_gen(WAVESINE_ID) local (wave,timeCount,sampleRate,rate,out)
+function _WAVESINE_gen(WAVESINE_ID) local (wave,timeCount,sampleRate,rate)
 (
     timeCount = WAVESINE_getCountTime(WAVESINE_ID);
     sampleRate = WAVESINE_getSampleRate(WAVESINE_ID);
@@ -135,7 +135,7 @@ function _WAVESINE_tick(WAVESINE_ID) local( newCount)
     //================================================================
 );
 //====================================================================
-function WAVESINE_getAndTick(WAVESINE_ID) local (timeCount,sampleRate,rate,out)
+function WAVESINE_getAndTick(WAVESINE_ID) local (timeCount,sampleRate,rate)
 (
     _WAVESINE_gen(WAVESINE_ID);
     _WAVESINE_tick(WAVESINE_ID);
