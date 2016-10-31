@@ -1,0 +1,434 @@
+//====================================================================
+@init
+//====================================================================
+
+
+//====================================================================
+// pre defines
+//====================================================================
+_BPMDELAY_BAR_STR  = "bar";
+_BPMDELAY_2th_STR  = "2." ;
+_BPMDELAY_4th_STR  = "4." ;
+_BPMDELAY_8th_STR  = "8." ;
+_BPMDELAY_16th_STR = "16" ;
+_BPMDELAY_32th_STR = "32" ;
+//====================================================================
+_BPMDELAY_X1_STR   = "x1" ;
+_BPMDELAY_X2_STR   = "x2" ;
+_BPMDELAY_X3_STR   = "x3" ;
+_BPMDELAY_X4_STR   = "x4" ;
+_BPMDELAY_X5_STR   = "x5" ;
+//====================================================================
+function _BPMDELAY_getElementNum    (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+2];);
+//====================================================================
+function BPMDELAY_getBtGroupBPM     (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+3];);
+function BPMDELAY_getBtGroupMUL     (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+4];);
+function _BPMDELAY_getDelayGainKnob (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+5];);
+function _BPMDELAY_getFeedBackKnob  (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+6];);
+function _BPMDELAY_getPanKnob       (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+7];);
+function _BPMDELAY_getParrentLayer  (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+8];);
+function _BPMDELAY_getDelaySample   (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+9];);
+function _BPMDELAY_setDelaySample   (BPMDELAY_ID,v)  ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+9]= v;);
+function _BPMDELAY_getDelayArray    (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+10];);
+function _BPMDELAY_getMaxDelaySize  (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+11];);
+function _BPMDELAY_getWetvalue      (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+12];);
+function _BPMDELAY_setWetvalue      (BPMDELAY_ID,v)  ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+12]= v;);
+function _BPMDELAY_getPannerClass   (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+13];);
+function _BPMDELAY_getLastRectangle (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+14];);
+function _BPMDELAY_getWetDryKnob    (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+15];);
+function _BPMDELAY_getDryValue      (BPMDELAY_ID)    ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+16];);
+function _BPMDELAY_setDryValue      (BPMDELAY_ID,v)  ( STATIC_MASTER_BUFF[BPMDELAY_ID+_RECTANGLE_getElementNum(BPMDELAY_ID)+16]= v;);
+//====================================================================
+function BPMDELAY_setSliderIndex_DelayGain(BPMDELAY_ID,v) 
+(
+    COMPONENT_setSliderIndex( _BPMDELAY_getDelayGainKnob (BPMDELAY_ID) , v);
+);
+//====================================================================
+function BPMDELAY_setSliderIndex_FeedBack(BPMDELAY_ID,v) 
+(
+    COMPONENT_setSliderIndex( _BPMDELAY_getFeedBackKnob (BPMDELAY_ID), v);
+);
+//====================================================================
+function BPMDELAY_setSliderIndex_Pan(BPMDELAY_ID,v) 
+(
+    COMPONENT_setSliderIndex( _BPMDELAY_getPanKnob (BPMDELAY_ID) , v);
+);
+//====================================================================
+function BPMDELAY_setSliderIndex_WetDry(BPMDELAY_ID,v) 
+(
+    COMPONENT_setSliderIndex( _BPMDELAY_getWetDryKnob (BPMDELAY_ID), v);
+);
+//====================================================================
+function BPMDELAY_setSliderIndex_BPM(BPMDELAY_ID,idx)
+(
+    COMPONENT_setSliderIndex( BPMDELAY_getBtGroupBPM (BPMDELAY_ID), idx);
+);
+//====================================================================
+function BPMDELAY_setSliderIndex_MUL(BPMDELAY_ID,idx) 
+(
+    COMPONENT_setSliderIndex( BPMDELAY_getBtGroupMUL (BPMDELAY_ID), idx);
+    //================================================================
+);
+//====================================================================
+
+
+//====================================================================
+function BPMDELAY_getDelayGainValue (BPMDELAY_ID)    ( COMPONENT_getParameteredValue(_BPMDELAY_getDelayGainKnob (BPMDELAY_ID)););
+function BPMDELAY_getFeedBackValue  (BPMDELAY_ID)    ( COMPONENT_getParameteredValue(_BPMDELAY_getFeedBackKnob  (BPMDELAY_ID)););
+function BPMDELAY_getPanValue       (BPMDELAY_ID)    ( COMPONENT_getParameteredValue(_BPMDELAY_getPanKnob       (BPMDELAY_ID)););
+function BPMDELAY_getWetDryValue    (BPMDELAY_ID)    ( COMPONENT_getParameteredValue(_BPMDELAY_getWetDryKnob    (BPMDELAY_ID)););
+//====================================================================
+
+//====================================================================
+function BPMDELAY_setDelayGainValue (BPMDELAY_ID,v,isRepaerSend)( COMPONENT_setValue(_BPMDELAY_getDelayGainKnob(BPMDELAY_ID),v,isRepaerSend););
+function BPMDELAY_setFeedBackValue  (BPMDELAY_ID,v,isRepaerSend)( COMPONENT_setValue(_BPMDELAY_getFeedBackKnob (BPMDELAY_ID),v,isRepaerSend););
+function BPMDELAY_setPanValue       (BPMDELAY_ID,v,isRepaerSend)( COMPONENT_setValue(_BPMDELAY_getPanKnob      (BPMDELAY_ID),v,isRepaerSend););
+function BPMDELAY_setWetDryValue    (BPMDELAY_ID,v,isRepaerSend)( COMPONENT_setValue(_BPMDELAY_getWetDryKnob   (BPMDELAY_ID),v,isRepaerSend););
+//====================================================================
+function BPMDELAY_setBtGroupBPM_CurrentIdx(BPMDELAY_ID,indexNum)
+(
+    BUTTONGROUP_setCurrentButtonComponentByIndex( BPMDELAY_getBtGroupBPM(BPMDELAY_ID)
+                                                , indexNum);
+);
+//====================================================================
+function BPMDELAY_setBtGroupMUL_CurrentIdx(BPMDELAY_ID,indexNum)
+(
+    BUTTONGROUP_setCurrentButtonComponentByIndex( BPMDELAY_getBtGroupMUL(BPMDELAY_ID)
+                                                , indexNum);
+);
+//====================================================================
+
+
+//====================================================================
+function _BPMDELAY_prepareBtGroup_BPM(  targetBTGroup)
+    local (BT_1,BT_2,BT_4,BT_8,BT_16,BT_32)
+(
+    //================================================================
+    BT_1  = BUTTON_create  (_BPMDELAY_BAR_STR);
+    BT_2  = BUTTON_create  (_BPMDELAY_2th_STR);
+    BT_4  = BUTTON_create  (_BPMDELAY_4th_STR);
+    BT_8  = BUTTON_create  (_BPMDELAY_8th_STR);
+    BT_16 = BUTTON_create  (_BPMDELAY_16th_STR);
+    BT_32 = BUTTON_create  (_BPMDELAY_32th_STR);
+    //================================================================
+    BUTTON_setOnTextPostFix(BT_1, ""); BUTTON_setOffTextPostFix(BT_1, "");
+    BUTTON_setOnTextPostFix(BT_2, ""); BUTTON_setOffTextPostFix(BT_2, "");
+    BUTTON_setOnTextPostFix(BT_4, ""); BUTTON_setOffTextPostFix(BT_4, "");
+    BUTTON_setOnTextPostFix(BT_8, ""); BUTTON_setOffTextPostFix(BT_8, "");
+    BUTTON_setOnTextPostFix(BT_16,""); BUTTON_setOffTextPostFix(BT_16,"");
+    BUTTON_setOnTextPostFix(BT_32,""); BUTTON_setOffTextPostFix(BT_32,"");
+    //================================================================
+    BUTTONGROUP_addButton  (targetBTGroup,BT_1);
+    BUTTONGROUP_addButton  (targetBTGroup,BT_2);
+    BUTTONGROUP_addButton  (targetBTGroup,BT_4);
+    BUTTONGROUP_addButton  (targetBTGroup,BT_8);
+    BUTTONGROUP_addButton  (targetBTGroup,BT_16);
+    BUTTONGROUP_addButton  (targetBTGroup,BT_32);
+    //================================================================
+);
+//====================================================================
+function _BPMDELAY_prepareBtGroup_Mul(targetBTGroup)
+    local (BT_x1,BT_x2,BT_x3,BT_x4,BT_x5)
+(
+    //================================================================
+    BT_x1  = BUTTON_create (_BPMDELAY_X1_STR);
+    BT_x2  = BUTTON_create (_BPMDELAY_X2_STR);
+    BT_x3  = BUTTON_create (_BPMDELAY_X3_STR);
+    BT_x4  = BUTTON_create (_BPMDELAY_X4_STR);
+    BT_x5  = BUTTON_create (_BPMDELAY_X5_STR);
+    //================================================================
+    BUTTON_setOnTextPostFix(BT_x1,""); BUTTON_setOffTextPostFix(BT_x1,"");
+    BUTTON_setOnTextPostFix(BT_x2,""); BUTTON_setOffTextPostFix(BT_x2,"");
+    BUTTON_setOnTextPostFix(BT_x3,""); BUTTON_setOffTextPostFix(BT_x3,"");
+    BUTTON_setOnTextPostFix(BT_x4,""); BUTTON_setOffTextPostFix(BT_x4,"");
+    BUTTON_setOnTextPostFix(BT_x5,""); BUTTON_setOffTextPostFix(BT_x5,"");
+    //================================================================
+    BUTTONGROUP_addButton  (targetBTGroup,BT_x1);
+    BUTTONGROUP_addButton  (targetBTGroup,BT_x2);
+    BUTTONGROUP_addButton  (targetBTGroup,BT_x3);
+    BUTTONGROUP_addButton  (targetBTGroup,BT_x4);
+    BUTTONGROUP_addButton  (targetBTGroup,BT_x5);
+    //================================================================
+);
+//====================================================================
+function _BPMDELAY_calclateDeleySample(BPMDELAY_ID) 
+    local (newDelaySample,btGroup_BPM,btGroup_MUL
+          ,currentBPMBtName,currentMulBtName,delaySample)
+(
+    //================================================================
+    btGroup_BPM = BPMDELAY_getBtGroupBPM(BPMDELAY_ID);
+    btGroup_MUL = BPMDELAY_getBtGroupMUL(BPMDELAY_ID);
+    //================================================================
+    currentBPMBtName = BUTTONGROUP_getCurrentButtonName(btGroup_BPM);
+    //================================================================
+    (   currentBPMBtName == _BPMDELAY_BAR_STR )?(delaySample = get1thNote_Sample (tempo,srate);
+    ):( currentBPMBtName == _BPMDELAY_2th_STR )?(delaySample = get2thNote_Sample (tempo,srate);
+    ):( currentBPMBtName == _BPMDELAY_4th_STR )?(delaySample = get4thNote_Sample (tempo,srate);
+    ):( currentBPMBtName == _BPMDELAY_8th_STR )?(delaySample = get8thNote_Sample (tempo,srate);
+    ):( currentBPMBtName == _BPMDELAY_16th_STR)?(delaySample = get16thNote_Sample(tempo,srate);
+    ):( currentBPMBtName == _BPMDELAY_32th_STR)?(delaySample = get32thNote_Sample(tempo,srate);
+    );
+    //================================================================
+    currentMulBtName = BUTTONGROUP_getCurrentButtonName(btGroup_MUL);
+    //================================================================
+    (   currentMulBtName == _BPMDELAY_X1_STR)?(delaySample *= 1;
+    ):( currentMulBtName == _BPMDELAY_X2_STR)?(delaySample *= 2;
+    ):( currentMulBtName == _BPMDELAY_X3_STR)?(delaySample *= 3;
+    ):( currentMulBtName == _BPMDELAY_X4_STR)?(delaySample *= 4;
+    ):( currentMulBtName == _BPMDELAY_X5_STR)?(delaySample *= 5;
+    );
+    //================================================================
+    ( _BPMDELAY_getMaxDelaySIze(BPMDELAY_ID) <=delaySample )?
+    (
+        delaySample = _BPMDELAY_getMaxDelaySize  (BPMDELAY_ID) -1;
+    );
+    //================================================================
+    _BPMDELAY_setDelaySample (BPMDELAY_ID,delaySample);
+);
+//====================================================================
+
+
+//====================================================================
+function BPMDELAY_resized(BPMDELAY_ID)
+    local ( btGroupBPM
+          , btGroupMUL
+          , delayGainKnob
+          , feedBackKnob
+          , panKnob
+          , wetDryKnob
+          )
+(
+    //================================================================
+    btGroupBPM    =  BPMDELAY_getBtGroupBPM(BPMDELAY_ID);
+    btGroupMUL    =  BPMDELAY_getBtGroupMUL(BPMDELAY_ID);
+    //================================================================
+    delayGainKnob =  _BPMDELAY_getDelayGainKnob (BPMDELAY_ID);
+    feedBackKnob  =  _BPMDELAY_getFeedBackKnob  (BPMDELAY_ID);
+    panKnob       =  _BPMDELAY_getPanKnob       (BPMDELAY_ID);
+    wetDryKnob    =  _BPMDELAY_getWetDryKnob    (BPMDELAY_ID);
+    //================================================================
+    
+    //================================================================
+    RECTANGLE_copyTo        (btGroupBPM   ,BPMDELAY_ID );
+    RECTANGLE_cropFromTopP  (btGroupBPM   ,0.1);
+    //================================================================
+    RECTANGLE_copyTo        (btGroupMUL   ,BPMDELAY_ID );
+    RECTANGLE_removeFromTopP(btGroupMUL   ,0.1);
+    RECTANGLE_cropFromTopP  (btGroupMUL   ,0.1);
+    //================================================================
+    RECTANGLE_reduce        (btGroupBPM,1,1);
+    RECTANGLE_reduce        (btGroupMUL,1,1);
+    //================================================================
+    RECTANGLE_copyTo        (delayGainKnob,BPMDELAY_ID );
+    RECTANGLE_removeFromTopP(delayGainKnob,0.2);
+    RECTANGLE_cropFromTopP  (delayGainKnob,0.25);
+    //================================================================
+    RECTANGLE_copyTo        (feedBackKnob ,delayGainKnob );
+    RECTANGLE_move          (feedBackKnob ,0,RECTANGLE_getHeight(delayGainKnob));
+    //================================================================
+    RECTANGLE_copyTo        (wetDryKnob ,feedBackKnob );
+    RECTANGLE_move          (wetDryKnob ,0,RECTANGLE_getHeight(delayGainKnob));
+    //================================================================
+    RECTANGLE_copyTo        (panKnob ,wetDryKnob );
+    RECTANGLE_move          (panKnob ,0,RECTANGLE_getHeight(delayGainKnob));
+    //================================================================
+    RECTANGLE_reduce        (delayGainKnob,3,3);
+    RECTANGLE_reduce        (feedBackKnob,3,3);
+    RECTANGLE_reduce        (panKnob,3,3);
+    RECTANGLE_reduce        (wetDryKnob,3,3);
+    //================================================================
+    
+);
+//====================================================================
+function BPMDELAY_updatePostion( BPMDELAY_ID)( BPMDELAY_resized(BPMDELAY_ID););
+//====================================================================
+
+
+//====================================================================
+// with update
+//====================================================================
+function BPMDELAY_process(BPMDELAY_ID,inSample)
+    local ( btGroup_BPM
+          , btGroup_MUL
+          , delaySample 
+          , delayGainValue
+          , feedBackValue
+          , panValue
+          , delayArray
+          , effectedValue
+          , panner_class
+          , wetDryValue
+          )
+(
+    btGroup_BPM = BPMDELAY_getBtGroupBPM(BPMDELAY_ID);
+    btGroup_MUL = BPMDELAY_getBtGroupMUL(BPMDELAY_ID);
+    //================================================================
+    (   BUTTONGROUP_isIndexChanged(btGroup_BPM) == true
+     || BUTTONGROUP_isIndexChanged(btGroup_MUL) == true
+    )?
+    (
+        _BPMDELAY_calclateDeleySample(BPMDELAY_ID) ;
+    );
+    //================================================================
+    
+    //================================================================
+    delayGainValue = BPMDELAY_getDelayGainValue (BPMDELAY_ID);
+    feedBackValue  = BPMDELAY_getFeedBackValue  (BPMDELAY_ID);
+    panValue       = BPMDELAY_getPanValue       (BPMDELAY_ID);
+    wetDryValue    = BPMDELAY_getWetDryValue    (BPMDELAY_ID);
+    //================================================================
+    delayArray     = _BPMDELAY_getDelayArray    (BPMDELAY_ID);
+    delaySample    = _BPMDELAY_getDelaySample   (BPMDELAY_ID);
+    panner_class   = _BPMDELAY_getPannerClass   (BPMDELAY_ID);
+    //================================================================
+    
+    _BPMDELAY_setDryValue(BPMDELAY_ID,inSample);
+    //================================================================
+    CURSOLBUFFER_push( delayArray
+                     ,   inSample 
+                       + _BPMDELAY_getWetvalue(BPMDELAY_ID)*0.9*feedBackValue 
+                     );    
+    //================================================================
+    
+    //================================================================
+    effectedValue = CURSOLBUFFER_getOffsettedValue( delayArray
+                                                  , -delaySample );
+    //================================================================
+    effectedValue *= delayGainValue;
+    //================================================================
+    _BPMDELAY_setWetvalue(BPMDELAY_ID,effectedValue);
+    //================================================================
+
+    PANNER_setPanValue(panner_class,panValue);
+    //================================================================
+    ( RECTANGLE_isSame( _BPMDELAY_getLastRectangle (BPMDELAY_ID),BPMDELAY_ID ) == false)?
+    (
+        0;
+        //BPMDELAY_resized(BPMDELAY_ID);
+    );
+    //================================================================
+    RECTANGLE_copyTo( _BPMDELAY_getLastRectangle (BPMDELAY_ID),BPMDELAY_ID);
+    //================================================================
+);
+//====================================================================
+function BPMDELAY_getEffectedSample_L(BPMDELAY_ID)
+    local ( panner_class
+          , panValue
+          , out
+          )
+(
+    //================================================================
+    panner_class = _BPMDELAY_getPannerClass (BPMDELAY_ID);
+    panValue     = BPMDELAY_getPanValue     (BPMDELAY_ID);
+    //================================================================
+    PANNER_setPanValue ( panner_class, panValue);
+    //================================================================
+    out = PANNER_getLeft( panner_class, _BPMDELAY_getWetvalue(BPMDELAY_ID));
+    //================================================================
+    out;
+);
+//====================================================================
+function BPMDELAY_getEffectedSample_R(BPMDELAY_ID)
+    local ( panner_class
+          , panValue
+          , out
+          )
+(
+    //================================================================
+    panner_class = _BPMDELAY_getPannerClass (BPMDELAY_ID);
+    panValue     = BPMDELAY_getPanValue     (BPMDELAY_ID);
+    //================================================================
+    PANNER_setPanValue ( panner_class, panValue);
+    //================================================================
+    out = PANNER_getRight( panner_class, _BPMDELAY_getWetvalue(BPMDELAY_ID));
+    //================================================================
+    out;
+);
+//====================================================================
+
+
+
+//====================================================================
+// MODULE  BPM_ SYNC delay
+//====================================================================
+function BPMDELAY_create(parrentLayer)  
+    local ( BPMDELAY_ID
+          , btGroupBPM
+          , btGroupMUL
+          , delayGainKnob
+          , feedBackKnob
+          , panKnob
+          , maxDelaySize
+          , delayArray
+          , pannner_
+          , lastRectangle
+          , wetDryKnob
+          , baseClassElementNum
+          )
+(
+    //================================================================
+    lastRectangle =  RECTANGLE_create(-1000,-1000,gfx_w,gfx_h);
+    //================================================================
+    btGroupBPM    = BUTTONGROUP_create("BTGROUP_BPMDELAY_length");
+    btGroupMUL    = BUTTONGROUP_create("BTGROUP_BPMDELAY_MUL");
+    //================================================================
+    delayGainKnob = SLIDERTYPE2_create( "Gain") ;
+    COMPONENT_setMinValue(delayGainKnob,0);
+    COMPONENT_setMaxValue(delayGainKnob,2);
+    COMPONENT_setValue(delayGainKnob,0.5,false);
+    //================================================================
+    feedBackKnob  = SLIDERTYPE2_create( "FeedBack") ;
+    panKnob       = SLIDERTYPE2_create( "Pan") ;
+    COMPONENT_setValue(panKnob,0.5,false);
+    pannner_      = PANNNER_create();
+    wetDryKnob    = SLIDERTYPE2_create( "WetDry") ;
+    COMPONENT_setValue(wetDryKnob,0.5,false);
+    //================================================================
+    maxDelaySize  =  srate*10;
+    delayArray    = CURSOLBUFFER_create(maxDelaySize);
+    //================================================================
+    _BPMDELAY_prepareBtGroup_BPM(btGroupBPM);
+    _BPMDELAY_prepareBtGroup_Mul(btGroupMUL);
+    //================================================================
+    
+    //================================================================
+    BPMDELAY_ID =  RECTANGLE_create(-1000,-1000,gfx_w,gfx_h);
+    baseClassElementNum = _RECTANGLE_getElementNum(BPMDELAY_ID);
+    //================================================================
+    STATIC_MASTER_BUFF[BPMDELAY_ID]    = "BPM DELAY";    // class name
+    STATIC_MASTER_BUFF[BPMDELAY_ID+1]  = baseClassElementNum +16;             // total Element Num 
+    //================================================================
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+2]  = STATIC_MASTER_BUFF[BPMDELAY_ID+1];  // element Num Only this Class
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+3]  = btGroupBPM;     // button Group BPM length
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+4]  = btGroupMUL;     // button Group BPM  Multiply
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+5]  = delayGainKnob;  // delayGain Knob
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+6]  = feedBackKnob;   // feedBack Knob
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+7]  = panKnob;        // pan knob
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+8]  = parrentLayer;   // parrent Layer
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+9]  = 1;              // delaySamples . !!here the absolute value now.( will use subtraction )
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+10] = delayArray;     // delay Arrays
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+11] = maxDelaySize;   // max delay samples .  now 10 second
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+12] = 0;              // wet value. ( effected value, applyed delay effect sample.)
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+13] = pannner_;       // panner process class
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+14] = lastRectangle;  // last rectangle
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+15] = wetDryKnob;     // wet Dry Knob
+    STATIC_MASTER_BUFF[BPMDELAY_ID +baseClassElementNum+16] = 0;              // dry value (non effected sample)
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(BPMDELAY_ID)+1;
+    //================================================================
+    
+    // init
+    //================================================================
+    LAYER_addChildComponent( parrentLayer , btGroupBPM);
+    LAYER_addChildComponent( parrentLayer , btGroupMUL);
+    LAYER_addChildComponent( parrentLayer , delayGainKnob);
+    LAYER_addChildComponent( parrentLayer , feedBackKnob);
+    LAYER_addChildComponent( parrentLayer , panKnob);
+    LAYER_addChildComponent( parrentLayer , wetDryKnob);
+    //================================================================
+    _BPMDELAY_calclateDeleySample(BPMDELAY_ID);
+    
+    //================================================================
+    BPMDELAY_ID;
+);
+//====================================================================

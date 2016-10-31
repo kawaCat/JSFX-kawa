@@ -118,6 +118,7 @@
 //    RECTANGLE_cropFromLeftP      (RECT_ID,cropValueRelative)
 //    RECTANGLE_cropFromRightP     (RECT_ID,cropValueRelative)
 //    RECTANGLE_copyTo             (destRECT_ID,srcRECT_ID)
+//    RECTANGLE_compare            (RECT_ID,targetRECT_ID)
 //====================================================================
 
 //====================================================================
@@ -822,6 +823,17 @@ function RECTANGLE_copyTo(destRECT_ID,srcRECT_ID)
 );
 //====================================================================
 function RECTANGLE_compare(RECT_ID,targetRECT_ID)local ( out )
+(
+    out = (    RECTANGLE_getX(RECT_ID)      ==  RECTANGLE_getX( targetRECT_ID)
+            && RECTANGLE_getY(RECT_ID)      ==  RECTANGLE_getY( targetRECT_ID)
+            && RECTANGLE_getWidth(RECT_ID)  ==  RECTANGLE_getWidth( targetRECT_ID)
+            && RECTANGLE_getHeight(RECT_ID) ==  RECTANGLE_getHeight( targetRECT_ID)
+            );
+    //================================================================
+    (out ==true );
+);
+//====================================================================
+function RECTANGLE_isSame(RECT_ID,targetRECT_ID)local ( out )
 (
     out = (    RECTANGLE_getX(RECT_ID)      ==  RECTANGLE_getX( targetRECT_ID)
             && RECTANGLE_getY(RECT_ID)      ==  RECTANGLE_getY( targetRECT_ID)

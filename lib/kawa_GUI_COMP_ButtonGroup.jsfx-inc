@@ -1,0 +1,425 @@
+//====================================================================
+@init
+//====================================================================
+
+
+//====================================================================
+// Inheritance List
+// * Rectangle
+// * Component
+//====================================================================
+function BUTTONGROUP_create(name) 
+    local (BUTTONGROUP_ID,baseClassElementNum,childButtons)
+(
+    childButtons = ARRAY_create(100); //max100 buttons
+    //================================================================
+    BUTTONGROUP_ID = COMPONENT_create(name);
+    //================================================================
+    STATIC_MASTER_BUFF[BUTTONGROUP_ID ]     = "BUTTONGROUP";        // classTYPE
+    //================================================================
+    baseClassElementNum =_COMPONENT_getElementNum(BUTTONGROUP_ID);
+    //================================================================
+    
+    //================================================================
+    STATIC_MASTER_BUFF[BUTTONGROUP_ID + 1]  = baseClassElementNum +7;// total elementNUM
+    //================================================================　
+    STATIC_MASTER_BUFF[BUTTONGROUP_ID + baseClassElementNum + 1]  = STATIC_MASTER_BUFF[BUTTONGROUP_ID + 1]; // element num in  BUTTON CLASS
+    STATIC_MASTER_BUFF[BUTTONGROUP_ID + baseClassElementNum + 2]  = childButtons; // child button  array
+    STATIC_MASTER_BUFF[BUTTONGROUP_ID + baseClassElementNum + 3]  = 0; // current buttons ID
+    STATIC_MASTER_BUFF[BUTTONGROUP_ID + baseClassElementNum + 4]  = true; //is Need Resized() flag.
+    STATIC_MASTER_BUFF[BUTTONGROUP_ID + baseClassElementNum + 5]  = 1;    //lastCurrentIndex
+    STATIC_MASTER_BUFF[BUTTONGROUP_ID + baseClassElementNum + 6]  = false;//is currentIndex Changed
+    //================================================================
+    
+    //================================================================
+    STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (BUTTONGROUP_ID)+1; // increment next entry Bufff Point
+    //================================================================
+    BUTTONGROUP_ID; //retrun
+);
+//====================================================================
+function _BUTTONGROUP_getElementNum           (BUTTONGROUP_ID)   ( STATIC_MASTER_BUFF[BUTTONGROUP_ID + _COMPONENT_getElementNum(BUTTONGROUP_ID)+1];); //protected
+function _BUTTONGROUP_getChildButtonArray     (BUTTONGROUP_ID)   ( STATIC_MASTER_BUFF[BUTTONGROUP_ID + _COMPONENT_getElementNum(BUTTONGROUP_ID)+2];);
+//====================================================================
+function _BUTTONGROUP_getCurrentButtonIndex   (BUTTONGROUP_ID)   ( STATIC_MASTER_BUFF[BUTTONGROUP_ID + _COMPONENT_getElementNum(BUTTONGROUP_ID)+3];); 
+function _BUTTONGROUP_setCurrentButtonIndex   (BUTTONGROUP_ID,v) ( STATIC_MASTER_BUFF[BUTTONGROUP_ID + _COMPONENT_getElementNum(BUTTONGROUP_ID)+3] = v;); 
+//====================================================================
+function _BUTTONGROUP_getNeedResized          (BUTTONGROUP_ID)   ( STATIC_MASTER_BUFF[BUTTONGROUP_ID + _COMPONENT_getElementNum(BUTTONGROUP_ID)+4];); 
+function _BUTTONGROUP_setNeedResized          (BUTTONGROUP_ID,v) ( STATIC_MASTER_BUFF[BUTTONGROUP_ID + _COMPONENT_getElementNum(BUTTONGROUP_ID)+4] = v;); 
+//====================================================================
+function _BUTTONGROUP_getLastIndex            (BUTTONGROUP_ID)   ( STATIC_MASTER_BUFF[BUTTONGROUP_ID + _COMPONENT_getElementNum(BUTTONGROUP_ID)+5];); 
+function _BUTTONGROUP_setLastIndex            (BUTTONGROUP_ID,v) ( STATIC_MASTER_BUFF[BUTTONGROUP_ID + _COMPONENT_getElementNum(BUTTONGROUP_ID)+5] = v;);
+//====================================================================
+function _BUTTONGROUP_getIsCurrentIndexChanged(BUTTONGROUP_ID)   ( STATIC_MASTER_BUFF[BUTTONGROUP_ID + _COMPONENT_getElementNum(BUTTONGROUP_ID)+6];); 
+function _BUTTONGROUP_setIsCurrentIndexChanged(BUTTONGROUP_ID,v) ( STATIC_MASTER_BUFF[BUTTONGROUP_ID + _COMPONENT_getElementNum(BUTTONGROUP_ID)+6]=v;); 
+//====================================================================
+function BUTTONGROUP_isIndexChanged           (BUTTONGROUP_ID )  ( _BUTTONGROUP_getIsCurrentIndexChanged(BUTTONGROUP_ID); );
+//====================================================================
+
+//====================================================================
+function BUTTONGROUP_getButtonNum (BUTTONGROUP_ID) 
+    local (buttonArray)
+(
+    buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
+    //================================================================
+    ARRAY_getBufferSize(buttonArray);//return 
+);
+//====================================================================
+
+//====================================================================
+function BUTTONGROUP_getCurrentButtonComponent(BUTTONGROUP_ID)
+(
+    ARRAY_getAt( _BUTTONGROUP_getChildButtonArray   (BUTTONGROUP_ID)
+               , _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID) );
+);
+//====================================================================
+function BUTTONGROUP_getCurrentButtonName(BUTTONGROUP_ID)
+(
+    COMPONENT_getName (BUTTONGROUP_getCurrentButtonComponent(BUTTONGROUP_ID));
+);
+//====================================================================
+function BUTTONGROUP_setCurrentButtonComponentByComponent(BUTTONGROUP_ID,btComp)
+    local (buttonArray,count_A,targetComp,targetIdx)
+(
+    buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
+    //================================================================
+    count_A    = 0;
+    targetIdx  = _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID);
+    targetComp = BUTTONGROUP_getCurrentButtonComponent(BUTTONGROUP_ID);
+    //================================================================
+    while ( count_A < ARRAY_getBufferSize(buttonArray) )
+    (   
+        //============================================================
+        BUTTON_Off ( ARRAY_getAt(buttonArray,count_A),true);
+        //============================================================
+        ( ARRAY_getAt(buttonArray,count_A) == btComp)?
+        (
+            targetIdx  = count_A;
+            targetComp = ARRAY_getAt(buttonArray,count_A);
+        );
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+    _BUTTONGROUP_setCurrentButtonIndex (BUTTONGROUP_ID,targetIdx);
+    BUTTON_ON ( targetComp ,true);
+    _BUTTONGROUP_setNeedResized(BUTTONGROUP_ID,true);
+    //================================================================
+);
+//====================================================================
+function BUTTONGROUP_setCurrentButtonComponentByName(BUTTONGROUP_ID,buttonName)
+    local (buttonArray,count_A,button_,targetComp,targetIdx)
+(
+    buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
+    //================================================================
+    count_A = 0;
+    targetIdx  = _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID);
+    targetComp = BUTTONGROUP_getCurrentButtonComponent(BUTTONGROUP_ID);
+    //================================================================
+    while ( count_A < ARRAY_getBufferSize(buttonArray) )
+    (   
+        button_ = ARRAY_getAt(buttonArray,count_A);
+        //============================================================
+        BUTTON_Off ( button_ ,true);
+        //============================================================
+        ( stringCompareFromNum( COMPONENT_getName(button_), buttonName) == 0 )?
+        (
+            targetIdx  = count_A;
+            targetComp = button_;
+        );
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+    _BUTTONGROUP_setCurrentButtonIndex (BUTTONGROUP_ID,targetIdx);
+    BUTTON_ON ( targetComp ,true);
+    _BUTTONGROUP_setNeedResized(BUTTONGROUP_ID,true);
+    //================================================================
+);
+//====================================================================
+function BUTTONGROUP_setCurrentButtonComponentByIndex(BUTTONGROUP_ID,indexNum)
+     local (buttonArray,count_A,button_)
+(
+    buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
+    //================================================================
+    (    indexNum >= 0 
+      && indexNum <  ARRAY_getBufferSize(buttonArray) )?
+    (
+        button_ = ARRAY_getAt(buttonArray,indexNum);
+        //============================================================
+        BUTTONGROUP_setCurrentButtonComponentByComponent(BUTTONGROUP_ID,button_);
+    );
+    //================================================================
+);
+//====================================================================
+function BUTTONGROUP_stepCurrentButtonIndex(BUTTONGROUP_ID,stepNum )
+    local (buttonArray, newIndex, currentIdx ,btNum )
+(
+    //================================================================
+    currentIdx = _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID);
+    //================================================================
+    buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
+    btNum = ARRAY_getBufferSize(buttonArray);
+    newIndex = currentIdx +stepNum;
+    //================================================================
+    (newIndex >= btNum )? ( newIndex = 0);
+    (newIndex < 0 )? ( newIndex = btNum-1);
+    //================================================================
+    BUTTONGROUP_setCurrentButtonComponentByIndex(BUTTONGROUP_ID,newIndex);
+    //================================================================
+    slider( COMPONENT_getSliderIndex(BUTTONGROUP_ID) ) 
+                = _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID);;
+);
+//====================================================================
+
+
+//====================================================================
+function BUTTONGROUP_resized(BUTTONGROUP_ID,parrentRECT ) 
+    local (buttonArray,count_A,oneBtWidth,oneBtHeight,buttonNum,bt  )
+( 
+    buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
+    buttonNum   = ARRAY_getBufferSize(buttonArray);
+    oneBtWidth  = RECTANGLE_getWidth(BUTTONGROUP_ID)/buttonNum;
+    oneBtHeight = RECTANGLE_getHeight(BUTTONGROUP_ID);
+    //================================================================
+    count_A = 0;
+    //================================================================
+    while ( count_A < ARRAY_getBufferSize(buttonArray) )
+    (   
+        bt = ARRAY_getAt(buttonArray,count_A);
+        //============================================================
+        RECTANGLE_setX(bt,RECTANGLE_getX(BUTTONGROUP_ID) + oneBtWidth*count_A );
+        RECTANGLE_setY(bt,RECTANGLE_getY(BUTTONGROUP_ID) );
+        RECTANGLE_setWidth (bt,oneBtWidth );
+        RECTANGLE_setHeight(bt,oneBtHeight );
+        RECTANGLE_reduce( bt,1,1);
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+);
+//====================================================================
+function BUTTONGROUP_update(BUTTONGROUP_ID)  
+    local (buttonArray,count_A,targetBtComp,bt)
+(   
+    // store last value
+    COMPONENT_update( BUTTONGROUP_ID);
+    //================================================================
+    (     _BUTTONGROUP_getNeedResized(BUTTONGROUP_ID) ==true
+       && RECTANGLE_getWidth (BUTTONGROUP_ID ) != 0  // is @GFX active?
+       && RECTANGLE_getHeight(BUTTONGROUP_ID ) != 0  // is @GFX active?
+     )?
+    (
+        BUTTONGROUP_resized( BUTTONGROUP_ID
+                           , COMPONENT_getParrentLAYRE(BUTTONGROUP_ID));
+        _BUTTONGROUP_setNeedResized(BUTTONGROUP_ID,false);
+    );
+    //================================================================
+    buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
+    //================================================================
+    count_A = 0;
+    //================================================================
+    
+    //================================================================
+    while ( count_A < ARRAY_getBufferSize(buttonArray) )
+    (   
+        bt  = ARRAY_getAt(buttonArray,count_A);
+        //============================================================
+        BUTTON_update( bt );    
+        //============================================================
+        (   BUTTON_isON( bt ) ==true 
+         && _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID) != count_A ) ?
+        (
+            BUTTONGROUP_setCurrentButtonComponentByComponent(BUTTONGROUP_ID,bt);
+            //========================================================
+            slider( COMPONENT_getSliderIndex(BUTTONGROUP_ID) ) 
+                = _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID);;
+            //========================================================
+        );
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+    
+    //================================================================
+    _BUTTONGROUP_setIsCurrentIndexChanged( BUTTONGROUP_ID
+                                         , _BUTTONGROUP_getLastIndex( BUTTONGROUP_ID)!= _BUTTONGROUP_getCurrentButtonIndex(BUTTONGROUP_ID)
+                                         );
+    //================================================================
+    _BUTTONGROUP_setLastIndex( BUTTONGROUP_ID
+                             , _BUTTONGROUP_getCurrentButtonIndex(BUTTONGROUP_ID));
+    //================================================================
+);
+//====================================================================
+function BUTTONGROUP_draw(BUTTONGROUP_ID)
+    local (buttonArray,count_A)
+(
+    buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
+    //================================================================
+    count_A = 0;
+    //================================================================
+    while ( count_A < ARRAY_getBufferSize(buttonArray) )
+    (   
+        BUTTON_draw(  ARRAY_getAt(buttonArray,count_A));
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+);
+//====================================================================
+function BUTTONGROUP_mouseMoved(BUTTONGROUP_ID,MOUSEINFO_ID)
+    local (buttonArray,count_A)
+(
+    //================================================================
+    buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
+    //================================================================
+    count_A = 0;
+    //================================================================
+    while ( count_A < ARRAY_getBufferSize(buttonArray) )
+    (   
+        BUTTON_mouseMoved( ARRAY_getAt(buttonArray,count_A)
+                         , MOUSEINFO_ID);
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+);
+//====================================================================
+function BUTTONGROUP_mouseButtonPressd(BUTTONGROUP_ID,MOUSEINFO_ID )
+    local (buttonArray,count_A)
+(
+    //================================================================
+    buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
+    //================================================================
+    count_A = 0;
+    //================================================================
+    while ( count_A < ARRAY_getBufferSize(buttonArray) )
+    (   
+        ( BUTTON_isOFF( ARRAY_getAt(buttonArray,count_A)) ==true )?
+        (
+            BUTTON_mouseButtonPressd( ARRAY_getAt(buttonArray,count_A)
+                                , MOUSEINFO_ID);
+        );
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+);
+//====================================================================
+function BUTTONGROUP_mouseButtonReleased( BUTTONGROUP_ID,MOUSEINFO_ID )
+    local (buttonArray,count_A)
+(
+    //================================================================
+    buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
+    //================================================================
+    count_A = 0;
+    //================================================================
+    while ( count_A < ARRAY_getBufferSize(buttonArray) )
+    (   
+        ( BUTTON_isOFF( ARRAY_getAt(buttonArray,count_A)) ==true )?
+        (
+            BUTTON_mouseButtonReleased( ARRAY_getAt(buttonArray,count_A)
+                                      , MOUSEINFO_ID);
+        );
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+);
+//====================================================================
+function BUTTONGROUP_mouseWheeled(BUTTONGROUP_ID,MOUSEINFO_ID )
+    local (buttonArray,count_A)
+(
+    //================================================================
+    buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
+    //================================================================
+    count_A = 0;
+    //================================================================
+    while ( count_A < ARRAY_getBufferSize(buttonArray) )
+    (   
+        BUTTON_mouseWheeled( ARRAY_getAt(buttonArray,count_A)
+                           , MOUSEINFO_ID);
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+    (RECTANGLE_isContainMouse(BUTTONGROUP_ID) == true) ?
+    (
+        BUTTONGROUP_stepCurrentButtonIndex( BUTTONGROUP_ID
+                                          , MOUSEINFO_getMouseWheelDiffV_ABS    (MOUSEINFO_ID) );
+    );
+    //================================================================
+);
+//====================================================================
+
+
+//====================================================================
+function BUTTONGROUP_addButton(BUTTONGROUP_ID,buttonComponent)
+    local (buttonArray,count_A,check_)
+(
+    buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
+    //================================================================
+    count_A = 0;
+    check_  = false;
+    //================================================================
+    while ( count_A < ARRAY_getBufferSize(buttonArray) )
+    (   
+        // double check
+        ( ARRAY_getAt(buttonArray,count_A) == buttonComponent)?
+        (
+            check_ =true;
+            //========================================================
+            count_A = ARRAY_getBufferSize(buttonArray) +10;
+        );
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+    (check_ == false)?
+    (
+        ARRAY_push_back( buttonArray ,buttonComponent);
+        BUTTONGROUP_resized(BUTTONGROUP_ID,COMPONENT_getParrentLAYRE(BUTTONGROUP_ID));
+        //============================================================
+        (ARRAY_getBufferSize(buttonArray) ==1)?
+        (
+            BUTTONGROUP_setCurrentButtonComponentByComponent(BUTTONGROUP_ID,buttonComponent);
+        );
+        //============================================================
+    );
+    //================================================================
+    _BUTTONGROUP_setNeedResized(BUTTONGROUP_ID,true);
+);
+//====================================================================
+function BUTTONGROUP_removeButton(BUTTONGROUP_ID,buttonComponent)
+    local (buttonArray,count_A)
+(
+    buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
+    //================================================================
+    count_A = 0;
+    check_  = false;
+    //================================================================
+    while ( count_A < ARRAY_getBufferSize(buttonArray) )
+    (   
+        // double check
+        ( ARRAY_getAt(buttonArray,count_A) == buttonComponent)?
+        (
+            //========================================================
+            ARRAY_removeAt(buttonArray,count_A);
+            BUTTONGROUP_resized(BUTTONGROUP_ID,COMPONENT_getParrentLAYRE(BUTTONGROUP_ID));
+            //========================================================
+            count_A = ARRAY_getBufferSize(buttonArray) +10; //break;
+        );
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+    ( ARRAY_getBufferSize(buttonArray) < _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID) )?
+    (
+        _BUTTONGROUP_setCurrentButtonIndex ( BUTTONGROUP_ID
+                                           , ARRAY_getBufferSize(buttonArray)); // buttonNum
+    );
+    //================================================================
+    _BUTTONGROUP_setNeedResized(BUTTONGROUP_ID,true);
+);
+//====================================================================
+
+

@@ -16,6 +16,7 @@ import kawa_DSP_MSProcess.jsfx-inc
 import kawa_DSP_WaveSine.jsfx-inc
 import kawa_DSP_RingMod.jsfx-inc
 import kawa_DSP_RBJFilter.jsfx-inc
+import kawa_DSP_Panner.jsfx-inc
 //====================================================================
 import kawa_GUI_CORE_.jsfx-inc
 import kawa_GUI_Graphics.jsfx-inc
@@ -23,6 +24,7 @@ import kawa_GUI_particle.jsfx-inc
 //--------------------------------------------------------------------
 import kawa_GUI_Component.jsfx-inc
 import kawa_GUI_COMP_Button.jsfx-inc
+import kawa_GUI_COMP_ButtonGroup.jsfx-inc
 import kawa_GUI_COMP_Slider.jsfx-inc
 import kawa_GUI_COMP_Slider_TYPE2.jsfx-inc
 import kawa_GUI_COMP_TEXT.jsfx-inc
@@ -31,6 +33,9 @@ import kawa_GUI_COMP_XYSlider.jsfx-inc
 //--------------------------------------------------------------------
 import kawa_GUI_Layer.jsfx-inc
 import kawa_GUI_APP_.jsfx-inc
+//====================================================================
+import kawa_MODULE_BPMDelay.jsfx-inc 
+
 //====================================================================
 
 @init

@@ -1,0 +1,69 @@
+
+
+@init
+//====================================================================
+
+//====================================================================
+// SImple Panner
+//====================================================================
+function PANNNER_create()  local(PANNNER_ID) //speed  Div 0.1 ~
+(
+    PANNNER_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[PANNNER_ID]   = "PANNNER";   // class name
+    STATIC_MASTER_BUFF[PANNNER_ID+1] = 3;           // total Element Num 
+    //================================================================
+    STATIC_MASTER_BUFF[PANNNER_ID+2] = STATIC_MASTER_BUFF[PANNNER_ID+1];  // element Num Only DeletaTime Class
+    STATIC_MASTER_BUFF[PANNNER_ID+3] = 0.5;         // pan value ( 0=left, 0.5=center, 1.0=right)
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(PANNNER_ID)+1;
+    //================================================================
+    PANNNER_ID;
+);
+//====================================================================
+function _PANNNER_getElementNum(PANNNER_ID)   ( STATIC_MASTER_BUFF[PANNNER_ID+2];);
+//====================================================================
+function PANNER_getPanValue    (PANNNER_ID)   ( STATIC_MASTER_BUFF[PANNNER_ID+3];);
+function PANNER_setPanValue    (PANNNER_ID,v) ( STATIC_MASTER_BUFF[PANNNER_ID+3]= v;); //0.0 ~0.5 ~ 1.0
+//====================================================================
+function PANNER_getLeft        (PANNNER_ID,inSample) local ( out,panValue,amp)
+( 
+    //================================================================
+    panValue = PANNER_getPanValue(PANNNER_ID);
+    //================================================================
+    ( panValue > 0.5)?
+    (
+        amp = 1-abs( (PANNER_getPanValue(PANNNER_ID)-0.5)/0.5 );
+    ):(
+        amp = 1;
+    );
+    //================================================================
+    out = inSample* amp;
+    //================================================================
+    out;
+);
+//====================================================================
+function PANNER_getRight       (PANNNER_ID,inSample)local ( out,panValue ,amp)
+( 
+    //================================================================
+    panValue = PANNER_getPanValue(PANNNER_ID);
+    //================================================================
+    ( panValue > 0.5)?
+    (
+        amp = 1;
+    ):(
+        amp = 1-abs( (PANNER_getPanValue(PANNNER_ID)-0.5)/0.5 );
+    );
+    //================================================================
+    out = inSample* amp;
+    //================================================================
+    out;
+);
+//====================================================================
+
+//====================================================================
+function PANNNER_process(PANNNER_ID,inSample ) local  ( dcOffset,out,tempOtm)
+(
+    0; // nothing todo still.
+);
+//====================================================================

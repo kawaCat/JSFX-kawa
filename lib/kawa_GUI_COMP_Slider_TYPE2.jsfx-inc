@@ -115,6 +115,7 @@ function SLIDERTYPE2_draw(SLIDERTYPE2_ID)local (x,y,w,h,margin,tempText)
     //================================================================
     RECTANGLE_drawStrInCenterFitFont(SLIDERTYPE2_ID,tempText);
     //================================================================
+    RECTANGLE_drawBottomRightText2 (SLIDERTYPE2_ID ,COMPONENT_getName(SLIDERTYPE2_ID));
 );
 //====================================================================
 function SLIDERTYPE2_mouseMoved(SLIDERTYPE2_ID,MOUSEINFO_ID)local(XXX)

@@ -6,7 +6,7 @@
 //====================================================================
 // ARRAY Struct // [CAUTION] test version 
 //====================================================================
-//  ARRAY_create()
+//  ARRAY_create(maxSizeInt)
 //--------------------------------------------------------------------
 //   ARRAY_getAt(ARRAY_ID,pos) 
 //   ARRAY_changeValueAt(ARRAY_ID,pos,value) 
@@ -356,7 +356,7 @@ function CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,cursolPos)
 );
 //====================================================================
 function _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,pos )
-    local (out)
+    local (out,bufSize)
 (
     bufSize = CURSOLBUFFER_getMaxSize(CIRCLEBUFFER_ID);
     

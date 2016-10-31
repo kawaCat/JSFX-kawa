@@ -84,17 +84,18 @@ function createDefaultColorMAP()local (out_c )
 // * Rectangle
 //====================================================================
 function COMPONENT_create(name) 
-    local (COMPONENT_ID,name_,color_Map_ID,componentInfoMap,baseClassElementNum)
+    local (COMPONENT_ID,name_,color_Map_ID,componentInfoMap,baseClassElementNum,lastRectangle)
 (
     color_Map_ID =  createDefaultColorMAP();
     componentInfoMap =  MAP_create();
+    lastRectangle = RECTANGLE_create(-1000,-1000,gfx_w,gfx_h);
     //================================================================
     COMPONENT_ID = RECTANGLE_create(-1000,-1000,gfx_w,gfx_h);//element NUM 6
     //================================================================
     baseClassElementNum =_RECTANGLE_getElementNum(COMPONENT_ID);
     //================================================================
     STATIC_MASTER_BUFF[COMPONENT_ID ]     = "COMPONENT";             // classTYPE
-    STATIC_MASTER_BUFF[COMPONENT_ID + 1]  = baseClassElementNum + 14;                     // elementNUM
+    STATIC_MASTER_BUFF[COMPONENT_ID + 1]  = baseClassElementNum + 20;                     // elementNUM
     //================================================================
     STATIC_MASTER_BUFF[COMPONENT_ID + baseClassElementNum + 1] = 0 ;                      // not use
     STATIC_MASTER_BUFF[COMPONENT_ID + baseClassElementNum + 2] = name;                    // ComponentName
@@ -112,6 +113,7 @@ function COMPONENT_create(name)
     STATIC_MASTER_BUFF[COMPONENT_ID + baseClassElementNum + 12] = 0;                      // slider Index
     STATIC_MASTER_BUFF[COMPONENT_ID + baseClassElementNum + 13] = STATIC_MASTER_BUFF[COMPONENT_ID + 1];// element Num in COMPONENT Class
     STATIC_MASTER_BUFF[COMPONENT_ID + baseClassElementNum + 14] = 0;                      // last value
+    STATIC_MASTER_BUFF[COMPONENT_ID + baseClassElementNum + 15] = lastRectangle;          // last Rectangle
     //================================================================
     STATIC_MASTER_BUFF_ID  +=STRUCT_getElementNum (COMPONENT_ID)+1; //increment next entry Point
     //================================================================
@@ -125,6 +127,10 @@ function COMPONENT_create(name)
 );
 //====================================================================
 function _COMPONENT_getElementNum(COMPONENT_ID)            ( STATIC_MASTER_BUFF[COMPONENT_ID+_RECTANGLE_getElementNum(COMPONENT_ID)+13];);// protected
+//====================================================================
+function COMPONENT_getLastRectAngle( COMPONENT_ID)         ( STATIC_MASTER_BUFF[ COMPONENT_ID+_RECTANGLE_getElementNum(COMPONENT_ID)+15];);
+function COMPONENT_storeLastRectAngle( COMPONENT_ID)       ( RECTANGLE_copyTo  ( COMPONENT_getLastRectAngle( COMPONENT_ID),COMPONENT_ID););
+function COMPONENT_isSizeChanged(COMPONENT_ID)             ( (RECTANGLE_compare ( COMPONENT_getLastRectAngle( COMPONENT_ID),COMPONENT_ID)==false ););
 //====================================================================
 function COMPONENT_getLastValue( COMPONENT_ID)             ( STATIC_MASTER_BUFF[COMPONENT_ID+_RECTANGLE_getElementNum(COMPONENT_ID)+14];);
 function COMPONENT_setLastValue( COMPONENT_ID,v)           ( STATIC_MASTER_BUFF[COMPONENT_ID+_RECTANGLE_getElementNum(COMPONENT_ID)+14]=v;);
@@ -204,7 +210,7 @@ function COMPONENT_setValue(COMPONENT_ID,value,isSendReaper)
     (
         slider( COMPONENT_getSliderIndex(COMPONENT_ID) ) = COMPONENT_getValue(COMPONENT_ID);;
         slider_automate(2 ^ COMPONENT_getSliderIndex(COMPONENT_ID) -1 );
-        DBG("value Changed");
+        DBG("value Changed, in setValue");
         DBG_float(  COMPONENT_getValue(COMPONENT_ID));
     );
     //================================================================

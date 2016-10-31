@@ -92,21 +92,28 @@ function KNOB_draw(KNOB_ID)local (x,y,w,h,margin,tempText,radius)
     radius = min(w,h)/2;
     drawFillArc2( x+w/2 
                 , y+h/2 
-                , radius*0.9+4
-                , radius*0.60183 -4
+                , radius
+                , radius*0.6
                 , rad(220)
                 , rad(500) 
                 , 64);
     //================================================================
     COMPONENT_changeColorGfx( KNOB_ID,"red");
     //================================================================
+//    drawFillArc2( x+w/2 
+//                , y+h/2 
+//                , radius*0.9 ,radius*0.60183
+//                , rad(221)
+//                , rad(221+ (500-222) * COMPONENT_getValue( KNOB_ID) )
+//                , 64);
+    //================================================================
     drawFillArc2( x+w/2 
                 , y+h/2 
-                , radius*0.9 ,radius*0.60183
-                , rad(221)
-                , rad(221+ (500-222) * COMPONENT_getValue( KNOB_ID) )
+                , radius +1
+                , radius*0.6 -1
+                , rad(219)
+                , rad(219+ (500-215) * COMPONENT_getValue( KNOB_ID) )
                 , 64);
-    //================================================================
     
     //================================================================
     RECTANGLE_copyTO( KNOB_getTextAreaRect(KNOB_ID),KNOB_ID);
@@ -157,8 +164,8 @@ function KNOB_mouseMoved(KNOB_ID,MOUSEINFO_ID)local(XXX)
         //============================================================
         COMPONENT_setValue( KNOB_ID
                           ,   COMPONENT_getValue(KNOB_ID)
-                            + MOUSEINFO_getMouseXDiff(MOUSEINFO_ID)/750 
-                            + MOUSEINFO_getMouseYDiff(MOUSEINFO_ID)/750*-1
+                            + MOUSEINFO_getMouseXDiff(MOUSEINFO_ID)/400 
+                            + MOUSEINFO_getMouseYDiff(MOUSEINFO_ID)/400*-1
                           , true
                           );
         //============================================================

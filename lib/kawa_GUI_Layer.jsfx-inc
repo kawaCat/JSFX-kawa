@@ -221,6 +221,10 @@ function _LAYER_update(LAYER_ID,targetCOMPONENT_ID )
         (
             KNOB_update(targetCOMPONENT_ID);
             //========================================================
+        ):( strcmp(struct_Type ,"BUTTONGROUP")== 0 )?
+        (
+            BUTTONGROUP_update(targetCOMPONENT_ID);
+            //========================================================
         )
         //============================================================
         ;
@@ -264,9 +268,15 @@ function _LAYER_resized(LAYER_ID,targetCOMPONENT_ID,parrentRECT )
         (
             KNOB_resized(targetCOMPONENT_ID,LAYER_ID);
             //========================================================
+        ):( strcmp(struct_Type ,"BUTTONGROUP")== 0 )?
+        (
+            BUTTONGROUP_resized(targetCOMPONENT_ID,LAYER_ID);
+           
+            //========================================================
         )
         //============================================================
         ;
+        
     );
     //================================================================
 );
@@ -306,7 +316,12 @@ function _LAYER_draw(LAYER_ID,targetCOMPONENT_ID)local (struct_Type)
         (
             KNOB_draw(targetCOMPONENT_ID);
             //========================================================
+        ):( strcmp(struct_Type ,"BUTTONGROUP")== 0 )?
+        (
+            BUTTONGROUP_draw(targetCOMPONENT_ID);
+            //========================================================
         )
+        //============================================================
         ;
         //============================================================
     );
@@ -348,6 +363,10 @@ function _LAYER_mouseMoved(LAYER_ID,targetCOMPONENT_ID,MOUSEINFO_ID)
         ):(strcmp(struct_Type ,"KNOB")== 0 )?
         (
             KNOB_mouseMoved(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):( strcmp(struct_Type ,"BUTTONGROUP")== 0 )?
+        (
+            BUTTONGROUP_mouseMoved(targetCOMPONENT_ID,MOUSEINFO_ID);
             //========================================================
         )
         //============================================================
@@ -392,6 +411,10 @@ function _LAYER_mouseButtonPressd(LAYER_ID,targetCOMPONENT_ID,MOUSEINFO_ID )
         (
             KNOB_mouseButtonPressd(targetCOMPONENT_ID,MOUSEINFO_ID);
             //========================================================
+        ):( strcmp(struct_Type ,"BUTTONGROUP")== 0 )?
+        (
+            BUTTONGROUP_mouseButtonPressd(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
         )
         //============================================================
         ;
@@ -434,6 +457,11 @@ function _LAYER_mouseButtonReleased(LAYER_ID,targetCOMPONENT_ID,MOUSEINFO_ID )
         ):(strcmp(struct_Type ,"KNOB")== 0 )?
         (
             KNOB_mouseButtonReleased(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):( strcmp(struct_Type ,"BUTTONGROUP")== 0 )?
+        (
+            BUTTONGROUP_mouseButtonReleased(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
         )
         //============================================================
         ;
@@ -476,6 +504,11 @@ function _LAYER_mouseWheeled(LAYER_ID,targetCOMPONENT_ID,MOUSEINFO_ID)
         ):(strcmp(struct_Type ,"KNOB")== 0 )?
         (
             KNOB_mouseWheeled(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):( strcmp(struct_Type ,"BUTTONGROUP")== 0 )?
+        (
+            BUTTONGROUP_mouseWheeled(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
         )
         //============================================================
         ;
@@ -513,12 +546,22 @@ function LAYER_update(LAYER_ID,parrentRectID)
         //============================================================
         while ( count_ < childNUM )
         (
+            //========================================================
             COMPONENT_setComponentInfoValue(  ARRAY_getAt(childCompoArray_ID,count_)
                                             , "parrentLayer_Resized"
                                             , LAYER_isAreaResized ( LAYER_ID)
                                             ) ;
             //========================================================
             _LAYER_update(LAYER_ID,ARRAY_getAt(childCompoArray_ID,count_) ) ;
+            //========================================================
+            ( COMPONENT_isSizeChanged( ARRAY_getAt(childCompoArray_ID,count_)) == true  ) ?
+            (
+                _LAYER_resized( LAYER_ID
+                              , ARRAY_getAt(childCompoArray_ID,count_)
+                              , LAYER_ID);//parent Rectangle from component
+            );
+            //========================================================
+             COMPONENT_storeLastRectAngle(  ARRAY_getAt(childCompoArray_ID,count_) );
             //========================================================
             count_ +=1;
         );
@@ -550,7 +593,7 @@ function LAYER_resized(LAYER_ID,parrentRectID)
             //========================================================
             _LAYER_resized( LAYER_ID
                           , ARRAY_getAt(childCompoArray_ID,count_)
-                          , parrentRectID);
+                          , LAYER_ID);//parent Rectangle from component
             //========================================================
             count_ +=1;
         );

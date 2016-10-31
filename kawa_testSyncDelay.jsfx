@@ -1,0 +1,194 @@
+
+//====================================================================
+desc:kawa TestSyncDelay
+//====================================================================
+
+//imports
+//====================================================================
+import kawa_ALL.jsfx-inc
+//====================================================================
+
+//sliders
+//--------------------------------------------------------------------
+slider1:0.5 <0.0,1.0 >- L Gain 
+slider2:0.0 <0.0,1.0 >- L FEEDBACK
+slider3:0.0 <0.0,1.0 >- L Pan
+slider4:3.0 <0,6 ,{bar,2th,4th,8th,16th,32th}>- L BPM
+slider5:2.0 <0,5 ,{x1,x2,x3,x4,x5}>-L multiply
+slider6:0.7 <0.0,1.0 >- L Wet
+//====================================================================
+slider11:0.5 <0.0,1.0 >- R Gain 
+slider12:0.0 <0.0,1.0 >- R FEEDBACK
+slider13:1.0 <0.0,1.0 >- R Pan
+slider14:4.0 <0,6 ,{bar,2th,4th,8th,16th,32th}>- R BPM
+slider15:2.0 <0,5 ,{x1,x2,x3,x4,x5}>-R multiply
+slider16:0.7 <0.0,1.0 >- R Wet
+//====================================================================
+
+@init
+//====================================================================
+
+    // create APP ID
+    //================================================================
+    APP_ID = APP_create();
+    //================================================================
+
+    //create Layer ID
+    //================================================================
+    LAYER_001 = LAYER_create("LAYER01");
+    //================================================================
+
+    //create Component and add to layer 1 .
+    //================================================================
+    TEST_comp  = COMPONENT_create("TEST");
+    //----------------------------------------------------------------
+    LAYER_addChildComponent(LAYER_001 , TEST_comp);
+    //================================================================
+
+    MODULE_BPMDELAY_L = BPMDELAY_create(LAYER_001)  ;
+    MODULE_BPMDELAY_R = BPMDELAY_create(LAYER_001)  ;
+    //================================================================
+    BPMDELAY_setSliderIndex_DelayGain (MODULE_BPMDELAY_L,1);
+    BPMDELAY_setSliderIndex_FeedBack  (MODULE_BPMDELAY_L,2);
+    BPMDELAY_setSliderIndex_Pan       (MODULE_BPMDELAY_L,3);
+    BPMDELAY_setSliderIndex_WetDry    (MODULE_BPMDELAY_L,6);
+    BPMDELAY_setSliderIndex_BPM       (MODULE_BPMDELAY_L,4);
+    BPMDELAY_setSliderIndex_MUL       (MODULE_BPMDELAY_L,5);
+    //================================================================
+    BPMDELAY_setSliderIndex_DelayGain (MODULE_BPMDELAY_R,11);
+    BPMDELAY_setSliderIndex_FeedBack  (MODULE_BPMDELAY_R,12);
+    BPMDELAY_setSliderIndex_Pan       (MODULE_BPMDELAY_R,13);
+    BPMDELAY_setSliderIndex_WetDry    (MODULE_BPMDELAY_R,16);
+    BPMDELAY_setSliderIndex_BPM       (MODULE_BPMDELAY_R,14);
+    BPMDELAY_setSliderIndex_MUL       (MODULE_BPMDELAY_R,15);
+    //================================================================
+    
+    // layer add to app
+    //================================================================
+    APP_addChildComponent(APP_ID,LAYER_001);
+    //================================================================
+
+    //================================================================
+    DBG_toggle(DBG); // visible off
+    //================================================================
+    
+    // for particle 
+    PARTICLE_controller = PARTICLE_CONTROLLER_create();
+    //================================================================
+
+@slider
+//====================================================================
+    BPMDELAY_setDelayGainValue       (MODULE_BPMDELAY_L,slider1,false);
+    BPMDELAY_setFeedBackValue        (MODULE_BPMDELAY_L,slider2,false);
+    BPMDELAY_setPanValue             (MODULE_BPMDELAY_L,slider3,false);
+    BPMDELAY_setWetDryValue          (MODULE_BPMDELAY_L,slider6,false);
+    //================================================================
+    BPMDELAY_setBtGroupBPM_CurrentIdx(MODULE_BPMDELAY_L,slider4);
+    BPMDELAY_setBtGroupMUL_CurrentIdx(MODULE_BPMDELAY_L,slider5);
+    //================================================================
+    BPMDELAY_setDelayGainValue       (MODULE_BPMDELAY_R,slider11,false);
+    BPMDELAY_setFeedBackValue        (MODULE_BPMDELAY_R,slider12,false);
+    BPMDELAY_setPanValue             (MODULE_BPMDELAY_R,slider13,false);
+    BPMDELAY_setWetDryValue          (MODULE_BPMDELAY_R,slider16,false);
+    //================================================================
+    BPMDELAY_setBtGroupBPM_CurrentIdx(MODULE_BPMDELAY_R,slider14);
+    BPMDELAY_setBtGroupMUL_CurrentIdx(MODULE_BPMDELAY_R,slider15);
+    //================================================================
+
+@block
+//====================================================================
+
+    //================================================================
+    
+@sample
+//====================================================================
+ 
+    //================================================================
+    BPMDELAY_process(MODULE_BPMDELAY_L,spl0);
+    BPMDELAY_process(MODULE_BPMDELAY_R,spl1);
+    //================================================================
+    eff_L =  BPMDELAY_getEffectedSample_L(MODULE_BPMDELAY_L)
+           + BPMDELAY_getEffectedSample_L(MODULE_BPMDELAY_R) ; 
+    eff_R =  BPMDELAY_getEffectedSample_R(MODULE_BPMDELAY_L)
+           + BPMDELAY_getEffectedSample_R(MODULE_BPMDELAY_R) ; 
+    //================================================================
+    wetDryValue_L  = BPMDELAY_getWetDryValue  (MODULE_BPMDELAY_L);
+    wetDryValue_R  = BPMDELAY_getWetDryValue  (MODULE_BPMDELAY_R);
+    //================================================================
+    spl0 =  spl0*(1-wetDryValue_L) + eff_L * wetDryValue_L;
+    spl1 =  spl1*(1-wetDryValue_R) + eff_R * wetDryValue_R;
+    //================================================================
+
+@gfx 200 400
+//====================================================================
+    // draw background to
+    //================================================================
+    drawBackGrond_color( 20, 120 , 12*4);
+    drawDotGrid(10,10,0.01);
+    //================================================================
+   
+    // for debug
+    //================================================================
+    DBGMESSAGE_drawAllMessage(DBG);
+    //================================================================
+
+    // for particle 
+    PARTICLE_CONTROLLER_update ( PARTICLE_controller );
+    //================================================================    
+    
+    //================================================================
+    // App update. check and compare with last event state.(resize or mouse)
+    //================================================================
+    APP_update(APP_ID);
+    //================================================================
+  
+    // alignment position when resized.
+    //================================================================
+    ( APP_isWindowResized(APP_ID) ==true) ?
+    (
+        //============================================================
+        RECTANGLE_copyTo      ( LAYER_001,APP_ID);  // layer resize 
+        //============================================================
+    );
+    //================================================================
+    
+    //================================================================
+    ( LAYER_isAreaResized(LAYER_001) ==true)   ?
+    (
+        RECTANGLE_copyTo          (TEST_comp,LAYER_001);        
+        RECTANGLE_cropFromTopP    (TEST_comp,0.025);
+        //============================================================
+        RECTANGLE_copyTo          (MODULE_BPMDELAY_L,LAYER_001);
+        RECTANGLE_cropFromLeftP   (MODULE_BPMDELAY_L,0.5);
+        RECTANGLE_removeFromTop   (MODULE_BPMDELAY_L,RECTANGLE_getY2(TEST_comp));
+        RECTANGLE_removeFromBottom(MODULE_BPMDELAY_L,20);
+        RECTANGLE_reduceP         (MODULE_BPMDELAY_L,0.0125,0.0125);
+        BPMDELAY_resized          (MODULE_BPMDELAY_L);
+        //============================================================        
+        RECTANGLE_copyTo          (MODULE_BPMDELAY_R,LAYER_001);
+        RECTANGLE_cropFromRightP  (MODULE_BPMDELAY_R,0.5);
+        RECTANGLE_removeFromTop   (MODULE_BPMDELAY_R,RECTANGLE_getY2(TEST_comp));
+        RECTANGLE_removeFromBottom(MODULE_BPMDELAY_R,20);
+        RECTANGLE_reduceP         (MODULE_BPMDELAY_R,0.0125,0.0125);
+        BPMDELAY_resized          (MODULE_BPMDELAY_R);
+    );
+    //================================================================
+
+    // if animation
+    //================================================================
+    COMPONENT_setComponentAlpha(TEST_comp,abs(sin($pi*2*mod*2)));
+    mod += 0.01;(mod > 1 )?(mod=0;);
+    //================================================================
+    
+    // you can animation layer
+    //RECTANGLE_setX( LAYER_001,30*sin($pi*2*mod*2));
+    //================================================================
+    
+    // plugin Title Str
+    //================================================================
+    RECTANGLE_drawBottomRightText( APP_ID,"kawa Test Sync Delay");
+    //================================================================
+
+//====================================================================
+// 続
+

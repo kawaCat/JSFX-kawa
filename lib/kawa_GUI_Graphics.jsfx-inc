@@ -814,8 +814,8 @@ function RECTANGLE_drawBottomRightText( RECTANGLE_ID,str)
     gfx_r =0;gfx_g=0;gfx_b=0;gfx_a=1;
     gfx_rect( gfx_x -pluginTitleStrMarginX
             , gfx_y -pluginTitleStrMarginY
-            , pluginTitleStr_w+pluginTitleStrMarginX*3
-            , pluginTitleStr_h+pluginTitleStrMarginY*3
+            , pluginTitleStr_w+pluginTitleStrMarginX*2
+            , pluginTitleStr_h+pluginTitleStrMarginY*2
             );
     //================================================================
     gfx_r =1;gfx_g=1;gfx_b=1;gfx_a=1;
@@ -823,6 +823,39 @@ function RECTANGLE_drawBottomRightText( RECTANGLE_ID,str)
     //================================================================
 );
 //====================================================================
-
+//====================================================================
+function RECTANGLE_drawBottomRightText2( RECTANGLE_ID,str)
+    local (pluginTitleStrMarginX
+          ,pluginTitleStrMarginY
+          ,pluginTitleStr
+          ,pluginTitleStr_w
+          ,pluginTitleStr_h
+          )
+(
+    //================================================================
+    // plugin Title Str
+    //================================================================
+    pluginTitleStrMarginX = 10;
+    pluginTitleStrMarginY = 4;
+    pluginTitleStr = #;
+    sprintf ( pluginTitleStr,str);
+    //================================================================
+    gfx_measurestr(pluginTitleStr,pluginTitleStr_w,pluginTitleStr_h);
+    //================================================================
+    gfx_x = RECTANGLE_getX2(RECTANGLE_ID) - pluginTitleStr_w -pluginTitleStrMarginX;
+    gfx_y = RECTANGLE_getY2(RECTANGLE_ID) - pluginTitleStr_h -pluginTitleStrMarginY;
+    //================================================================
+    gfx_r =0;gfx_g=0;gfx_b=0;gfx_a=1;
+    gfx_rect( gfx_x -pluginTitleStrMarginX
+            , gfx_y -pluginTitleStrMarginY
+            , pluginTitleStr_w+pluginTitleStrMarginX*2
+            , pluginTitleStr_h+pluginTitleStrMarginY*2
+            );
+    //================================================================
+    gfx_r =1;gfx_g=1;gfx_b=1;gfx_a=1;
+    gfx_drawstr( pluginTitleStr);
+    //================================================================
+);
+//====================================================================
 
 
