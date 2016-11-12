@@ -225,6 +225,10 @@ function _LAYER_update(LAYER_ID,targetCOMPONENT_ID )
         (
             BUTTONGROUP_update(targetCOMPONENT_ID);
             //========================================================
+        ):( strcmp(struct_Type ,"FREQUENCY")== 0 )?
+        (
+            FREQUENCY_update(targetCOMPONENT_ID);
+            //========================================================
         )
         //============================================================
         ;
@@ -273,6 +277,10 @@ function _LAYER_resized(LAYER_ID,targetCOMPONENT_ID,parrentRECT )
             BUTTONGROUP_resized(targetCOMPONENT_ID,LAYER_ID);
            
             //========================================================
+        ):( strcmp(struct_Type ,"FREQUENCY")== 0 )?
+        (
+            FREQUENCY_resized(targetCOMPONENT_ID,LAYER_ID);
+            //========================================================
         )
         //============================================================
         ;
@@ -319,6 +327,10 @@ function _LAYER_draw(LAYER_ID,targetCOMPONENT_ID)local (struct_Type)
         ):( strcmp(struct_Type ,"BUTTONGROUP")== 0 )?
         (
             BUTTONGROUP_draw(targetCOMPONENT_ID);
+            //========================================================
+        ):( strcmp(struct_Type ,"FREQUENCY")== 0 )?
+        (
+            FREQUENCY_draw(targetCOMPONENT_ID);
             //========================================================
         )
         //============================================================
@@ -368,6 +380,10 @@ function _LAYER_mouseMoved(LAYER_ID,targetCOMPONENT_ID,MOUSEINFO_ID)
         (
             BUTTONGROUP_mouseMoved(targetCOMPONENT_ID,MOUSEINFO_ID);
             //========================================================
+        ):( strcmp(struct_Type ,"FREQUENCY")== 0 )?
+        (
+            FREQUENCY_mouseMoved(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
         )
         //============================================================
         ;
@@ -414,6 +430,10 @@ function _LAYER_mouseButtonPressd(LAYER_ID,targetCOMPONENT_ID,MOUSEINFO_ID )
         ):( strcmp(struct_Type ,"BUTTONGROUP")== 0 )?
         (
             BUTTONGROUP_mouseButtonPressd(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):( strcmp(struct_Type ,"FREQUENCY")== 0 )?
+        (
+            FREQUENCY_mouseButtonPressd(targetCOMPONENT_ID,MOUSEINFO_ID);
             //========================================================
         )
         //============================================================
@@ -462,6 +482,10 @@ function _LAYER_mouseButtonReleased(LAYER_ID,targetCOMPONENT_ID,MOUSEINFO_ID )
         (
             BUTTONGROUP_mouseButtonReleased(targetCOMPONENT_ID,MOUSEINFO_ID);
             //========================================================
+        ):( strcmp(struct_Type ,"FREQUENCY")== 0 )?
+        (
+            FREQUENCY_mouseButtonReleased(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
         )
         //============================================================
         ;
@@ -508,6 +532,10 @@ function _LAYER_mouseWheeled(LAYER_ID,targetCOMPONENT_ID,MOUSEINFO_ID)
         ):( strcmp(struct_Type ,"BUTTONGROUP")== 0 )?
         (
             BUTTONGROUP_mouseWheeled(targetCOMPONENT_ID,MOUSEINFO_ID);
+            //========================================================
+        ):( strcmp(struct_Type ,"FREQUENCY")== 0 )?
+        (
+            FREQUENCY_mouseWheeled(targetCOMPONENT_ID,MOUSEINFO_ID);
             //========================================================
         )
         //============================================================

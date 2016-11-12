@@ -4,6 +4,13 @@
 
 
 //====================================================================
+SLIDERTYPE2_TEXT_TYPE_RAW  = "RAW";    // raw type.     ( 0.0 ~ 1.0 or min max value )
+SLIDERTYPE2_TEXT_TYPE_PER  = "PERCENT";// percent Type. ( 0.0% ~100% )
+SLIDERTYPE2_TEXT_TYPE_DB   = "DB";     // db Type       ( decibel value )
+SLIDERTYPE2_TEXT_TYPE_PAN  = "PAN";    // pan Type      ( 0.0 = L , 0.5 = center, 1.0 = R )
+//====================================================================
+
+//====================================================================
 // Inheritance List
 // * Rectangle
 // * Component
@@ -22,6 +29,7 @@ function SLIDERTYPE2_create(name)
     STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 2] = 0;  // non use
     STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 3] = 0;  // non use
     STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 4] = STATIC_MASTER_BUFF[SLIDERTYPE2_ID + 1] ;// element Num in TEXT class.
+    STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 5] = SLIDERTYPE2_TEXT_TYPE_RAW;//text Parameter Draw Type
     //================================================================
     STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (SLIDERTYPE2_ID)+1; // next entry Bufff Point
     //================================================================
@@ -37,7 +45,70 @@ function SLIDERTYPE2_create(name)
     SLIDERTYPE2_ID; //retrun
 );
 //====================================================================
-function _SLIDERTYPE2_getElementNum(SLIDERTYPE2_ID)     ( STATIC_MASTER_BUFF[SLIDERTYPE2_ID + _COMPONENT_getElementNum(SLIDERTYPE2_ID)+ 4];); //protected
+function _SLIDERTYPE2_getElementNum(SLIDERTYPE2_ID)         ( STATIC_MASTER_BUFF[SLIDERTYPE2_ID + _COMPONENT_getElementNum(SLIDERTYPE2_ID)+ 4];); //protected
+//====================================================================
+function SLIDERTYPE2_getParameterDrawType(SLIDERTYPE2_ID)   ( STATIC_MASTER_BUFF[SLIDERTYPE2_ID + _COMPONENT_getElementNum(SLIDERTYPE2_ID)+ 5];);
+function SLIDERTYPE2_setParameterDrawType(SLIDERTYPE2_ID,v) ( STATIC_MASTER_BUFF[SLIDERTYPE2_ID + _COMPONENT_getElementNum(SLIDERTYPE2_ID)+ 5] = v;);
+//====================================================================
+function SLIDERTYPE2_getValueViaParameterDrawType(SLIDERTYPE2_ID)
+    local (parameterType,outText,tempvalue,tempvalue2)
+(
+    outText = #;
+    //================================================================
+    parameterType = SLIDERTYPE2_getParameterDrawType(SLIDERTYPE2_ID);
+    //================================================================
+    (   parameterType == SLIDERTYPE2_TEXT_TYPE_RAW)?
+    (
+        sprintf( outText ,"%f",COMPONENT_getValue( SLIDERTYPE2_ID));
+        //============================================================
+    ):( parameterType == SLIDERTYPE2_TEXT_TYPE_PER)?
+    (
+        sprintf( outText ,"%.2f%%",COMPONENT_getValue( SLIDERTYPE2_ID)*100);
+        countB = strlen (outText);
+        while( countB <= 7)?
+        (
+            strcat (outText," ");
+            //========================================================
+            countB  = strlen (outText);
+        );
+        //============================================================
+    ):( parameterType == SLIDERTYPE2_TEXT_TYPE_DB)?
+    (
+        sprintf( outText ,"%+.2fdB",valueToDecivel( COMPONENT_getValue( SLIDERTYPE2_ID)) );
+        //============================================================
+    ):( parameterType == SLIDERTYPE2_TEXT_TYPE_PAN)?
+    (
+        tempvalue = COMPONENT_getValue( SLIDERTYPE2_ID);
+        //============================================================
+        (tempvalue == 0.0)? 
+        ( 
+            sprintf( outText ," L 100.00%%");
+            //========================================================
+        ):(tempvalue == 0.5)? 
+        (
+            sprintf( outText ,"   Centor ");
+            //========================================================
+        ):(tempvalue == 1.0)? 
+        (
+            sprintf( outText ," R 100.00%%");
+            //========================================================
+        ):(tempvalue < 0.5)?
+        (
+            tempvalue2 = abs( (tempvalue-0.5)/0.5 );
+            sprintf( outText ,"  L %2.2f%%",tempvalue2*100);
+            //========================================================
+        ):(tempvalue > 0.5)?
+        (
+            tempvalue2 = abs( (tempvalue-0.5)/0.5 );
+            sprintf( outText ,"  R %2.2f%%",tempvalue2*100);
+        );
+        //============================================================
+    );
+    //================================================================
+    outText;
+);
+//====================================================================
+
 //====================================================================
 function _SLIDERTYPE2_getInnerMargin(SLIDERTYPE2_ID) local (out)
 (
@@ -108,8 +179,8 @@ function SLIDERTYPE2_draw(SLIDERTYPE2_ID)local (x,y,w,h,margin,tempText)
             , h-margin*2
             , true);
     //================================================================
-    tempText = #;
-    sprintf( tempText ,"%f",COMPONENT_getValue( SLIDERTYPE2_ID));
+    tempText = SLIDERTYPE2_getValueViaParameterDrawType(SLIDERTYPE2_ID);
+    //sprintf( tempText ,"%f",COMPONENT_getValue( SLIDERTYPE2_ID));
     //================================================================
     COMPONENT_changeColorGfx( SLIDERTYPE2_ID,"black");
     //================================================================

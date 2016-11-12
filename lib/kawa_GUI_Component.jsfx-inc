@@ -278,7 +278,6 @@ function COMPONENT_changeColorGfx( COMPONENT_ID,colorKeyName)local (COLOR_ID_2)
 );
 //====================================================================
 
-
 //====================================================================
 function COMPONENT_getDBGText(COMPONENT_ID,optMsG) local (out)
 (
@@ -293,6 +292,7 @@ function COMPONENT_isValueChanged( COMPONENT_ID)
     (  COMPONENT_getLastValue( COMPONENT_ID) !=  COMPONENT_getValue(COMPONENT_ID));
 );
 //====================================================================
+
 
 //====================================================================
 //

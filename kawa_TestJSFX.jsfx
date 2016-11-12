@@ -5,15 +5,22 @@ desc:kawa TestJSFX
 // imports
 //====================================================================
 import kawa_ALL.jsfx-inc
-//=================================================================
-
+//====================================================================
 
 //====================================================================
 // sliders
 //--------------------------------------------------------------------
-slider1:0.25<0.0,1>parameter1
-//====================================================================
+slider1:0.01<0.001,1,0.0001>FREQ
+slider2:0.5<-1,1>GAIN
+slider3:0.01<0.01,2>Q
 
+slider10:0.25<0.001,1,0.0001>FREQ
+slider11:0.25<-1,1>GAIN
+slider12:1<0.1,2>Q
+
+
+slider20:0<-1,1> OFFSET FREQ
+//====================================================================
 
 @init
 //====================================================================
@@ -21,7 +28,6 @@ slider1:0.25<0.0,1>parameter1
     //================================================================
     APP_ID = APP_create();
     //================================================================
-
     //create Layer ID
     //================================================================
     LAYER_001 = LAYER_create("LAYER01");
@@ -34,7 +40,7 @@ slider1:0.25<0.0,1>parameter1
     TEST_comp2 = COMPONENT_create("TES2T");
     SLIDER_2_comp = SLIDERTYPE2_create("TEST2");
     KONB_ID  = KNOB_create( "knobTest") ;
-    COMPONENT_setSliderIndex(KONB_ID,1); 
+    COMPONENT_setSliderIndex(KONB_ID,20); 
     COMPONENT_setSliderIndex(SLIDER_2_comp,1); 
     //----------------------------------------------------------------
     TEXT_DB_L = TEXT_create("text 1"); 
@@ -47,10 +53,14 @@ slider1:0.25<0.0,1>parameter1
     LAYER_addChildComponent(LAYER_001 , TEXT_DB_L);
     LAYER_addChildComponent(LAYER_001 , TEXT_DB_R);
     //----------------------------------------------------------------
+    canvasFreq = FREQUENCY_create("freq");
+    
+    //----------------------------------------------------------------
     LAYER_addChildComponent(LAYER_001 , TEST_comp);
     LAYER_addChildComponent(LAYER_001 , TEST_comp2);
     LAYER_addChildComponent(LAYER_001 , SLIDER_2_comp);
     LAYER_addChildComponent(LAYER_001 , KONB_ID);
+    LAYER_addChildComponent(LAYER_001 , canvasFreq);
     //================================================================
 
     // layer 2
@@ -80,23 +90,36 @@ slider1:0.25<0.0,1>parameter1
     //================================================================
     
     PARTICLE_controller = PARTICLE_CONTROLLER_create();
-
+    FREQUENCY_changeRbjFilter_activeState(canvasFreq,0,true);
+    FREQUENCY_changeRbjFilter_activeState(canvasFreq,1,true);
+    FREQUENCY_changeRbjFilter_FilterType(canvasFreq,0,RBJ_FILTER_TYPE_PEAK);
+    FREQUENCY_changeRbjFilter_FilterType(canvasFreq,1,RBJ_FILTER_TYPE_LPF);
+//    FREQUENCY_changeRbjFilter_activeState(canvasFreq,1,true);
+    //================================================================
+    
 @slider
 //====================================================================
     COMPONENT_setValue( SLIDER_2_comp,slider1,false );
-    COMPONENT_setValue( KONB_ID,slider1,false );
+    COMPONENT_setValue( KONB_ID,slider20,false );
     COMPONENT_setValue( SLIDER_1_comp,slider1,false );
     
+    FREQUENCY_changeRbjFilter_Freq(canvasFreq,0,20000*slider1  + 2000*slider20);
+    FREQUENCY_changeRbjFilter_DbGain(canvasFreq,0,9 *slider2);
+    FREQUENCY_changeRbjFilter_Q(canvasFreq,0, slider3);
+    
+    FREQUENCY_changeRbjFilter_Freq(canvasFreq,1,20000*slider10 + 2000*slider20);
+    FREQUENCY_changeRbjFilter_DbGain(canvasFreq,1,9 *slider11);
+    FREQUENCY_changeRbjFilter_Q(canvasFreq,1, slider12);
 
 @block
 //====================================================================
     COMPONENT_setValue( TEXT_DB_L ,max(max_L,abs(minL)),false);
     COMPONENT_setValue( TEXT_DB_R ,max(max_R,abs(minR)),false);
+
     //================================================================
     max_L = 0;min_L = 0;
     max_R = 0;min_R = 0;
     //================================================================
-   
 
 @sample
 //====================================================================
@@ -104,6 +127,14 @@ slider1:0.25<0.0,1>parameter1
     min_L = min(min_L,spl0);
     max_R = max(max_R,spl1);
     min_R = min(min_R,spl1);
+    FFT_sampleValue =abs( spl0);
+    
+    //================================================================
+    out_LL = FREQUENCY_processFilter( canvasFreq,spl0);
+    spl0 = out_LL;
+    spl1 = out_LL;
+    
+    _FREQUENCY_pushSampleToFFTBuffer(canvasFreq,FFT_sampleValue );  
 
 @gfx 200 400
 //====================================================================
@@ -142,8 +173,10 @@ slider1:0.25<0.0,1>parameter1
     //================================================================
     drawDotGrid(20,20,0.04);
     //================================================================
-
-
+    
+    //================================================================
+    FREQUENCY_processFFT(canvasFreq,FFT_sampleValue ) ;
+    
     // for debug
     //================================================================
     DBGMESSAGE_drawAllMessage(DBG);
@@ -174,6 +207,17 @@ slider1:0.25<0.0,1>parameter1
     //================================================================
     APP_update(APP_ID);
   
+  
+    ( COMPONENT_isValueChanged ( KNOB_ID) ==true)?
+    (
+        FREQUENCY_changeRbjFilter_Freq(canvasFreq,0,20000*slider1  + 2000*slider20);
+//        FREQUENCY_changeRbjFilter_DbGain(canvasFreq,0,9 *slider2);
+//        FREQUENCY_changeRbjFilter_Q(canvasFreq,0, slider3);
+        
+        FREQUENCY_changeRbjFilter_Freq(canvasFreq,1,20000*slider10 + 2000*slider20);
+//        FREQUENCY_changeRbjFilter_DbGain(canvasFreq,1,9 *slider11);
+//        FREQUENCY_changeRbjFilter_Q(canvasFreq,1, slider12);
+    );
     //================================================================
     ( mouse_cap & 2 ==2 && lastCAP != mouse_cap )?
     (
@@ -215,10 +259,9 @@ slider1:0.25<0.0,1>parameter1
     //================================================================
     ( LAYER_isAreaResized(LAYER_001) ==true)   ?
     (
-    
         RECTANGLE_copyTo         (TEST_comp,LAYER_001);
         RECTANGLE_cropFromTopP   (TEST_comp,0.025);
-        
+        //============================================================
         RECTANGLE_copyTo         (TEST_comp2,LAYER_001);
         RECTANGLE_cropFromBottomP(TEST_comp2,0.025);
         //============================================================
@@ -236,11 +279,16 @@ slider1:0.25<0.0,1>parameter1
         RECTANGLE_reduceP        (TEXT_DB_R,0.18,0.18);
         //============================================================
         RECTANGLE_copyTo         (KONB_ID,LAYER_001);
-        RECTANGLE_reduceP        (KONB_ID,0.28,0.28);
-        RECTANGLE_reduce         (KONB_ID,5,5);
+        RECTANGLE_cropFromBottomP(KONB_ID,0.3);
+        RECTANGLE_reduce         (KONB_ID,50,5);
+        //============================================================
+        RECTANGLE_copyTo         (canvasFreq,LAYER_001);
+        RECTANGLE_cropFromTopP   (canvasFreq,0.7);
+        RECTANGLE_reduce         (canvasFreq,0,5);
+        RECTANGLE_reduceP        (canvasFreq,0.1,0.1);
+        //============================================================
     );
     //================================================================
-
 
     //================================================================
     ( LAYER_isAreaResized(LAYER_002) == true) ?
@@ -267,10 +315,6 @@ slider1:0.25<0.0,1>parameter1
     //================================================================
       RECTANGLE_drawBottomRightText( APP_ID,"kawa Test");
     //================================================================
-    
-    
-    
-   
     
 //====================================================================
 // 続

@@ -1,0 +1,695 @@
+
+
+//====================================================================
+//  BEZIERLINE_create(x1,y1,x2,y2,bX1,bY1,bX2,bY2)
+//====================================================================
+//    BEZIERLINE_getPointA          ( BEZIERLINE_ID)
+//    BEZIERLINE_getPointB          ( BEZIERLINE_ID)
+//    BEZIERLINE_getBezierPointA    ( BEZIERLINE_ID)
+//    BEZIERLINE_getBezierPointB    ( BEZIERLINE_ID)
+//====================================================================
+//    BEZIERLINE_getPointA_X        ( BEZIERLINE_ID)
+//    BEZIERLINE_getPointA_Y        ( BEZIERLINE_ID)
+//    BEZIERLINE_getPointB_X        ( BEZIERLINE_ID)
+//    BEZIERLINE_getPointB_Y        ( BEZIERLINE_ID)
+//====================================================================
+//    BEZIERLINE_getBezierPointA_X    ( BEZIERLINE_ID)
+//    BEZIERLINE_getBezierPointA_Y    ( BEZIERLINE_ID)
+//    BEZIERLINE_getBezierPointB_X    ( BEZIERLINE_ID)
+//    BEZIERLINE_getBezierPointB_Y    ( BEZIERLINE_ID)
+//====================================================================
+//    BEZIERLINE_getDistancePOINTAB_X (BEZIERLINE_ID )
+//    BEZIERLINE_getDistancePOINTAB_Y (BEZIERLINE_ID )
+//====================================================================
+
+//====================================================================
+//    BEZIERLINE_setPointA          ( BEZIERLINE_ID,x_,y_)
+//    BEZIERLINE_setPointB          ( BEZIERLINE_ID,x_,y_)
+//    BEZIERLINE_setBezierPointA    ( BEZIERLINE_ID,x_,y_)
+//    BEZIERLINE_setBezierPointB    ( BEZIERLINE_ID,x_,y_)
+//    BEZIERLINE_getBezierLinePoint ( BEZIERLINE_ID,time_) //time_ is between 0 to 1.
+//    BEZIERLINE_drawLine           ( BEZIERLINE_ID,radius,alpha,isDrawBezierControlPoint)
+//====================================================================
+
+//====================================================================
+@init
+//====================================================================
+
+//====================================================================
+// BEZIERLINE
+//====================================================================
+function BEZIERLINE_create(x1,y1,x2,y2,bX1,bY1,bX2,bY2)
+    local( BEZIERLINE_ID
+         , pointA
+         , pointB
+         , bezierPointA
+         , bezierPointB
+         )
+(
+    pointA = POINT_create(x1,y1);
+    pointB = POINT_create(x2,y2);
+    bezierPointA = POINT_create(bX1,bY1);
+    bezierPointB = POINT_create(bX2,bY2);
+    bezieredPoint = POINT_create(x1,y1);
+    //================================================================
+    BEZIERLINE_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[BEZIERLINE_ID]   = "BEZIERLINE";   // class name
+    STATIC_MASTER_BUFF[BEZIERLINE_ID+1] = 10;              // total Element Num 
+    //================================================================
+    STATIC_MASTER_BUFF[BEZIERLINE_ID+2] = STATIC_MASTER_BUFF[BEZIERLINE_ID+1];  // element Num Only this Class
+    STATIC_MASTER_BUFF[BEZIERLINE_ID+3] = pointA;         // non use
+    STATIC_MASTER_BUFF[BEZIERLINE_ID+4] = pointB;         // currentAnimTime
+    STATIC_MASTER_BUFF[BEZIERLINE_ID+5] = bezierPointA;   // lastTime
+    STATIC_MASTER_BUFF[BEZIERLINE_ID+6] = bezierPointB;   // element Num Only DeletaTime Class
+    STATIC_MASTER_BUFF[BEZIERLINE_ID+7] = bezieredPoint;  // temporary use
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(BEZIERLINE_ID)+1; //next entry point
+    //================================================================
+    BEZIERLINE_ID;
+);
+//====================================================================
+function _BEZIERLINE_getElementNum    ( BEZIERLINE_ID) ( STATIC_MASTER_BUFF[BEZIERLINE_ID + 2];);// protected
+//====================================================================
+function BEZIERLINE_getPointA         ( BEZIERLINE_ID) ( STATIC_MASTER_BUFF[BEZIERLINE_ID + 3];);
+function BEZIERLINE_getPointB         ( BEZIERLINE_ID) ( STATIC_MASTER_BUFF[BEZIERLINE_ID + 4];);
+function BEZIERLINE_getBezierPointA   ( BEZIERLINE_ID) ( STATIC_MASTER_BUFF[BEZIERLINE_ID + 5];);
+function BEZIERLINE_getBezierPointB   ( BEZIERLINE_ID) ( STATIC_MASTER_BUFF[BEZIERLINE_ID + 6];);
+function _BEZIERLINE_getBezieredPoint ( BEZIERLINE_ID) ( STATIC_MASTER_BUFF[BEZIERLINE_ID + 7];);
+//====================================================================
+function BEZIERLINE_getPointA_X       ( BEZIERLINE_ID) ( POINT_getX( BEZIERLINE_getPointA(BEZIERLINE_ID)););
+function BEZIERLINE_getPointA_Y       ( BEZIERLINE_ID) ( POINT_getY( BEZIERLINE_getPointA(BEZIERLINE_ID)););
+function BEZIERLINE_getPointB_X       ( BEZIERLINE_ID) ( POINT_getX( BEZIERLINE_getPointB(BEZIERLINE_ID)););
+function BEZIERLINE_getPointB_Y       ( BEZIERLINE_ID) ( POINT_getY( BEZIERLINE_getPointB(BEZIERLINE_ID)););
+//====================================================================
+function BEZIERLINE_getBezierPointA_X ( BEZIERLINE_ID) ( POINT_getX( BEZIERLINE_getBezierPointA(BEZIERLINE_ID)););
+function BEZIERLINE_getBezierPointA_Y ( BEZIERLINE_ID) ( POINT_getY( BEZIERLINE_getBezierPointA(BEZIERLINE_ID)););
+function BEZIERLINE_getBezierPointB_X ( BEZIERLINE_ID) ( POINT_getX( BEZIERLINE_getBezierPointB(BEZIERLINE_ID)););
+function BEZIERLINE_getBezierPointB_Y ( BEZIERLINE_ID) ( POINT_getY( BEZIERLINE_getBezierPointB(BEZIERLINE_ID)););
+//====================================================================
+
+//====================================================================
+function BEZIERLINE_getDistancePOINT_AB_X (BEZIERLINE_ID )
+(
+    BEZIERLINE_getPointB_X(BEZIERLINE_ID) - BEZIERLINE_getPointA_X(BEZIERLINE_ID);
+);
+//====================================================================
+function BEZIERLINE_getDistancePOINT_AB_Y (BEZIERLINE_ID )
+(
+    BEZIERLINE_getPointB_Y(BEZIERLINE_ID) - BEZIERLINE_getPointA_Y(BEZIERLINE_ID);
+);
+//====================================================================
+
+//====================================================================
+function BEZIERLINE_setPointA (BEZIERLINE_ID,x_,y_)
+(
+    POINT_setX( BEZIERLINE_getPointA(BEZIERLINE_ID),x_);
+    POINT_setY( BEZIERLINE_getPointA(BEZIERLINE_ID),Y_);
+);
+//====================================================================
+function BEZIERLINE_setPointA_X (BEZIERLINE_ID,x_)
+(
+    POINT_setX( BEZIERLINE_getPointA(BEZIERLINE_ID),x_);
+);
+//====================================================================
+function BEZIERLINE_setPointA_Y (BEZIERLINE_ID,y_)
+(
+    POINT_setY( BEZIERLINE_getPointA(BEZIERLINE_ID),Y_);
+);
+//====================================================================
+function BEZIERLINE_setPointB (BEZIERLINE_ID,x_,y_)
+(
+    POINT_setX( BEZIERLINE_getPointB(BEZIERLINE_ID),x_);
+    POINT_setY( BEZIERLINE_getPointB(BEZIERLINE_ID),Y_);
+);
+//====================================================================
+function BEZIERLINE_setPointB_X (BEZIERLINE_ID,x_)
+(
+    POINT_setX( BEZIERLINE_getPointB(BEZIERLINE_ID),x_);
+);
+//====================================================================
+function BEZIERLINE_setPointB_Y (BEZIERLINE_ID,y_)
+(
+    POINT_setY( BEZIERLINE_getPointB(BEZIERLINE_ID),Y_);
+);
+//====================================================================
+function BEZIERLINE_setBezierPointA (BEZIERLINE_ID,x_,y_)
+(
+    POINT_setX( BEZIERLINE_getBezierPointA(BEZIERLINE_ID),x_);
+    POINT_setY( BEZIERLINE_getBezierPointA(BEZIERLINE_ID),Y_);
+);
+//====================================================================
+function BEZIERLINE_setBezierPointA_X (BEZIERLINE_ID,x_)
+(
+    POINT_setX( BEZIERLINE_getBezierPointA(BEZIERLINE_ID),x_);
+);
+//====================================================================
+function BEZIERLINE_setBezierPointA_Y (BEZIERLINE_ID,y_)
+(
+    POINT_setY( BEZIERLINE_getBezierPointA(BEZIERLINE_ID),Y_);
+);
+//====================================================================
+function BEZIERLINE_setBezierPointB(BEZIERLINE_ID,x_,y_)
+(
+    POINT_setX( BEZIERLINE_getBezierPointB(BEZIERLINE_ID),x_);
+    POINT_setY( BEZIERLINE_getBezierPointB(BEZIERLINE_ID),Y_);
+);
+//====================================================================
+function BEZIERLINE_setBezierPointB_X(BEZIERLINE_ID,x_)
+(
+    POINT_setX( BEZIERLINE_getBezierPointB(BEZIERLINE_ID),x_);
+);
+//====================================================================
+function BEZIERLINE_setBezierPointB_Y(BEZIERLINE_ID,y_)
+(
+    POINT_setY( BEZIERLINE_getBezierPointB(BEZIERLINE_ID),Y_);
+);
+//====================================================================
+function BEZIERLINE_getBezierLinePoint(BEZIERLINE_ID,time_) //time_ is between 0 to 1.
+    local (t,tp,x1,y1,bX1,bY1,bX2,bY2,x2,y2,xOut,yOut)
+(
+    t = time_;
+    tp = 1 - t;
+    //================================================================
+    x1  = POINT_getX(BEZIERLINE_getPointA      (BEZIERLINE_ID));
+    y1  = POINT_getY(BEZIERLINE_getPointA      (BEZIERLINE_ID));
+    x2  = POINT_getX(BEZIERLINE_getPointB      (BEZIERLINE_ID));
+    y2  = POINT_getY(BEZIERLINE_getPointB      (BEZIERLINE_ID));
+    bX1 = POINT_getX(BEZIERLINE_getBezierPointA(BEZIERLINE_ID));
+    bY1 = POINT_getY(BEZIERLINE_getBezierPointA(BEZIERLINE_ID));
+    bX2 = POINT_getX(BEZIERLINE_getBezierPointB(BEZIERLINE_ID));
+    bY2 = POINT_getY(BEZIERLINE_getBezierPointB(BEZIERLINE_ID));
+    //================================================================
+    xOut = t*t*t*x2 + 3*t*t*tp*bX2 + 3*t*tp*tp*bX1 + tp*tp*tp*x1;
+    yOut = t*t*t*y2 + 3*t*t*tp*bY2 + 3*t*tp*tp*bY1 + tp*tp*tp*y1;
+    //================================================================
+    POINT_setX(_BEZIERLINE_getBezieredPoint(BEZIERLINE_ID),xOut);
+    POINT_setY(_BEZIERLINE_getBezieredPoint(BEZIERLINE_ID),yOut);
+    //================================================================
+    _BEZIERLINE_getBezieredPoint(BEZIERLINE_ID);
+);
+//====================================================================
+function BEZIERLINE_getBezierLineAngle(BEZIERLINE_ID,time_) //time_ is between 0 to 1.
+    local (t,tp,x1,y1,bX1,bY1,bX2,bY2,x2,y2,dx,dy,angleRad)
+(
+    t = time_;
+    tp = 1 - t;
+    //================================================================
+    x1  = POINT_getX(BEZIERLINE_getPointA(BEZIERLINE_ID));
+    y1  = POINT_getY(BEZIERLINE_getPointA(BEZIERLINE_ID));
+    x2  = POINT_getX(BEZIERLINE_getPointB(BEZIERLINE_ID));
+    y2  = POINT_getY(BEZIERLINE_getPointB(BEZIERLINE_ID));
+    bX1 = POINT_getX(BEZIERLINE_getBezierPointA(BEZIERLINE_ID));
+    bY1 = POINT_getY(BEZIERLINE_getBezierPointA(BEZIERLINE_ID));
+    bX2 = POINT_getX(BEZIERLINE_getBezierPointB(BEZIERLINE_ID));
+    bY2 = POINT_getY(BEZIERLINE_getBezierPointB(BEZIERLINE_ID));
+    //================================================================
+    angleRad = getBezierAngleCB(t,x1,y1,bX1,bY1,bX2,bY2,x2,y2);
+    //================================================================
+    angleRad;
+    //================================================================
+);
+//====================================================================
+
+//====================================================================
+function BEZIERLINE_drawLine(BEZIERLINE_ID,divNum) 
+    local (count_W,timeDelta,bezierP,lastX,lastY)
+(
+    //================================================================
+    count_W = 1;
+    timeDelta = 1/divNum;
+    lastX = POINT_getX(BEZIERLINE_getPointA(BEZIERLINE_ID));
+    lastY = POINT_getY(BEZIERLINE_getPointA(BEZIERLINE_ID));
+    //================================================================
+    
+    //================================================================
+    while (count_W < divNum )
+    (
+        bezierP = BEZIERLINE_getBezierLinePoint(BEZIERLINE_ID,timeDelta *count_W );
+            
+        gfx_line( lastX
+                , lastY
+                , POINT_getX(bezierP)
+                , POINT_getY(bezierP)
+                , true // anti ailiase
+                );
+        //============================================================
+        lastX = POINT_getX(bezierP);
+        lastY = POINT_getY(bezierP);
+        //============================================================
+        count_W+=1;
+    );
+    //================================================================
+);
+//====================================================================
+function BEZIERLINE_drawLineWithThickNess(BEZIERLINE_ID,divNum,thickness) 
+    local ( count_W
+          , timeDelta
+          , bezierP
+          , lastX
+          , lastY
+          , lastX_L
+          , lastY_L
+          , lastX_R
+          , lastY_R
+          , newX_L
+          , newY_L
+          , newX_R
+          , newY_R
+          , angleRad
+          , thickness_
+          , cX
+          , cY
+          )
+(
+    //================================================================
+    count_W = 1;
+    timeDelta = 1/divNum;
+    lastX = POINT_getX(BEZIERLINE_getPointA(BEZIERLINE_ID));
+    lastY = POINT_getY(BEZIERLINE_getPointA(BEZIERLINE_ID));
+    thickness_ = thickness;
+    //================================================================
+    angleRad = BEZIERLINE_getBezierLineAngle(BEZIERLINE_ID,0);
+    //================================================================
+    lastX_L = rotPoint_X(lastX,lastY+thickness_/2,lastX,lastY,angleRad);
+    lastY_L = rotPoint_Y(lastX,lastY+thickness_/2,lastX,lastY,angleRad);
+    lastX_R = rotPoint_X(lastX,lastY-thickness_/2,lastX,lastY,angleRad);
+    lastY_R = rotPoint_Y(lastX,lastY-thickness_/2,lastX,lastY,angleRad);
+    //================================================================
+    while (count_W <= divNum )
+    (
+        bezierP  = BEZIERLINE_getBezierLinePoint(BEZIERLINE_ID,timeDelta *count_W );
+        angleRad = BEZIERLINE_getBezierLineAngle(BEZIERLINE_ID,timeDelta *count_W);
+        //============================================================
+        cX = POINT_getX(bezierP);
+        cY = POINT_getY(bezierP);
+        //============================================================
+        newX_L = rotPoint_X(cX,cY+thickness_/2,cX,cY,angleRad);
+        newY_L = rotPoint_Y(cX,cY+thickness_/2,cX,cY,angleRad);
+        newX_R = rotPoint_X(cX,cY-thickness_/2,cX,cY,angleRad);
+        newY_R = rotPoint_Y(cX,cY-thickness_/2,cX,cY,angleRad);
+        //============================================================
+        gfx_triangle( lastX_L,lastY_L
+                    , lastX_R,lastY_R
+                    , newX_L ,newY_L
+                    , newX_R ,newY_R
+                    );
+        //============================================================
+        lastX_L = newX_L;
+        lastY_L = newY_L;
+        lastX_R = newX_R;
+        lastY_R = newY_R;
+        //============================================================
+        count_W+=1;
+    );
+    //================================================================
+);
+//====================================================================
+function BEZIERLINE_drawLineWithThickNess_withRect(BEZIERLINE_ID,divNum,thickness,targetRect) 
+    local ( count_W
+          , timeDelta
+          , bezierP
+          , lastX
+          , lastY
+          , lastX_L
+          , lastY_L
+          , lastX_R
+          , lastY_R
+          , newX_L
+          , newY_L
+          , newX_R
+          , newY_R
+          , angleRad
+          , thickness_
+          , cX
+          , cY
+          , limit_X1
+          , limit_Y1
+          , limit_X2
+          , limit_Y2
+          )
+(
+    //================================================================
+    count_W = 1;
+    timeDelta = 1/divNum;
+    lastX = POINT_getX(BEZIERLINE_getPointA(BEZIERLINE_ID));
+    lastY = POINT_getY(BEZIERLINE_getPointA(BEZIERLINE_ID));
+    thickness_ = thickness;
+    //================================================================
+    angleRad = BEZIERLINE_getBezierLineAngle(BEZIERLINE_ID,0);
+    //================================================================
+    limit_X1 = RECTANGLE_getX ( targetRect);
+    limit_Y1 = RECTANGLE_getY ( targetRect);
+    limit_X2 = RECTANGLE_getX2( targetRect);
+    limit_Y2 = RECTANGLE_getY2( targetRect);
+    //================================================================
+    lastX_L = rotPoint_X(lastX,lastY+thickness_/2,lastX,lastY,angleRad);
+    lastY_L = rotPoint_Y(lastX,lastY+thickness_/2,lastX,lastY,angleRad);
+    lastX_R = rotPoint_X(lastX,lastY-thickness_/2,lastX,lastY,angleRad);
+    lastY_R = rotPoint_Y(lastX,lastY-thickness_/2,lastX,lastY,angleRad);
+    //================================================================
+    lastX_L = max ( min ( lastX_L,limit_X2),limit_X1);
+    lastY_L = max ( min ( lastY_L,limit_Y2),limit_Y1);
+    lastX_R = max ( min ( lastX_R,limit_X2),limit_X1);
+    lastY_R = max ( min ( lastY_R,limit_Y2),limit_Y1);
+    //================================================================
+    while (count_W <= divNum )
+    (
+        bezierP  = BEZIERLINE_getBezierLinePoint(BEZIERLINE_ID,timeDelta *count_W );
+        angleRad = BEZIERLINE_getBezierLineAngle(BEZIERLINE_ID,timeDelta *count_W);
+        //============================================================
+        cX = POINT_getX(bezierP);
+        cY = POINT_getY(bezierP);
+        //============================================================
+        newX_L = rotPoint_X(cX,cY+thickness_/2,cX,cY,angleRad);
+        newY_L = rotPoint_Y(cX,cY+thickness_/2,cX,cY,angleRad);
+        newX_R = rotPoint_X(cX,cY-thickness_/2,cX,cY,angleRad);
+        newY_R = rotPoint_Y(cX,cY-thickness_/2,cX,cY,angleRad);
+        //============================================================
+        newX_L = max ( min ( newX_L,limit_X2),limit_X1);
+        newY_L = max ( min ( newY_L,limit_Y2),limit_Y1);
+        newX_R = max ( min ( newX_R,limit_X2),limit_X1);
+        newY_R = max ( min ( newY_R,limit_Y2),limit_Y1);
+        //============================================================
+        gfx_triangle( lastX_L,lastY_L
+                    , lastX_R,lastY_R
+                    , newX_L ,newY_L
+                    , newX_R ,newY_R
+                    );
+        //============================================================
+        lastX_L = newX_L;
+        lastY_L = newY_L;
+        lastX_R = newX_R;
+        lastY_R = newY_R;
+        //============================================================
+        count_W+=1;
+    );
+    //================================================================
+);
+//====================================================================
+function BEZIERLINE_drawPointCircle( BEZIERLINE_ID,radius,alpha,isDrawBezierControlPoint)
+    local (t,tp,x1,y1,bX1,bY1,bX2,bY2,x2,y2,xOut,yOut,radius_
+          ,last_a,last_r,last_g,last_b
+          )
+(
+    last_a=gfx_a;last_r=gfx_r;last_g=gfx_g;last_b=gfx_b;
+    //================================================================
+    x1  = POINT_getX(BEZIERLINE_getPointA      (BEZIERLINE_ID));
+    y1  = POINT_getY(BEZIERLINE_getPointA      (BEZIERLINE_ID));
+    x2  = POINT_getX(BEZIERLINE_getPointB      (BEZIERLINE_ID));
+    y2  = POINT_getY(BEZIERLINE_getPointB      (BEZIERLINE_ID));
+    bX1 = POINT_getX(BEZIERLINE_getBezierPointA(BEZIERLINE_ID));
+    bY1 = POINT_getY(BEZIERLINE_getBezierPointA(BEZIERLINE_ID));
+    bX2 = POINT_getX(BEZIERLINE_getBezierPointB(BEZIERLINE_ID));
+    bY2 = POINT_getY(BEZIERLINE_getBezierPointB(BEZIERLINE_ID));
+    //================================================================
+    radius_ = radius;
+    //================================================================
+    ( isDrawBezierControlPoint== true)?
+    (
+        gfx_r =0;gfx_g=0;gfx_b=0;gfx_a=1;
+        //============================================================
+        gfx_line(x1,y1,bX1,bY1 );
+        gfx_line(x2,y2,bX2,bY2 );
+        //============================================================
+        gfx_r=0.2;gfx_b=0.2;gfx_g =0.2;gfx_a =alpha;
+        gfx_circle(bX1,bY1,radius+3,true);
+        gfx_r=0;gfx_b=1;gfx_g =0;gfx_a =alpha;
+        gfx_circle(bX1,bY1,radius,true);
+        //============================================================
+        gfx_r=0.2;gfx_b=0.2;gfx_g =0.2;gfx_a =alpha;
+        gfx_circle(bX2,bY2,radius+3,true);
+        gfx_r=0;gfx_b=1;gfx_g =0;gfx_a =alpha;
+        gfx_circle(bX2,bY2,radius,true);
+        //============================================================
+    );
+    //================================================================
+    gfx_r=0.2;gfx_b=0.2;gfx_g =0.2;gfx_a =alpha;
+    gfx_circle(x1,y1,radius_+3,true);
+    gfx_r=1;gfx_b=0;gfx_g =0;gfx_a =alpha;
+    gfx_circle(x1,y1,radius_,true);
+    //================================================================
+    gfx_r=0.2;gfx_b=0.2;gfx_g =0.2;gfx_a =alpha;
+    gfx_circle(x2,y2,radius_+3,true);
+    gfx_r=1;gfx_b=0;gfx_g =0;gfx_a =alpha;
+    gfx_circle(x2,y2,radius_,true);
+    //================================================================
+    gfx_a=last_a;gfx_r=last_r;gfx_g=last_g;gfx_b=last_b;
+);
+//====================================================================
+function BEZIERLINE_drawPointCircle_withRect( BEZIERLINE_ID,radius,alpha,isDrawBezierControlPoint,targetRect)
+    local ( t,tp,x1,y1,bX1,bY1,bX2,bY2,x2,y2,xOut,yOut,radius_
+          , last_a,last_r,last_g,last_b
+          , limit_X1
+          , limit_Y1
+          , limit_X2
+          , limit_Y2
+          )
+(
+    last_a=gfx_a;last_r=gfx_r;last_g=gfx_g;last_b=gfx_b;
+    //================================================================
+    x1  = POINT_getX(BEZIERLINE_getPointA      (BEZIERLINE_ID));
+    y1  = POINT_getY(BEZIERLINE_getPointA      (BEZIERLINE_ID));
+    x2  = POINT_getX(BEZIERLINE_getPointB      (BEZIERLINE_ID));
+    y2  = POINT_getY(BEZIERLINE_getPointB      (BEZIERLINE_ID));
+    bX1 = POINT_getX(BEZIERLINE_getBezierPointA(BEZIERLINE_ID));
+    bY1 = POINT_getY(BEZIERLINE_getBezierPointA(BEZIERLINE_ID));
+    bX2 = POINT_getX(BEZIERLINE_getBezierPointB(BEZIERLINE_ID));
+    bY2 = POINT_getY(BEZIERLINE_getBezierPointB(BEZIERLINE_ID));
+    //================================================================
+    limit_X1 = RECTANGLE_getX ( targetRect);
+    limit_Y1 = RECTANGLE_getY ( targetRect);
+    limit_X2 = RECTANGLE_getX2( targetRect);
+    limit_Y2 = RECTANGLE_getY2( targetRect);
+    //================================================================
+    x1  = max ( min ( x1,limit_X2) ,limit_X1 );
+    y1  = max ( min ( y1,limit_Y2) ,limit_Y1 );
+    x2  = max ( min ( x2,limit_X2) ,limit_X1 );
+    y2  = max ( min ( y2,limit_Y2) ,limit_Y1 );
+    bX1 = max ( min ( bX1,limit_X2),limit_X1 );
+    bY1 = max ( min ( bY1,limit_Y2),limit_Y1 );
+    bX2 = max ( min ( bX2,limit_X2),limit_X1 );
+    bY2 = max ( min ( bY2,limit_Y2),limit_Y1 );
+    //================================================================
+    radius_ = radius;
+    //================================================================
+    ( isDrawBezierControlPoint== true)?
+    (
+        gfx_r =0;gfx_g=0;gfx_b=0;gfx_a=1;
+        //============================================================
+        gfx_line(x1,y1,bX1,bY1 );
+        gfx_line(x2,y2,bX2,bY2 );
+        //============================================================
+        gfx_r=0.2;gfx_b=0.2;gfx_g =0.2;gfx_a =alpha;
+        gfx_circle(bX1,bY1,radius+3,true);
+        gfx_r=0;gfx_b=1;gfx_g =0;gfx_a =alpha;
+        gfx_circle(bX1,bY1,radius,true);
+        //============================================================
+        gfx_r=0.2;gfx_b=0.2;gfx_g =0.2;gfx_a =alpha;
+        gfx_circle(bX2,bY2,radius+3,true);
+        gfx_r=0;gfx_b=1;gfx_g =0;gfx_a =alpha;
+        gfx_circle(bX2,bY2,radius,true);
+        //============================================================
+    );
+    //================================================================
+    gfx_r=0.2;gfx_b=0.2;gfx_g =0.2;gfx_a =alpha;
+    gfx_circle(x1,y1,radius_+3,true);
+    gfx_r=1;gfx_b=0;gfx_g =0;gfx_a =alpha;
+    gfx_circle(x1,y1,radius_,true);
+    //================================================================
+    gfx_r=0.2;gfx_b=0.2;gfx_g =0.2;gfx_a =alpha;
+    gfx_circle(x2,y2,radius_+3,true);
+    gfx_r=1;gfx_b=0;gfx_g =0;gfx_a =alpha;
+    gfx_circle(x2,y2,radius_,true);
+    //================================================================
+    gfx_a=last_a;gfx_r=last_r;gfx_g=last_g;gfx_b=last_b;
+);
+//====================================================================
+
+
+//====================================================================
+// BEZIERLINE
+//====================================================================
+function BEZIERLINEGROUP_create()
+    local( BEZIERLINEGROUP_ID
+         , childLinesArray
+         , childLinesArray_temp
+         )
+(
+    //================================================================
+    childLinesArray = ARRAY_create(300);//max 300 points
+    childLinesArray_temp = ARRAY_create(300);//max 300 points
+    //================================================================
+    BEZIERLINEGROUP_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[BEZIERLINEGROUP_ID]   = "BEZIERLINEGROUP"; // class name
+    STATIC_MASTER_BUFF[BEZIERLINEGROUP_ID+1] = 5;                 // total Element Num 
+    //================================================================
+    STATIC_MASTER_BUFF[BEZIERLINEGROUP_ID+2] = STATIC_MASTER_BUFF[BEZIERLINEGROUP_ID+1];  // element Num Only this Class
+    STATIC_MASTER_BUFF[BEZIERLINEGROUP_ID+3] = childLinesArray;            // non use
+    STATIC_MASTER_BUFF[BEZIERLINEGROUP_ID+4] = childLinesArray_temp;            //
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(BEZIERLINEGROUP_ID)+1; //next entry point
+    //================================================================
+    BEZIERLINEGROUP_ID;
+);
+//====================================================================
+
+//====================================================================
+function _BEZIERLINEGROUP_getElementNum           ( BEZIERLINEGROUP_ID) ( STATIC_MASTER_BUFF[BEZIERLINEGROUP_ID + 2];);// protected
+//====================================================================
+function BEZIERLINEGROUP_getChildPointsArray      ( BEZIERLINEGROUP_ID) ( STATIC_MASTER_BUFF[BEZIERLINEGROUP_ID + 3];);// protected
+function _BEZIERLINEGROUP_getChildPointsArray_temp( BEZIERLINEGROUP_ID) ( STATIC_MASTER_BUFF[BEZIERLINEGROUP_ID + 4];);// protected
+//====================================================================
+function BEZIERLINEGROUP_getChildPointsNum(BEZIERLINEGROUP_ID)
+(
+    ARRAY_getBufferSize(BEZIERLINEGROUP_getChildPointsArray( BEZIERLINEGROUP_ID));
+    //================================================================
+);
+//====================================================================
+function _BEZIERLINEGROUP_getMinX(BEZIERLINEGROUP_ID)
+    local (count_A,childPointsArray,out)
+(
+    pointNum  = BEZIERLINEGROUP_getChildPointsNum(BEZIERLINEGROUP_ID);
+    childPointsArray = BEZIERLINEGROUP_getChildPointsArray( BEZIERLINEGROUP_ID);
+    //================================================================
+    count_A =0;
+    //================================================================
+    while( count_A < pointNum )
+    (
+        targetPoint = ARRAY_getAt(childPointsArray,count_A);
+        //============================================================
+        targetX = BEZIERLINE_getPointA_X(target) ;
+        //============================================================
+        out =( out==0 ) ? targetX : min( out,targetX);
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+    out;
+);
+//====================================================================
+function _BEZIERLINEGROUP_getMaxX(BEZIERLINEGROUP_ID)
+    local (count_A,childPointsArray,out)
+(
+    pointNum  = BEZIERLINEGROUP_getChildPointsNum(BEZIERLINEGROUP_ID);
+    childPointsArray = BEZIERLINEGROUP_getChildPointsArray( BEZIERLINEGROUP_ID);
+    //================================================================
+    count_A =0;
+    //================================================================
+    while( count_A < pointNum )
+    (
+        
+        targetPoint = ARRAY_getAt(childPointsArray,count_A);
+        //============================================================
+        targetX = BEZIERLINE_getPointA_X(target) ;
+        //============================================================
+        out =( out==0 ) ? targetX : max( out,targetX);
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+    out;
+);
+//====================================================================
+function BEZIERLINEGROUP_addBezierLine(BEZIERLINEGROUP_ID,bezierLine_ID_)
+(
+    ARRAY_push_back( BEZIERLINEGROUP_getChildPointsArray( BEZIERLINEGROUP_ID)
+                   , bezierLine_ID_);
+);
+//====================================================================
+function BEZIERLINEGROUP_addBezierLine_(BEZIERLINEGROUP_ID,x1,y1,x2,y2,bX1,bY1,bX2,bY2) 
+    local (bezierLine_ID_)
+(
+    bezierLine_ID_ = BEZIERLINE_create(x1,y1,x2,y2,bX1,bY1,bX2,bY2);
+    //================================================================
+    ARRAY_push_back( BEZIERLINEGROUP_getChildPointsArray( BEZIERLINEGROUP_ID)
+                   , bezierLine_ID_);
+    //================================================================
+    bezierLine_ID_; //return 
+    //================================================================
+);
+//====================================================================
+function BEZIERLINEGROUP_drawAll(BEZIERLINEGROUP_ID,divNum) 
+ local (count_A,pointNum,childPointsArray)
+(
+    childPointsArray = BEZIERLINEGROUP_getChildPointsArray( BEZIERLINEGROUP_ID);
+    pointNum  = BEZIERLINEGROUP_getChildPointsNum(BEZIERLINEGROUP_ID);
+    //================================================================
+    count_A =0;
+    //================================================================
+    while( count_A < pointNum )
+    (
+        targetPoint = ARRAY_getAt(childPointsArray,count_A);
+        //============================================================
+        BEZIERLINE_drawLineWithThickNess(targetPoint,divNum,4);
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+);
+//====================================================================
+function BEZIERLINEGROUP_drawAllWithReq(BEZIERLINEGROUP_ID,divNum,reqestNum,pointRadius) 
+ local (count_A,pointNum,childPointsArray)
+(
+    childPointsArray = BEZIERLINEGROUP_getChildPointsArray( BEZIERLINEGROUP_ID);
+    //================================================================
+    count_A =0;
+    //================================================================
+    while( count_A < reqestNum )
+    (
+        targetPoint = ARRAY_getAt(childPointsArray,count_A);
+        //============================================================
+        BEZIERLINE_drawLineWithThickNess(targetPoint,divNum,2);
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+     count_A =0;
+    //================================================================
+    while( count_A < reqestNum )
+    (
+        targetPoint = ARRAY_getAt(childPointsArray,count_A);
+        //============================================================
+         BEZIERLINE_drawPointCircle( targetPoint,pointRadius,1,false);
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+);
+//====================================================================
+
+//====================================================================
+function BEZIERLINEGROUP_drawAllWithReq_WithRect(BEZIERLINEGROUP_ID,divNum,reqestNum,pointRadius,targetRect) 
+ local (count_A,pointNum,childPointsArray)
+(
+    childPointsArray = BEZIERLINEGROUP_getChildPointsArray( BEZIERLINEGROUP_ID);
+    //================================================================
+    count_A =0;
+    //================================================================
+    while( count_A < reqestNum )
+    (
+        targetPoint = ARRAY_getAt(childPointsArray,count_A);
+        //============================================================
+        BEZIERLINE_drawLineWithThickNess_withRect(targetPoint,divNum,2,targetRect);
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+     count_A =0;
+    //================================================================
+    while( count_A < reqestNum )
+    (
+        targetPoint = ARRAY_getAt(childPointsArray,count_A);
+        //============================================================
+        //BEZIERLINE_drawPointCircle_withRect( targetPoint,pointRadius,1,false,targetRect);
+        //============================================================
+        count_A +=1;
+    );
+    //================================================================
+);
+//====================================================================
+
+
+
+

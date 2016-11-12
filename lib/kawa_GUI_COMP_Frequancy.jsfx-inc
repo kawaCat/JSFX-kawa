@@ -1,0 +1,1255 @@
+//====================================================================
+@init
+//====================================================================
+
+//====================================================================
+function _FREQUENCY_getElementNum             (FREQUENCY_ID)  ( STATIC_MASTER_BUFF[FREQUENCY_ID + _COMPONENT_getElementNum(FREQUENCY_ID)+1];); //protected
+//====================================================================
+function FREQUENCY_getChildRbjFilterLineArray (FREQUENCY_ID)  ( STATIC_MASTER_BUFF[FREQUENCY_ID + _COMPONENT_getElementNum(FREQUENCY_ID)+2];);
+function FREQUENCY_getLinePointArray          (FREQUENCY_ID)  ( STATIC_MASTER_BUFF[FREQUENCY_ID + _COMPONENT_getElementNum(FREQUENCY_ID)+3];);
+//====================================================================
+function FREQUENCY_getFftSize                 (FREQUENCY_ID)  ( STATIC_MASTER_BUFF[FREQUENCY_ID + _COMPONENT_getElementNum(FREQUENCY_ID)+4];);
+function FREQUENCY_getFftSampleBuffer         (FREQUENCY_ID)  ( STATIC_MASTER_BUFF[FREQUENCY_ID + _COMPONENT_getElementNum(FREQUENCY_ID)+6];);
+function FREQUENCY_getWindowArray             (FREQUENCY_ID)  ( STATIC_MASTER_BUFF[FREQUENCY_ID + _COMPONENT_getElementNum(FREQUENCY_ID)+7];);
+function FREQUENCY_getFftWorkSpaceArray       (FREQUENCY_ID)  ( STATIC_MASTER_BUFF[FREQUENCY_ID + _COMPONENT_getElementNum(FREQUENCY_ID)+8];);
+function FREQUENCY_getFftAnalizeLinePointArray(FREQUENCY_ID)  ( STATIC_MASTER_BUFF[FREQUENCY_ID + _COMPONENT_getElementNum(FREQUENCY_ID)+9];);
+//====================================================================
+
+
+//====================================================================
+// XY choodinate
+//====================================================================
+function FREQUENCY_freqToX(FREQUENCY_ID,freq ) local (out,wsc,wws,freq_,sampleRate_)
+(
+    sampleRate_ = (srate != 0) ? srate:44100;
+    //================================================================
+    freq_ = max ( 12, min( sampleRate_/2,freq));
+    wws = sampleRate_/25;
+    wsc = RECTANGLE_getWidth( FREQUENCY_ID)/log(wws);
+    out = log((freq_/sampleRate_*2)*wws)*wsc;
+    //================================================================
+    out;
+);
+//====================================================================
+function FREQUENCY_XtoFreq(FREQUENCY_ID,x_ ) local (out,wsc,localX_,wws,sampleRate_)
+(
+    sampleRate_ = (srate != 0) ? srate:44100;
+    //================================================================
+    wws = sampleRate_/25;
+    wsc = RECTANGLE_getWidth( FREQUENCY_ID)/log(wws);
+    localX_ = x_-RECTANGLE_getX(FREQUENCY_ID);
+    out = exp((localX_)/(wsc) + log(sampleRate_/2)-log(wws) );
+    //================================================================
+    out;
+);
+//====================================================================
+function FREQUENCY_dBToY(FREQUENCY_ID,dB ) local (out,cY,maxDb,halfHeight)
+(
+    cY = RECTANGLE_getCenterY(FREQUENCY_ID);
+    halfHeight =  RECTANGLE_getHeight(FREQUENCY_ID)/2;
+    //================================================================
+    maxDb = 12;
+    out =cY+ halfHeight/maxDb * -dB;
+    //================================================================
+);
+//====================================================================
+function FREQUENCY_YtoDB(FREQUENCY_ID,y_ ) local (out,cY,maxDb,halfHeight)
+(
+    cY = RECTANGLE_getCenterY(FREQUENCY_ID);
+    halfHeight =  RECTANGLE_getHeight(FREQUENCY_ID)/2;
+    //================================================================
+    maxDb = 12;
+    out = - (y_ -cY)/(halfHeight/maxDb );
+    //================================================================
+    out;
+);
+//====================================================================
+
+
+//====================================================================
+// FFT sections
+//====================================================================
+function _FREQUENCY_buildWindowArray(FREQUENCY_ID ) 
+    local(windowArray,deltaPos,fftSize ,count_QQ,pwr,windowpos,value)
+(
+    fftSize = FREQUENCY_getFftSize(FREQUENCY_ID);
+    windowArray = FREQUENCY_getWindowArray(FREQUENCY_ID);
+    ARRAY_clear(windowArray);
+    //================================================================
+    deltaPos = $pi*2/fftsize;
+    //================================================================
+    count_QQ = 0;
+    pwr = 0;
+    //================================================================
+    while(count_QQ< fftsize/2 ) // only real value
+    (
+        windowpos=count_QQ*deltaPos;
+        //============================================================
+        // blackman -harris
+        value = 0.35875 - 0.48829 * cos(windowpos) + 0.14128 * cos(2*windowpos) - 0.01168 * cos(3*windowpos);
+        ARRAY_push_back(windowArray,value);
+        //============================================================
+        pwr +=value;
+        count_QQ += 1;
+    );
+    //================================================================
+    pwr = 1/(pwr*2-ARRAY_getAt(windowArray,count_QQ-1));
+    //================================================================
+    count_QQ = 0;
+    while(count_QQ < fftsize/2 ) // only real value
+    (
+        ARRAY_changeValueAt (windowArray,count_QQ,ARRAY_getAt(windowArray,count_QQ)*pwr);
+        ARRAY_push_back(windowArray,value);
+        //============================================================
+        pwr +=value;
+        count_QQ += 1;
+    );
+    //================================================================
+);
+//====================================================================
+function _FREQUENCY_prepareFFTAnalizeLinePoint( FREQUENCY_ID) 
+    local (fftSize,fftAnalyzeFFTArray,count_RR,x_,y_)
+(
+    fftSize = FREQUENCY_getFftSize(FREQUENCY_ID);
+    //================================================================
+    fftAnalyzeFFTArray = FREQUENCY_getFftAnalizeLinePointArray(FREQUENCY_ID);
+    ARRAY_clear( fftAnalyzeFFTArray);
+    //================================================================
+    count_RR = 0;
+    //================================================================
+    while(count_RR < fftSize/2)
+    (
+        ARRAY_push_back(fftAnalyzeFFTArray,POINT_create(0,0));
+        //============================================================
+        count_RR +=1;
+    );
+    //================================================================
+);
+//====================================================================
+function _FREQUENCY_buildFftAnalyzeLinePoint(FREQUENCY_ID ) 
+    local ( fftSize,fftAnalyzeFFTArray,count_RR,x_,y_,pt
+          , sampleRate_ ,dtFreq)
+(
+    fftSize = FREQUENCY_getFftSize(FREQUENCY_ID);
+    //================================================================
+    fftAnalyzeLineArray = FREQUENCY_getFftAnalizeLinePointArray(FREQUENCY_ID);
+    //================================================================
+    sampleRate_ = ( srate != 0)? srate: 44100;
+    //================================================================
+    dtFreq = ( sampleRate_  ) / ( fftSize);
+    //================================================================
+    count_RR = 0;
+    //================================================================
+    while(count_RR < fftSize/2   )
+    (
+        pt = ARRAY_getAt ( fftAnalyzeLineArray,count_RR);
+        //============================================================
+        x_ =  FREQUENCY_freqToX(FREQUENCY_ID,dtFreq * count_RR ) ;
+        //============================================================
+        y_ = RECTANGLE_getY(FREQUENCY_ID) +50;
+        //============================================================
+        POINT_setX( pt, x_);
+        POINT_setX( pt, y_);
+        //============================================================
+        count_RR +=1;
+    );
+    //================================================================
+);
+//====================================================================
+
+//====================================================================
+function _FREQUENCY_pushSampleToFFTBuffer(FREQUENCY_ID,inSample ) 
+    local ( cursolBuff_ )
+(
+    cursolBuff_ = FREQUENCY_getFftSampleBuffer(FREQUENCY_ID);
+    CURSOLBUFFER_push(cursolBuff_,inSample); 
+    //================================================================
+    TTCC = CURSOLBUFFER_getLastPushedValue(cursolBuff_);
+);
+//====================================================================
+function FREQUENCY_processFFT(FREQUENCY_ID,inSample ) 
+    local ( windowArray
+          , fftSampleBuf
+          , fftWorkSpace 
+          , count_DD 
+          , count_EE 
+          , fftsize
+          , tx
+          , ty
+          , dtFreq
+          , sampleRate_
+          , pt
+          , fftAnalyzeFFTArray
+          , arrayNum 
+          )
+(
+    windowArray  = FREQUENCY_getWindowArray(FREQUENCY_ID);
+    fftSampleBuf = FREQUENCY_getFftSampleBuffer(FREQUENCY_ID);
+    fftWorkSpace = FREQUENCY_getFftWorkSpaceArray(FREQUENCY_ID);
+    fftsize      = FREQUENCY_getFftSize(FREQUENCY_ID);
+    fftAnalyzeLineArray = FREQUENCY_getFftAnalizeLinePointArray(FREQUENCY_ID);
+    sampleRate_ = ( srate != 0)? srate: 44100;
+    dtFreq = ( sampleRate_ ) / ( fftSize);
+    //================================================================
+
+    //================================================================
+    arrayNum = CURSOLBUFFER_getMaxSize (fftSampleBuf);
+    //================================================================
+    // build fftWorkSpace
+    
+    //================================================================
+    count_DD = 0;
+    while (count_DD < fftsize )
+    (
+        // real value
+        //============================================================
+        ARRAY_push_back( fftWorkSpace
+                       , CURSOLBUFFER_getAt(fftSampleBuf,count_DD)
+//                            * ARRAY_getAt(windowArray,count_DD ) 
+                       );
+        //============================================================
+        // imaginaly value
+        //============================================================
+        ARRAY_push_back(fftWorkSpace,0 );
+        count_DD +=1;
+        //============================================================
+    );
+    //================================================================
+    
+    //================================================================
+    fft        ( ARRAY_getStartBufferPointerAbsolute(fftWorkSpace),fftsize-1);
+    fft_permute( ARRAY_getStartBufferPointerAbsolute(fftWorkSpace),fftsize-1);
+    //================================================================
+    
+    //================================================================
+    count_DD = 0;
+    count_EE = 0;
+    //================================================================
+    while(count_DD < fftSize /2)
+    (
+        pt = ARRAY_getAt ( fftAnalyzeLineArray,count_DD);
+        //============================================================
+        tx =  FREQUENCY_freqToX(FREQUENCY_ID,dtFreq * count_DD ) 
+            + RECTANGLE_getX(FREQUENCY_ID);
+        //============================================================
+        sc=    ( RECTANGLE_getHeight( FREQUENCY_ID)-20)*20
+             / ( -(-96) * log(10));
+        //============================================================
+        fftedValue = ARRAY_getAt(fftWorkSpace,count_EE);
+        fftedValue /= fftSize;
+        //============================================================
+        ty = RECTANGLE_getY( FREQUENCY_ID)
+             + 10* valueToDecivel (fftedValue)
+             ;
+        //============================================================
+         ty = log(max(sqr(fftedValue)+sqr(fftedValue),(10^(-500/20*2))));
+        //============================================================]
+         ty = ty*-0.5*sc + 20;
+        //============================================================
+//        ty = RECTANGLE_getCenterY( FREQUENCY_ID)
+//             +  100
+//               * ARRAY_getAt(fftWorkSpace,count_EE);
+        //============================================================
+        POINT_setX( pt, tx);
+        POINT_setY( pt, ty);
+        //============================================================
+        count_DD +=1;
+        count_EE +=2;
+    );
+    //================================================================
+    ARRAY_clear(fftWorkSpace);
+);
+//====================================================================
+function FREQUENCY_drawFftAnalyseLinePoints(FREQUENCY_ID)
+     local (x,y,w,h,pointArray,arraySize,count_DD,lastPoint )
+(
+    pointArray = FREQUENCY_getFftAnalizeLinePointArray(FREQUENCY_ID);
+    arraySize  = ARRAY_getBufferSize( pointArray);
+    //================================================================
+    count_DD = 0;
+    //================================================================
+    lastPoint= ARRAY_getAt( pointArray,count_DD);;
+    count_DD+=1;
+    //================================================================
+    while (count_DD < arraySize )
+    (
+        //============================================================
+        //  POINT_drawLine(lastPoint, ARRAY_getAt( pointArray,count_DD),3);
+        POINT_drawLineWithRect(lastPoint, ARRAY_getAt( pointArray,count_DD),1,FREQUENCY_ID);
+        lastPoint =  ARRAY_getAt( pointArray,count_DD);
+        //============================================================
+        count_DD +=1;
+    );
+    //================================================================
+);
+//====================================================================
+
+
+//====================================================================
+//EQ POint Lline Curve
+//====================================================================
+function FREQUENCY_drawLinePoints(FREQUENCY_ID)
+     local (x,y,w,h,pointArray,arraySize,count_DD,lastPoint )
+(
+    pointArray = FREQUENCY_getLinePointArray(FREQUENCY_ID);
+    arraySize  = ARRAY_getBufferSize( pointArray);
+    //================================================================
+    count_DD = 0;
+    //================================================================
+    lastPoint= ARRAY_getAt( pointArray,count_DD);;
+    count_DD+=1;
+    //================================================================
+    while (count_DD < arraySize )
+    (
+        //============================================================
+        //  POINT_drawLine(lastPoint, ARRAY_getAt( pointArray,count_DD),3);
+        POINT_drawLineWithRect(lastPoint, ARRAY_getAt( pointArray,count_DD),2,FREQUENCY_ID);
+        lastPoint =  ARRAY_getAt( pointArray,count_DD);
+        //============================================================
+        count_DD +=1;
+    );
+    //================================================================
+);
+//====================================================================
+function _FREQUENCY_resetEqLinePoint (FREQUENCY_ID) 
+    local (x,y,w,h,pointArray,arraySize,count_DD)
+(
+    pointArray = FREQUENCY_getLinePointArray(FREQUENCY_ID);
+    arraySize  = ARRAY_getBufferSize( pointArray);
+    //================================================================
+    
+    //================================================================
+    x = RECTANGLE_getX     (FREQUENCY_ID);
+    y = RECTANGLE_getY     (FREQUENCY_ID);
+    w = RECTANGLE_getWidth (FREQUENCY_ID);
+    h = RECTANGLE_getHeight(FREQUENCY_ID);
+    //================================================================
+    count_DD = 0;
+    //================================================================
+    deltaW = w/ arraySize;
+    //================================================================
+    while (count_DD <arraySize )
+    (
+        POINT_setX (ARRAY_getAt(pointArray,count_DD ), x + deltaW  * count_DD );
+        POINT_setY (ARRAY_getAt(pointArray,count_DD ), y +(h/2) );
+        //============================================================
+        count_DD +=1;
+    );
+    //================================================================
+);
+//====================================================================
+function FREQUENCY_buildEQPointCurve(FREQUENCY_ID)
+    local ( bzlGroup,countWW_,bzlArray,avalableNum
+          , rbjFilterNum
+          , rbjArray
+          , tempRbjFilter
+          , tempRbjFilter_freq
+          , tempRbjFilter_Q
+          , tempRbjFilter_Gain
+          , tempRbjFilter_Type
+          , rbj_Freq_X 
+          , linePointArray
+          , linePointArraySize
+          , count_S
+          , tempPoint
+          , bandWidth_Freq 
+          , tempRel_q
+          , tempDb_y
+          , maxRBJ_filterQ
+          )
+(
+    _FREQUENCY_resetEqLinePoint (FREQUENCY_ID);
+    //================================================================
+    lastX  = RECTANGLE_getX (FREQUENCY_ID);
+    lastY  = RECTANGLE_getCenterY(FREQUENCY_ID);
+    //================================================================
+    // build Bezier by RBJ filter type.
+    //================================================================
+    rbjArray = FREQUENCY_getChildRbjFilterLineArray (FREQUENCY_ID);
+    rbjFilterNum = ARRAY_getBufferSize(rbjArray);
+    linePointArray = FREQUENCY_getLinePointArray(FREQUENCY_ID);
+    linePointArraySize = ARRAY_getBufferSize(linePointArray);
+    //================================================================
+    countWW_ = 0;
+    while (countWW_ < rbjFilterNum )
+    (
+        tempRbjFilter = ARRAY_getAt ( rbjArray,countWW_);
+        //============================================================
+        (RBJFILTER_isActive(tempRbjFilter) ==true)?
+        (
+            tempRbjFilter_freq = RBJFILTER_getFreq      (tempRbjFilter);
+            tempRbjFilter_Q    = RBJFILTER_getQ         (tempRbjFilter);
+            tempRbjFilter_Gain = RBJFILTER_getDBGain    (tempRbjFilter);
+            tempRbjFilter_Type = RBJFILTER_getFilterType(tempRbjFilter);
+            maxRBJ_filterQ     = RBJFILTER_getMaxFilterQ(tempRbjFilter);
+            //========================================================
+            distanceDbYfromCY =   FREQUENCY_dBToY(FREQUENCY_ID,tempRbjFilter_Gain ) 
+                                - RECTANGLE_getCenterY(FREQUENCY_ID);
+            distanceDbYfromCY_Q =   FREQUENCY_dBToY(FREQUENCY_ID,valueToDecivel(tempRbjFilter_Q)) 
+                                  - RECTANGLE_getCenterY(FREQUENCY_ID);  
+            rbj_Freq_X =  FREQUENCY_freqToX(FREQUENCY_ID,RBJFILTER_getFreq(tempRbjFilter)) 
+                        + RECTANGLE_getX( FREQUENCY_ID);
+            //========================================================
+            (   tempRbjFilter_Type  == RBJ_FILTER_TYPE_LPF)?
+            ( 
+                //====================================================
+                // low Pass Filter
+                //====================================================
+                bandWidth_Freq_2 =  200;
+                //====================================================
+                count_S =0;
+                while ( count_S < linePointArraySize )
+                (
+                    //================================================
+                    tempPoint = ARRAY_getAt(linePointArray,count_S );
+                    //================================================
+                    (   POINT_getX(tempPoint) <= rbj_Freq_X-(bandWidth_Freq_2/4) )?
+                    (
+                        POINT_setY ( tempPoint 
+                                   , POINT_getY(tempPoint)
+                                    + distanceDbYfromCY /10 //??
+                                   );
+                        //============================================
+                    ):(POINT_getX(tempPoint) < rbj_Freq_X + bandWidth_Freq_2/4*3)?  
+                    (
+                        tempRel_q  = ( POINT_getX(tempPoint) - (rbj_Freq_X-bandWidth_Freq_2/4) ) 
+                                      / bandWidth_Freq_2;
+                        //============================================
+                        
+                        //============================================
+                        POINT_setY ( tempPoint 
+                                   ,    POINT_getY(tempPoint)
+                                     + ( inOutCubic(tempRel_q)*RECTANGLE_getHeight(FREQUENCY_ID))
+                                     + distanceDbYfromCY/10 //??
+                                   );
+                    ):(
+                        POINT_setY ( tempPoint 
+                                   , POINT_getY(tempPoint)+RECTANGLE_getHeight(FREQUENCY_ID)
+                                    + distanceDbYfromCY/10 //??
+                                   );
+                    );
+                    //================================================
+                    count_S+=1;
+                );
+                //====================================================
+            ):(  tempRbjFilter_Type == RBJ_FILTER_TYPE_HPF)?
+            ( 
+                //====================================================
+                // High Pass Filter
+                //====================================================
+                bandWidth_Freq_2 =  200;
+                //====================================================
+                count_S =0;
+                while ( count_S < linePointArraySize )
+                (
+                    //================================================
+                    tempPoint = ARRAY_getAt(linePointArray,count_S );
+                    //================================================
+                    (   POINT_getX(tempPoint) >= rbj_Freq_X+(bandWidth_Freq_2/4) )?
+                    (
+                        POINT_setY ( tempPoint 
+                                   , POINT_getY(tempPoint)
+                                    + distanceDbYfromCY /10 //??
+                                   );
+                        //============================================
+                    ):(POINT_getX(tempPoint) > rbj_Freq_X - bandWidth_Freq_2/4*3)?  
+                    (
+                        tempRel_q  = ( POINT_getX(tempPoint)- (rbj_Freq_X-bandWidth_Freq_2/4*3) ) 
+                                      / bandWidth_Freq_2;
+                        //============================================
+                        tempRel_q = 1-tempRel_q;
+                        //============================================
+                        POINT_setY ( tempPoint 
+                                   , POINT_getY(tempPoint)
+                                   + ( inOutCubic(tempRel_q)*RECTANGLE_getHeight(FREQUENCY_ID))
+                                   +  distanceDbYfromCY /10 //??
+                                   );
+                    ):(
+                        POINT_setY ( tempPoint 
+                                   ,  POINT_getY(tempPoint)
+                                   +  RECTANGLE_getHeight(FREQUENCY_ID)
+                                   +  distanceDbYfromCY /10 //??
+                                   );
+                        //============================================
+                    );
+                    //================================================
+                    count_S+=1;
+                );
+                //====================================================
+            ):(  tempRbjFilter_Type == RBJ_FILTER_TYPE_BPF)?
+            ( 
+                //====================================================
+                // band Pass Filter
+                //====================================================
+                bandWidth_Freq_2 =  200;
+                //====================================================
+                count_S =0;
+                while ( count_S < linePointArraySize )
+                (
+                    //================================================
+                    tempPoint = ARRAY_getAt(linePointArray,count_S );
+                    //================================================
+                    (   POINT_getX(tempPoint) <= rbj_Freq_X-(bandWidth_Freq_2) )?
+                    (
+                        POINT_setY ( tempPoint 
+                                   , POINT_getY(tempPoint)+RECTANGLE_getHeight(FREQUENCY_ID)/2);
+                        //============================================
+                    ):(   POINT_getX(tempPoint) > rbj_Freq_X - bandWidth_Freq_2
+                       && POINT_getX(tempPoint) < rbj_Freq_X )?  
+                    (
+                        //============================================
+                        tempRel_q  = ( POINT_getX(tempPoint)- (rbj_Freq_X-bandWidth_Freq_2) ) 
+                                      / bandWidth_Freq_2;
+                        //============================================
+                        tempRel_q = 1-tempRel_q;
+                        //============================================
+                        POINT_setY ( tempPoint 
+                                   , POINT_getY(tempPoint)+ ( inOutCubic(tempRel_q)*RECTANGLE_getHeight(FREQUENCY_ID))/2 );
+                        //============================================
+                    ):( POINT_getX(tempPoint) < rbj_Freq_X +bandWidth_Freq_2)?
+                    (
+                        //============================================
+                        tempRel_q  = ( POINT_getX(tempPoint)- (rbj_Freq_X) ) 
+                                      / bandWidth_Freq_2;
+                        //============================================
+                        POINT_setY ( tempPoint 
+                                   , POINT_getY(tempPoint)+ ( inOutCubic(tempRel_q)*RECTANGLE_getHeight(FREQUENCY_ID))/2 );
+                        //============================================
+                    ):(
+                        POINT_setY ( tempPoint 
+                                   , POINT_getY(tempPoint)+RECTANGLE_getHeight(FREQUENCY_ID)/2);
+                    );
+                    //================================================
+                    count_S+=1;
+                );
+                //====================================================
+            ):(  tempRbjFilter_Type == RBJ_FILTER_TYPE_NOTCH)?
+            ( 
+                //====================================================
+                // NOTCH Pass Filter
+                //====================================================
+                bandWidth_Freq_2 =  60;
+                //====================================================
+                count_S =0;
+                while ( count_S < linePointArraySize )
+                (
+                    //================================================
+                    tempPoint = ARRAY_getAt(linePointArray,count_S );
+                   
+                    //================================================
+                    (   POINT_getX(tempPoint) <= rbj_Freq_X-(bandWidth_Freq_2) )?
+                    (
+                        0;
+                        //============================================
+                    ):(   POINT_getX(tempPoint) > rbj_Freq_X - bandWidth_Freq_2
+                       && POINT_getX(tempPoint) < rbj_Freq_X )?  
+                    (
+                        //============================================
+                        tempRel_q  = ( POINT_getX(tempPoint)- (rbj_Freq_X-bandWidth_Freq_2) ) 
+                                      / bandWidth_Freq_2;
+                        //============================================
+                        tempRel_q = 1-tempRel_q;
+                        //============================================
+                        POINT_setY ( tempPoint 
+                                   ,   POINT_getY(tempPoint)
+                                     - ( inOutCubic(tempRel_q)*RECTANGLE_getHeight(FREQUENCY_ID))/2 
+                                     + RECTANGLE_getHeight(FREQUENCY_ID)/2 
+                                   );
+                        //============================================
+                    ):( POINT_getX(tempPoint) < rbj_Freq_X +bandWidth_Freq_2)?
+                    (
+                        //============================================
+                        tempRel_q  = ( POINT_getX(tempPoint)- (rbj_Freq_X) ) 
+                                      / bandWidth_Freq_2;
+                        //============================================
+                        POINT_setY ( tempPoint 
+                                   , POINT_getY(tempPoint)
+                                     - ( inOutCubic(tempRel_q)*RECTANGLE_getHeight(FREQUENCY_ID))/2 
+                                     + RECTANGLE_getHeight(FREQUENCY_ID)/2 
+                                   );
+                        //============================================
+                    ):(
+                        0;
+                    );
+                    //================================================
+                    count_S+=1;
+                );
+                //====================================================
+            ):(  tempRbjFilter_Type == RBJ_FILTER_TYPE_APF)?
+            ( 
+                0;// nothing change
+                //====================================================
+            ):(  tempRbjFilter_Type == RBJ_FILTER_TYPE_PEAK)?
+            ( 
+                //====================================================
+                // Peak Filter
+                //====================================================
+               
+                //====================================================
+                bandWidth_Freq_2 = 5+ 30 * (maxRBJ_filterQ-tempRbjFilter_Q );
+                tempDb_y =  FREQUENCY_dBToY(FREQUENCY_ID,tempRbjFilter_Gain )
+                          - RECTANGLE_getCenterY(FREQUENCY_ID);;
+                tempDb_y *=-1;
+                //====================================================
+                count_S =0;
+                while ( count_S < linePointArraySize )
+                (
+                    //================================================
+                    tempPoint = ARRAY_getAt(linePointArray,count_S );
+                    //================================================
+                    (   POINT_getX(tempPoint) <= rbj_Freq_X-(bandWidth_Freq_2) )?
+                    (
+                        0;
+                        //============================================
+                    ):(   POINT_getX(tempPoint) > rbj_Freq_X - bandWidth_Freq_2
+                       && POINT_getX(tempPoint) < rbj_Freq_X )?  
+                    (
+                        //============================================
+                        tempRel_q  = ( POINT_getX(tempPoint)- (rbj_Freq_X-bandWidth_Freq_2) ) 
+                                      / bandWidth_Freq_2;
+                        //============================================
+                        tempRel_q = 1-tempRel_q;
+                        //============================================
+                        POINT_setY ( tempPoint 
+                                   ,   POINT_getY(tempPoint) -tempDb_y 
+                                     +  inOutCubic(tempRel_q)*tempDb_y
+                                   );
+                        //============================================
+                    ):( POINT_getX(tempPoint) < rbj_Freq_X +bandWidth_Freq_2)?
+                    (
+                        //============================================
+                        tempRel_q  = ( POINT_getX(tempPoint)- (rbj_Freq_X) ) 
+                                      / bandWidth_Freq_2;
+                        //============================================
+                        POINT_setY ( tempPoint 
+                                   , POINT_getY(tempPoint)- tempDb_y
+                                     +  inOutCubic(tempRel_q)*tempDb_y
+                                   );
+                        //============================================
+                    ):(
+                        0;
+                    );
+                    //================================================
+                    count_S+=1;
+                );
+                //====================================================
+            ):(  tempRbjFilter_Type == RBJ_FILTER_TYPE_LSF)?
+            ( 
+                //====================================================
+                // low Shelf Filter
+                //====================================================
+                 bandWidth_Freq_2 = 50+ 200 * (maxRBJ_filterQ-tempRbjFilter_Q );
+                //====================================================
+                count_S =0;
+                while ( count_S < linePointArraySize )
+                (
+                    //================================================
+                    tempPoint = ARRAY_getAt(linePointArray,count_S );
+                    //================================================
+                    (   POINT_getX(tempPoint) >= rbj_Freq_X+(bandWidth_Freq_2/2) )?
+                    (
+                        0;
+                    ):(POINT_getX(tempPoint) > rbj_Freq_X - bandWidth_Freq_2/2)?  
+                    (
+                        tempRel_q  = ( POINT_getX(tempPoint)- (rbj_Freq_X-bandWidth_Freq_2/2) ) 
+                                      / bandWidth_Freq_2;
+                        //============================================
+                        tempRel_q = 1-tempRel_q;
+                        //============================================
+                        POINT_setY ( tempPoint 
+                                   , POINT_getY(tempPoint)
+                                   + inOutCubic(tempRel_q) *distanceDbYfromCY 
+                                   );
+                    ):(
+                        POINT_setY ( tempPoint 
+                                   , POINT_getY(tempPoint)
+                                    + distanceDbYfromCY);
+                    );
+                    //================================================
+                    count_S+=1;
+                );
+                //====================================================
+            ):(  tempRbjFilter_Type == RBJ_FILTER_TYPE_HSF)?
+            ( 
+                //====================================================
+                // high Pass Filter
+                //====================================================
+                bandWidth_Freq_2 = 50+ 200 * (maxRBJ_filterQ-tempRbjFilter_Q );
+                //====================================================
+                count_S =0;
+                while ( count_S < linePointArraySize )
+                (
+                    //================================================
+                    tempPoint = ARRAY_getAt(linePointArray,count_S );
+                    //================================================
+                    (   POINT_getX(tempPoint) <= rbj_Freq_X-(bandWidth_Freq_2/4) )?
+                    (
+                        0;
+                    ):(POINT_getX(tempPoint) < rbj_Freq_X + bandWidth_Freq_2/4*3)?  
+                    (
+                        tempRel_q  = ( POINT_getX(tempPoint) - (rbj_Freq_X-bandWidth_Freq_2/4) ) 
+                                      / bandWidth_Freq_2;
+                        //============================================
+                        
+                        //============================================
+                        POINT_setY ( tempPoint 
+                                   , POINT_getY(tempPoint)
+                                   +  inOutCubic(tempRel_q)*distanceDbYfromCY 
+                                   );
+                    ):(
+                        POINT_setY ( tempPoint 
+                                   , POINT_getY(tempPoint)
+                                   + distanceDbYfromCY);
+                    );
+                    //================================================
+                    count_S+=1;
+                );
+                //====================================================
+            );
+            //========================================================
+        );
+        //============================================================
+        countWW_+=1;
+    );
+    //================================================================
+);
+//====================================================================
+function FREQUENCY_processFilter(FREQUENCY_ID,inSample)
+    local(rbjArray,out.rbjNum,count_CC,rbjFilter)
+(
+    rbjArray = FREQUENCY_getChildRbjFilterLineArray (FREQUENCY_ID);
+    rbjNum = ARRAY_getBufferSize(rbjArray );
+    count_CC = 0;
+    //================================================================
+    out = inSample;
+    //================================================================
+    while (count_CC < rbjNum )
+    (
+        rbjFilter = ARRAY_getAt(rbjArray,count_CC);
+        
+        ( RBJFILTER_isActive(rbjFilter) ==true)?
+        (
+            out = RBJFILTER_process (rbjFilter,out );
+        );
+        count_CC+=1;
+    );
+    //================================================================
+    out;
+);
+//====================================================================
+
+
+//====================================================================
+// change RBJ Filter Parames
+//====================================================================
+function FREQUENCY_changeRbjFilter(FREQUENCY_ID,index,sampleRate,freq,Q,Gain,type,isActive) local(rbjArray)
+(
+    rbjArray = FREQUENCY_getChildRbjFilterLineArray (FREQUENCY_ID);
+    //================================================================
+    RBJFILTER_setFreq         (ARRAY_getAt(rbjArray,index),freq);
+    RBJFILTER_setQ            (ARRAY_getAt(rbjArray,index),Q);
+    RBJFILTER_setDBGain       (ARRAY_getAt(rbjArray,index),Gain);
+    RBJFILTER_setFilterType   (ARRAY_getAt(rbjArray,index),type);
+    RBJFILTER_setSampleRate   (ARRAY_getAt(rbjArray,index),sampleRate);
+    RBJFILTER_setActive       (ARRAY_getAt(rbjArray,index),isActive);
+    //================================================================
+    FREQUENCY_buildEQPointCurve(FREQUENCY_ID);//rebuild
+    //================================================================
+);
+//====================================================================
+function FREQUENCY_changeRbjFilter_Freq(FREQUENCY_ID,index,freq) local(rbjArray)
+(
+    rbjArray = FREQUENCY_getChildRbjFilterLineArray (FREQUENCY_ID);
+    //================================================================
+    #TESTTEXT = STATIC_MASTER_BUFF[ARRAY_getAt(rbjArray,index)];
+    
+    RBJFILTER_setFreq         (ARRAY_getAt(rbjArray,index),freq);
+    //================================================================
+    FREQUENCY_buildEQPointCurve(FREQUENCY_ID);//rebuild
+    //================================================================
+);
+//====================================================================
+function FREQUENCY_changeRbjFilter_Q(FREQUENCY_ID,index,Q) local(rbjArray)
+(
+    rbjArray = FREQUENCY_getChildRbjFilterLineArray (FREQUENCY_ID);
+    //================================================================
+    RBJFILTER_setQ            (ARRAY_getAt(rbjArray,index),Q);
+    //================================================================
+    FREQUENCY_buildEQPointCurve(FREQUENCY_ID);//rebuild
+    //================================================================
+);
+//====================================================================
+function FREQUENCY_changeRbjFilter_dBGain(FREQUENCY_ID,index,Gain) local(rbjArray)
+(
+    rbjArray = FREQUENCY_getChildRbjFilterLineArray (FREQUENCY_ID);
+    //================================================================
+    RBJFILTER_setDBGain       (ARRAY_getAt(rbjArray,index),Gain);
+    //================================================================
+    FREQUENCY_buildEQPointCurve(FREQUENCY_ID);//rebuild
+    //================================================================
+);
+//====================================================================
+function FREQUENCY_changeRbjFilter_FilterType(FREQUENCY_ID,index,type) local(rbjArray)
+(
+    rbjArray = FREQUENCY_getChildRbjFilterLineArray (FREQUENCY_ID);
+    //================================================================
+    RBJFILTER_setFilterType   (ARRAY_getAt(rbjArray,index),type);
+    //================================================================
+    FREQUENCY_buildEQPointCurve(FREQUENCY_ID);//rebuild
+    //================================================================
+);
+//====================================================================
+function FREQUENCY_changeRbjFilter_SampleRate(FREQUENCY_ID,index,sampleRate) local(rbjArray)
+(
+    rbjArray = FREQUENCY_getChildRbjFilterLineArray (FREQUENCY_ID);
+    //================================================================
+    RBJFILTER_setSampleRate   (ARRAY_getAt(rbjArray,index),sampleRate);
+    //================================================================
+    FREQUENCY_buildEQPointCurve(FREQUENCY_ID);//rebuild
+    //================================================================
+);
+//====================================================================
+function FREQUENCY_changeRbjFilter_activeState(FREQUENCY_ID,index,isActive) local(rbjArray)
+(
+    rbjArray = FREQUENCY_getChildRbjFilterLineArray (FREQUENCY_ID);
+    //================================================================
+    RBJFILTER_setActive       (ARRAY_getAt(rbjArray,index),isActive);
+    //================================================================
+    FREQUENCY_buildEQPointCurve(FREQUENCY_ID);//rebuild
+    //================================================================
+);
+//====================================================================
+function FREQUENCY_drawRBJFilterCircle( FREQUENCY_ID)
+    local (rbjArray, arraySize, count_r,x_,y_,rbjFilter,radius)
+(
+    rbjArray = FREQUENCY_getChildRbjFilterLineArray (FREQUENCY_ID);
+    arraySize = ARRAY_getBufferSize(rbjArray);
+    count_r = 0;
+    radius = 5;
+    //================================================================
+    while ( count_r < arraySize)
+    (
+        rbjFilter = ARRAY_getAt(rbjArray, count_r) ;
+        //============================================================
+        (RBJFILTER_isActive(rbjFilter) ==true)?
+        (
+            x_ = FREQUENCY_freqToX(FREQUENCY_ID,RBJFILTER_getFreq(rbjFilter))
+                +RECTANGLE_getX( FREQUENCY_ID);
+            //========================================================
+            (    RBJFILTER_getFilterType( rbjFilter) == RBJ_FILTER_TYPE_PEAK 
+              || RBJFILTER_getFilterType( rbjFilter) == RBJ_FILTER_TYPE_LSF 
+              || RBJFILTER_getFilterType( rbjFilter) == RBJ_FILTER_TYPE_HSF 
+              || RBJFILTER_getFilterType( rbjFilter) == RBJ_FILTER_TYPE_LPF
+              || RBJFILTER_getFilterType( rbjFilter) == RBJ_FILTER_TYPE_HPF 
+            )?
+            (
+                y_ = FREQUENCY_dBToY(FREQUENCY_ID,RBJFILTER_getDBGain(rbjFilter) );
+            ):(
+                 y_ = RECTANGLE_getCentery(FREQUENCY_ID);
+            );
+            //========================================================
+            ( RECTANGLE_isContainPoint(FREQUENCY_ID,x_,y_ ) ==true) ?
+            (
+                COMPONENT_changeColorGfx( FREQUENCY_ID,"white");
+                //====================================================
+                gfx_circle( x_ 
+                          , y_
+                          ,radius +3
+                          ,true
+                          );
+                COMPONENT_changeColorGfx( FREQUENCY_ID,"black");
+                gfx_circle( x_
+                          , y_
+                          ,radius +3
+                          ,false
+                          );
+                //====================================================
+                COMPONENT_changeColorGfx( FREQUENCY_ID,"red");
+                gfx_circle( x_ 
+                          , y_
+                          ,radius
+                          ,true
+                          );
+                //==================================================== 
+                COMPONENT_changeColorGfx( FREQUENCY_ID,"black");
+                gfx_circle( x_ 
+                          , y_
+                          ,radius 
+                          ,false
+                          );
+            );
+            //========================================================
+        );
+        //============================================================
+        count_r += 1;
+    );
+    //================================================================
+);
+//====================================================================
+
+
+//====================================================================
+// prepare function like as contrutor function.
+//====================================================================
+function _FREQUENCY_prepareRBJFilterArray(targetArray,maxSize)
+local (count_xx,temp,xDelta,sampleRate_)
+(
+    count_xx =0;
+    sampleRate_ = (srate != 0) ? srate:44100;
+    //================================================================
+    while( count_xx < maxSize)
+    (
+        temp = RBJFILTER_create(sampleRate_);
+        ARRAY_push_back( targetArray,temp );
+        //============================================================
+        RBJFILTER_setActive       (temp,false);
+        //RBJFILTER_setFreq         (temp,srate/2 /maxSize * count_xx);
+        RBJFILTER_setFreq         (temp,300);
+        RBJFILTER_setQ            (temp,1);
+        RBJFILTER_setDBGain       (temp,rand()*12-6);
+//        RBJFILTER_setDBGain       (temp,0);
+        //RBJFILTER_setFilterType   (temp,type);
+        //RBJFILTER_setSampleRate   (temp,sampleRate);
+        //============================================================
+        count_xx += 1;
+    );
+    //================================================================
+);
+//====================================================================
+function _FREQUENCY_prepareLinePointArray(targetArray,maxSize)
+local (count_xx,temp)
+(
+    count_xx =0;
+    //================================================================
+    while( count_xx < maxSize)
+    (
+        temp = POINT_create(0,0);
+        ARRAY_push_back( targetArray,temp );
+        //============================================================
+        count_xx += 1;
+    );
+    //================================================================
+);
+//====================================================================
+
+//====================================================================
+// Inheritance List
+// * Rectangle
+// * Component
+//====================================================================
+function FREQUENCY_create(name) 
+    local ( FREQUENCY_ID
+          , baseClassElementNum
+          , childRbjFilterArray
+          , linePointArray
+          , maxRbjFilterNum 
+          , maxLinePointNum
+          , maxFFTSIze
+          , FFT_sampleBUF
+          , windowArray
+          , fft_WorkSpaceBuff
+          , fftAnalizeLinePoint
+          )
+(
+    //================================================================
+    maxRbjFilterNum = 32;
+    maxLinePointNum = 1024;
+    maxFFTSIze = 256;
+    childRbjFilterArray = ARRAY_create(maxRbjFilterNum);
+    linePointArray      = ARRAY_create(maxLinePointNum);
+    FFT_sampleBUF       = CURSOLBUFFER_create(maxFFTSIze);
+    windowArray         = ARRAY_create(maxFFTSIze);
+    fft_WorkSpaceBuff   = ARRAY_create(maxFFTSIze*2);
+    fftAnalizeLinePoint = ARRAY_create(maxFFTSIze);
+    //================================================================
+    // prepare 
+    //================================================================
+    _FREQUENCY_prepareRBJFilterArray(childRbjFilterArray,maxRbjFilterNum);
+    _FREQUENCY_prepareLinePointArray(linePointArray,maxLinePointNum);
+    //================================================================
+    
+    //================================================================
+    FREQUENCY_ID = COMPONENT_create(name);
+    //================================================================
+    STATIC_MASTER_BUFF[FREQUENCY_ID ]     = "FREQUENCY";        // classTYPE
+    //================================================================
+    baseClassElementNum =_COMPONENT_getElementNum(FREQUENCY_ID);
+    //================================================================
+    
+    //================================================================
+    STATIC_MASTER_BUFF[FREQUENCY_ID + 1]  = baseClassElementNum +9;// total elementNUM
+    STATIC_MASTER_BUFF[FREQUENCY_ID + baseClassElementNum + 1]  = STATIC_MASTER_BUFF[FREQUENCY_ID + 1]; // element num in  BUTTON CLASS
+    //================================================================
+    STATIC_MASTER_BUFF[FREQUENCY_ID + baseClassElementNum + 2]  = childRbjFilterArray; // child RBj Filters
+    STATIC_MASTER_BUFF[FREQUENCY_ID + baseClassElementNum + 3]  = linePointArray ;
+    STATIC_MASTER_BUFF[FREQUENCY_ID + baseClassElementNum + 4]  = maxFFTSIze ;         // FFT size
+    STATIC_MASTER_BUFF[FREQUENCY_ID + baseClassElementNum + 5]  = 0;                   // non USE
+    STATIC_MASTER_BUFF[FREQUENCY_ID + baseClassElementNum + 6]  = FFT_sampleBUf ;      // fft sample Bbuffer
+    STATIC_MASTER_BUFF[FREQUENCY_ID + baseClassElementNum + 7]  = windowArray   ;      // window sample array
+    STATIC_MASTER_BUFF[FREQUENCY_ID + baseClassElementNum + 8]  = fft_WorkSpaceBuff;   // fft Workspace buffer
+    STATIC_MASTER_BUFF[FREQUENCY_ID + baseClassElementNum + 9]  = fftAnalizeLinePoint; // fft analize line Point Array
+    //================================================================
+    
+    //================================================================
+    STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (FREQUENCY_ID)+1; // increment next entry Bufff Point
+    //================================================================
+
+    // init prepare.
+    //================================================================
+    _FREQUENCY_resetEqLinePoint (FREQUENCY_ID);
+    _FREQUENCY_prepareFFTAnalizeLinePoint( FREQUENCY_ID) ;
+    //================================================================
+
+    //================================================================
+    _FREQUENCY_buildWindowArray(FREQUENCY_ID );
+    _FREQUENCY_buildFftAnalyzeLinePoint(FREQUENCY_ID ) ;
+    
+    //================================================================
+    FREQUENCY_ID; //retrun
+);
+//====================================================================
+
+//====================================================================
+// will be called from layer 
+//====================================================================
+function FREQUENCY_update(FREQUENCY_ID) 
+(   
+    // store last value
+    COMPONENT_update( FREQUENCY_ID);
+    //================================================================
+);
+//====================================================================
+function FREQUENCY_resized(FREQUENCY_ID,parrentRECT )
+( 
+    FREQUENCY_buildEQPointCurve(FREQUENCY_ID);
+    _FREQUENCY_buildFftAnalyzeLinePoint(FREQUENCY_ID ) ;
+);
+//====================================================================
+function FREQUENCY_draw(FREQUENCY_ID)
+    local ( tempText
+          , freq
+          , maxFreq
+          , textEndX
+          , textLableHz
+          , textlabelW
+          , textlabelH
+          , tx
+          , last_a,last_r,last_g,last_b
+          , db
+          , db_Y
+          , db_Text
+          , sampleRate_
+          )
+(
+    last_a=gfx_a;last_r=gfx_r;last_g=gfx_g;last_b=gfx_b;
+    //================================================================
+    COMPONENT_changeColorGfx( FREQUENCY_ID,"white");
+    //================================================================
+    RECTANGLE_drawFill( FREQUENCY_ID,true);
+    //================================================================
+    
+    freq =20;
+    sampleRate_ = (srate != 0) ? srate:44100;
+    maxFreq =  sampleRate_ /2;
+    //================================================================
+   
+    //================================================================
+    COMPONENT_changeColorGfx( FREQUENCY_ID,"red");
+    FREQUENCY_drawFftAnalyseLinePoints(FREQUENCY_ID);
+    //================================================================
+    COMPONENT_changeColorGfx( FREQUENCY_ID,"black");
+    //================================================================
+    RECTANGLE_drawLine ( FREQUENCY_ID,true);
+    RECTANGLE_drawCenterLine ( FREQUENCY_ID);
+    //================================================================
+    
+    // draw frequency grid
+    //================================================================
+    textEndX = 0;
+    textLableHz = #;
+    textlabelW = 0; 
+    textlabelH = 0;
+    tx = 0;
+    //================================================================  
+    while ( freq < maxFreq )
+    (
+        //============================================================
+        COMPONENT_changeColorGfx( FREQUENCY_ID,"black");
+        tx = FREQUENCY_freqToX(FREQUENCY_ID,freq ) +RECTANGLE_getX(FREQUENCY_ID);
+        //============================================================
+        gfx_line( tx 
+                , RECTANGLE_getY(FREQUENCY_ID)
+                , tx 
+                , RECTANGLE_getY2(FREQUENCY_ID)- gfx_texth-3
+                );
+        //============================================================
+        (    tx > RECTANGLE_getX(FREQUENCY_ID) 
+          && tx > textEndX
+          && freq !=40 
+          && freq !=4000 
+          && (freq <400  || freq >= 1000 || freq == 500) 
+          && (freq <6000 || freq >= 10000) ) ?
+        (
+            COMPONENT_changeColorGfx( FREQUENCY_ID,"black");
+            gfx_x = tx ;
+            gfx_y = RECTANGLE_getY2(FREQUENCY_ID)-gfx_texth-1;
+            //========================================================
+            ( freq >=1000) ? sprintf(textLableHz,"%dkHz",freq*.001) : sprintf(textLableHz,"%dkHz",freq);
+            //========================================================
+            gfx_measurestr(textLableHz,textlabelW,textlabelH) ;
+            ( gfx_x +textlabelW  < RECTANGLE_getX2(FREQUENCY_ID)  )?
+            (
+                COMPONENT_changeColorGfx( FREQUENCY_ID,"black");
+                //====================================================
+                gfx_rect ( gfx_x,gfx_y-2
+                         , textlabelW+2
+                         , textlabelH+2 );
+                //====================================================
+                COMPONENT_changeColorGfx( FREQUENCY_ID,"white");
+                gfx_x += 1 ;
+                gfx_printf(textLableHz);//increment gfx_x,gfx_y
+            );
+            //========================================================
+            textEndX = gfx_x;
+            //========================================================
+        );
+        //============================================================
+        freq += (freq<100?10:freq<1000?100:freq<10000?1000:5000);
+        //============================================================
+    );
+    //================================================================
+    
+    COMPONENT_changeColorGfx( FREQUENCY_ID,"black");
+    //================================================================
+    // DB grid 
+    //================================================================
+    db = -9;
+    while ( db < 12)
+    (
+        db_Y =  FREQUENCY_dBToY(FREQUENCY_ID,db );
+        gfx_line(RECTANGLE_getX(FREQUENCY_ID),db_Y,RECTANGLE_getX2(FREQUENCY_ID)-1,db_Y,true);
+        //============================================================
+        db_Text = #;
+        gfx_x=RECTANGLE_getX(FREQUENCY_ID)+3;
+        gfx_y=db_Y+3;
+        gfx_printf( "%+ddB",db);
+        //============================================================
+        db +=3;
+    );
+    //================================================================
+    
+    //================================================================
+    // draw RBJ filter
+    COMPONENT_changeColorGfx( FREQUENCY_ID,"blue");
+    //================================================================
+    FREQUENCY_drawLinePoints(FREQUENCY_ID);
+    FREQUENCY_drawRBJFilterCIrcle( FREQUENCY_ID);
+    //================================================================
+    
+    // draw Top Left Info
+    //================================================================
+    COMPONENT_changeColorGfx( FREQUENCY_ID,"black");
+    //================================================================
+    mouseHZ_Text = #;
+    ( RECTANGLE_isContainMouse( FREQUENCY_ID) ==true)?
+    (
+        mouseHZ = FREQUENCY_XtoFreq(FREQUENCY_ID,mouse_x );
+        ( mouseHZ >=1000) ? sprintf(mouseHZ_Text,"%dkHz",mouseHZ*.001) : sprintf(mouseHZ_Text,"%dkHz",mouseHZ);
+        gfx_x=RECTANGLE_getX(FREQUENCY_ID)+3;
+        gfx_y=RECTANGLE_getY(FREQUENCY_ID)+3;
+        sprintf(mouseHZ_Text, "cursol %dHz %+2.2fdB"
+                            , FREQUENCY_XtoFreq(FREQUENCY_ID,mouse_x )
+                            , FREQUENCY_YtoDB  (FREQUENCY_ID,mouse_y ));
+        //============================================================
+        gfx_measurestr(mouseHZ_Text,textlabelW,textlabelH) ;
+        gfx_rect ( RECTANGLE_getX(FREQUENCY_ID)
+                 , RECTANGLE_getY(FREQUENCY_ID) 
+                 , textlabelW +6
+                 , textlabelH +6
+                 );
+        //============================================================
+        COMPONENT_changeColorGfx( FREQUENCY_ID,"white");
+        gfx_printf(mouseHZ_Text);
+        //============================================================
+        //drawTool Tip
+        //============================================================
+        COMPONENT_changeColorGfx( FREQUENCY_ID,"black");
+        gfx_rect ( mouse_x+12
+                 , mouse_y-6
+                 , textlabelW +6
+                 , textlabelH +6
+                 );
+        gfx_x = mouse_x+12+3;
+        gfx_y = mouse_y-6+3;
+        //============================================================
+        COMPONENT_changeColorGfx( FREQUENCY_ID,"white");
+        gfx_printf(mouseHZ_Text);
+    ):(
+        COMPONENT_changeColorGfx( FREQUENCY_ID,"black");
+        gfx_measurestr(mouseHZ_Text,textlabelW,textlabelH) ;
+        gfx_rect ( RECTANGLE_getX(FREQUENCY_ID)
+                 , RECTANGLE_getY(FREQUENCY_ID) 
+                 , textlabelW +6
+                 , textlabelH +6
+                 );
+        //============================================================
+        sprintf(mouseHZ_Text, "cursol  ---Hz  ---dB");
+        gfx_x=RECTANGLE_getX(FREQUENCY_ID)+3;
+        gfx_y=RECTANGLE_getY(FREQUENCY_ID)+3;
+        COMPONENT_changeColorGfx( FREQUENCY_ID,"white");
+        gfx_printf(mouseHZ_Text);
+    );
+    //================================================================
+    gfx_a=last_a;gfx_r=last_r;gfx_g=last_g;gfx_b=last_b;
+);
+//====================================================================
+function FREQUENCY_mouseMoved(FREQUENCY_ID,MOUSEINFO_ID)
+(
+    ( RECTANGLE_isContainMouse(FREQUENCY_ID) ==true) ?
+    (
+        DBG(" Mouse Moved on Frequency Component");
+    );
+   //=================================================================
+);
+//====================================================================
+function FREQUENCY_mouseButtonPressd(FREQUENCY_ID,MOUSEINFO_ID )local(circle_Area_ID)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(FREQUENCY_ID) ==true) ?
+    (
+        DBG(" Mouse Button Press on Frequency Component");
+        COMPONENT_setIsMousePressStartedInThisComp(FREQUENCY_ID,true);
+    ):(
+        COMPONENT_setIsMousePressStartedInThisComp(FREQUENCY_ID,false);
+    );
+    //================================================================
+);
+//====================================================================
+function FREQUENCY_mouseButtonReleased( FREQUENCY_ID,MOUSEINFO_ID )local (tempstr)
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(FREQUENCY_ID) ==true) ?
+    (
+        //============================================================
+        DBG(" Mouse Button Released on Frequency Component");
+        //============================================================
+        (COMPONENT_isMousePressStartedInThisComp(FREQUENCY_ID) ==true)?
+        (
+            BUTTON_toggleOnOff(FREQUENCY_ID,true);
+        );
+    );
+    //================================================================
+);
+//====================================================================
+function FREQUENCY_mouseWheeled(FREQUENCY_ID,MOUSEINFO_ID )
+(
+    //================================================================
+    ( RECTANGLE_isContainMouse(FREQUENCY_ID) ==true) ?
+    (
+        DBG(" Mouse Wheeld on Frequency Component");
+    );
+    //================================================================
+);
+//====================================================================
+
+

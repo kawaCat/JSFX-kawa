@@ -13,7 +13,7 @@
 //   ARRAY_getBufferSize(ARRAY_ID)
 //   ARRAY_getMaxBufferSize(ARRAY_ID) 
 //   ARRAY_getStartBufferPointer(ARRAY_ID)
-//   ARRAY_getStartBufferPointerbBsolute(ARRAY_ID)
+//   ARRAY_getStartBufferPointerAbsolute(ARRAY_ID)
 //   ARRAY_push_back(ARRAY_ID,value)  //return new ARRAY_ID
 //   ARRAY_push_front(ARRAY_ID,value) //return new ARRAY_ID
 //   ARRAY_removeAt(ARRAY_ID,pos)     //return ARRAY_ID
@@ -126,10 +126,16 @@ function ARRAY_getAt(ARRAY_ID,pos) local (out,bufferSize)
     out;
 );
 //====================================================================
+function ARRAY_clear(ARRAY_ID)
+(
+    ARRAY_setBufferSize(ARRAY_ID,0);//clear
+);
+//====================================================================
 function ARRAY_changeValueAt(ARRAY_ID,pos,value) local (bufferSize)
 (
     bufferSize = ARRAY_getBufferSize (ARRAY_ID );
-    ( bufferSize < pos) ? 
+    (    bufferSize < pos
+      || pos < 0) ? 
     (
         0;
     ):(
@@ -141,36 +147,63 @@ function ARRAY_changeValueAt(ARRAY_ID,pos,value) local (bufferSize)
 function ARRAY_setValueAt(ARRAY_ID,pos,value)( ARRAY_changeValueAt(ARRAY_ID,pos,value););
 function ARRAY_getValueAt(ARRAY_ID,pos)      ( ARRAY_getAt(ARRAY_ID,pos););
 //====================================================================
+function ARRAY_insertAt(ARRAY_ID,pos,value)local(bufferSize)
+(
+    //================================================================
+    bufferSize = ARRAY_getBufferSize(ARRAY_ID);
+    //================================================================
+    (    bufferSize+1 < ARRAY_getMaxBufferSize(ARRAY_ID)
+      || pos >=0 )?
+    (
+        //============================================================
+        ARRAY_setBufferSize(ARRAY_ID,ARRAY_getBufferSize(ARRAY_ID)+1);
+        //============================================================
+        memcpy( ARRAY_getStartBufferPointer(ARRAY_ID) + STATIC_ARRAY_BUFF_START +pos+1
+              , ARRAY_getStartBufferPointer(ARRAY_ID) + STATIC_ARRAY_BUFF_START +pos
+              , ARRAY_getMaxBufferSize(ARRAY_ID) -pos);
+        //============================================================
+        STATIC_ARRAY_BUFF[ARRAY_getStartBufferPointer(ARRAY_ID)+pos] = value;
+    );
+    //================================================================
+    ARRAY_ID;//return 
+);
+//====================================================================
 function ARRAY_push_back(ARRAY_ID,value) local(bufferSize)
 (
     bufferSize = ARRAY_getBufferSize(ARRAY_ID);
-    //================================================================
-    ARRAY_setBufferSize(ARRAY_ID,ARRAY_getBufferSize(ARRAY_ID)+1);
-    //================================================================
-    STATIC_ARRAY_BUFF[ARRAY_getStartBufferPointer(ARRAY_ID)+bufferSize] = value;
+    ( bufferSize+1 < ARRAY_getMaxBufferSize(ARRAY_ID))?
+    (
+        ARRAY_setBufferSize(ARRAY_ID,ARRAY_getBufferSize(ARRAY_ID)+1);
+        //============================================================
+        STATIC_ARRAY_BUFF[ARRAY_getStartBufferPointer(ARRAY_ID)+bufferSize] = value;
+    );
     //================================================================
     ARRAY_ID;//return
 );
 //====================================================================
-function ARRAY_push_front(ARRAY_ID,value) local(bufferSize)//return new ARRAY_ID
+function ARRAY_push_front(ARRAY_ID,value) local(bufferSize)
 (
     bufferSize = ARRAY_getBufferSize(ARRAY_ID);
     //================================================================
-    ARRAY_setBufferSize(ARRAY_ID,ARRAY_getBufferSize(ARRAY_ID)+1);
+    ( bufferSize+1 < ARRAY_getMaxBufferSize(ARRAY_ID))?
+    (
+        //============================================================
+        ARRAY_setBufferSize(ARRAY_ID,ARRAY_getBufferSize(ARRAY_ID)+1);
+        //============================================================
+        
+        //============================================================
+        memcpy( STATIC_ARRAY_BUFF_ID  + STATIC_ARRAY_BUFF_START
+              , ARRAY_getStartBufferPointer(ARRAY_ID)           + STATIC_ARRAY_BUFF_START
+              , ARRAY_getMaxBufferSize(ARRAY_ID) );
+              
+        memcpy( ARRAY_getStartBufferPointer(ARRAY_ID)  + STATIC_ARRAY_BUFF_START +1
+              , ARRAY_getStartBufferPointer(ARRAY_ID)  + STATIC_ARRAY_BUFF_START
+              , ARRAY_getMaxBufferSize(ARRAY_ID) -1);
+        //============================================================
+        STATIC_ARRAY_BUFF[ARRAY_getStartBufferPointer(ARRAY_ID)] = value;
+    );
     //================================================================
-
-    //================================================================
-    memcpy( STATIC_ARRAY_BUFF_ID  + STATIC_ARRAY_BUFF_START
-          , ARRAY_getStartBufferPointer(ARRAY_ID)           + STATIC_ARRAY_BUFF_START
-          , ARRAY_getMaxBufferSize(ARRAY_ID) );
-          
-    memcpy( ARRAY_getStartBufferPointer(ARRAY_ID)  + STATIC_ARRAY_BUFF_START +1
-          , ARRAY_getStartBufferPointer(ARRAY_ID)  + STATIC_ARRAY_BUFF_START
-          , ARRAY_getMaxBufferSize(ARRAY_ID) -1);
-    //================================================================
-    STATIC_ARRAY_BUFF[ARRAY_getStartBufferPointer(ARRAY_ID)] = value;
-    //================================================================
-    //ARRAY_ID;//return 
+    ARRAY_ID;//return 
     //================================================================
 );
 //====================================================================

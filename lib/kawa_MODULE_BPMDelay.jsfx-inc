@@ -6,7 +6,7 @@
 //====================================================================
 // pre defines
 //====================================================================
-_BPMDELAY_BAR_STR  = "bar";
+_BPMDELAY_BAR_STR  = "1.";
 _BPMDELAY_2th_STR  = "2." ;
 _BPMDELAY_4th_STR  = "4." ;
 _BPMDELAY_8th_STR  = "8." ;
@@ -226,18 +226,17 @@ function BPMDELAY_resized(BPMDELAY_ID)
     RECTANGLE_copyTo        (feedBackKnob ,delayGainKnob );
     RECTANGLE_move          (feedBackKnob ,0,RECTANGLE_getHeight(delayGainKnob));
     //================================================================
-    RECTANGLE_copyTo        (wetDryKnob ,feedBackKnob );
-    RECTANGLE_move          (wetDryKnob ,0,RECTANGLE_getHeight(delayGainKnob));
-    //================================================================
-    RECTANGLE_copyTo        (panKnob ,wetDryKnob );
+    RECTANGLE_copyTo        (panKnob ,feedBackKnob );
     RECTANGLE_move          (panKnob ,0,RECTANGLE_getHeight(delayGainKnob));
+    //================================================================
+    RECTANGLE_copyTo        (wetDryKnob ,panKnob );
+    RECTANGLE_move          (wetDryKnob ,0,RECTANGLE_getHeight(delayGainKnob));
     //================================================================
     RECTANGLE_reduce        (delayGainKnob,3,3);
     RECTANGLE_reduce        (feedBackKnob,3,3);
     RECTANGLE_reduce        (panKnob,3,3);
     RECTANGLE_reduce        (wetDryKnob,3,3);
     //================================================================
-    
 );
 //====================================================================
 function BPMDELAY_updatePostion( BPMDELAY_ID)( BPMDELAY_resized(BPMDELAY_ID););
@@ -376,13 +375,19 @@ function BPMDELAY_create(parrentLayer)
     COMPONENT_setMinValue(delayGainKnob,0);
     COMPONENT_setMaxValue(delayGainKnob,2);
     COMPONENT_setValue(delayGainKnob,0.5,false);
+    SLIDERTYPE2_setParameterDrawType(delayGainKnob,SLIDERTYPE2_TEXT_TYPE_DB);
     //================================================================
     feedBackKnob  = SLIDERTYPE2_create( "FeedBack") ;
+    SLIDERTYPE2_setParameterDrawType(feedBackKnob,SLIDERTYPE2_TEXT_TYPE_PER);
+    //================================================================
     panKnob       = SLIDERTYPE2_create( "Pan") ;
     COMPONENT_setValue(panKnob,0.5,false);
+    SLIDERTYPE2_setParameterDrawType(panKnob,SLIDERTYPE2_TEXT_TYPE_PAN);
+    //================================================================
     pannner_      = PANNNER_create();
     wetDryKnob    = SLIDERTYPE2_create( "WetDry") ;
     COMPONENT_setValue(wetDryKnob,0.5,false);
+    SLIDERTYPE2_setParameterDrawType(wetDryKnob,SLIDERTYPE2_TEXT_TYPE_PER);
     //================================================================
     maxDelaySize  =  srate*10;
     delayArray    = CURSOLBUFFER_create(maxDelaySize);

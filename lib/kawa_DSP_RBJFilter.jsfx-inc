@@ -74,6 +74,9 @@ function _RBJFILTER_getX1          (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFIL
 function _RBJFILTER_getX2          (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+14];);
 function _RBJFILTER_getY1          (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+15];);
 function _RBJFILTER_getY2          (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+16];);
+function RBJFILTER_getActive       (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+17];);
+function RBJFILTER_isActive        (RBJFILTER_ID)   (  RBJFILTER_getActive(RBJFILTER_ID););
+function RBJFILTER_getMaxFilterQ   (RBJFILTER_ID)   (  STATIC_MASTER_BUFF[RBJFILTER_ID+18];);
 //====================================================================
 function _RBJFILTER_setA1A0        (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+3]  = v;);
 function _RBJFILTER_setA2A0        (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+4]  = v;);
@@ -84,6 +87,8 @@ function _RBJFILTER_setX1          (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFIL
 function _RBJFILTER_setX2          (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+14] = v;);
 function _RBJFILTER_setY1          (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+15] = v;);
 function _RBJFILTER_setY2          (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+16] = v;);
+function RBJFILTER_setActive       (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+17] = v;);
+function RBJFILTER_setMaxFilterQ   (RBJFILTER_ID,v) (  STATIC_MASTER_BUFF[RBJFILTER_ID+18] = v;);
 //====================================================================
 
 //====================================================================
@@ -119,6 +124,7 @@ function RBJFILTER_calculateCoeff  (RBJFILTER_ID)
     
     //================================================================
     A = 10 ^ (dBgain/40);  // = sqrt( 10^(dBgain/20) );
+    A =  sqrt( 10^(dBgain/20) );
     sqrtA2alpha =  2*sqrt(A)*alpha;
     //================================================================
     Q = A * Q;
@@ -135,7 +141,7 @@ function RBJFILTER_calculateCoeff  (RBJFILTER_ID)
     (
         //============================================================
         // LPF
-        b0 = (1 - cs) / 2;
+        b0 = (1 - cs) / 2; 
         b1 =  1 - cs;
         b2 = (1 - cs) / 2;
         a0 =  1 + alpha;
@@ -232,8 +238,8 @@ function RBJFILTER_calculateCoeff  (RBJFILTER_ID)
 //====================================================================
 
 //====================================================================
-function RBJFILTER_setFreq       (RBJFILTER_ID,v)( STATIC_MASTER_BUFF[RBJFILTER_ID+8] = v;RBJFILTER_calculateCoeff(RBJFILTER_ID););
-function RBJFILTER_setQ          (RBJFILTER_ID,v)( STATIC_MASTER_BUFF[RBJFILTER_ID+9] = v;RBJFILTER_calculateCoeff(RBJFILTER_ID););
+function RBJFILTER_setFreq       (RBJFILTER_ID,v)( STATIC_MASTER_BUFF[RBJFILTER_ID+8] = max(min(v,19000 ),20);RBJFILTER_calculateCoeff(RBJFILTER_ID););
+function RBJFILTER_setQ          (RBJFILTER_ID,v)( STATIC_MASTER_BUFF[RBJFILTER_ID+9] = min(max(v,0.001),RBJFILTER_getMaxFilterQ(RBJFILTER_ID));RBJFILTER_calculateCoeff(RBJFILTER_ID););
 function RBJFILTER_setDBGain     (RBJFILTER_ID,v)( STATIC_MASTER_BUFF[RBJFILTER_ID+10]= v;RBJFILTER_calculateCoeff(RBJFILTER_ID););
 function RBJFILTER_setFilterType (RBJFILTER_ID,v)( STATIC_MASTER_BUFF[RBJFILTER_ID+11]= v;RBJFILTER_calculateCoeff(RBJFILTER_ID););
 function RBJFILTER_setSampleRate (RBJFILTER_ID,v)( STATIC_MASTER_BUFF[RBJFILTER_ID+12]= v;RBJFILTER_calculateCoeff(RBJFILTER_ID););
@@ -252,7 +258,7 @@ function RBJFILTER_process(RBJFILTER_ID,inSample )
     y1   = _RBJFILTER_getY1(RBJFILTER_ID);
     y2   = _RBJFILTER_getY2(RBJFILTER_ID);
     //================================================================
-    
+    inSample += 0.000000000000000000000001;//     1.0E-25;
     //================================================================
     out =   b0a0 * inSample 
           + b1a0 * x1 
@@ -274,7 +280,7 @@ function RBJFILTER_create(sampleRate_)local(RBJFILTER_ID)
     RBJFILTER_ID = STATIC_MASTER_BUFF_ID;
     //================================================================
     STATIC_MASTER_BUFF[RBJFILTER_ID]    = "RBJFILTER";   // class name
-    STATIC_MASTER_BUFF[RBJFILTER_ID+1]  = 16;            // total Element Num 
+    STATIC_MASTER_BUFF[RBJFILTER_ID+1]  = 18;            // total Element Num 
     //================================================================
     STATIC_MASTER_BUFF[RBJFILTER_ID+2]  = STATIC_MASTER_BUFF[RBJFILTER_ID+1];  // element Num in this calss.
     STATIC_MASTER_BUFF[RBJFILTER_ID+3]  = 0;    // b0/a0
@@ -291,6 +297,8 @@ function RBJFILTER_create(sampleRate_)local(RBJFILTER_ID)
     STATIC_MASTER_BUFF[RBJFILTER_ID+14] = 0;    // lastSample X2
     STATIC_MASTER_BUFF[RBJFILTER_ID+15] = 0;    // lastSample Y1
     STATIC_MASTER_BUFF[RBJFILTER_ID+16] = 0;    // lastSample Y2
+    STATIC_MASTER_BUFF[RBJFILTER_ID+17] = true; // is active flag
+    STATIC_MASTER_BUFF[RBJFILTER_ID+18] = 2;    // max FilterQ num
     //================================================================
     STATIC_MASTER_BUFF_ID += STRUCT_getElementNum(RBJFILTER_ID)+1; // next entry points.
     //================================================================

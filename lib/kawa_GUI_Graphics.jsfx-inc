@@ -24,7 +24,7 @@
 //====================================================================
 //      CIRCLE_draw                     (CIRCLE_ID,antialiase)
 //      CIRCLE_drawFill                 (CIRCLE_ID,antialiase)
-//      RECTANGLE_drawFill              (RECT_ID,antialiase)
+//      RECTANGLE_drawLine              (RECT_ID,antialiase)
 //      RECTANGLE_drawFill              (RECT_ID,antialiase)
 //      RECTANGLE_drawStrInCenter       (RECT_ID,str)
 //      RECTANGLE_drawStrInCenterFitFont(RECT_ID,str)
@@ -347,6 +347,90 @@ function POINT_drawCircleFill(POINT_ID,radius,antialiase)local (x,y)
     gfx_circle(x,y,radius,true,antialiase);
 );
 //====================================================================
+function POINT_drawLine(POINT_A_ID,POINT_B_ID,thickNess)
+    local ( angleRad
+          , x1_L,y1_L
+          , x1_R,y1_R
+          , x2_L,y2_L
+          , x2_R,y2_R
+          , cx
+          , cy
+          )
+(
+    angleRad =  POINT_getAngle(POINT_A_ID,POINT_ID_B);
+    cx = POINT_getX(POINT_A_ID );
+    cy = POINT_getY(POINT_B_ID );
+    //================================================================
+    x1_L = rotPoint_X(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)-thickNess,cx,cy,angleRad);
+    y1_L = rotPoint_Y(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)-thickNess,cx,cy,angleRad);
+    x1_R = rotPoint_X(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)-thickNess,cx,cy,-angleRad);
+    y1_R = rotPoint_Y(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)-thickNess,cx,cy,-angleRad);
+    //================================================================
+    
+    //================================================================
+    cx = POINT_getX(POINT_B_ID );
+    cy = POINT_getY(POINT_B_ID );
+    x2_L = rotPoint_X(POINT_getX(POINT_B_ID),POINT_getY(POINT_B_ID)-thickNess,cx,cy,angleRad);
+    y2_L = rotPoint_Y(POINT_getX(POINT_B_ID),POINT_getY(POINT_B_ID)-thickNess,cx,cy,angleRad);
+    x2_R = rotPoint_X(POINT_getX(POINT_B_ID),POINT_getY(POINT_B_ID)-thickNess,cx,cy,-angleRad);
+    y2_R = rotPoint_Y(POINT_getX(POINT_B_ID),POINT_getY(POINT_B_ID)-thickNess,cx,cy,-angleRad);
+    //================================================================
+    gfx_triangle ( x1_L, y1_L
+                  ,x1_R, y1_R
+                  ,x2_L, y2_L
+                  ,x2_R, y2_R
+                  );
+);
+//====================================================================
+function POINT_drawLineWithRect(POINT_A_ID,POINT_B_ID,thickNess,rectAngle_)
+    local ( angleRad
+          , x1_L,y1_L
+          , x1_R,y1_R
+          , x2_L,y2_L
+          , x2_R,y2_R
+          , cx
+          , cy
+          , x1,y1, x2, y2 
+          )
+(
+    angleRad =  POINT_getAngle(POINT_A_ID,POINT_ID_B);
+    cx = POINT_getX(POINT_A_ID );
+    cy = POINT_getY(POINT_B_ID );
+    //================================================================
+    x1 = RECTANGLE_getX(rectAngle_ );
+    y1 = RECTANGLE_getY(rectAngle_ );
+    x2 = RECTANGLE_getX2(rectAngle_ )-1;
+    y2 = RECTANGLE_getY2(rectAngle_ )-1;
+    //================================================================
+    x1_L = rotPoint_X(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)-thickNess,cx,cy,angleRad);
+    y1_L = rotPoint_Y(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)-thickNess,cx,cy,angleRad);
+    x1_R = rotPoint_X(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)+thickNess,cx,cy,angleRad);
+    y1_R = rotPoint_Y(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)+thickNess,cx,cy,angleRad);
+    //================================================================
+    x1_L  = max(x1,min(x2,x1_L));
+    y1_L  = max(y1,min(y2,y1_L));
+    x1_R  = max(x1,min(x2,x1_R));
+    y1_R  = max(y1,min(y2,y1_R));
+    //================================================================
+    cx = POINT_getX(POINT_B_ID );
+    cy = POINT_getY(POINT_B_ID );
+    x2_L = rotPoint_X(POINT_getX(POINT_B_ID),POINT_getY(POINT_B_ID)-thickNess,cx,cy,angleRad);
+    y2_L = rotPoint_Y(POINT_getX(POINT_B_ID),POINT_getY(POINT_B_ID)-thickNess,cx,cy,angleRad);
+    x2_R = rotPoint_X(POINT_getX(POINT_B_ID),POINT_getY(POINT_B_ID)+thickNess,cx,cy,angleRad);
+    y2_R = rotPoint_Y(POINT_getX(POINT_B_ID),POINT_getY(POINT_B_ID)+    thickNess,cx,cy,angleRad);
+    //================================================================
+    x2_L  = max(x1,min(x2,x2_L));
+    y2_L  = max(y1,min(y2,y2_L));
+    x2_R  = max(x1,min(x2,x2_R));
+    y2_R  = max(y1,min(y2,y2_R));
+    //================================================================
+    gfx_triangle ( x1_L, y1_L
+                  ,x1_R, y1_R
+                  ,x2_L, y2_L
+                  ,x2_R, y2_R
+                  );
+);
+//====================================================================
 
 
 //====================================================================
@@ -368,7 +452,7 @@ function CIRCLE_drawFill(CIRCLE_ID,antialiase)local (x,y,r)
     gfx_circle(x,y,r,true,antialiase);
 );
 //====================================================================
-function RECTANGLE_drawFill(RECT_ID,antialiase)local (x,y,w,h)
+function RECTANGLE_drawLine(RECT_ID,antialiase)local (x,y,w,h)
 (
     x = RECTANGLE_getX(RECT_ID);
     y = RECTANGLE_getY(RECT_ID);
@@ -385,6 +469,19 @@ function RECTANGLE_drawFill(RECT_ID,antialiase)local (x,y,w,h)
     h = RECTANGLE_getHeight(RECT_ID);
     gfx_rect(x,y,w,h,true,antialiase);
 );
+//====================================================================
+function RECTANGLE_drawCenterLine(RECT_ID)local (x,y,x2,y2,h)
+(
+    x  = RECTANGLE_getX(RECT_ID);
+    y  = RECTANGLE_getY(RECT_ID);
+    x2 = RECTANGLE_getX2(RECT_ID);
+    y2 = RECTANGLE_getY2(RECT_ID);
+    h = RECTANGLE_getHeight(RECT_ID);
+    gfx_line(x,y+h/2,x2-1,y+h/2,true);
+);
+//====================================================================
+
+
 //====================================================================
 function RECTANGLE_drawStrInCenter(RECT_ID,str)
     local (strW,strH,x,y,w,h,lastX,lasty)
@@ -420,7 +517,7 @@ function RECTANGLE_getFittedFontSize(RECT_ID,str)local (strLen,x,y,w,h,targetFon
     //================================================================
     targetFontSize = min(max(targetFontSize,1),h) ;
     //================================================================
-    targetFontSize;
+    min(max(8,targetFontSize),100); // avairable size between 8 to 100;
 );
 //====================================================================
 function RECTANGLE_drawStrInCenterFitFont(RECT_ID,str)local (strLen,x,y,w,h,lastFontIdx,temp,targetFontSize)
@@ -434,6 +531,7 @@ function RECTANGLE_drawStrInCenterFitFont(RECT_ID,str)local (strLen,x,y,w,h,last
     targetFontSize = w/(strLen/1.5);
     //================================================================
     targetFontSize = min(max(targetFontSize,1),h) ;
+    targetFontSize = min(max(8,targetFontSize),256);
     gfx_setfont(1,"Courier New Bold",targetFontSize);
     //================================================================
     RECTANGLE_drawStrInCenter(RECT_ID,str);

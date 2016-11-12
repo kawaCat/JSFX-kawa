@@ -446,6 +446,17 @@ function getChebyshevDist(POINT_ID_A,POINT_ID_B)local(x1,y1,x2,y2,distHoriz,dist
     distanceOut;
 );
 //====================================================================
+function POINT_getAngle(POINT_A,POINT_B)local  (out)
+(
+    out = atan2( 
+                POINT_getY (POINT_B ) - POINT_getY (POINT_A )
+               ,POINT_getX (POINT_B ) - POINT_getX (POINT_A )
+               );
+    //================================================================
+    out = rad(360); //top Y is 0 
+    out; // right = rad 0
+);
+//====================================================================
 // Circle struct
 //====================================================================
 function CIRCLE_create(x,y,radius)local (CIRCLE_ID)
@@ -504,7 +515,7 @@ function RECTANGLE_create(x,y,w,h)
 (
     RECT_ID = STATIC_MASTER_BUFF_ID;
     STATIC_MASTER_BUFF[RECT_ID]   ="RECTANGLE";  // class name
-    STATIC_MASTER_BUFF[RECT_ID+1] = 11;         // total element NUM
+    STATIC_MASTER_BUFF[RECT_ID+1] = 20;         // total element NUM
     //================================================================
     STATIC_MASTER_BUFF[RECT_ID+2] = x;
     STATIC_MASTER_BUFF[RECT_ID+3] = y;
@@ -551,6 +562,8 @@ function RECTANGLE_getWidth(RECT_ID)            (STATIC_MASTER_BUFF[RECT_ID+4];)
 function RECTANGLE_getHeight(RECT_ID)           (STATIC_MASTER_BUFF[RECT_ID+5];);
 function RECTANGLE_getX2(RECT_ID)               (STATIC_MASTER_BUFF[RECT_ID+6];);
 function RECTANGLE_getY2(RECT_ID)               (STATIC_MASTER_BUFF[RECT_ID+7];);
+function RECTANGLE_getCenterX(RECT_ID)          (RECTANGLE_getX(RECT_ID)+RECTANGLE_getWidth (RECT_ID)/2;);
+function RECTANGLE_getCenterY(RECT_ID)          (RECTANGLE_getY(RECT_ID)+RECTANGLE_getHeight(RECT_ID)/2;);
 //====================================================================
 function RECTANGLE_setX(RECT_ID,newX)           (STATIC_MASTER_BUFF[RECT_ID+2] = newX;     RECTANGLE_updateInfo(RECT_ID) );
 function RECTANGLE_setY(RECT_ID,newY)           (STATIC_MASTER_BUFF[RECT_ID+3] = newY;     RECTANGLE_updateInfo(RECT_ID) );

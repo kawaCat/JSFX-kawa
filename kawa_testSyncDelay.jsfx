@@ -10,19 +10,19 @@ import kawa_ALL.jsfx-inc
 
 //sliders
 //--------------------------------------------------------------------
-slider1:0.5 <0.0,1.0 >- L Gain 
-slider2:0.0 <0.0,1.0 >- L FEEDBACK
-slider3:0.0 <0.0,1.0 >- L Pan
-slider4:3.0 <0,6 ,{bar,2th,4th,8th,16th,32th}>- L BPM
+slider1:0.5 <0.0,1.0 > -L Gain 
+slider2:0.0 <0.0,1.0 > -L FEEDBACK
+slider3:0.0 <0.0,1.0 > -L Pan
+slider4:3.0 <0,6 ,{bar,2th,4th,8th,16th,32th}> -L BPM
 slider5:2.0 <0,5 ,{x1,x2,x3,x4,x5}>-L multiply
-slider6:0.7 <0.0,1.0 >- L Wet
+slider6:0.4 <0.0,1.0 > -L Wet
 //====================================================================
 slider11:0.5 <0.0,1.0 >- R Gain 
 slider12:0.0 <0.0,1.0 >- R FEEDBACK
 slider13:1.0 <0.0,1.0 >- R Pan
 slider14:4.0 <0,6 ,{bar,2th,4th,8th,16th,32th}>- R BPM
 slider15:2.0 <0,5 ,{x1,x2,x3,x4,x5}>-R multiply
-slider16:0.7 <0.0,1.0 >- R Wet
+slider16:0.4 <0.0,1.0 >- R Wet
 //====================================================================
 
 @init
@@ -45,6 +45,7 @@ slider16:0.7 <0.0,1.0 >- R Wet
     LAYER_addChildComponent(LAYER_001 , TEST_comp);
     //================================================================
 
+   
     MODULE_BPMDELAY_L = BPMDELAY_create(LAYER_001)  ;
     MODULE_BPMDELAY_R = BPMDELAY_create(LAYER_001)  ;
     //================================================================
@@ -94,10 +95,10 @@ slider16:0.7 <0.0,1.0 >- R Wet
     BPMDELAY_setBtGroupBPM_CurrentIdx(MODULE_BPMDELAY_R,slider14);
     BPMDELAY_setBtGroupMUL_CurrentIdx(MODULE_BPMDELAY_R,slider15);
     //================================================================
-
+    APP_update(APP_ID);
 @block
 //====================================================================
-
+   
     //================================================================
     
 @sample
@@ -162,15 +163,16 @@ slider16:0.7 <0.0,1.0 >- R Wet
         RECTANGLE_cropFromLeftP   (MODULE_BPMDELAY_L,0.5);
         RECTANGLE_removeFromTop   (MODULE_BPMDELAY_L,RECTANGLE_getY2(TEST_comp));
         RECTANGLE_removeFromBottom(MODULE_BPMDELAY_L,20);
-        RECTANGLE_reduceP         (MODULE_BPMDELAY_L,0.0125,0.0125);
+        RECTANGLE_reduceP         (MODULE_BPMDELAY_L,0.05,0.05);
         BPMDELAY_resized          (MODULE_BPMDELAY_L);
         //============================================================        
         RECTANGLE_copyTo          (MODULE_BPMDELAY_R,LAYER_001);
         RECTANGLE_cropFromRightP  (MODULE_BPMDELAY_R,0.5);
         RECTANGLE_removeFromTop   (MODULE_BPMDELAY_R,RECTANGLE_getY2(TEST_comp));
         RECTANGLE_removeFromBottom(MODULE_BPMDELAY_R,20);
-        RECTANGLE_reduceP         (MODULE_BPMDELAY_R,0.0125,0.0125);
+        RECTANGLE_reduceP         (MODULE_BPMDELAY_R,0.05,0.05);
         BPMDELAY_resized          (MODULE_BPMDELAY_R);
+        //============================================================
     );
     //================================================================
 

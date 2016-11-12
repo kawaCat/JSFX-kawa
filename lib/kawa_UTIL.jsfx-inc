@@ -65,6 +65,26 @@ function deg(radian) ( radianToDegree ( radian););
 //====================================================================
 
 
+//====================================================================
+function inOutCubic(time_a) local (t,out)
+(
+    t = time_a * 2;
+    //================================================================
+    ( t < 1 )?
+    (
+        out = 0.5 * t * t * t ;
+        //============================================================
+    ):(
+        t = t - 2;
+        out = 0.5 * (t * t * t + 2)
+        //============================================================
+    );
+    //================================================================
+    out;
+);
+//====================================================================
+                   
+
 //http://forum.cockos.com/showthread.php?t=140211
 //====================================================================
 function get_float_from_string(str)
@@ -113,7 +133,6 @@ function rotPoint_Y(x_,y_,ox,oy,AngleRadian_)local(lx,ly,px,py,out)
 //====================================================================
 DEFINE_MIN_DB = -96.0;
 DEFINE_MIN_DB_VALUE = (10 ^ (DEFINE_MIN_DB *0.05 ));
-
 //====================================================================
 function valueToDecivel( value ) local ( out )
 (
@@ -295,4 +314,55 @@ function STRUCT_Clone(SRC_STRCUT_ID) local (out)
 //====================================================================
 
 
-
+// bezier curve quadratic (2)
+// http://geom.web.fc2.com/geometry/bezier/quadratic.html
+//====================================================================
+function getBezierPointQB_X(time_,x1,y1,bX,bY,x2,y2) local (tp,xout)//time_ is between 0~1
+(
+    tp = 1 - time_;
+    xout = time_*time_*x2 + 2*time_*tp*bX + tp*tp*x1;
+    xout;
+);
+//====================================================================
+function getBezierPointQB_Y(time_,x1,y1,bX,bY,x2,y2) local (tp,yout)//time_ is between 0~1
+(
+    tp = 1 - time_;
+    yout = time_*time_*y2 + 2*time_*tp*bY + tp*tp*y1;
+    yout;
+);
+//====================================================================
+function getBezierAngleQB(t,x1,y1,bX,bY,x2,y2) local (tp,dx,dy,angleRad)//t is time. between 0 to 1.
+(
+    tp = 1 - t;
+    dx = 2*(t*(x2-bX)+tp*(bX-x1));
+    dy = 2*(t*(y2-bY)+tp*(bY-y1));
+    angleRad = atan2(dy,dx);
+    angleRad;
+);
+//====================================================================
+// bezier curve quadratic (3)
+// http://geom.web.fc2.com/geometry/bezier/cubic.html
+//====================================================================
+function getBezierPointCB_X(t,x1,y1,bX1,bY1,bX2,bY2,x2,y2) local (tp,xOut)//t is time. between 0 to 1.
+(
+    tp = 1 - t;
+    xOut = t*t*t*x2 + 3*t*t*tp*bX2 + 3*t*tp*tp*bX1 + tp*tp*tp*x1;
+    xOut;
+);
+//====================================================================
+function getBezierPointCB_Y(t,x1,y1,bX1,bY1,bX2,bY2,x2,y2) local (tp,yOut)//t is time. between 0 to 1.
+(
+    tp = 1 - t;
+    yOut = t*t*t*y2 + 3*t*t*tp*bY2 + 3*t*tp*tp*bY1 + tp*tp*tp*y1;
+    yOut;
+);
+//====================================================================
+function getBezierAngleCB(t,x1,y1,bX1,bY1,bX2,bY2,x2,y2) local (tp,dx,dy,angleRad)
+(
+    tp = 1 - t;
+    dx = 3*(t*t*(x2-bX2)+2*t*tp*(bX2-bX1)+tp*tp*(bX1-x1));
+    dy = 3*(t*t*(y2-bY2)+2*t*tp*(bY2-bY1)+tp*tp*(bY1-y1));
+    angleRad = atan2(dy,dx);
+    angleRad;
+);
+//====================================================================
