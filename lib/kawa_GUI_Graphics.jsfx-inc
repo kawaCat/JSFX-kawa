@@ -363,8 +363,8 @@ function POINT_drawLine(POINT_A_ID,POINT_B_ID,thickNess)
     //================================================================
     x1_L = rotPoint_X(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)-thickNess,cx,cy,angleRad);
     y1_L = rotPoint_Y(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)-thickNess,cx,cy,angleRad);
-    x1_R = rotPoint_X(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)-thickNess,cx,cy,-angleRad);
-    y1_R = rotPoint_Y(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)-thickNess,cx,cy,-angleRad);
+    x1_R = rotPoint_X(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)+thickNess,cx,cy,angleRad);
+    y1_R = rotPoint_Y(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)+thickNess,cx,cy,angleRad);
     //================================================================
     
     //================================================================
@@ -372,8 +372,8 @@ function POINT_drawLine(POINT_A_ID,POINT_B_ID,thickNess)
     cy = POINT_getY(POINT_B_ID );
     x2_L = rotPoint_X(POINT_getX(POINT_B_ID),POINT_getY(POINT_B_ID)-thickNess,cx,cy,angleRad);
     y2_L = rotPoint_Y(POINT_getX(POINT_B_ID),POINT_getY(POINT_B_ID)-thickNess,cx,cy,angleRad);
-    x2_R = rotPoint_X(POINT_getX(POINT_B_ID),POINT_getY(POINT_B_ID)-thickNess,cx,cy,-angleRad);
-    y2_R = rotPoint_Y(POINT_getX(POINT_B_ID),POINT_getY(POINT_B_ID)-thickNess,cx,cy,-angleRad);
+    x2_R = rotPoint_X(POINT_getX(POINT_B_ID),POINT_getY(POINT_B_ID)+thickNess,cx,cy,angleRad);
+    y2_R = rotPoint_Y(POINT_getX(POINT_B_ID),POINT_getY(POINT_B_ID)+thickNess,cx,cy,angleRad);
     //================================================================
     gfx_triangle ( x1_L, y1_L
                   ,x1_R, y1_R
@@ -431,6 +431,36 @@ function POINT_drawLineWithRect(POINT_A_ID,POINT_B_ID,thickNess,rectAngle_)
                   );
 );
 //====================================================================
+function POINT_drawLine_2(POINT_A_ID,POINT_B_ID)
+(
+    //================================================================
+    gfx_line ( POINT_getX(POINT_A_ID)
+              ,POINT_getY(POINT_A_ID)
+              ,POINT_getX(POINT_B_ID)
+              ,POINT_getY(POINT_B_ID)
+             );
+    //================================================================
+);
+//====================================================================
+function POINT_drawLineWithRect_2(POINT_A_ID,POINT_B_ID,rectAngle_)
+    local (  x1,y1, x2, y2 
+          )
+(
+    //================================================================
+    x1 = RECTANGLE_getX(rectAngle_ );
+    y1 = RECTANGLE_getY(rectAngle_ );
+    x2 = RECTANGLE_getX2(rectAngle_ )-1;
+    y2 = RECTANGLE_getY2(rectAngle_ )-1;
+    //================================================================
+    gfx_line ( max(x1,min(x2,POINT_getX(POINT_A_ID)))
+              ,max(y1,min(y2,POINT_getY(POINT_A_ID)))
+              ,max(x1,min(x2,POINT_getX(POINT_B_ID)))
+              ,max(y1,min(y2,POINT_getY(POINT_B_ID)))
+             );
+    //================================================================
+);
+//====================================================================
+
 
 
 //====================================================================

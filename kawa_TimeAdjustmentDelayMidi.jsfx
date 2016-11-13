@@ -47,3 +47,6 @@ spl1=spl1*dry+rdpos[1]*wet;
 
 bpos+=2;
 bpos>=bufsize*2 ? bpos=0;
+
+@gfx 300 250
+0;

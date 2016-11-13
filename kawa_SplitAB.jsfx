@@ -1,0 +1,148 @@
+//====================================================================
+desc:kawa Split AB 
+//====================================================================
+
+//====================================================================
+import kawa_ALL.jsfx-inc
+//====================================================================
+
+//====================================================================
+in_pin: left input
+in_pin: right input
+out_pin:A left output
+out_pin:A right output
+out_pin:B left output
+out_pin:B right output
+//====================================================================
+@init
+    //================================================================
+    rect_input = RECTANGLE_create(0,0,100,100);
+    rect_sep1  = RECTANGLE_create(0,0,100,100);
+    rect_sep2  = RECTANGLE_create(0,0,100,100);
+    
+//====================================================================    
+@slider
+    //================================================================
+    //APP_update(APP_ID);
+    
+//====================================================================
+@sample
+    //================================================================
+    spl0 = spl0 ;
+    spl1 = spl1 ;
+    //================================================================
+    spl2 = spl0 ;
+    spl3 = spl1 ;
+    //================================================================
+
+//====================================================================
+@gfx 300 250
+    //================================================================
+    gfx_x =15;gfx_y =15;
+    gfx_r =1;gfx_g=1;gfx_b=1;
+    gfx_printf ( "Split As Equal Signals. \n" );
+    
+    // postion alignment
+    //================================================================
+    w =gfx_w;
+    h =gfx_h;
+    //================================================================
+    rect_w = w/4;
+    rect_h = h/4.5;
+    //================================================================
+    RECTANGLE_setX      ( rect_input, w/2-rect_w/2);
+    RECTANGLE_setY      ( rect_input, gfx_y + 10);
+    RECTANGLE_setWidth  ( rect_input, rect_w);
+    RECTANGLE_setHeight ( rect_input, rect_h);
+    //================================================================
+    
+    RECTANGLE_setX      ( rect_sep1, w/2-rect_w*1.5);
+    RECTANGLE_setY      ( rect_sep1, RECTANGLE_getY(rect_input) +rect_h*2 );
+    RECTANGLE_setWidth  ( rect_sep1, rect_w);
+    RECTANGLE_setHeight ( rect_sep1, rect_h);
+    //================================================================
+    
+    RECTANGLE_setX      ( rect_sep2, w/2+rect_w/2);
+    RECTANGLE_setY      ( rect_sep2, RECTANGLE_getY(rect_input) + rect_h*2  );
+    RECTANGLE_setWidth  ( rect_sep2, rect_w);
+    RECTANGLE_setHeight ( rect_sep2, rect_h);
+    //================================================================
+   
+    //================================================================
+    RECTANGLE_drawLine(rect_input,true);
+    RECTANGLE_drawStrInCenterFitFont(rect_input," input \n\n");
+    RECTANGLE_drawStrInCenterFitFont(rect_input,"\n[ch1/ch2]");
+    //================================================================
+    RECTANGLE_drawLine(rect_sep1,true);
+    RECTANGLE_drawStrInCenterFitFont(rect_sep1,"[ch1/ch2]");
+    RECTANGLE_drawLine(rect_sep2,true);
+    RECTANGLE_drawStrInCenterFitFont(rect_sep2,"[ch3/ch4]");
+    //================================================================
+    gfx_line( RECTANGLE_getCenterX(rect_input)
+            , 0
+            , RECTANGLE_getCenterX(rect_input)
+            , RECTANGLE_getY(rect_input)
+            , true
+            );
+    //================================================================
+    gfx_line( RECTANGLE_getCenterX(rect_input)
+            , RECTANGLE_getY2(rect_input)
+            , RECTANGLE_getCenterX(rect_input)
+            , RECTANGLE_getY2(rect_input)+rect_h/2
+            , true
+            );
+    //================================================================
+    
+    text = "Split ";
+    gfx_measurestr(text,textW,texth);
+    gfx_x = RECTANGLE_getCenterX(rect_input)-textW/2;
+    gfx_y = RECTANGLE_getY2(rect_input)+rect_h/2+texth;
+    gfx_printf ( text);
+    //================================================================
+    gfx_line( RECTANGLE_getCenterX(rect_input)-rect_w
+            , RECTANGLE_getY2(rect_input)+rect_h/2
+            , RECTANGLE_getCenterX(rect_input)+rect_w
+            , RECTANGLE_getY2(rect_input)+rect_h/2
+            , true
+            );
+    //================================================================
+    gfx_line( RECTANGLE_getCenterX(rect_input)-rect_w
+            , RECTANGLE_getY2(rect_input)+rect_h/2
+            , RECTANGLE_getCenterX(rect_input)-rect_w
+            , RECTANGLE_getY2(rect_input)+rect_h
+            , true
+            );
+    //================================================================
+    gfx_line( RECTANGLE_getCenterX(rect_input)+rect_w
+            , RECTANGLE_getY2(rect_input)+rect_h/2
+            , RECTANGLE_getCenterX(rect_input)+rect_w
+            , RECTANGLE_getY2(rect_input)+rect_h
+            , true
+            );
+    //================================================================
+    gfx_line( RECTANGLE_getCenterX(rect_input)-rect_w
+            , RECTANGLE_getY2(rect_input)+rect_h+rect_h
+            , RECTANGLE_getCenterX(rect_input)-rect_w
+            , RECTANGLE_getY2(rect_input)+h
+            , true
+            );
+    //================================================================
+    text = "out ";
+    gfx_x = RECTANGLE_getCenterX(rect_input)-rect_w+10;
+    gfx_y = h -gfx_texth-5;
+    gfx_printf ( text);
+    //================================================================
+    gfx_line( RECTANGLE_getCenterX(rect_input)+rect_w
+            , RECTANGLE_getY2(rect_input)+rect_h+rect_h
+            , RECTANGLE_getCenterX(rect_input)+rect_w
+            , RECTANGLE_getY2(rect_input)+h
+            , true
+            );
+    //================================================================
+    text = "out ";
+    gfx_x = RECTANGLE_getCenterX(rect_input)+rect_w+10;
+    gfx_y = h -gfx_texth-5;
+    gfx_printf ( text);
+    //================================================================
+    
+//====================================================================

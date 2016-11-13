@@ -1,0 +1,143 @@
+//====================================================================
+desc:kawa Split AB Mixer
+//====================================================================
+slider1:0<0,1,0.0001> [A-B] Mix Parameter
+
+//====================================================================
+import kawa_ALL.jsfx-inc
+//====================================================================
+
+//====================================================================
+in_pin: A left input
+in_pin: A right input
+in_pin: B Left input
+in_pin: B right input
+out_pin:left output
+out_pin:right output
+//====================================================================
+@init
+    //================================================================
+    rect_output = RECTANGLE_create(0,0,100,100);
+    rect_sep1   = RECTANGLE_create(0,0,100,100);
+    rect_sep2   = RECTANGLE_create(0,0,100,100);
+    
+//====================================================================    
+@slider
+    0;
+    
+//====================================================================
+@sample
+    //================================================================
+    spl0 = spl0 * (1-slider1)  + spl2 * slider1;
+    spl1 = spl1 * (1-slider1)  + spl3 * slider1;
+    //================================================================
+    spl2 =0; // optional
+    spl3 =0; // optional
+
+//====================================================================
+@gfx 300 250
+    //================================================================
+    gfx_x =15;gfx_y =15;
+    gfx_r =1;gfx_g=1;gfx_b=1;
+    
+    //================================================================
+    // postion alignment
+    //================================================================
+    w =gfx_w;
+    h =gfx_h;
+    //================================================================
+    rect_w = w/4;
+    rect_h = h/4;
+    //================================================================
+   
+    RECTANGLE_setX      ( rect_sep1, w/2-rect_w*1.5);
+    RECTANGLE_setY      ( rect_sep1, gfx_y + 20);
+    RECTANGLE_setWidth  ( rect_sep1, rect_w);
+    RECTANGLE_setHeight ( rect_sep1, rect_h);
+    //================================================================
+    
+    RECTANGLE_setX      ( rect_sep2, w/2+rect_w/2);
+    RECTANGLE_setY      ( rect_sep2, gfx_y + 20 );
+    RECTANGLE_setWidth  ( rect_sep2, rect_w);
+    RECTANGLE_setHeight ( rect_sep2, rect_h);
+
+    RECTANGLE_setX      ( rect_output, w/2-rect_w/2);
+    RECTANGLE_setY      ( rect_output, RECTANGLE_getY(rect_sep2) +rect_h*2  );
+    RECTANGLE_setWidth  ( rect_output, rect_w);
+    RECTANGLE_setHeight ( rect_output, rect_h);
+    //================================================================
+    
+    //================================================================
+    RECTANGLE_drawLine(rect_output,true);
+    RECTANGLE_drawStrInCenterFitFont(rect_output,"outPut\n\n");
+    RECTANGLE_drawStrInCenterFitFont(rect_output,"\n[ch1/ch2]");
+    //================================================================
+    RECTANGLE_drawLine(rect_sep1,true);
+    RECTANGLE_drawStrInCenterFitFont(rect_sep1,"[ch1/ch2]");
+    RECTANGLE_drawLine(rect_sep2,true);
+    RECTANGLE_drawStrInCenterFitFont(rect_sep2,"[ch3/ch4]");
+    //================================================================
+    
+    //================================================================
+    gfx_line( RECTANGLE_getCenterX(rect_sep1)
+            , 0
+            , RECTANGLE_getCenterX(rect_sep1)
+            , RECTANGLE_getY(rect_sep1)
+            , true
+            );
+    //================================================================
+    gfx_line( RECTANGLE_getCenterX(rect_sep1)
+            , RECTANGLE_getY2(rect_sep1)
+            , RECTANGLE_getCenterX(rect_sep1)
+            , RECTANGLE_getY2(rect_sep1)+rect_h/2
+            , true
+            );
+    //================================================================
+    gfx_line( RECTANGLE_getCenterX(rect_sep2)
+            , 0
+            , RECTANGLE_getCenterX(rect_sep2)
+            , RECTANGLE_getY(rect_sep2)
+            , true
+            );
+    //================================================================
+    gfx_line( RECTANGLE_getCenterX(rect_sep2)
+            , RECTANGLE_getY2(rect_sep2)
+            , RECTANGLE_getCenterX(rect_sep2)
+            , RECTANGLE_getY2(rect_sep2)+rect_h/2
+            , true
+            );
+    //================================================================
+    gfx_line( RECTANGLE_getCenterX(rect_sep1)
+            , RECTANGLE_getY2(rect_sep1)+rect_h/2
+            , RECTANGLE_getCenterX(rect_sep2)
+            , RECTANGLE_getY2(rect_sep2)+rect_h/2
+            , true
+            );
+    //================================================================
+    
+    
+    text = "  [ch1/ch2] %3d%% - %3d%% [ch3/ch4]";
+    gfx_measurestr(text,textW,texth);
+    gfx_x = RECTANGLE_getCenterX(rect_output)-textW/2;
+    gfx_y = RECTANGLE_getY(rect_output)-rect_h/2+texth;
+
+    gfx_printf ( text, (1-slider1)*100,slider1*100);
+    //================================================================
+    gfx_line( RECTANGLE_getCenterX(rect_output)
+            , RECTANGLE_getY(rect_output)
+            , RECTANGLE_getCenterX(rect_output)
+            , RECTANGLE_getY(rect_output)-rect_h/2
+            , true
+            );
+    //================================================================
+    gfx_line( RECTANGLE_getCenterX(rect_output)
+            , RECTANGLE_getY2(rect_output)
+            , RECTANGLE_getCenterX(rect_output)
+            , h
+            , true
+            );
+    //================================================================
+    text = "Out ";
+    gfx_x = RECTANGLE_getCenterX(rect_output)+10;
+    gfx_y = h -gfx_texth-5;
+    gfx_printf ( text);

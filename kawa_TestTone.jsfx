@@ -90,7 +90,7 @@ slider7:0 <0,1,1>-BLIT_ON
     
     //DSP
     //================================================================
-    WAVE_TABLE01 = WAVETABLE_create(srate*5);
+    WAVE_TABLE01 = WAVETABLE_create(srate);
     WAVETABLE_prepareForPlay(WAVE_TABLE01);
     WAVETABLE_setOscType (WAVE_TABLE01,WT_OSC_TYPE_SINE );
     //================================================================ 
@@ -106,12 +106,15 @@ slider7:0 <0,1,1>-BLIT_ON
     COMPONENT_setValue(BUTTON_05,slider6,false);
     //================================================================
     
+    
 @block
 //====================================================================
     max_L = 0;min_L = 0;
     max_R = 0;min_R = 0;
     //================================================================
-
+    
+    
+    
 @sample
 //====================================================================
     max_L = max(max_L,spl0);
@@ -119,6 +122,7 @@ slider7:0 <0,1,1>-BLIT_ON
     max_R = max(max_R,spl1);
     min_R = min(min_R,spl1);
     //================================================================
+    
     (BUTTON_isOn(BUTTON_01) ==true)?
     (
         WAVETABLE_setTableMode(WAVE_TABLE01,WT_TABLE_MODE_BANDLIMIT);

@@ -189,7 +189,7 @@ function FREQUENCY_processFFT(FREQUENCY_ID,inSample )
     fftsize      = FREQUENCY_getFftSize(FREQUENCY_ID);
     fftAnalyzeLineArray = FREQUENCY_getFftAnalizeLinePointArray(FREQUENCY_ID);
     sampleRate_ = ( srate != 0)? srate: 44100;
-    dtFreq = ( sampleRate_ ) / ( fftSize);
+    
     //================================================================
 
     //================================================================
@@ -204,13 +204,13 @@ function FREQUENCY_processFFT(FREQUENCY_ID,inSample )
         // real value
         //============================================================
         ARRAY_push_back( fftWorkSpace
-                       , CURSOLBUFFER_getAt(fftSampleBuf,count_DD)
-//                            * ARRAY_getAt(windowArray,count_DD ) 
+                       ,CURSOLBUFFER_getAt(fftSampleBuf,count_DD)
+                            * ARRAY_getAt(windowArray,count_DD ) 
                        );
         //============================================================
         // imaginaly value
         //============================================================
-        ARRAY_push_back(fftWorkSpace,0 );
+        ARRAY_push_back(fftWorkSpace,-1 );
         count_DD +=1;
         //============================================================
     );
@@ -224,31 +224,31 @@ function FREQUENCY_processFFT(FREQUENCY_ID,inSample )
     //================================================================
     count_DD = 0;
     count_EE = 0;
+    dtFreq = ( sampleRate_ ) / ( fftSize);
     //================================================================
-    while(count_DD < fftSize /2)
+    while(count_DD < fftSize/2  )
     (
         pt = ARRAY_getAt ( fftAnalyzeLineArray,count_DD);
         //============================================================
-        tx =  FREQUENCY_freqToX(FREQUENCY_ID,dtFreq * count_DD ) 
+        tx =  FREQUENCY_freqToX(FREQUENCY_ID,dtFreq * count_EE ) 
             + RECTANGLE_getX(FREQUENCY_ID);
         //============================================================
-        sc=    ( RECTANGLE_getHeight( FREQUENCY_ID)-20)*20
+        sc=    ( RECTANGLE_getHeight( FREQUENCY_ID))*20
              / ( -(-96) * log(10));
         //============================================================
         fftedValue = ARRAY_getAt(fftWorkSpace,count_EE);
         fftedValue /= fftSize;
         //============================================================
-        ty = RECTANGLE_getY( FREQUENCY_ID)
-             + 10* valueToDecivel (fftedValue)
-             ;
-        //============================================================
-         ty = log(max(sqr(fftedValue)+sqr(fftedValue),(10^(-500/20*2))));
+        ty = log(max(sqr(fftedValue)+sqr(fftedValue),(10^(-500/20*2))));
         //============================================================]
-         ty = ty*-0.5*sc + 20;
+        ty = ty*-0.6*sc 
+            + RECTANGLE_getY( FREQUENCY_ID)
+            + RECTANGLE_getHeight( FREQUENCY_ID)/2;
         //============================================================
-//        ty = RECTANGLE_getCenterY( FREQUENCY_ID)
-//             +  100
-//               * ARRAY_getAt(fftWorkSpace,count_EE);
+        // ty = RECTANGLE_getCenterY( FREQUENCY_ID)
+        //      +  10
+        //        * ARRAY_getAt(fftWorkSpace,count_EE);
+        // tx = RECTANGLE_getWidth( FREQUENCY_ID) /fftSize *2 * count_EE;
         //============================================================
         POINT_setX( pt, tx);
         POINT_setY( pt, ty);
@@ -274,8 +274,10 @@ function FREQUENCY_drawFftAnalyseLinePoints(FREQUENCY_ID)
     while (count_DD < arraySize )
     (
         //============================================================
-        //  POINT_drawLine(lastPoint, ARRAY_getAt( pointArray,count_DD),3);
-        POINT_drawLineWithRect(lastPoint, ARRAY_getAt( pointArray,count_DD),1,FREQUENCY_ID);
+        // POINT_drawLine(lastPoint, ARRAY_getAt( pointArray,count_DD),3);
+        // POINT_drawLineWithRect(lastPoint, ARRAY_getAt( pointArray,count_DD),1,FREQUENCY_ID);
+        //============================================================
+        POINT_drawLineWithRect_2(lastPoint, ARRAY_getAt( pointArray,count_DD),FREQUENCY_ID);
         lastPoint =  ARRAY_getAt( pointArray,count_DD);
         //============================================================
         count_DD +=1;
@@ -302,8 +304,10 @@ function FREQUENCY_drawLinePoints(FREQUENCY_ID)
     while (count_DD < arraySize )
     (
         //============================================================
-        //  POINT_drawLine(lastPoint, ARRAY_getAt( pointArray,count_DD),3);
-        POINT_drawLineWithRect(lastPoint, ARRAY_getAt( pointArray,count_DD),2,FREQUENCY_ID);
+        // POINT_drawLine(lastPoint, ARRAY_getAt( pointArray,count_DD),3);
+        // POINT_drawLineWithRect(lastPoint, ARRAY_getAt( pointArray,count_DD),0.3,FREQUENCY_ID);
+        //============================================================
+        POINT_drawLineWithRect_2(lastPoint, ARRAY_getAt( pointArray,count_DD),FREQUENCY_ID);
         lastPoint =  ARRAY_getAt( pointArray,count_DD);
         //============================================================
         count_DD +=1;
@@ -395,7 +399,7 @@ function FREQUENCY_buildEQPointCurve(FREQUENCY_ID)
                 //====================================================
                 // low Pass Filter
                 //====================================================
-                bandWidth_Freq_2 =  200;
+                bandWidth_Freq_2 =  700;
                 //====================================================
                 count_S =0;
                 while ( count_S < linePointArraySize )
@@ -437,7 +441,7 @@ function FREQUENCY_buildEQPointCurve(FREQUENCY_ID)
                 //====================================================
                 // High Pass Filter
                 //====================================================
-                bandWidth_Freq_2 =  200;
+                bandWidth_Freq_2 =  700;
                 //====================================================
                 count_S =0;
                 while ( count_S < linePointArraySize )
@@ -954,12 +958,12 @@ function FREQUENCY_create(name)
     //================================================================
     maxRbjFilterNum = 32;
     maxLinePointNum = 1024;
-    maxFFTSIze = 256;
+    maxFFTSIze = 1024*2;
     childRbjFilterArray = ARRAY_create(maxRbjFilterNum);
     linePointArray      = ARRAY_create(maxLinePointNum);
     FFT_sampleBUF       = CURSOLBUFFER_create(maxFFTSIze);
     windowArray         = ARRAY_create(maxFFTSIze);
-    fft_WorkSpaceBuff   = ARRAY_create(maxFFTSIze*2);
+    fft_WorkSpaceBuff   = ARRAY_create(maxFFTSIze*4);
     fftAnalizeLinePoint = ARRAY_create(maxFFTSIze);
     //================================================================
     // prepare 

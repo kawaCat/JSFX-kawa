@@ -134,7 +134,7 @@ slider20:0<-1,1> OFFSET FREQ
     spl0 = out_LL;
     spl1 = out_LL;
     
-    _FREQUENCY_pushSampleToFFTBuffer(canvasFreq,FFT_sampleValue );  
+    _FREQUENCY_pushSampleToFFTBuffer(canvasFreq,out_LL );  
 
 @gfx 200 400
 //====================================================================
@@ -285,7 +285,7 @@ slider20:0<-1,1> OFFSET FREQ
         RECTANGLE_copyTo         (canvasFreq,LAYER_001);
         RECTANGLE_cropFromTopP   (canvasFreq,0.7);
         RECTANGLE_reduce         (canvasFreq,0,5);
-        RECTANGLE_reduceP        (canvasFreq,0.1,0.1);
+        RECTANGLE_reduceP        (canvasFreq,0.025,0.1);
         //============================================================
     );
     //================================================================

@@ -689,7 +689,7 @@ function WAVETABLE_create( sampleRate_)
     //================================================================
     WAVETABLE_ID = STATIC_MASTER_BUFF_ID;
     //================================================================
-    STATIC_MASTER_BUFF[WAVETABLE_ID]    = "DELTATIME";             // class name
+    STATIC_MASTER_BUFF[WAVETABLE_ID]    = "WAVE TABLE";             // class name
     STATIC_MASTER_BUFF[WAVETABLE_ID+1]  = 19;                      // total Element Num 
     //================================================================
     STATIC_MASTER_BUFF[WAVETABLE_ID+2]  = 440 ;                    // frequency(Hz)
