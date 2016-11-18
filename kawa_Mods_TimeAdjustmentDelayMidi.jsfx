@@ -1,8 +1,8 @@
-desc:Time Adjustment Delay 
-desc:Time Adjustment Delay or Negative Delay
-desc:Time Adjustment Delay or Negative Delay With Midi opt
+//desc:Time Adjustment Delay 
+//desc:Time Adjustment Delay or Negative Delay
+desc:_kawa [Mods] Time Adjustment Delay With Midi opt
 //tags: delay time PDC
-//author: Cockos //mod kawa. line 36
+//author: Cockos //mod kawa. line 11,36
 
 slider1:0<-1000,1000,1>Delay Amount (ms)
 slider2:0<-120,12,1>Wet Mix (dB)

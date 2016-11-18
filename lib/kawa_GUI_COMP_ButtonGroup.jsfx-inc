@@ -1,3 +1,4 @@
+
 //====================================================================
 @init
 //====================================================================
@@ -234,6 +235,7 @@ function BUTTONGROUP_update(BUTTONGROUP_ID)
             slider( COMPONENT_getSliderIndex(BUTTONGROUP_ID) ) 
                 = _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID);;
             //========================================================
+            slider_automate(2 ^ COMPONENT_getSliderIndex(BUTTONGROUP_ID) -1 );
         );
         //============================================================
         count_A +=1;
@@ -300,6 +302,11 @@ function BUTTONGROUP_mouseButtonPressd(BUTTONGROUP_ID,MOUSEINFO_ID )
                                 , MOUSEINFO_ID);
         );
         //============================================================
+        (RECTANGLE_isContainMouse(BUTTONGROUP_ID) == true) ?
+        (
+            slider_automate(2 ^ COMPONENT_getSliderIndex(BUTTONGROUP_ID) -1 );
+        );
+        //============================================================
         count_A +=1;
     );
     //================================================================
@@ -319,6 +326,10 @@ function BUTTONGROUP_mouseButtonReleased( BUTTONGROUP_ID,MOUSEINFO_ID )
         (
             BUTTON_mouseButtonReleased( ARRAY_getAt(buttonArray,count_A)
                                       , MOUSEINFO_ID);
+        );
+        (RECTANGLE_isContainMouse(BUTTONGROUP_ID) == true) ?
+        (
+            slider_automate(2 ^ COMPONENT_getSliderIndex(BUTTONGROUP_ID) -1 );
         );
         //============================================================
         count_A +=1;
@@ -346,6 +357,8 @@ function BUTTONGROUP_mouseWheeled(BUTTONGROUP_ID,MOUSEINFO_ID )
     (
         BUTTONGROUP_stepCurrentButtonIndex( BUTTONGROUP_ID
                                           , MOUSEINFO_getMouseWheelDiffV_ABS    (MOUSEINFO_ID) );
+        
+        slider_automate(2 ^ COMPONENT_getSliderIndex(BUTTONGROUP_ID) -1 );
     );
     //================================================================
 );

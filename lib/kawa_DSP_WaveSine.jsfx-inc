@@ -336,7 +336,8 @@ function _WAVETABLE_init_(WAVETABLE_ID)
         ):(
             ARRAY_setValueAt(WAVETABLE_getWaveArraySaw ( WAVETABLE_ID)
                                                        , count_DD
-                                                       , ms2*(count_DD-half_WtSize-1) + bs2; );
+                                                       , ms2*(count_DD-half_WtSize-1) + bs2
+                                                       );
         );
         //============================================================
         //Triangle

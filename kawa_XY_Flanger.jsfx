@@ -1,5 +1,5 @@
 //====================================================================
-desc:kawa TestBitCrusher
+desc:_kawa_XY_Flanger
 //====================================================================
 
 // imports
@@ -7,12 +7,21 @@ desc:kawa TestBitCrusher
 import kawa_ALL.jsfx-inc
 //====================================================================
 
-// sliders
+// sliders//( this app lib need Continuous number)
 //--------------------------------------------------------------------
-slider1:0.25<0.0,1.0.0001>BIT 
-slider2:0.25<0.0,0.9>FREQ
+slider1: 0.1<0.0,1.0>RATE 
+slider2: 0.6<0.0,1.0>WIDTH
+slider3: 0.0<0,1,{FLANGER,PHASER}>MODE
+slider4: 0.0<0,1>FEEDBACK( x100 %)
+slider5: 1.0<0,1>DRY / WET
+//====================================================================
+in_pin: left input
+in_pin: right input
+out_pin:left output
+out_pin:right output
 //====================================================================
 
+//====================================================================
 @init
 //====================================================================
 
@@ -30,10 +39,18 @@ slider2:0.25<0.0,0.9>FREQ
     //================================================================
     TEST_comp  = COMPONENT_create("TEST");
     XYSlider_1 = XYSLIDER_create("XYSlider_1");
-    XYSLIDER_setSliderIndexX(XYSlider_1,2);
-    XYSLIDER_setSliderIndexY(XYSlider_1,1);
+    PHASER_ModeButton_comp   = BUTTON_create("FLANGER");
+    BUTTON_setOnTextPostFix (PHASER_ModeButton_comp,"");
+    BUTTON_setOffTextPostFix(PHASER_ModeButton_comp,"");
+    COMPONENT_changeColor( PHASER_ModeButton_comp
+                      ,"butonOnBackGroundColor"
+                      ,1,1,0,1);
+    //================================================================
+    COMPONENT_setSliderIndex(PHASER_ModeButton_comp,3);
+    COMPONENT_changeColor(PHASER_ModeButton_comp,"textColor_mouseon",0,0,0,1);
     //----------------------------------------------------------------
     LAYER_addChildComponent(LAYER_001 , TEST_comp);
+    LAYER_addChildComponent(LAYER_001 , PHASER_ModeButton_comp);
     LAYER_addChildComponent(LAYER_001 , XYSlider_1);
     //================================================================
 
@@ -50,6 +67,11 @@ slider2:0.25<0.0,0.9>FREQ
     CANVS_WAVE_R = CANVAS_create(gfx_w,gfx_h);
     //================================================================
     
+    delaySize = srate;
+    DELAY_ARRAY_L = CURSOLBUFFER_create(delaySize);
+    DELAY_ARRAY_R = CURSOLBUFFER_create(delaySize);
+    //================================================================
+    
     //================================================================
     DBG_toggle(DBG); // visible off
     //================================================================
@@ -57,24 +79,15 @@ slider2:0.25<0.0,0.9>FREQ
     // for particle 
     PARTICLE_controller = PARTICLE_CONTROLLER_create();
     //================================================================
-    
-    //bitCrusher params
-    //================================================================
-    fBits = 1;
-    fFreq = 1;
-    //================================================================
-    _fStep   =0;;
-    _fTemp   =0;;
-    _fPhase -=1.0/srate;
-    _fLastValueL =0;
-    _fLastValueR =0;
-    //================================================================
 
 @slider
 //====================================================================
-    XYSLIDER_setYValue(XYSlider_1,slider1,false);
-    XYSLIDER_setXValue(XYSlider_1,slider2,false);
-    
+    //XYSLIDER_setYValue(XYSlider_1,slider1,false);
+    //XYSLIDER_setXValue(XYSlider_1,slider2,false);
+    COMPONENT_setValue(PHASER_ModeButton_comp,slider3,faluse);
+    //================================================================
+    APP_SliderChanged(APP_ID); // notify for update lastValue
+    //================================================================
 @block
 //====================================================================
     max_L = 0;min_L = 0;
@@ -88,38 +101,76 @@ slider2:0.25<0.0,0.9>FREQ
     max_R = max(max_R,spl1);
     min_R = min(min_R,spl1);
     //================================================================
-    fBits = XYSLIDER_getYValue(XYSlider_1);;
-    //fFreq =1- XYSLIDER_getYValue(XYSlider_1);;
-    fFreq = XYSLIDER_getXValue(XYSlider_1);;
-    
-    _fPhase -=1.0/srate;
+ 
     //================================================================
-    (    fFreq == 1.0 
-      || _fPhase < 0.) ?
+    (BUTTON_isON(PHASER_ModeButton_comp) ==true)? //phaser mode
     (
-        _fPhase += 1.0/(fFreq*47000.+1000);
         //============================================================
-        ( fBits  < 1.0)?
-        (
-            _fStep = fBits*510+2;
-            _fLastValueL=(floor(spl0*_fStep)) /_fStep;
-            _fLastValueR=(floor(spl1*_fStep)) /_fStep;
-        ):(
-            _fLastValueL = spl0;
-            _fLastValueR = spl1;
-        );
+        rateX = slider1 * 0.60 + 0.001;
+        valueX = 0.5 + sin( (2*$pi* rateX * timeX )/srate)/2;
+        timeX +=1;(timeX>=srate/rateX)?( timeX=0;);
+        //============================================================
+        rateY = slider2 * 0.03 + 0.001;
+        valueY = 0.5 + sin( (2*$pi* rateY * timeY)/srate)/2;
+        timeY +=1;(timeY>=srate/rateY)?( timeY=0;);
+        //============================================================
+        
+        //============================================================
+        CURSOLBUFFER_push( DELAY_ARRAY_L,spl0 -delay_L*0.8*slider4 );    
+        CURSOLBUFFER_push( DELAY_ARRAY_R,spl1 -delay_R*0.8*slider4 );  
+        
+        //============================================================
+        XYSLIDER_setXValue(XYSlider_1,valueX,false);
+        XYSLIDER_setYValue(XYSlider_1,valueY,false);
+        
+        chorusWidth = srate* ( 0.001  );
+        //============================================================
+        delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
+                                                , -srate/rateX * 0.000001 * XYSLIDER_getYValue(XYSlider_1)
+                                                  -chorusWidth * XYSLIDER_getXValue(XYSlider_1) );
+        delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
+                                                , -srate/rateY * 0.000050  * XYSLIDER_getXValue(XYSlider_1)
+                                                  -chorusWidth * XYSLIDER_getXValue(XYSlider_1) );
+        //============================================================
+        
+    ):( // FLANGER MODE
+        //============================================================
+        rateX= slider1;
+        valueX = 0.5 + sin( (2*$pi* rateX * timeX)/srate)/2 ;
+        timeX +=1;(timeX>=srate/rateX)?( timeX=0;);
+        //============================================================
+        rateY = slider2;
+        valueY = 0.55 + sin( (2*$pi* rateY * timeY)/srate)/2*0.9;
+        timeY +=1;(timeY>=srate/rateY)?( timeY=0;);
+        //============================================================
+        
+        //============================================================
+        CURSOLBUFFER_push( DELAY_ARRAY_L,spl0 +delay_L*slider4*0.8 );    
+        CURSOLBUFFER_push( DELAY_ARRAY_R,spl1 +delay_R*slider4*0.8 );  
+        
+        //============================================================
+        XYSLIDER_setXValue(XYSlider_1,valueX,false);
+        XYSLIDER_setYValue(XYSlider_1,valueY,false);
+        //============================================================
+        
+        chorusWidth = srate* ( 0.002 * XYSLIDER_getYValue(XYSlider_1) );
+        //============================================================
+        delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
+                                                , -chorusWidth * XYSLIDER_getXValue(XYSlider_1) );
+        delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
+                                                , -chorusWidth * XYSLIDER_getXValue(XYSlider_1) );
+        //============================================================
     );
     //================================================================
-    spl0 = _fLastValueL;
-    spl1 = _fLastValueR;
+    spl0 = spl0 *(1-slider5) + (spl0 + delay_L ) * (slider5) ;
+    spl1 = spl1 *(1-slider5) + (spl1 + delay_R ) * (slider5) ;
+    //================================================================
 
 @gfx 200 400
 //====================================================================
     // direct draw background to
     //================================================================
-    drawBackGrond_color( 20
-                       , 120 + 120 *  ( XYSLIDER_getXValue(XYSlider_1) )
-                       , 12*20 *  ( XYSLIDER_getYValue(XYSlider_1) ));
+    drawBackGrond_color(5,0,60);
     drawSinWaveCircle(100,0.8,1,0.0043);
     //================================================================
 
@@ -128,7 +179,7 @@ slider2:0.25<0.0,0.9>FREQ
     drawWaveBufferToCanvas(CANVS_WAVE_L
                           ,max_L
                           ,min_L
-                          ,40 * ( 1- XYSLIDER_getXValue(XYSlider_1) )
+                          ,5
                           ,0.3
                           ,1
                           ,80);
@@ -136,7 +187,7 @@ slider2:0.25<0.0,0.9>FREQ
     drawWaveBufferToCanvas(CANVS_WAVE_R
                           ,max_R
                           ,min_R
-                          ,40 * ( XYSLIDER_getYValue(XYSlider_1) )
+                          ,5
                           ,0.4
                           ,1
                           ,0);
@@ -165,23 +216,17 @@ slider2:0.25<0.0,0.9>FREQ
         0;
     );
     //================================================================
-    (time_precise() -lastPTime_  > 0.25)?
-    (
-        PARTICLE_CONTROLLER_addParticleType2_XY (PARTICLE_controller
-                                                ,gfx_w/2
-                                                ,gfx_h/2
-                                                ,false
-                                               );
-       lastPTime_ = time_precise();
-    );
+    PARTICLE_CONTROLLER_addParticleType3_XY (PARTICLE_controller
+                                            ,XYSLIDER_getCircleAreaCX(XYSlider_1)
+                                            ,XYSLIDER_getCircleAreaCY(XYSlider_1)
+                                            ,false
+                                            );
     //================================================================
-
 
     // App update. check and compare with last event state.(resize or mouse)
     //================================================================
     APP_update(APP_ID);
-    //================================================================
-  
+    
     //================================================================
     ( mouse_cap & 64 ==64 && lastCAP != mouse_cap )?
     (
@@ -218,23 +263,39 @@ slider2:0.25<0.0,0.9>FREQ
         RECTANGLE_cropFromTopP   (TEST_comp,0.025);
         //============================================================
         RECTANGLE_copyTo         (XYSlider_1,LAYER_001);
-        RECTANGLE_reduceP        (XYSlider_1,0.1,0.1);
+        RECTANGLE_reduceP        (XYSlider_1,0.1,0.125);
         //============================================================
+        RECTANGLE_copyTo         (PHASER_ModeButton_comp,LAYER_001);
+        RECTANGLE_cropFromTopP   (PHASER_ModeButton_comp,0.06);
+        //RECTANGLE_cropFromRightP   (PHASER_ModeButton_comp,0.3);
     );
+    //================================================================
+    
+    (BUTTON_isON(PHASER_ModeButton_comp)==true)?
+    (
+        COMPONENT_setName(PHASER_ModeButton_comp,"PHASER MODE ");
+    ):
+    (
+        COMPONENT_setName(PHASER_ModeButton_comp,"FLANGER MODE");
+    );
+    //================================================================
+    
     //================================================================
     // if animation
     //================================================================
     COMPONENT_setComponentAlpha(TEST_comp,abs(sin($pi*2*mod*2)));
     mod += 0.01;(mod > 1 )?(mod=0;);
     //================================================================
-    RECTANGLE_setX( LAYER_001,40*sin($pi*2*mod));
+    //RECTANGLE_setX( LAYER_001,40*sin($pi*2*mod));
     
+    //================================================================
     // plugin Title Str
     //================================================================
-    RECTANGLE_drawBottomRightText( APP_ID,"kawa Test Bit Crusher");
+    RECTANGLE_drawBottomRightText( APP_ID,"kawa Test Flanger");
     //================================================================
-    
 
 //====================================================================
 // 続
+
+
 

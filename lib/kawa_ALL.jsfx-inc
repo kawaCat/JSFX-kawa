@@ -1,5 +1,4 @@
 
-
 //====================================================================
 // imports
 //====================================================================
@@ -19,6 +18,7 @@ import kawa_DSP_RBJFilter.jsfx-inc
 import kawa_DSP_Panner.jsfx-inc
 //====================================================================
 import kawa_GUI_CORE_.jsfx-inc
+import kawa_GUI_Colors_.jsfx-inc
 import kawa_GUI_Graphics.jsfx-inc
 import kawa_GUI_particle.jsfx-inc
 import kawa_GUI_BezierLine.jsfx-inc

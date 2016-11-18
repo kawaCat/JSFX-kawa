@@ -1,6 +1,6 @@
 
 //====================================================================
-desc:kawa TestSyncDelay
+desc:_kawa_BPMSyncDelay
 //====================================================================
 
 //imports
@@ -8,7 +8,7 @@ desc:kawa TestSyncDelay
 import kawa_ALL.jsfx-inc
 //====================================================================
 
-//sliders
+//sliders //( this app lib need Continuous number)
 //--------------------------------------------------------------------
 slider1:0.5 <0.0,1.0 > -L Gain 
 slider2:0.0 <0.0,1.0 > -L FEEDBACK
@@ -17,13 +17,19 @@ slider4:3.0 <0,6 ,{bar,2th,4th,8th,16th,32th}> -L BPM
 slider5:2.0 <0,5 ,{x1,x2,x3,x4,x5}>-L multiply
 slider6:0.4 <0.0,1.0 > -L Wet
 //====================================================================
-slider11:0.5 <0.0,1.0 >- R Gain 
-slider12:0.0 <0.0,1.0 >- R FEEDBACK
-slider13:1.0 <0.0,1.0 >- R Pan
-slider14:4.0 <0,6 ,{bar,2th,4th,8th,16th,32th}>- R BPM
-slider15:2.0 <0,5 ,{x1,x2,x3,x4,x5}>-R multiply
-slider16:0.4 <0.0,1.0 >- R Wet
+slider7:0.5 <0.0,1.0 > -R Gain 
+slider8:0.0 <0.0,1.0 > -R FEEDBACK
+slider9:1.0 <0.0,1.0 > -R Pan
+slider10:4.0 <0,6 ,{bar,2th,4th,8th,16th,32th}> -R BPM
+slider11:2.0 <0,5 ,{x1,x2,x3,x4,x5}> -R multiply
+slider12:0.4 <0.0,1.0 > -R Wet
 //====================================================================
+in_pin: left input
+in_pin: right input
+out_pin:left output
+out_pin:right output
+//====================================================================
+
 
 @init
 //====================================================================
@@ -52,16 +58,16 @@ slider16:0.4 <0.0,1.0 >- R Wet
     BPMDELAY_setSliderIndex_DelayGain (MODULE_BPMDELAY_L,1);
     BPMDELAY_setSliderIndex_FeedBack  (MODULE_BPMDELAY_L,2);
     BPMDELAY_setSliderIndex_Pan       (MODULE_BPMDELAY_L,3);
-    BPMDELAY_setSliderIndex_WetDry    (MODULE_BPMDELAY_L,6);
     BPMDELAY_setSliderIndex_BPM       (MODULE_BPMDELAY_L,4);
     BPMDELAY_setSliderIndex_MUL       (MODULE_BPMDELAY_L,5);
+    BPMDELAY_setSliderIndex_WetDry    (MODULE_BPMDELAY_L,6);
     //================================================================
-    BPMDELAY_setSliderIndex_DelayGain (MODULE_BPMDELAY_R,11);
-    BPMDELAY_setSliderIndex_FeedBack  (MODULE_BPMDELAY_R,12);
-    BPMDELAY_setSliderIndex_Pan       (MODULE_BPMDELAY_R,13);
-    BPMDELAY_setSliderIndex_WetDry    (MODULE_BPMDELAY_R,16);
-    BPMDELAY_setSliderIndex_BPM       (MODULE_BPMDELAY_R,14);
-    BPMDELAY_setSliderIndex_MUL       (MODULE_BPMDELAY_R,15);
+    BPMDELAY_setSliderIndex_DelayGain (MODULE_BPMDELAY_R,7);
+    BPMDELAY_setSliderIndex_FeedBack  (MODULE_BPMDELAY_R,8);
+    BPMDELAY_setSliderIndex_Pan       (MODULE_BPMDELAY_R,9);
+    BPMDELAY_setSliderIndex_BPM       (MODULE_BPMDELAY_R,10);
+    BPMDELAY_setSliderIndex_MUL       (MODULE_BPMDELAY_R,11);
+    BPMDELAY_setSliderIndex_WetDry    (MODULE_BPMDELAY_R,12);
     //================================================================
     
     // layer add to app
@@ -82,20 +88,22 @@ slider16:0.4 <0.0,1.0 >- R Wet
     BPMDELAY_setDelayGainValue       (MODULE_BPMDELAY_L,slider1,false);
     BPMDELAY_setFeedBackValue        (MODULE_BPMDELAY_L,slider2,false);
     BPMDELAY_setPanValue             (MODULE_BPMDELAY_L,slider3,false);
-    BPMDELAY_setWetDryValue          (MODULE_BPMDELAY_L,slider6,false);
     //================================================================
     BPMDELAY_setBtGroupBPM_CurrentIdx(MODULE_BPMDELAY_L,slider4);
     BPMDELAY_setBtGroupMUL_CurrentIdx(MODULE_BPMDELAY_L,slider5);
+    BPMDELAY_setWetDryValue          (MODULE_BPMDELAY_L,slider6,false);
     //================================================================
-    BPMDELAY_setDelayGainValue       (MODULE_BPMDELAY_R,slider11,false);
-    BPMDELAY_setFeedBackValue        (MODULE_BPMDELAY_R,slider12,false);
-    BPMDELAY_setPanValue             (MODULE_BPMDELAY_R,slider13,false);
-    BPMDELAY_setWetDryValue          (MODULE_BPMDELAY_R,slider16,false);
+    BPMDELAY_setDelayGainValue       (MODULE_BPMDELAY_R,slider7,false);
+    BPMDELAY_setFeedBackValue        (MODULE_BPMDELAY_R,slider8,false);
+    BPMDELAY_setPanValue             (MODULE_BPMDELAY_R,slider9,false);
     //================================================================
-    BPMDELAY_setBtGroupBPM_CurrentIdx(MODULE_BPMDELAY_R,slider14);
-    BPMDELAY_setBtGroupMUL_CurrentIdx(MODULE_BPMDELAY_R,slider15);
+    BPMDELAY_setBtGroupBPM_CurrentIdx(MODULE_BPMDELAY_R,slider10);
+    BPMDELAY_setBtGroupMUL_CurrentIdx(MODULE_BPMDELAY_R,slider11);
+    BPMDELAY_setWetDryValue          (MODULE_BPMDELAY_R,slider12,false);
     //================================================================
-    APP_update(APP_ID);
+    APP_SliderChanged(APP_ID); // notify for update lastValue
+    //================================================================
+
 @block
 //====================================================================
    
@@ -103,8 +111,6 @@ slider16:0.4 <0.0,1.0 >- R Wet
     
 @sample
 //====================================================================
- 
-    //================================================================
     BPMDELAY_process(MODULE_BPMDELAY_L,spl0);
     BPMDELAY_process(MODULE_BPMDELAY_R,spl1);
     //================================================================

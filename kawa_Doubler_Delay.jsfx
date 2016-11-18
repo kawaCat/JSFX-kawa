@@ -1,5 +1,5 @@
 //====================================================================
-desc:kawa TestChorus
+desc:_kawa_Doubler_Delay
 //====================================================================
 
 // imports
@@ -7,11 +7,17 @@ desc:kawa TestChorus
 import kawa_ALL.jsfx-inc
 //====================================================================
 
-// sliders
+// sliders  //( this app lib need Continuous number)
 //--------------------------------------------------------------------
-slider1:0.25<0.0,1.0>RATE 
-slider2:0.25<0.0,0.9>WIDTH
-slider20:1<0,1>DRY / WET
+slider1:0.1 <0.0,1.0>DELAY L
+slider2:0.25<0.0,0.9>DELAY R
+slider3:0.25<0.0,1.0>FEEDBACK
+slider4:1.0 <0,1>DRY / WET
+//====================================================================
+in_pin: left input
+in_pin: right input
+out_pin:left output
+out_pin:right output
 //====================================================================
 
 @init
@@ -30,18 +36,29 @@ slider20:1<0,1>DRY / WET
     //create Component and add to layer 1 .
     //================================================================
     TEST_comp  = COMPONENT_create("TEST");
-    XYSlider_1 = XYSLIDER_create("XYSlider_1");
-    XYSLIDER_setSliderIndexX(XYSlider_1,1);
-    XYSLIDER_setSliderIndexY(XYSlider_1,2);
+    KONB_ID_L  = KNOB_create( "Delay L") ;
+    KONB_ID_R  = KNOB_create( "Delay R") ;
+    COMPONENT_setSliderIndex(KONB_ID_L,1);
+    COMPONENT_setSliderIndex(KONB_ID_R,2);
     //----------------------------------------------------------------
     LAYER_addChildComponent(LAYER_001 , TEST_comp);
-    LAYER_addChildComponent(LAYER_001 , XYSlider_1);
+    LAYER_addChildComponent(LAYER_001 , SLIDER_2_comp);
+    LAYER_addChildComponent(LAYER_001 , KONB_ID_L);
+    LAYER_addChildComponent(LAYER_001 , KONB_ID_R);
+    //================================================================
+
+    // layer 2
+    //================================================================
+    BUTTON_comp   = BUTTON_create("DBG");
+    SLIDER_1_comp = SLIDER_create("TEST4");
+    //----------------------------------------------------------------
+    LAYER_addChildComponent(LAYER_002 , BUTTON_comp);
+    LAYER_addChildComponent(LAYER_002 , SLIDER_1_comp);
     //================================================================
 
     // layer add to app
     //================================================================
     APP_addChildComponent(APP_ID,LAYER_001);
-    //================================================================
     LAYER_setActive(LAYER_001,true);
     //================================================================
 
@@ -55,20 +72,20 @@ slider20:1<0,1>DRY / WET
     DELAY_ARRAY_L = CURSOLBUFFER_create(delaySize);
     DELAY_ARRAY_R = CURSOLBUFFER_create(delaySize);
     //================================================================
-    
-    //================================================================
     DBG_toggle(DBG); // visible off
     //================================================================
     
     // for particle 
     PARTICLE_controller = PARTICLE_CONTROLLER_create();
     //================================================================
-
+    
 @slider
 //====================================================================
-    XYSLIDER_setXValue(XYSlider_1,slider1,false);
-    XYSLIDER_setYValue(XYSlider_1,slider2,false);
-    
+    COMPONENT_setValue(KONB_ID_L,slider1,false);
+    COMPONENT_setValue(KONB_ID_R,slider2,false);
+    //================================================================
+    APP_SliderChanged(APP_ID); // notify for update lastValue
+    //================================================================
 @block
 //====================================================================
     max_L = 0;min_L = 0;
@@ -84,52 +101,55 @@ slider20:1<0,1>DRY / WET
     //================================================================
  
     //================================================================
-    CURSOLBUFFER_push( DELAY_ARRAY_L ,spl0  );
-    CURSOLBUFFER_push( DELAY_ARRAY_R ,spl1 );
-    
-    
-    //================================================================
-    rateX= slider1 * 5;//Max 12hz
-    valueX = abs( sin( (2* $pi* rateX * timeX )/srate));
-    timeX +=1;(timeX>=srate/rateX)?( timeX=0;);
-    //================================================================
-    
-    chorusWidth = ( srate* 0.0001 )*10* XYSLIDER_getYValue(XYSlider_1) ;
+    CURSOLBUFFER_push( DELAY_ARRAY_L
+                     ,(spl0+spl1)/2+delay_L*0.9*slider3 );    
+    CURSOLBUFFER_push( DELAY_ARRAY_R
+                     ,(spl0+spl1)/2+delay_R*0.9*slider3 );  
     //================================================================
     delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
-                                            , -chorusWidth * valueX -1 );
+                                            , -delaySize * 0.5
+                                            * COMPONENT_getValue(KONB_ID_L)
+                                            );
     delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
-                                            , -chorusWidth * valueX -1  );
+                                            , -delaySize * 0.5
+                                            * COMPONENT_getValue(KONB_ID_R)
+                                            );
     //================================================================
-    spl0 = spl0 *(1-slider20) + (spl0 + delay_L ) * (slider20) ;
-    spl1 = spl1 *(1-slider20) + (spl1 + delay_R ) * (slider20) ;
+
+    //================================================================
+    delay_L = spl0+ delay_L;
+    delay_R = spl1+ delay_R;
+    //================================================================
+    spl0 = spl0 *(1-slider4   ) + (spl0 + delay_L ) * (slider4   ) ;
+    spl1 = spl1 *(1-slider4   ) + (spl1 + delay_R ) * (slider4   ) ;
     //================================================================
 
 @gfx 200 400
 //====================================================================
     // direct draw background to
     //================================================================
-    drawBackGrond_color(5,0,60);
+    drawBackGrond_color( 10, 120 , 12*4);
+    drawSinWaveCircle(100,0.8,1,0.0043);
     drawSinWaveCircle(100,0.8,1,0.0043);
     //================================================================
 
     // canvase test
     //================================================================
-    drawWaveBufferToCanvas(CANVS_WAVE_L
-                          ,max_L
-                          ,min_L
-                          ,40 * XYSLIDER_getXValue(XYSlider_1)
-                          ,0.3
-                          ,1
-                          ,80);
-    //================================================================
-    drawWaveBufferToCanvas(CANVS_WAVE_R
-                          ,max_R
-                          ,min_R
-                          ,40 * XYSLIDER_getYValue(XYSlider_1)
-                          ,0.4
-                          ,1
-                          ,0);
+    drawWaveBufferToCanvas( CANVS_WAVE_L
+                          , max_L
+                          , min_L
+                          , 40 *  COMPONENT_getValue(KONB_ID_L)
+                          , 0.5
+                          , 1
+                          , 80);
+
+    drawWaveBufferToCanvas( CANVS_WAVE_R
+                          , max_R
+                          , min_R
+                          , 40 *  COMPONENT_getValue(KONB_ID_R)
+                          , 0.6
+                          , 1
+                          , 0);
     //================================================================
     gfx_a =0.6;
     CANVAS_blitImage4(CANVS_WAVE_R,1,0);
@@ -138,18 +158,18 @@ slider20:1<0,1>DRY / WET
     //================================================================
     // final background
     //================================================================
-    drawDotGrid(16,16,0.6);
+    drawDotGrid(10,10,0.06);
     //================================================================
    
     // for debug
     //================================================================
     DBGMESSAGE_drawAllMessage(DBG);
     //================================================================
-    
+
     // for particle 
     PARTICLE_CONTROLLER_update ( PARTICLE_controller );
     //================================================================
-    ( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ? 
+    ( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ?      
     (
         PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
         0;
@@ -157,25 +177,31 @@ slider20:1<0,1>DRY / WET
     //================================================================
     (time_precise() -lastPTime_  > 0.25)?
     (
-        PARTICLE_CONTROLLER_addParticleType2_XY (PARTICLE_controller
-                                                ,gfx_w/2
-                                                ,gfx_h/2
-                                                ,false
+        PARTICLE_CONTROLLER_addParticleType2_XY ( PARTICLE_controller
+                                                , gfx_w/2
+                                                , gfx_h/2
+                                                , false
                                                );
-        lastPTime_ = time_precise();
+       lastPTime_ = time_precise();
     );
     //================================================================
-
+    
+    //================================================================
     // App update. check and compare with last event state.(resize or mouse)
     //================================================================
     APP_update(APP_ID);
+    //================================================================
     
     //================================================================
-    ( mouse_cap & 64 ==64 && lastCAP != mouse_cap )?
+    ( mouse_cap & 2 ==2 && lastCAP != mouse_cap )?
     (
-        DBG_toggle(DBG);
+        0;
+        //============================================================
     );
+    //================================================================
     lastCAP = mouse_cap;
+    //================================================================
+    
     //================================================================
     ( APP_isMouseButtonPressed(APP_ID)  ==true) ?
     ( 0;);
@@ -183,7 +209,6 @@ slider20:1<0,1>DRY / WET
     ( APP_isMouseButtonReleased(APP_ID) ==true) ?
     ( 0;);
     //================================================================
-    
     
     // alignment position when resized.
     //================================================================
@@ -195,20 +220,28 @@ slider20:1<0,1>DRY / WET
         CANVAS_recreateCanvas ( CANVS_WAVE_R );
         //============================================================
         RECTANGLE_copyTo      ( LAYER_001,APP_ID);  // layer resize 
+        RECTANGLE_copyTo      ( LAYER_002,APP_ID);  // layer resize 
+        //============================================================
+    );
+    //================================================================
+  
+    //================================================================
+    ( LAYER_isAreaResized(LAYER_001) ==true)   ?
+    (
+        RECTANGLE_copyTo          (TEST_comp,LAYER_001);
+        RECTANGLE_cropFromTopP    (TEST_comp,0.025);
+        //============================================================
+        RECTANGLE_copyTo          (KONB_ID_L,LAYER_001);
+        RECTANGLE_removeFromRightP(KONB_ID_L,0.5);
+        RECTANGLE_reduce          (KONB_ID_L,5,5);
+        //============================================================
+        RECTANGLE_copyTo          (KONB_ID_R,LAYER_001);
+        RECTANGLE_removeFromLeftP (KONB_ID_R,0.5);
+        RECTANGLE_reduce          (KONB_ID_R,5,5);
         //============================================================
     );
     //================================================================
 
-    //================================================================
-    ( LAYER_isAreaResized(LAYER_001) ==true)   ?
-    (
-        RECTANGLE_copyTo         (TEST_comp,LAYER_001);
-        RECTANGLE_cropFromTopP   (TEST_comp,0.025);
-        //============================================================
-        RECTANGLE_copyTo         (XYSlider_1,LAYER_001);
-        RECTANGLE_reduceP        (XYSlider_1,0.1,0.1);
-    );
-    //================================================================
     // if animation
     //================================================================
     COMPONENT_setComponentAlpha(TEST_comp,abs(sin($pi*2*mod*2)));
@@ -217,7 +250,7 @@ slider20:1<0,1>DRY / WET
     
     // plugin Title Str
     //================================================================
-    RECTANGLE_drawBottomRightText( APP_ID,"kawa Test Chorus");
+    RECTANGLE_drawBottomRightText( APP_ID,"kawa Test Delay");
     //================================================================
 
 //====================================================================

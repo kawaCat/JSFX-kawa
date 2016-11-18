@@ -1,5 +1,5 @@
 //====================================================================
-desc:kawa TestJSFX
+desc:_kawa TestJSFX
 //====================================================================
 
 // imports
@@ -8,7 +8,7 @@ import kawa_ALL.jsfx-inc
 //====================================================================
 
 //====================================================================
-// sliders
+// sliders //( this app lib need Continuous number)
 //--------------------------------------------------------------------
 slider1:0.01<0.001,1,0.0001>FREQ
 slider2:0.5<-1,1>GAIN
@@ -21,6 +21,12 @@ slider12:1<0.1,2>Q
 
 slider20:0<-1,1> OFFSET FREQ
 //====================================================================
+in_pin: left input
+in_pin: right input
+out_pin:left output
+out_pin:right output
+//====================================================================
+
 
 @init
 //====================================================================
@@ -110,7 +116,9 @@ slider20:0<-1,1> OFFSET FREQ
     FREQUENCY_changeRbjFilter_Freq(canvasFreq,1,20000*slider10 + 2000*slider20);
     FREQUENCY_changeRbjFilter_DbGain(canvasFreq,1,9 *slider11);
     FREQUENCY_changeRbjFilter_Q(canvasFreq,1, slider12);
-
+    //================================================================
+    APP_SliderChanged(APP_ID); // notify for update lastValue
+    //================================================================
 @block
 //====================================================================
     COMPONENT_setValue( TEXT_DB_L ,max(max_L,abs(minL)),false);

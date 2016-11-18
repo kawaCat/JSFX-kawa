@@ -1,0 +1,175 @@
+
+//====================================================================
+// This effect Copyright (C) 2004 and later Cockos Incorporated
+// License: LGPL - http://www.gnu.org/licenses/lgpl.html
+//====================================================================
+desc:_kawa [Mods] Wah-Wah
+//====================================================================
+//tags: guitar modulation filter gain
+//author: Cockos
+//====================================================================
+import kawa_ALL.jsfx-inc
+//====================================================================
+
+//====================================================================
+slider1:0<0,1>Position
+slider2:0.7<0,1>Resonance (Top) (0..1)
+slider3:0.1<0,1>Resonance (Bottom) (0..1)
+slider4:0.05<0,0.1>Filter Distortion
+//====================================================================
+in_pin:input L
+in_pin:input R
+out_pin:output L
+out_pin:output R
+//====================================================================
+@init
+    // create APP ID
+    //================================================================
+    APP_ID = APP_create();
+    //================================================================
+
+    //create Layer ID
+    //================================================================
+    LAYER_001 = LAYER_create("LAYER01");
+    //================================================================
+
+    //create Component and add to layer 1 .
+    //================================================================
+    Border_comp  = COMPONENT_create("Border");
+    XYSlider_1 = XYSLIDER_create("XYSlider_1");
+    XYSLIDER_setSliderIndexX(XYSlider_1,1);
+    XYSLIDER_setSliderIndexY(XYSlider_1,2);
+    //----------------------------------------------------------------
+    LAYER_addChildComponent(LAYER_001 , Border_comp);
+    LAYER_addChildComponent(LAYER_001 , XYSlider_1);
+    //================================================================
+
+    // layer add to app
+    //================================================================
+    APP_addChildComponent(APP_ID,LAYER_001);
+    //================================================================
+    LAYER_setActive(LAYER_001,true);
+    //================================================================
+
+    //================================================================
+    function _updateCalcValue()
+    (
+        maxfreq=2000;
+        minfreq=200;
+        //============================================================
+        pos=slider1/.819;
+        pos=1-pos;
+        //============================================================
+        fh=minfreq+(pos)*(maxfreq-minfreq);
+        fh<minfreq?fh=minfreq;
+        fh>maxfreq?fh=maxfreq;
+        //=============================================================
+        res   = slider2*pos + slider3*(1-pos);
+
+        res   = min(max(res,0.0),1);
+        res  *= res;
+        drive = min(max(slider4,0),0.1); // 0 to 0.1
+        freq  = 2 * sin($pi*min(0.25,fh/(srate*2)));
+        damp  = min(2*(1-pow(res,0.25)), min(2,2/freq - freq*0.5));
+    );
+//====================================================================
+@slider
+    //================================================================
+    _updateCalcValue();
+    //================================================================
+    APP_SliderChanged(APP_ID);
+    //================================================================
+    
+    //================================================================
+    
+//====================================================================
+@sample
+//====================================================================
+    // process L channel
+    in    = spl0;
+    notch = in - damp*band;
+    low   = low + freq*band;
+    high  = notch - low;
+    band  = freq*high + band - drive*band*band*band;
+    out   = 0.5*band;
+    notch = in - damp*band;
+    low   = low + freq*band;
+    high  = notch - low;
+    band  = freq*high + band - drive*band*band*band;
+    out  += 0.5*band;
+    spl0=band;
+    //================================================================
+    // process R channel
+    inR    = spl1;
+    notchR = inR - damp*bandR;
+    lowR   = lowR + freq*bandR;
+    highR  = notchR - lowR;
+    bandR  = freq*highR + bandR - drive*bandR*bandR*bandR;
+    outR   = 0.5*bandR;
+    notchR = inR - damp*bandR;
+    lowR   = lowR + freq*bandR;
+    highR  = notchR - lowR;
+    bandR  = freq*highR + bandR - drive*bandR*bandR*bandR;
+    outR  += 0.5*bandR;
+    spl1=bandR;
+    //================================================================
+    
+//====================================================================
+@gfx 200 400
+//====================================================================
+    // direct draw background to
+    //================================================================
+    drawBackGrond_color(5,0,60);
+    drawSinWaveCircle(100,0.8,1,0.0043);
+    drawDotGrid(16,16,0.6);
+    //================================================================
+   
+    // for debug
+    //================================================================
+    //DBGMESSAGE_drawAllMessage(DBG);
+    //================================================================
+    
+    //================================================================
+    APP_update(APP_ID);//update
+    
+    // alignment position when resized.
+    //================================================================
+    ( APP_isWindowResized(APP_ID) ==true) ?
+    (
+        RECTANGLE_copyTo      ( LAYER_001,APP_ID);  // layer resize 
+    );
+    //================================================================
+    
+    //================================================================
+    ( LAYER_isAreaResized(LAYER_001) ==true)   ?
+    (
+        RECTANGLE_copyTo         (Border_comp,LAYER_001);
+        RECTANGLE_cropFromTopP   (Border_comp,0.025);
+        //============================================================
+        RECTANGLE_copyTo         (XYSlider_1,LAYER_001);
+        RECTANGLE_reduceP        (XYSlider_1,0.1,0.1);
+    );
+    //================================================================
+    
+    (   XYSLIDER_isXValueChanged( XYSlider_1 ) == true 
+      | XYSLIDER_isYValueChanged( XYSlider_1 ) == true
+     ) ?
+    (
+        _updateCalcValue();
+        );
+    
+   
+//====================================================================
+
+    
+    
+    // plugin Title Str
+    //================================================================
+    RECTANGLE_drawBottomRightText( APP_ID,"kawa Mods Stereo WahWah");
+    //================================================================
+
+
+
+
+
+
