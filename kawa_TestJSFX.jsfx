@@ -32,67 +32,67 @@ out_pin:right output
 //====================================================================
     //create APP ID
     //================================================================
-    APP_ID = APP_create();
+    app_ID = APP_create();
     //================================================================
     //create Layer ID
     //================================================================
-    LAYER_001 = LAYER_create("LAYER01");
-    LAYER_002 = LAYER_create("LAYER02");
+    layer_001  = LAYER_create("LAYER01");
+    layer_002 = LAYER_create("LAYER02");
     //================================================================
 
     //create Component and add to layer 1 .
     //================================================================
-    TEST_comp  = COMPONENT_create("TEST");
-    TEST_comp2 = COMPONENT_create("TES2T");
-    SLIDER_2_comp = SLIDERTYPE2_create("TEST2");
-    KONB_ID  = KNOB_create( "knobTest") ;
-    COMPONENT_setSliderIndex(KONB_ID,20); 
-    COMPONENT_setSliderIndex(SLIDER_2_comp,1); 
+    comp_Border1  = COMPONENT_create("TEST");
+    comp_Border2 = COMPONENT_create("TES2T");
+    comp_SLIDER_2 = SLIDERTYPE2_create("TEST2");
+    comp_KONB_ID  = KNOB_create( "knobTest") ;
+    COMPONENT_setSliderIndex(comp_KONB_ID,20); 
+    COMPONENT_setSliderIndex(comp_SLIDER_2,1); 
     //----------------------------------------------------------------
-    TEXT_DB_L = TEXT_create("text 1"); 
-    TEXT_DB_R = TEXT_create("text 2");
-    TEXT_setIsDBValueMode(TEXT_DB_L, true );
-    TEXT_setIsDBValueMode(TEXT_DB_R, true );
-    TEXT_setDBValueModeTextPreFix(TEXT_DB_L, "(L)");
-    TEXT_setDBValueModeTextPreFix(TEXT_DB_R, "(R)");
+    comp_TEXT_DB_L = TEXT_create("text 1"); 
+    comp_TEXT_DB_R = TEXT_create("text 2");
+    TEXT_setIsDBValueMode(comp_TEXT_DB_L, true );
+    TEXT_setIsDBValueMode(comp_TEXT_DB_R, true );
+    TEXT_setDBValueModeTextPreFix(comp_TEXT_DB_L, "(L)");
+    TEXT_setDBValueModeTextPreFix(comp_TEXT_DB_R, "(R)");
     //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_001 , TEXT_DB_L);
-    LAYER_addChildComponent(LAYER_001 , TEXT_DB_R);
+    LAYER_addChildComponent(layer_001  , comp_TEXT_DB_L);
+    LAYER_addChildComponent(layer_001  , comp_TEXT_DB_R);
     //----------------------------------------------------------------
     canvasFreq = FREQUENCY_create("freq");
     
     //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_001 , TEST_comp);
-    LAYER_addChildComponent(LAYER_001 , TEST_comp2);
-    LAYER_addChildComponent(LAYER_001 , SLIDER_2_comp);
-    LAYER_addChildComponent(LAYER_001 , KONB_ID);
-    LAYER_addChildComponent(LAYER_001 , canvasFreq);
+    LAYER_addChildComponent(layer_001  , comp_Border1);
+    LAYER_addChildComponent(layer_001  , comp_Border2);
+    LAYER_addChildComponent(layer_001  , comp_SLIDER_2);
+    LAYER_addChildComponent(layer_001  , comp_KONB_ID);
+    LAYER_addChildComponent(layer_001  , canvasFreq);
     //================================================================
 
     // layer 2
     //================================================================
-    BUTTON_comp   = BUTTON_create("TEST3");
-    SLIDER_1_comp = SLIDER_create("TEST4");
-    COMPONENT_setSliderIndex(SLIDER_1_comp,1); 
+    comp_BUTTON   = BUTTON_create("TEST3");
+    comp_SLIDER_1 = SLIDER_create("TEST4");
+    COMPONENT_setSliderIndex(comp_SLIDER_1,1); 
     //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_002 , BUTTON_comp);
-    LAYER_addChildComponent(LAYER_002 , SLIDER_1_comp);
+    LAYER_addChildComponent(layer_002 , comp_BUTTON);
+    LAYER_addChildComponent(layer_002 , comp_SLIDER_1);
     //================================================================
 
 
     // layer add to app
     //================================================================
-    APP_addChildComponent(APP_ID,LAYER_001);
-    APP_addChildComponent(APP_ID,LAYER_002);
+    APP_addChildComponent(app_ID,layer_001 );
+    APP_addChildComponent(app_ID,layer_002);
     //================================================================
-    LAYER_setActive(LAYER_001,true);
-    LAYER_setActive(LAYER_002,false);
+    LAYER_setActive(layer_001 ,true);
+    LAYER_setActive(layer_002,false);
     //================================================================
 
     // canvase test
     //================================================================
-    CANVS_WAVE_L = CANVAS_create(gfx_w,gfx_h);
-    CANVS_WAVE_R = CANVAS_create(gfx_w,gfx_h);
+    canvas_WAVE_L = CANVAS_create(gfx_w,gfx_h);
+    canvas_WAVE_R = CANVAS_create(gfx_w,gfx_h);
     //================================================================
     
     PARTICLE_controller = PARTICLE_CONTROLLER_create();
@@ -105,9 +105,9 @@ out_pin:right output
     
 @slider
 //====================================================================
-    COMPONENT_setValue( SLIDER_2_comp,slider1,false );
-    COMPONENT_setValue( KONB_ID,slider20,false );
-    COMPONENT_setValue( SLIDER_1_comp,slider1,false );
+    COMPONENT_setValue( comp_SLIDER_2,slider1,false );
+    COMPONENT_setValue( comp_KONB_ID,slider20,false );
+    COMPONENT_setValue( comp_SLIDER_1,slider1,false );
     
     FREQUENCY_changeRbjFilter_Freq(canvasFreq,0,20000*slider1  + 2000*slider20);
     FREQUENCY_changeRbjFilter_DbGain(canvasFreq,0,9 *slider2);
@@ -117,12 +117,12 @@ out_pin:right output
     FREQUENCY_changeRbjFilter_DbGain(canvasFreq,1,9 *slider11);
     FREQUENCY_changeRbjFilter_Q(canvasFreq,1, slider12);
     //================================================================
-    APP_SliderChanged(APP_ID); // notify for update lastValue
+    APP_SliderChanged(app_ID); // notify for update lastValue
     //================================================================
 @block
 //====================================================================
-    COMPONENT_setValue( TEXT_DB_L ,max(max_L,abs(minL)),false);
-    COMPONENT_setValue( TEXT_DB_R ,max(max_R,abs(minR)),false);
+    COMPONENT_setValue( comp_TEXT_DB_L ,max(max_L,abs(minL)),false);
+    COMPONENT_setValue( comp_TEXT_DB_R ,max(max_R,abs(minR)),false);
 
     //================================================================
     max_L = 0;min_L = 0;
@@ -156,25 +156,25 @@ out_pin:right output
     
     // canvase test
     //================================================================
-    drawWaveBufferToCanvas(CANVS_WAVE_L
+    drawWaveBufferToCanvas(canvas_WAVE_L
                               ,max_L
                               ,min_L
-                              ,40 * COMPONENT_getValue(KONB_ID)
+                              ,40 * COMPONENT_getValue(comp_KONB_ID)
                               ,0.5
                               ,1
                               ,80);
     //================================================================    
-    drawWaveBufferToCanvas(CANVS_WAVE_R
+    drawWaveBufferToCanvas(canvas_WAVE_R
                               ,max_R
                               ,min_R
-                              ,40 * COMPONENT_getValue(SLIDER_2_comp)
+                              ,40 * COMPONENT_getValue(comp_SLIDER_2)
                               ,0.6
                               ,1
                               ,0);
     //================================================================
     gfx_a =0.6;
-    CANVAS_blitImage4(CANVS_WAVE_R,1,0);
-    CANVAS_blitImage4(CANVS_WAVE_L,1,0);
+    CANVAS_blitImage4(canvas_WAVE_R,1,0);
+    CANVAS_blitImage4(canvas_WAVE_L,1,0);
     gfx_a =1;
     //================================================================
     // final background
@@ -193,7 +193,7 @@ out_pin:right output
     // for particle 
     PARTICLE_CONTROLLER_update ( PARTICLE_controller );
     //================================================================
-    ( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ?      
+    ( APP_isMouseButtonHoldingPress(app_ID)  ==true) ?      
     (
         PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
         0;
@@ -213,7 +213,7 @@ out_pin:right output
 
     // App update. check and compare with last event state.(resize or mouse)
     //================================================================
-    APP_update(APP_ID);
+    APP_update(app_ID);
   
   
     ( COMPONENT_isValueChanged ( KNOB_ID) ==true)?
@@ -229,13 +229,13 @@ out_pin:right output
     //================================================================
     ( mouse_cap & 2 ==2 && lastCAP != mouse_cap )?
     (
-        (LAYER_isActive(LAYER_001)==true )?
+        (LAYER_isActive(layer_001 )==true )?
         (
-            LAYER_setActive(LAYER_001,false );
-            LAYER_setActive(LAYER_002,true );
+            LAYER_setActive(layer_001 ,false );
+            LAYER_setActive(layer_002,true );
         ):(
-            LAYER_setActive(LAYER_001,true );
-            LAYER_setActive(LAYER_002,false );
+            LAYER_setActive(layer_001 ,true );
+            LAYER_setActive(layer_002,false );
         );
         //============================================================
     );
@@ -250,47 +250,47 @@ out_pin:right output
     
     // alignment position when resized.
     //================================================================
-    ( APP_isWindowResized(APP_ID) ==true) ?
+    ( APP_isWindowResized(app_ID) ==true) ?
     (
         //============================================================
-        RECTANGLE_copyTo      ( CANVS_WAVE_L,APP_ID);
-        RECTANGLE_copyTo      ( CANVS_WAVE_R,APP_ID);
-        CANVAS_recreateCanvas ( CANVS_WAVE_L ); 
-        CANVAS_recreateCanvas ( CANVS_WAVE_R );
+        RECTANGLE_copyTo      ( canvas_WAVE_L,app_ID);
+        RECTANGLE_copyTo      ( canvas_WAVE_R,app_ID);
+        CANVAS_recreateCanvas ( canvas_WAVE_L ); 
+        CANVAS_recreateCanvas ( canvas_WAVE_R );
         //============================================================
-        RECTANGLE_copyTo      ( LAYER_001,APP_ID);  // layer resize 
-        RECTANGLE_copyTo      ( LAYER_002,APP_ID);  // layer resize 
+        RECTANGLE_copyTo      ( layer_001 ,app_ID);  // layer resize 
+        RECTANGLE_copyTo      ( layer_002,app_ID);  // layer resize 
         //============================================================
     );
     //================================================================
 
     //================================================================
-    ( LAYER_isAreaResized(LAYER_001) ==true)   ?
+    ( LAYER_isAreaResized(layer_001 ) ==true)   ?
     (
-        RECTANGLE_copyTo         (TEST_comp,LAYER_001);
-        RECTANGLE_cropFromTopP   (TEST_comp,0.025);
+        RECTANGLE_copyTo         (comp_Border1,layer_001 );
+        RECTANGLE_cropFromTopP   (comp_Border1,0.025);
         //============================================================
-        RECTANGLE_copyTo         (TEST_comp2,LAYER_001);
-        RECTANGLE_cropFromBottomP(TEST_comp2,0.025);
+        RECTANGLE_copyTo         (comp_Border2,layer_001 );
+        RECTANGLE_cropFromBottomP(comp_Border2,0.025);
         //============================================================
-        RECTANGLE_copyTo         (SLIDER_2_comp,LAYER_001);
-        RECTANGLE_cropFromTopP   (SLIDER_2_comp,0.07);
-        RECTANGLE_cropFromRightP (SLIDER_2_comp,1-( 0.61803));
-        RECTANGLE_reduce         (SLIDER_2_comp,5,5);
+        RECTANGLE_copyTo         (comp_SLIDER_2,layer_001 );
+        RECTANGLE_cropFromTopP   (comp_SLIDER_2,0.07);
+        RECTANGLE_cropFromRightP (comp_SLIDER_2,1-( 0.61803));
+        RECTANGLE_reduce         (comp_SLIDER_2,5,5);
         //============================================================
-        RECTANGLE_copyTo         (TEXT_DB_L,LAYER_001);
-        RECTANGLE_cropFromTopP   (TEXT_DB_L,0.392);
-        RECTANGLE_reduceP        (TEXT_DB_L,0.18,0.18);
+        RECTANGLE_copyTo         (comp_TEXT_DB_L,layer_001 );
+        RECTANGLE_cropFromTopP   (comp_TEXT_DB_L,0.392);
+        RECTANGLE_reduceP        (comp_TEXT_DB_L,0.18,0.18);
         //============================================================
-        RECTANGLE_copyTo         (TEXT_DB_R,LAYER_001);
-        RECTANGLE_cropFromBottomP(TEXT_DB_R,0.382);
-        RECTANGLE_reduceP        (TEXT_DB_R,0.18,0.18);
+        RECTANGLE_copyTo         (comp_TEXT_DB_R,layer_001 );
+        RECTANGLE_cropFromBottomP(comp_TEXT_DB_R,0.382);
+        RECTANGLE_reduceP        (comp_TEXT_DB_R,0.18,0.18);
         //============================================================
-        RECTANGLE_copyTo         (KONB_ID,LAYER_001);
-        RECTANGLE_cropFromBottomP(KONB_ID,0.3);
-        RECTANGLE_reduce         (KONB_ID,50,5);
+        RECTANGLE_copyTo         (comp_KONB_ID,layer_001 );
+        RECTANGLE_cropFromBottomP(comp_KONB_ID,0.3);
+        RECTANGLE_reduce         (comp_KONB_ID,50,5);
         //============================================================
-        RECTANGLE_copyTo         (canvasFreq,LAYER_001);
+        RECTANGLE_copyTo         (canvasFreq,layer_001 );
         RECTANGLE_cropFromTopP   (canvasFreq,0.7);
         RECTANGLE_reduce         (canvasFreq,0,5);
         RECTANGLE_reduceP        (canvasFreq,0.025,0.1);
@@ -299,29 +299,29 @@ out_pin:right output
     //================================================================
 
     //================================================================
-    ( LAYER_isAreaResized(LAYER_002) == true) ?
+    ( LAYER_isAreaResized(layer_002) == true) ?
     (
-        RECTANGLE_copyTo        (BUTTON_comp,LAYER_002);
+        RECTANGLE_copyTo        (comp_BUTTON,layer_002);
         //============================================================
-        RECTANGLE_cropFromLeftP (BUTTON_comp,0.5);
-        RECTANGLE_reduceP       (BUTTON_comp,0.1,0.1);
+        RECTANGLE_cropFromLeftP (comp_BUTTON,0.5);
+        RECTANGLE_reduceP       (comp_BUTTON,0.1,0.1);
         //============================================================
-        RECTANGLE_copyTo        (SLIDER_1_comp,LAYER_002);
-        RECTANGLE_cropFromRightP(SLIDER_1_comp,0.5);
-        RECTANGLE_reduceP       (SLIDER_1_comp,0.1,0.1);
+        RECTANGLE_copyTo        (comp_SLIDER_1,layer_002);
+        RECTANGLE_cropFromRightP(comp_SLIDER_1,0.5);
+        RECTANGLE_reduceP       (comp_SLIDER_1,0.1,0.1);
         //============================================================
     );
     //================================================================
 
     // if animation
     //================================================================
-    COMPONENT_setComponentAlpha(TEST_comp,abs(sin($pi*2*mod*2)));
+    COMPONENT_setComponentAlpha(comp_Border1,abs(sin($pi*2*mod*2)));
     mod += 0.01;(mod > 1 )?(mod=0;);
     //================================================================
 
     // plugin Title Str
     //================================================================
-      RECTANGLE_drawBottomRightText( APP_ID,"kawa Test");
+      RECTANGLE_drawBottomRightText( app_ID,"kawa Test");
     //================================================================
     
 //====================================================================

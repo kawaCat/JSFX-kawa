@@ -23,35 +23,35 @@ out_pin:right output
 //====================================================================
     //create APP ID
     //================================================================
-    APP_ID = APP_create();
+    app_ID = APP_create();
     //================================================================
 
     //create Layer ID
     //================================================================
-    LAYER_001 = LAYER_create("LAYER01");
+    layer_001  = LAYER_create("LAYER01");
     //================================================================
 
     //create Component and add to layer 1 .
     //================================================================
-    TEST_comp  = COMPONENT_create("TEST");
-    TEST_comp2 = COMPONENT_create("TEST2");
+    comp_Border1  = COMPONENT_create("TEST");
+    comp_Border2 = COMPONENT_create("TEST2");
     //----------------------------------------------------------------
     BUTTON_01 = BUTTON_create(" MID");
     BUTTON_02 = BUTTON_create("SIDE");
     COMPONENT_setSliderIndex(BUTTON_01,1);
     COMPONENT_setSliderIndex(BUTTON_02,2);
     //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_001 , BUTTON_01);
-    LAYER_addChildComponent(LAYER_001 , BUTTON_02);
-    LAYER_addChildComponent(LAYER_001 , TEST_comp);
-    LAYER_addChildComponent(LAYER_001 , TEST_comp2);
+    LAYER_addChildComponent(layer_001  , BUTTON_01);
+    LAYER_addChildComponent(layer_001  , BUTTON_02);
+    LAYER_addChildComponent(layer_001  , comp_Border1);
+    LAYER_addChildComponent(layer_001  , comp_Border2);
     //================================================================
 
     // layer add to app
     //================================================================
-    APP_addChildComponent(APP_ID,LAYER_001);
+    APP_addChildComponent(app_ID,layer_001 );
     //================================================================
-    LAYER_setActive(LAYER_001,true);
+    LAYER_setActive(layer_001 ,true);
     //================================================================
     
     //================================================================
@@ -66,7 +66,7 @@ out_pin:right output
     COMPONENT_setValue(BUTTON_01,slider1,false);
     COMPONENT_setValue(BUTTON_02,slider2,false);
     //================================================================
-    APP_SliderChanged(APP_ID); // notify for update lastValue
+    APP_SliderChanged(app_ID); // notify for update lastValue
     //================================================================
 @block
 //====================================================================
@@ -100,33 +100,33 @@ out_pin:right output
 
     // App update. check and compare with last event state.(resize or mouse)
     //================================================================
-    APP_update(APP_ID);
+    APP_update(app_ID);
     
     // alignment position when resized.
     //================================================================
-    (    APP_isWindowResized(APP_ID) ==true ) ?
+    (    APP_isWindowResized(app_ID) ==true ) ?
     (
         //============================================================
-        RECTANGLE_copyTo      ( LAYER_001,APP_ID);  // layer resize 
+        RECTANGLE_copyTo      ( layer_001 ,app_ID);  // layer resize 
         //============================================================
     );
     //================================================================
-    ( LAYER_isAreaResized(LAYER_001) ==true)   ?
+    ( LAYER_isAreaResized(layer_001 ) ==true)   ?
     (
-        RECTANGLE_copyTo          (TEST_comp,LAYER_001);
-        RECTANGLE_cropFromTopP    (TEST_comp,0.025);
-        RECTANGLE_copyTo          (TEST_comp2,LAYER_001);
-        RECTANGLE_cropFromBottomP (TEST_comp2,0.025);
+        RECTANGLE_copyTo          (comp_Border1,layer_001 );
+        RECTANGLE_cropFromTopP    (comp_Border1,0.025);
+        RECTANGLE_copyTo          (comp_Border2,layer_001 );
+        RECTANGLE_cropFromBottomP (comp_Border2,0.025);
         //============================================================
-        RECTANGLE_copyTo           ( BUTTON_01,LAYER_001);
-        RECTANGLE_removeFromTop    ( BUTTON_01,RECTANGLE_getY2(TEST_comp));
-        RECTANGLE_removeFromBottom ( BUTTON_01,RECTANGLE_getHeight(TEST_comp2));
+        RECTANGLE_copyTo           ( BUTTON_01,layer_001 );
+        RECTANGLE_removeFromTop    ( BUTTON_01,RECTANGLE_getY2(comp_Border1));
+        RECTANGLE_removeFromBottom ( BUTTON_01,RECTANGLE_getHeight(comp_Border2));
         RECTANGLE_reduceP          ( BUTTON_01,0.020,0.020);
         RECTANGLE_cropFromTopP     ( BUTTON_01,0.5);
         //============================================================
-        RECTANGLE_copyTo           ( BUTTON_02,LAYER_001);
-        RECTANGLE_removeFromTop    ( BUTTON_02,RECTANGLE_getY2(TEST_comp));
-        RECTANGLE_removeFromBottom ( BUTTON_02,RECTANGLE_getHeight(TEST_comp2));
+        RECTANGLE_copyTo           ( BUTTON_02,layer_001 );
+        RECTANGLE_removeFromTop    ( BUTTON_02,RECTANGLE_getY2(comp_Border1));
+        RECTANGLE_removeFromBottom ( BUTTON_02,RECTANGLE_getHeight(comp_Border2));
         RECTANGLE_reduceP          ( BUTTON_02,0.020,0.020);
         RECTANGLE_cropFromBottomP  ( BUTTON_02,0.5);
         //============================================================
@@ -141,13 +141,13 @@ out_pin:right output
     //================================================================
     // if animation
     //================================================================
-    COMPONENT_setComponentAlpha(TEST_comp,abs(sin($pi*2*mod*2)));
+    COMPONENT_setComponentAlpha(comp_Border1,abs(sin($pi*2*mod*2)));
     mod += 0.01;(mod > 1 )?(mod=0;);
     //================================================================
 
     // plugin Title Str
     //================================================================
-    RECTANGLE_drawBottomRightText( APP_ID,"kawa Mid Side");
+    RECTANGLE_drawBottomRightText( app_ID,"kawa Mid Side");
     //================================================================
     
 //====================================================================

@@ -794,70 +794,62 @@ function drawStar(cx,cy,radius,rotationRad,isFill)
     );
 );
 //====================================================================
-
-
-
-//====================================================================
-// !!
-//====================================================================
-__temp_Point_12345 = POINT_create(0,0);//center
-__temp_Point_12346 = POINT_create(0,0);//lastPoint
-__temp_Point_12347 = POINT_create(0,0);//newPoint
-//====================================================================
-function drawFillArc(_cx,_cy,_r,_sA,_eA,_div)
-    local(divNum,oneAngleArea,polygons,count_1,centerPoint,lastPoint)
+function drawFillArc(_cx,_cy,_r,_sA,_eA,_div)//startAngle,endAngle
+    local(divNum,oneAngleArea,polygons,count_1
+         , lastPoint
+         , centerPoint_X
+         , centerPoint_Y
+         , tempPoiont2_X
+         , tempPoiont2_Y
+         , lastPoint_X
+         , lastPoint_Y
+         )
 (
     oneAngleArea = (_eA - _sA)/_div;
     //================================================================
     polygons = STATIC_TEMP_BUFFER;
     //================================================================
-    centerPoint.x = _cx;
-    centerPoint.y = _cy;
+    lastPoint_X   = _cx;
+    lastPoint_Y   = _cy;
+    tempPoiont2_X = _cx;
+    tempPoiont2_Y = _cy -_r;
     //================================================================
-    POINT_setX(__temp_Point_12345,_cx);
-    POINT_setY(__temp_Point_12345,_cy);
-    //================================================================
-    POINT_setX(__temp_Point_12346,_cx);
-    POINT_setY(__temp_Point_12346,_cy -_r);
-    //================================================================
-    POINT_rotation(__temp_Point_12346,__temp_Point_12345,_sA);
+    tempPoiont2_X =rotPoint_X(_cx,_cy -_r,_cx,_cy,_sA);
+    tempPoiont2_Y =rotPoint_Y(_cx,_cy -_r,_cx,_cy,_sA);
     //================================================================
     count_1 =0;
     //================================================================
     while ( count_1  <=_div)
     (
         //reset
-        POINT_setX(__temp_Point_12347,_cx);
-        POINT_setY(__temp_Point_12347,_cy -_r);
         //============================================================
-        POINT_rotation(__temp_Point_12347,__temp_Point_12345,_sA+(oneAngleArea*count_1));
+        tempPoiont2_X =rotPoint_X(_cx,_cy -_r,_cx,_cy,_sA+(oneAngleArea*count_1));
+        tempPoiont2_Y =rotPoint_Y(_cx,_cy -_r,_cx,_cy,_sA+(oneAngleArea*count_1));
         //===========================================================
-      
-        //===========================================================
-        gfx_triangle( POINT_getX(__temp_Point_12345) , POINT_getY(__temp_Point_12345)// _centerP
-                    , POINT_getX(__temp_Point_12346) , POINT_getY(__temp_Point_12346)   // _lastPoint
-                    , POINT_getX(__temp_Point_12347) , POINT_getY(__temp_Point_12347)    //  newPoint
+        gfx_triangle( _cx , _cy // _centerP
+                    , lastPoint_X , lastPoint_Y    // _lastPoint
+                    , tempPoiont2_X , tempPoiont2_Y    //  newPoint
                     );
         //============================================================
-        POINT_setX(__temp_Point_12346,POINT_getX(__temp_Point_12347));
-        POINT_setY(__temp_Point_12346,POINT_getY(__temp_Point_12347));
+        lastPoint_X = tempPoiont2_X ;
+        lastPoint_Y = tempPoiont2_Y ;
         //============================================================
         count_1+=1;
     );
     //================================================================
 );
 //====================================================================
-// !!!
-//====================================================================
-___CenterPoint_    = POINT_create(0,0);//center
-___outerPointLast_ = POINT_create(0,0);//lastPoint
-___outerPointNew_  = POINT_create(0,0);//newPoint
-//====================================================================
-___innerPointLast_ = POINT_create(0,0);//lastPoint//inner
-___innerPointNew_  = POINT_create(0,0);//newPoint//innner
-//====================================================================
 function drawFillArc2(_cx,_cy,_r,_r2,_sA,_eA,_div)
-    local(divNum,oneAngleArea,polygons,count_1,centerPoint,lastPoint)
+    local( divNum,oneAngleArea,polygons,count_1,centerPoint,lastPoint
+         , outerPointLast_X
+         , outerPointLast_Y
+         , outerPointNew_X
+         , outerPointNew_Y
+         , innerPointlast_X
+         , innerPointlast_Y
+         , innerPointNew_X
+         , innerPointNew_Y
+         ) 
 (
     oneAngleArea = (_eA - _sA)/_div;
     //================================================================
@@ -865,51 +857,37 @@ function drawFillArc2(_cx,_cy,_r,_r2,_sA,_eA,_div)
     //================================================================
     _r2 = _r2 ;
     //================================================================
-    POINT_setX(___CenterPoint_,_cx);
-    POINT_setY(___CenterPoint_,_cy);
-    //================================================================
-    POINT_setX(___outerPointLast_,_cx);
-    POINT_setY(___outerPointLast_,_cy -_r);
-    POINT_setX(___innerPointLast_,_cx);
-    POINT_setY(___innerPointLast_,_cy -_r2);
-    //================================================================
-    POINT_rotation(___outerPointLast_,___CenterPoint_,_sA);
-    POINT_rotation(___innerPointLast_,___CenterPoint_,_sA);
+    outerPointLast_X =rotPoint_X(_cx,_cy -_r, _cx,_cy,_sA);
+    outerPointLast_Y =rotPoint_Y(_cx,_cy -_r, _cx,_cy,_sA);
+    innerPointlast_X =rotPoint_X(_cx,_cy -_r2,_cx,_cy,_sA);
+    innerPointlast_Y =rotPoint_Y(_cx,_cy -_r2,_cx,_cy,_sA);
     //================================================================
     count_1 =0;
     //================================================================
     while ( count_1  <=_div)
     (
-        //reset
-        POINT_setX(___outerPointNew_,_cx);
-        POINT_setY(___outerPointNew_,_cy -_r);
-        //============================================================
-        //reset
-        POINT_setX(___innerPointNew_,_cx);
-        POINT_setY(___innerPointNew_,_cy -_r2);
-        //============================================================
-        POINT_rotation(___outerPointNew_,___CenterPoint_,_sA+(oneAngleArea*count_1));
-        POINT_rotation(___innerPointNew_,___CenterPoint_,_sA+(oneAngleArea*count_1));
         //===========================================================
-      
-        //===========================================================
-        gfx_triangle( POINT_getX(___innerPointLast_) , POINT_getY(___innerPointLast_)  // innerlast
-                    , POINT_getX(___outerPointLast_) , POINT_getY(___outerPointLast_)  // outerLast
-                    , POINT_getX(___outerPointNew_ ) , POINT_getY(___outerPointNew_)  //  outerNew
-                    );
-        //============================================================
-        gfx_triangle( POINT_getX(___innerPointNew_ ) , POINT_getY(___innerPointNew_)  // innerNew
-                    , POINT_getX(___outerPointNew_ )    , POINT_getY(___outerPointNew_)  // outerLast
-                    , POINT_getX(___innerPointLast_) , POINT_getY(___innerPointLast_)  //  outerNew
-                    );
+        outerPointNew_X =rotPoint_X(_cx,_cy -_r, _cx,_cy,_sA+(oneAngleArea*count_1));
+        outerPointNew_Y =rotPoint_Y(_cx,_cy -_r, _cx,_cy,_sA+(oneAngleArea*count_1));
+        innerPointNew_X =rotPoint_X(_cx,_cy -_r2,_cx,_cy,_sA+(oneAngleArea*count_1));
+        innerPointNew_Y =rotPoint_Y(_cx,_cy -_r2,_cx,_cy,_sA+(oneAngleArea*count_1));
         //============================================================
         
+        //===========================================================
+        gfx_triangle( innerPointlast_X  , innerPointlast_Y  // innerlast
+                    , outerPointLast_X  , outerPointLast_Y  // outerLast
+                    , outerPointNew_X   , outerPointNew_Y   //  outerNew
+                    );
         //============================================================
-        POINT_setX(___outerPointLast_,POINT_getX(___outerPointNew_));
-        POINT_setY(___outerPointLast_,POINT_getY(___outerPointNew_));
+        gfx_triangle( innerPointNew_X  , innerPointNew_Y  // innerNew
+                    , outerPointNew_X  , outerPointNew_Y  // outerLast
+                    , innerPointlast_X , innerPointlast_Y //  outerNew
+                    );
         //============================================================
-        POINT_setX(___innerPointLast_,POINT_getX(___innerPointNew_));
-        POINT_setY(___innerPointLast_,POINT_getY(___innerPointNew_));
+        outerPointLast_X =outerPointNew_X;
+        outerPointLast_Y =outerPointNew_Y;
+        innerPointlast_X =innerPointNew_X;
+        innerPointlast_Y =innerPointNew_Y;
         //============================================================
         count_1+=1;
     );

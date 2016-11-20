@@ -25,47 +25,47 @@ out_pin:right output
 
     // create APP ID
     //================================================================
-    APP_ID = APP_create();
+    app_ID = APP_create();
     //================================================================
 
     //create Layer ID
     //================================================================
-    LAYER_001 = LAYER_create("LAYER01");
+    layer_001  = LAYER_create("LAYER01");
     //================================================================
 
     //create Component and add to layer 1 .
     //================================================================
-    TEST_comp  = COMPONENT_create("TEST");
-    KONB_ID_L  = KNOB_create( "Delay L") ;
-    KONB_ID_R  = KNOB_create( "Delay R") ;
-    COMPONENT_setSliderIndex(KONB_ID_L,1);
-    COMPONENT_setSliderIndex(KONB_ID_R,2);
+    comp_Border  = COMPONENT_create("TEST");
+    comp_KONB_ID_L  = KNOB_create( "Delay L") ;
+    comp_KONB_ID_R  = KNOB_create( "Delay R") ;
+    COMPONENT_setSliderIndex(comp_KONB_ID_L,1);
+    COMPONENT_setSliderIndex(comp_KONB_ID_R,2);
     //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_001 , TEST_comp);
-    LAYER_addChildComponent(LAYER_001 , SLIDER_2_comp);
-    LAYER_addChildComponent(LAYER_001 , KONB_ID_L);
-    LAYER_addChildComponent(LAYER_001 , KONB_ID_R);
+    LAYER_addChildComponent(layer_001  , comp_Border);
+    LAYER_addChildComponent(layer_001  , SLIDER_2_comp);
+    LAYER_addChildComponent(layer_001  , comp_KONB_ID_L);
+    LAYER_addChildComponent(layer_001  , comp_KONB_ID_R);
     //================================================================
 
     // layer 2
     //================================================================
-    BUTTON_comp   = BUTTON_create("DBG");
-    SLIDER_1_comp = SLIDER_create("TEST4");
+    comp_BUTTON   = BUTTON_create("DBG");
+    comp_SLIDER_1 = SLIDER_create("TEST4");
     //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_002 , BUTTON_comp);
-    LAYER_addChildComponent(LAYER_002 , SLIDER_1_comp);
+    LAYER_addChildComponent(LAYER_002 , comp_BUTTON);
+    LAYER_addChildComponent(LAYER_002 , comp_SLIDER_1);
     //================================================================
 
     // layer add to app
     //================================================================
-    APP_addChildComponent(APP_ID,LAYER_001);
-    LAYER_setActive(LAYER_001,true);
+    APP_addChildComponent(app_ID,layer_001 );
+    LAYER_setActive(layer_001 ,true);
     //================================================================
 
     // canvase test
     //================================================================
-    CANVS_WAVE_L = CANVAS_create(gfx_w,gfx_h);
-    CANVS_WAVE_R = CANVAS_create(gfx_w,gfx_h);
+    canvas_WAVE_L = CANVAS_create(gfx_w,gfx_h);
+    canvas_WAVE_R = CANVAS_create(gfx_w,gfx_h);
     //================================================================
     
     delaySize = srate;
@@ -81,23 +81,23 @@ out_pin:right output
     
 @slider
 //====================================================================
-    COMPONENT_setValue(KONB_ID_L,slider1,false);
-    COMPONENT_setValue(KONB_ID_R,slider2,false);
+    COMPONENT_setValue(comp_KONB_ID_L,slider1,false);
+    COMPONENT_setValue(comp_KONB_ID_R,slider2,false);
     //================================================================
-    APP_SliderChanged(APP_ID); // notify for update lastValue
+    APP_SliderChanged(app_ID); // notify for update lastValue
     //================================================================
 @block
 //====================================================================
-    max_L = 0;min_L = 0;
-    max_R = 0;min_R = 0;
+    f_max_L = 0;f_min_L = 0;
+    f_max_R = 0;f_min_R = 0;
     //================================================================
     
 @sample
 //====================================================================
-    max_L = max(max_L,spl0);
-    min_L = min(min_L,spl0);
-    max_R = max(max_R,spl1);
-    min_R = min(min_R,spl1);
+    f_max_L = max(f_max_L,spl0);
+    f_min_L = min(f_min_L,spl0);
+    f_max_R = max(f_max_R,spl1);
+    f_min_R = min(f_min_R,spl1);
     //================================================================
  
     //================================================================
@@ -108,11 +108,11 @@ out_pin:right output
     //================================================================
     delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
                                             , -delaySize * 0.5
-                                            * COMPONENT_getValue(KONB_ID_L)
+                                            * COMPONENT_getValue(comp_KONB_ID_L)
                                             );
     delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
                                             , -delaySize * 0.5
-                                            * COMPONENT_getValue(KONB_ID_R)
+                                            * COMPONENT_getValue(comp_KONB_ID_R)
                                             );
     //================================================================
 
@@ -135,25 +135,25 @@ out_pin:right output
 
     // canvase test
     //================================================================
-    drawWaveBufferToCanvas( CANVS_WAVE_L
-                          , max_L
-                          , min_L
-                          , 40 *  COMPONENT_getValue(KONB_ID_L)
+    drawWaveBufferToCanvas( canvas_WAVE_L
+                          , f_max_L
+                          , f_min_L
+                          , 40 *  COMPONENT_getValue(comp_KONB_ID_L)
                           , 0.5
                           , 1
                           , 80);
 
-    drawWaveBufferToCanvas( CANVS_WAVE_R
-                          , max_R
-                          , min_R
-                          , 40 *  COMPONENT_getValue(KONB_ID_R)
+    drawWaveBufferToCanvas( canvas_WAVE_R
+                          , f_max_R
+                          , f_min_R
+                          , 40 *  COMPONENT_getValue(comp_KONB_ID_R)
                           , 0.6
                           , 1
                           , 0);
     //================================================================
     gfx_a =0.6;
-    CANVAS_blitImage4(CANVS_WAVE_R,1,0);
-    CANVAS_blitImage4(CANVS_WAVE_L,1,0);
+    CANVAS_blitImage4(canvas_WAVE_R,1,0);
+    CANVAS_blitImage4(canvas_WAVE_L,1,0);
     gfx_a =1;
     //================================================================
     // final background
@@ -169,7 +169,7 @@ out_pin:right output
     // for particle 
     PARTICLE_CONTROLLER_update ( PARTICLE_controller );
     //================================================================
-    ( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ?      
+    ( APP_isMouseButtonHoldingPress(app_ID)  ==true) ?      
     (
         PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
         0;
@@ -189,7 +189,7 @@ out_pin:right output
     //================================================================
     // App update. check and compare with last event state.(resize or mouse)
     //================================================================
-    APP_update(APP_ID);
+    APP_update(app_ID);
     //================================================================
     
     //================================================================
@@ -203,54 +203,54 @@ out_pin:right output
     //================================================================
     
     //================================================================
-    ( APP_isMouseButtonPressed(APP_ID)  ==true) ?
+    ( APP_isMouseButtonPressed(app_ID)  ==true) ?
     ( 0;);
     
-    ( APP_isMouseButtonReleased(APP_ID) ==true) ?
+    ( APP_isMouseButtonReleased(app_ID) ==true) ?
     ( 0;);
     //================================================================
     
     // alignment position when resized.
     //================================================================
-    ( APP_isWindowResized(APP_ID) ==true) ?
+    ( APP_isWindowResized(app_ID) ==true) ?
     (
-        RECTANGLE_copyTo      ( CANVS_WAVE_L,APP_ID);
-        RECTANGLE_copyTo      ( CANVS_WAVE_R,APP_ID);
-        CANVAS_recreateCanvas ( CANVS_WAVE_L ); 
-        CANVAS_recreateCanvas ( CANVS_WAVE_R );
+        RECTANGLE_copyTo      ( canvas_WAVE_L,app_ID);
+        RECTANGLE_copyTo      ( canvas_WAVE_R,app_ID);
+        CANVAS_recreateCanvas ( canvas_WAVE_L ); 
+        CANVAS_recreateCanvas ( canvas_WAVE_R );
         //============================================================
-        RECTANGLE_copyTo      ( LAYER_001,APP_ID);  // layer resize 
-        RECTANGLE_copyTo      ( LAYER_002,APP_ID);  // layer resize 
+        RECTANGLE_copyTo      ( layer_001 ,app_ID);  // layer resize 
+        RECTANGLE_copyTo      ( LAYER_002,app_ID);  // layer resize 
         //============================================================
     );
     //================================================================
   
     //================================================================
-    ( LAYER_isAreaResized(LAYER_001) ==true)   ?
+    ( LAYER_isAreaResized(layer_001 ) ==true)   ?
     (
-        RECTANGLE_copyTo          (TEST_comp,LAYER_001);
-        RECTANGLE_cropFromTopP    (TEST_comp,0.025);
+        RECTANGLE_copyTo          (comp_Border,layer_001 );
+        RECTANGLE_cropFromTopP    (comp_Border,0.025);
         //============================================================
-        RECTANGLE_copyTo          (KONB_ID_L,LAYER_001);
-        RECTANGLE_removeFromRightP(KONB_ID_L,0.5);
-        RECTANGLE_reduce          (KONB_ID_L,5,5);
+        RECTANGLE_copyTo          (comp_KONB_ID_L,layer_001 );
+        RECTANGLE_removeFromRightP(comp_KONB_ID_L,0.5);
+        RECTANGLE_reduce          (comp_KONB_ID_L,5,5);
         //============================================================
-        RECTANGLE_copyTo          (KONB_ID_R,LAYER_001);
-        RECTANGLE_removeFromLeftP (KONB_ID_R,0.5);
-        RECTANGLE_reduce          (KONB_ID_R,5,5);
+        RECTANGLE_copyTo          (comp_KONB_ID_R,layer_001 );
+        RECTANGLE_removeFromLeftP (comp_KONB_ID_R,0.5);
+        RECTANGLE_reduce          (comp_KONB_ID_R,5,5);
         //============================================================
     );
     //================================================================
 
     // if animation
     //================================================================
-    COMPONENT_setComponentAlpha(TEST_comp,abs(sin($pi*2*mod*2)));
+    COMPONENT_setComponentAlpha(comp_Border,abs(sin($pi*2*mod*2)));
     mod += 0.01;(mod > 1 )?(mod=0;);
     //================================================================
     
     // plugin Title Str
     //================================================================
-    RECTANGLE_drawBottomRightText( APP_ID,"kawa Test Delay");
+    RECTANGLE_drawBottomRightText( app_ID,"kawa Test Delay");
     //================================================================
 
 //====================================================================

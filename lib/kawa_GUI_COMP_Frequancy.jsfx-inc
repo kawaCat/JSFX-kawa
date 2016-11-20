@@ -133,7 +133,7 @@ function _FREQUENCY_buildFftAnalyzeLinePoint(FREQUENCY_ID )
 (
     fftSize = FREQUENCY_getFftSize(FREQUENCY_ID);
     //================================================================
-    fftAnalyzeLineArray = FREQUENCY_getFftAnalizeLinePointArray(FREQUENCY_ID);
+    fftAnalyzeFFTArray = FREQUENCY_getFftAnalizeLinePointArray(FREQUENCY_ID);
     //================================================================
     sampleRate_ = ( srate != 0)? srate: 44100;
     //================================================================
@@ -143,7 +143,7 @@ function _FREQUENCY_buildFftAnalyzeLinePoint(FREQUENCY_ID )
     //================================================================
     while(count_RR < fftSize/2   )
     (
-        pt = ARRAY_getAt ( fftAnalyzeLineArray,count_RR);
+        pt = ARRAY_getAt ( fftAnalyzeFFTArray,count_RR);
         //============================================================
         x_ =  FREQUENCY_freqToX(FREQUENCY_ID,dtFreq * count_RR ) ;
         //============================================================
@@ -188,7 +188,7 @@ function FREQUENCY_processFFT(FREQUENCY_ID,inSample )
     fftSampleBuf = FREQUENCY_getFftSampleBuffer(FREQUENCY_ID);
     fftWorkSpace = FREQUENCY_getFftWorkSpaceArray(FREQUENCY_ID);
     fftsize      = FREQUENCY_getFftSize(FREQUENCY_ID);
-    fftAnalyzeLineArray = FREQUENCY_getFftAnalizeLinePointArray(FREQUENCY_ID);
+    fftAnalyzeFFTArray = FREQUENCY_getFftAnalizeLinePointArray(FREQUENCY_ID);
     sampleRate_ = ( srate != 0)? srate: 44100;
     
     //================================================================
@@ -229,7 +229,7 @@ function FREQUENCY_processFFT(FREQUENCY_ID,inSample )
     //================================================================
     while(count_DD < fftSize/2  )
     (
-        pt = ARRAY_getAt ( fftAnalyzeLineArray,count_DD);
+        pt = ARRAY_getAt ( fftAnalyzeFFTArray,count_DD);
         //============================================================
         tx =  FREQUENCY_freqToX(FREQUENCY_ID,dtFreq * count_EE ) 
             + RECTANGLE_getX(FREQUENCY_ID);
@@ -317,7 +317,7 @@ function FREQUENCY_drawLinePoints(FREQUENCY_ID)
 );
 //====================================================================
 function _FREQUENCY_resetEqLinePoint (FREQUENCY_ID) 
-    local (x,y,w,h,pointArray,arraySize,count_DD)
+    local (x,y,w,h,pointArray,arraySize,count_DD,deltaW)
 (
     pointArray = FREQUENCY_getLinePointArray(FREQUENCY_ID);
     arraySize  = ARRAY_getBufferSize( pointArray);
@@ -361,6 +361,11 @@ function FREQUENCY_buildEQPointCurve(FREQUENCY_ID)
           , tempRel_q
           , tempDb_y
           , maxRBJ_filterQ
+          , lastX
+          , lastY
+          , distanceDbYfromCY
+          , distanceDbYfromCY_Q
+          , bandWidth_Freq_2
           )
 (
     _FREQUENCY_resetEqLinePoint (FREQUENCY_ID);
@@ -766,7 +771,7 @@ function FREQUENCY_changeRbjFilter_Freq(FREQUENCY_ID,index,freq) local(rbjArray)
 (
     rbjArray = FREQUENCY_getChildRbjFilterLineArray (FREQUENCY_ID);
     //================================================================
-    #TESTTEXT = STATIC_MASTER_BUFF[ARRAY_getAt(rbjArray,index)];
+   
     
     RBJFILTER_setFreq         (ARRAY_getAt(rbjArray,index),freq);
     //================================================================
@@ -1044,6 +1049,8 @@ function FREQUENCY_draw(FREQUENCY_ID)
           , db_Y
           , db_Text
           , sampleRate_
+		  , mouseHZ_Text
+		  , mouseHZ
           )
 (
     last_a=gfx_a;last_r=gfx_r;last_g=gfx_g;last_b=gfx_b;

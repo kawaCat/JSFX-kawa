@@ -12,10 +12,10 @@ import kawa_ALL.jsfx-inc
 slider1:0.25<0.0,1.0.0001>BIT 
 slider2:0.25<0.0,0.9>FREQ
 //====================================================================
-in_pin: left input
-in_pin: right input
-out_pin:left output
-out_pin:right output
+//in_pin: left input
+//in_pin: right input
+//out_pin:left output
+//out_pin:right output
 //====================================================================
 
 @init
@@ -23,36 +23,36 @@ out_pin:right output
 
     // create APP ID
     //================================================================
-    APP_ID = APP_create();
+    app_ID = APP_create();
     //================================================================
 
     //create Layer ID
     //================================================================
-    LAYER_001 = LAYER_create("LAYER01");
+    layer_001  = LAYER_create("LAYER01");
     //================================================================
 
     //create Component and add to layer 1 .
     //================================================================
-    TEST_comp  = COMPONENT_create("TEST");
-    XYSlider_1 = XYSLIDER_create("XYSlider_1");
-    XYSLIDER_setSliderIndexX(XYSlider_1,2);
-    XYSLIDER_setSliderIndexY(XYSlider_1,1);
+    comp_Border  = COMPONENT_create("TEST");
+    comp_XYSlider_1 = XYSLIDER_create("comp_XYSlider_1");
+    XYSLIDER_setSliderIndexX(comp_XYSlider_1,2);
+    XYSLIDER_setSliderIndexY(comp_XYSlider_1,1);
     //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_001 , TEST_comp);
-    LAYER_addChildComponent(LAYER_001 , XYSlider_1);
+    LAYER_addChildComponent(layer_001  , comp_Border);
+    LAYER_addChildComponent(layer_001  , comp_XYSlider_1);
     //================================================================
 
     // layer add to app
     //================================================================
-    APP_addChildComponent(APP_ID,LAYER_001);
+    APP_addChildComponent(app_ID,layer_001 );
     //================================================================
-    LAYER_setActive(LAYER_001,true);
+    LAYER_setActive(layer_001 ,true);
     //================================================================
 
     // canvase test
     //================================================================
-    CANVS_WAVE_L = CANVAS_create(gfx_w,gfx_h);
-    CANVS_WAVE_R = CANVAS_create(gfx_w,gfx_h);
+    canvas_WAVE_L = CANVAS_create(gfx_w,gfx_h);
+    canvas_WAVE_R = CANVAS_create(gfx_w,gfx_h);
     //================================================================
     
     //================================================================
@@ -68,90 +68,90 @@ out_pin:right output
     fBits = 1;
     fFreq = 1;
     //================================================================
-    _fStep   =0;;
-    _fTemp   =0;;
-    _fPhase -=1.0/srate;
-    _fLastValueL =0;
-    _fLastValueR =0;
+    f_fStep   =0;;
+    f_fTemp   =0;;
+    f_fPhase -=1.0/srate;
+    f_fLastValueL =0;
+    f_fLastValueR =0;
     //================================================================
 
 @slider
 //====================================================================
-    XYSLIDER_setYValue(XYSlider_1,slider1,false);
-    XYSLIDER_setXValue(XYSlider_1,slider2,false);
+    XYSLIDER_setYValue(comp_XYSlider_1,slider1,false);
+    XYSLIDER_setXValue(comp_XYSlider_1,slider2,false);
     //================================================================
-    APP_SliderChanged(APP_ID); // notify for update lastValue
+    APP_SliderChanged(app_ID); // notify for update lastValue
     //================================================================
     
 @block
 //====================================================================
-    max_L = 0;min_L = 0;
-    max_R = 0;min_R = 0;
+    f_max_L = 0;f_min_L = 0;
+    f_max_R = 0;f_min_R = 0;
     //================================================================
     
 @sample
 //====================================================================
-    max_L = max(max_L,spl0);
-    min_L = min(min_L,spl0);
-    max_R = max(max_R,spl1);
-    min_R = min(min_R,spl1);
+    f_max_L = max(f_max_L,spl0);
+    f_min_L = min(f_min_L,spl0);
+    f_max_R = max(f_max_R,spl1);
+    f_min_R = min(f_min_R,spl1);
     //================================================================
-    fBits = XYSLIDER_getYValue(XYSlider_1);;
-    //fFreq =1- XYSLIDER_getYValue(XYSlider_1);;
-    fFreq = XYSLIDER_getXValue(XYSlider_1);;
+    fBits = XYSLIDER_getYValue(comp_XYSlider_1);;
+    //fFreq =1- XYSLIDER_getYValue(comp_XYSlider_1);;
+    fFreq = XYSLIDER_getXValue(comp_XYSlider_1);;
     
-    _fPhase -=1.0/srate;
+    f_fPhase -=1.0/srate;
     //================================================================
     (    fFreq == 1.0 
-      || _fPhase < 0.) ?
+      || f_fPhase < 0.) ?
     (
-        _fPhase += 1.0/(fFreq*47000.+1000);
+        f_fPhase += 1.0/(fFreq*47000.+1000);
         //============================================================
         ( fBits  < 1.0)?
         (
-            _fStep = fBits*510+2;
-            _fLastValueL=(floor(spl0*_fStep)) /_fStep;
-            _fLastValueR=(floor(spl1*_fStep)) /_fStep;
+            f_fStep = fBits*510+2;
+            f_fLastValueL=(floor(spl0*f_fStep)) /f_fStep;
+            f_fLastValueR=(floor(spl1*f_fStep)) /f_fStep;
         ):(
-            _fLastValueL = spl0;
-            _fLastValueR = spl1;
+            f_fLastValueL = spl0;
+            f_fLastValueR = spl1;
         );
     );
     //================================================================
-    spl0 = _fLastValueL;
-    spl1 = _fLastValueR;
+    spl0 = f_fLastValueL;
+    spl1 = f_fLastValueR;
 
 @gfx 200 400
 //====================================================================
     // direct draw background to
     //================================================================
     drawBackGrond_color( 20
-                       , 120 + 120 *  ( XYSLIDER_getXValue(XYSlider_1) )
-                       , 12*20 *  ( XYSLIDER_getYValue(XYSlider_1) ));
+                       , 120 + 120 *  ( XYSLIDER_getXValue(comp_XYSlider_1) )
+                       , 12*20 *  ( XYSLIDER_getYValue(comp_XYSlider_1) ));
     drawSinWaveCircle(100,0.8,1,0.0043);
     //================================================================
 
     // canvase test
     //================================================================
-    drawWaveBufferToCanvas(CANVS_WAVE_L
-                          ,max_L
-                          ,min_L
-                          ,40 * ( 1- XYSLIDER_getXValue(XYSlider_1) )
+    drawWaveBufferToCanvas(canvas_WAVE_L
+                          ,f_max_L
+                          ,f_min_L
+                          ,40 * ( 1- XYSLIDER_getXValue(comp_XYSlider_1) )
                           ,0.3
                           ,1
                           ,80);
 
-    drawWaveBufferToCanvas(CANVS_WAVE_R
-                          ,max_R
-                          ,min_R
-                          ,40 * ( XYSLIDER_getYValue(XYSlider_1) )
+    drawWaveBufferToCanvas(canvas_WAVE_R
+                          ,f_max_R
+                          ,f_min_R
+                          ,40 * ( XYSLIDER_getYValue(comp_XYSlider_1) )
                           ,0.4
                           ,1
                           ,0);
     //================================================================
     gfx_a =0.6;
-    CANVAS_blitImage4(CANVS_WAVE_R,1,0);
-    CANVAS_blitImage4(CANVS_WAVE_L,1,0);
+    CANVAS_blitImage4(canvas_WAVE_R,1,0);
+    CANVAS_blitImage4(canvas_WAVE_L,1,0);
     gfx_a =1;
     //================================================================
     // final background
@@ -167,7 +167,7 @@ out_pin:right output
     // for particle 
     PARTICLE_CONTROLLER_update ( PARTICLE_controller );
     //================================================================
-    ( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ?      
+    ( APP_isMouseButtonHoldingPress(app_ID)  ==true) ?      
     (
         PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
         0;
@@ -186,7 +186,7 @@ out_pin:right output
 
     // App update. check and compare with last event state.(resize or mouse)
     //================================================================
-    APP_update(APP_ID);
+    APP_update(app_ID);
     //================================================================
 
     //================================================================
@@ -196,49 +196,49 @@ out_pin:right output
     );
     lastCAP = mouse_cap;
     //================================================================
-    ( APP_isMouseButtonPressed(APP_ID)  ==true) ?
+    ( APP_isMouseButtonPressed(app_ID)  ==true) ?
     ( 0;);
     
-    ( APP_isMouseButtonReleased(APP_ID) ==true) ?
+    ( APP_isMouseButtonReleased(app_ID) ==true) ?
     ( 0;);
     //================================================================
     
     
     // alignment position when resized.
     //================================================================
-    ( APP_isWindowResized(APP_ID) ==true) ?
+    ( APP_isWindowResized(app_ID) ==true) ?
     (
-        RECTANGLE_copyTo      ( CANVS_WAVE_L,APP_ID);
-        RECTANGLE_copyTo      ( CANVS_WAVE_R,APP_ID);
-        CANVAS_recreateCanvas ( CANVS_WAVE_L ); 
-        CANVAS_recreateCanvas ( CANVS_WAVE_R );
+        RECTANGLE_copyTo      ( canvas_WAVE_L,app_ID);
+        RECTANGLE_copyTo      ( canvas_WAVE_R,app_ID);
+        CANVAS_recreateCanvas ( canvas_WAVE_L ); 
+        CANVAS_recreateCanvas ( canvas_WAVE_R );
         //============================================================
-        RECTANGLE_copyTo      ( LAYER_001,APP_ID);  // layer resize 
+        RECTANGLE_copyTo      ( layer_001 ,app_ID);  // layer resize 
         //============================================================
     );
     //================================================================
 
     //================================================================
-    ( LAYER_isAreaResized(LAYER_001) ==true)   ?
+    ( LAYER_isAreaResized(layer_001 ) ==true)   ?
     (
-        RECTANGLE_copyTo         (TEST_comp,LAYER_001);
-        RECTANGLE_cropFromTopP   (TEST_comp,0.025);
+        RECTANGLE_copyTo         (comp_Border,layer_001 );
+        RECTANGLE_cropFromTopP   (comp_Border,0.025);
         //============================================================
-        RECTANGLE_copyTo         (XYSlider_1,LAYER_001);
-        RECTANGLE_reduceP        (XYSlider_1,0.1,0.1);
+        RECTANGLE_copyTo         (comp_XYSlider_1,layer_001 );
+        RECTANGLE_reduceP        (comp_XYSlider_1,0.1,0.1);
         //============================================================
     );
     //================================================================
     // if animation
     //================================================================
-    COMPONENT_setComponentAlpha(TEST_comp,abs(sin($pi*2*mod*2)));
+    COMPONENT_setComponentAlpha(comp_Border,abs(sin($pi*2*mod*2)));
     mod += 0.01;(mod > 1 )?(mod=0;);
     //================================================================
-    RECTANGLE_setX( LAYER_001,40*sin($pi*2*mod));
+    RECTANGLE_setX( layer_001 ,40*sin($pi*2*mod));
     
     // plugin Title Str
     //================================================================
-    RECTANGLE_drawBottomRightText( APP_ID,"kawa Test Bit Crusher");
+    RECTANGLE_drawBottomRightText( app_ID,"XY Bit Crusher");
     //================================================================
     
 

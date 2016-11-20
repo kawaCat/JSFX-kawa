@@ -52,7 +52,7 @@ function SLIDERTYPE2_getParameterDrawType(SLIDERTYPE2_ID)   ( STATIC_MASTER_BUFF
 function SLIDERTYPE2_setParameterDrawType(SLIDERTYPE2_ID,v) ( STATIC_MASTER_BUFF[SLIDERTYPE2_ID + _COMPONENT_getElementNum(SLIDERTYPE2_ID)+ 5] = v;);
 //====================================================================
 function SLIDERTYPE2_getValueViaParameterDrawType(SLIDERTYPE2_ID)
-    local (parameterType,outText,tempvalue,tempvalue2)
+    local (parameterType,outText,tempvalue,tempvalue2,countB)
 (
     outText = #;
     //================================================================

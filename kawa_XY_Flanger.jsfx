@@ -15,10 +15,10 @@ slider3: 0.0<0,1,{FLANGER,PHASER}>MODE
 slider4: 0.0<0,1>FEEDBACK( x100 %)
 slider5: 1.0<0,1>DRY / WET
 //====================================================================
-in_pin: left input
-in_pin: right input
-out_pin:left output
-out_pin:right output
+//in_pin: left input
+//in_pin: right input
+//out_pin:left output
+//out_pin:right output
 //====================================================================
 
 //====================================================================
@@ -27,49 +27,49 @@ out_pin:right output
 
     // create APP ID
     //================================================================
-    APP_ID = APP_create();
+    app_ID = APP_create();
     //================================================================
 
     //create Layer ID
     //================================================================
-    LAYER_001 = LAYER_create("LAYER01");
+    layer_001  = LAYER_create("LAYER01");
     //================================================================
 
     //create Component and add to layer 1 .
     //================================================================
-    TEST_comp  = COMPONENT_create("TEST");
-    XYSlider_1 = XYSLIDER_create("XYSlider_1");
-    PHASER_ModeButton_comp   = BUTTON_create("FLANGER");
-    BUTTON_setOnTextPostFix (PHASER_ModeButton_comp,"");
-    BUTTON_setOffTextPostFix(PHASER_ModeButton_comp,"");
-    COMPONENT_changeColor( PHASER_ModeButton_comp
+    comp_Border   = COMPONENT_create("TEST");
+    comp_XYSlider_1 = XYSLIDER_create("comp_XYSlider_1");
+    comp_PHASER_ModeButton   = BUTTON_create("FLANGER");
+    BUTTON_setOnTextPostFix (comp_PHASER_ModeButton,"");
+    BUTTON_setOffTextPostFix(comp_PHASER_ModeButton,"");
+    COMPONENT_changeColor( comp_PHASER_ModeButton
                       ,"butonOnBackGroundColor"
                       ,1,1,0,1);
     //================================================================
-    COMPONENT_setSliderIndex(PHASER_ModeButton_comp,3);
-    COMPONENT_changeColor(PHASER_ModeButton_comp,"textColor_mouseon",0,0,0,1);
+    COMPONENT_setSliderIndex(comp_PHASER_ModeButton,3);
+    COMPONENT_changeColor(comp_PHASER_ModeButton,"textColor_mouseon",0,0,0,1);
     //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_001 , TEST_comp);
-    LAYER_addChildComponent(LAYER_001 , PHASER_ModeButton_comp);
-    LAYER_addChildComponent(LAYER_001 , XYSlider_1);
+    LAYER_addChildComponent(layer_001  , comp_Border );
+    LAYER_addChildComponent(layer_001  , comp_PHASER_ModeButton);
+    LAYER_addChildComponent(layer_001  , comp_XYSlider_1);
     //================================================================
 
     // layer add to app
     //================================================================
-    APP_addChildComponent(APP_ID,LAYER_001);
+    APP_addChildComponent(app_ID,layer_001 );
     //================================================================
-    LAYER_setActive(LAYER_001,true);
+    LAYER_setActive(layer_001 ,true);
     //================================================================
 
     // canvase test
     //================================================================
-    CANVS_WAVE_L = CANVAS_create(gfx_w,gfx_h);
-    CANVS_WAVE_R = CANVAS_create(gfx_w,gfx_h);
+    canvas_WAVE_L = CANVAS_create(gfx_w,gfx_h);
+    canvas_WAVE_R = CANVAS_create(gfx_w,gfx_h);
     //================================================================
     
     delaySize = srate;
-    DELAY_ARRAY_L = CURSOLBUFFER_create(delaySize);
-    DELAY_ARRAY_R = CURSOLBUFFER_create(delaySize);
+    delay_ARRAY_L = CURSOLBUFFER_create(delaySize);
+    delay_ARRAY_R = CURSOLBUFFER_create(delaySize);
     //================================================================
     
     //================================================================
@@ -82,28 +82,28 @@ out_pin:right output
 
 @slider
 //====================================================================
-    //XYSLIDER_setYValue(XYSlider_1,slider1,false);
-    //XYSLIDER_setXValue(XYSlider_1,slider2,false);
-    COMPONENT_setValue(PHASER_ModeButton_comp,slider3,faluse);
+    //XYSLIDER_setYValue(comp_XYSlider_1,slider1,false);
+    //XYSLIDER_setXValue(comp_XYSlider_1,slider2,false);
+    COMPONENT_setValue(comp_PHASER_ModeButton,slider3,faluse);
     //================================================================
-    APP_SliderChanged(APP_ID); // notify for update lastValue
+    APP_SliderChanged(app_ID); // notify for update lastValue
     //================================================================
 @block
 //====================================================================
-    max_L = 0;min_L = 0;
-    max_R = 0;min_R = 0;
+    f_max_L = 0;f_min_L = 0;
+    f_max_R = 0;f_min_R = 0;
     //================================================================
     
 @sample
 //====================================================================
-    max_L = max(max_L,spl0);
-    min_L = min(min_L,spl0);
-    max_R = max(max_R,spl1);
-    min_R = min(min_R,spl1);
+    f_max_L = max(f_max_L,spl0);
+    f_min_L = min(f_min_L,spl0);
+    f_max_R = max(f_max_R,spl1);
+    f_min_R = min(f_min_R,spl1);
     //================================================================
  
     //================================================================
-    (BUTTON_isON(PHASER_ModeButton_comp) ==true)? //phaser mode
+    (BUTTON_isON(comp_PHASER_ModeButton) ==true)? //phaser mode
     (
         //============================================================
         rateX = slider1 * 0.60 + 0.001;
@@ -116,21 +116,21 @@ out_pin:right output
         //============================================================
         
         //============================================================
-        CURSOLBUFFER_push( DELAY_ARRAY_L,spl0 -delay_L*0.8*slider4 );    
-        CURSOLBUFFER_push( DELAY_ARRAY_R,spl1 -delay_R*0.8*slider4 );  
+        CURSOLBUFFER_push( delay_ARRAY_L,spl0 -delay_L*0.8*slider4 );    
+        CURSOLBUFFER_push( delay_ARRAY_R,spl1 -delay_R*0.8*slider4 );  
         
         //============================================================
-        XYSLIDER_setXValue(XYSlider_1,valueX,false);
-        XYSLIDER_setYValue(XYSlider_1,valueY,false);
+        XYSLIDER_setXValue(comp_XYSlider_1,valueX,false);
+        XYSLIDER_setYValue(comp_XYSlider_1,valueY,false);
         
         chorusWidth = srate* ( 0.001  );
         //============================================================
-        delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
-                                                , -srate/rateX * 0.000001 * XYSLIDER_getYValue(XYSlider_1)
-                                                  -chorusWidth * XYSLIDER_getXValue(XYSlider_1) );
-        delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
-                                                , -srate/rateY * 0.000050  * XYSLIDER_getXValue(XYSlider_1)
-                                                  -chorusWidth * XYSLIDER_getXValue(XYSlider_1) );
+        delay_L = CURSOLBUFFER_getOffsettedValue( delay_ARRAY_L
+                                                , -srate/rateX * 0.000001 * XYSLIDER_getYValue(comp_XYSlider_1)
+                                                  -chorusWidth * XYSLIDER_getXValue(comp_XYSlider_1) );
+        delay_R = CURSOLBUFFER_getOffsettedValue( delay_ARRAY_R
+                                                , -srate/rateY * 0.000050  * XYSLIDER_getXValue(comp_XYSlider_1)
+                                                  -chorusWidth * XYSLIDER_getXValue(comp_XYSlider_1) );
         //============================================================
         
     ):( // FLANGER MODE
@@ -145,20 +145,20 @@ out_pin:right output
         //============================================================
         
         //============================================================
-        CURSOLBUFFER_push( DELAY_ARRAY_L,spl0 +delay_L*slider4*0.8 );    
-        CURSOLBUFFER_push( DELAY_ARRAY_R,spl1 +delay_R*slider4*0.8 );  
+        CURSOLBUFFER_push( delay_ARRAY_L,spl0 +delay_L*slider4*0.8 );    
+        CURSOLBUFFER_push( delay_ARRAY_R,spl1 +delay_R*slider4*0.8 );  
         
         //============================================================
-        XYSLIDER_setXValue(XYSlider_1,valueX,false);
-        XYSLIDER_setYValue(XYSlider_1,valueY,false);
+        XYSLIDER_setXValue(comp_XYSlider_1,valueX,false);
+        XYSLIDER_setYValue(comp_XYSlider_1,valueY,false);
         //============================================================
         
-        chorusWidth = srate* ( 0.002 * XYSLIDER_getYValue(XYSlider_1) );
+        chorusWidth = srate* ( 0.002 * XYSLIDER_getYValue(comp_XYSlider_1) );
         //============================================================
-        delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
-                                                , -chorusWidth * XYSLIDER_getXValue(XYSlider_1) );
-        delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
-                                                , -chorusWidth * XYSLIDER_getXValue(XYSlider_1) );
+        delay_L = CURSOLBUFFER_getOffsettedValue( delay_ARRAY_L
+                                                , -chorusWidth * XYSLIDER_getXValue(comp_XYSlider_1) );
+        delay_R = CURSOLBUFFER_getOffsettedValue( delay_ARRAY_R
+                                                , -chorusWidth * XYSLIDER_getXValue(comp_XYSlider_1) );
         //============================================================
     );
     //================================================================
@@ -176,25 +176,25 @@ out_pin:right output
 
     // canvase test
     //================================================================
-    drawWaveBufferToCanvas(CANVS_WAVE_L
-                          ,max_L
-                          ,min_L
+    drawWaveBufferToCanvas(canvas_WAVE_L
+                          ,f_max_L
+                          ,f_min_L
                           ,5
                           ,0.3
                           ,1
                           ,80);
 
-    drawWaveBufferToCanvas(CANVS_WAVE_R
-                          ,max_R
-                          ,min_R
+    drawWaveBufferToCanvas(canvas_WAVE_R
+                          ,f_max_R
+                          ,f_min_R
                           ,5
                           ,0.4
                           ,1
                           ,0);
     //================================================================
     gfx_a =0.6;
-    CANVAS_blitImage4(CANVS_WAVE_R,1,0);
-    CANVAS_blitImage4(CANVS_WAVE_L,1,0);
+    CANVAS_blitImage4(canvas_WAVE_R,1,0);
+    CANVAS_blitImage4(canvas_WAVE_L,1,0);
     gfx_a =1;
     //================================================================
     // final background
@@ -210,22 +210,22 @@ out_pin:right output
     // for particle 
     PARTICLE_CONTROLLER_update ( PARTICLE_controller );
     //================================================================
-    ( APP_isMouseButtonHoldingPress(APP_ID)  ==true) ?      
+    ( APP_isMouseButtonHoldingPress(app_ID)  ==true) ?      
     (
         PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
         0;
     );
     //================================================================
     PARTICLE_CONTROLLER_addParticleType3_XY (PARTICLE_controller
-                                            ,XYSLIDER_getCircleAreaCX(XYSlider_1)
-                                            ,XYSLIDER_getCircleAreaCY(XYSlider_1)
+                                            ,XYSLIDER_getCircleAreaCX(comp_XYSlider_1)
+                                            ,XYSLIDER_getCircleAreaCY(comp_XYSlider_1)
                                             ,false
                                             );
     //================================================================
 
     // App update. check and compare with last event state.(resize or mouse)
     //================================================================
-    APP_update(APP_ID);
+    APP_update(app_ID);
     
     //================================================================
     ( mouse_cap & 64 ==64 && lastCAP != mouse_cap )?
@@ -234,64 +234,64 @@ out_pin:right output
     );
     lastCAP = mouse_cap;
     //================================================================
-    ( APP_isMouseButtonPressed(APP_ID)  ==true) ?
+    ( APP_isMouseButtonPressed(app_ID)  ==true) ?
     ( 0;);
     
-    ( APP_isMouseButtonReleased(APP_ID) ==true) ?
+    ( APP_isMouseButtonReleased(app_ID) ==true) ?
     ( 0;);
     //================================================================
     
     
     // alignment position when resized.
     //================================================================
-    ( APP_isWindowResized(APP_ID) ==true) ?
+    ( APP_isWindowResized(app_ID) ==true) ?
     (
-        RECTANGLE_copyTo      ( CANVS_WAVE_L,APP_ID);
-        RECTANGLE_copyTo      ( CANVS_WAVE_R,APP_ID);
-        CANVAS_recreateCanvas ( CANVS_WAVE_L ); 
-        CANVAS_recreateCanvas ( CANVS_WAVE_R );
+        RECTANGLE_copyTo      ( canvas_WAVE_L,app_ID);
+        RECTANGLE_copyTo      ( canvas_WAVE_R,app_ID);
+        CANVAS_recreateCanvas ( canvas_WAVE_L ); 
+        CANVAS_recreateCanvas ( canvas_WAVE_R );
         //============================================================
-        RECTANGLE_copyTo      ( LAYER_001,APP_ID);  // layer resize 
+        RECTANGLE_copyTo      ( layer_001 ,app_ID);  // layer resize 
         //============================================================
     );
     //================================================================
 
     //================================================================
-    ( LAYER_isAreaResized(LAYER_001) ==true)   ?
+    ( LAYER_isAreaResized(layer_001 ) ==true)   ?
     (
-        RECTANGLE_copyTo         (TEST_comp,LAYER_001);
-        RECTANGLE_cropFromTopP   (TEST_comp,0.025);
+        RECTANGLE_copyTo         (comp_Border ,layer_001 );
+        RECTANGLE_cropFromTopP   (comp_Border ,0.025);
         //============================================================
-        RECTANGLE_copyTo         (XYSlider_1,LAYER_001);
-        RECTANGLE_reduceP        (XYSlider_1,0.1,0.125);
+        RECTANGLE_copyTo         (comp_XYSlider_1,layer_001 );
+        RECTANGLE_reduceP        (comp_XYSlider_1,0.1,0.125);
         //============================================================
-        RECTANGLE_copyTo         (PHASER_ModeButton_comp,LAYER_001);
-        RECTANGLE_cropFromTopP   (PHASER_ModeButton_comp,0.06);
-        //RECTANGLE_cropFromRightP   (PHASER_ModeButton_comp,0.3);
+        RECTANGLE_copyTo         (comp_PHASER_ModeButton,layer_001 );
+        RECTANGLE_cropFromTopP   (comp_PHASER_ModeButton,0.06);
+        //RECTANGLE_cropFromRightP   (comp_PHASER_ModeButton,0.3);
     );
     //================================================================
     
-    (BUTTON_isON(PHASER_ModeButton_comp)==true)?
+    (BUTTON_isON(comp_PHASER_ModeButton)==true)?
     (
-        COMPONENT_setName(PHASER_ModeButton_comp,"PHASER MODE ");
+        COMPONENT_setName(comp_PHASER_ModeButton,"PHASER MODE ");
     ):
     (
-        COMPONENT_setName(PHASER_ModeButton_comp,"FLANGER MODE");
+        COMPONENT_setName(comp_PHASER_ModeButton,"FLANGER MODE");
     );
     //================================================================
     
     //================================================================
     // if animation
     //================================================================
-    COMPONENT_setComponentAlpha(TEST_comp,abs(sin($pi*2*mod*2)));
+    COMPONENT_setComponentAlpha(comp_Border ,abs(sin($pi*2*mod*2)));
     mod += 0.01;(mod > 1 )?(mod=0;);
     //================================================================
-    //RECTANGLE_setX( LAYER_001,40*sin($pi*2*mod));
+    //RECTANGLE_setX( layer_001 ,40*sin($pi*2*mod));
     
     //================================================================
     // plugin Title Str
     //================================================================
-    RECTANGLE_drawBottomRightText( APP_ID,"kawa Test Flanger");
+    RECTANGLE_drawBottomRightText( app_ID,"XY Flanger");
     //================================================================
 
 //====================================================================
