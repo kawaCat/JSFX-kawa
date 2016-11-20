@@ -295,7 +295,51 @@ function APP_isMouseButtonReleased(APP_ID)    ( _APP_getIsMouseButtonReleased(AP
 //====================================================================
 function APP_isWindowResized(APP_ID)          ( _APP_getIsWindowResized(APP_ID););
 //====================================================================
-
+function APP_isMouseButtonPressed_Left(APP_ID)
+    local (lastMouseCap,out)
+(
+    out = false;
+    //================================================================
+    lastMouseCap = APP_getLastMouseCap(APP_ID);
+    (   lastMouseCap & 1 != 1
+     && mouse_cap    & 1 == 1 ) ?
+    (
+        out =true;
+    );
+    //================================================================
+    out;
+);
+//====================================================================
+function APP_isMouseButtonPressed_Right(APP_ID)
+    local (lastMouseCap,out)
+(
+    out = false;
+    //================================================================
+    lastMouseCap = APP_getLastMouseCap(APP_ID);
+    (   lastMouseCap & 2 != 2
+     && mouse_cap    & 2 == 2)?
+    (
+        out =true;
+    );
+    //================================================================
+    out;
+);
+//====================================================================
+function APP_isMouseButtonPressed_Middle(APP_ID)
+    local (lastMouseCap,out)
+(
+    out = false;
+    //================================================================
+    lastMouseCap = APP_getLastMouseCap(APP_ID);
+    (   lastMouseCap & 64 != 64
+     && mouse_cap    & 64 == 64)?
+    (
+        out =true;
+    );
+    //================================================================
+    out;
+);
+//====================================================================
 
 //====================================================================
 function APP_storeLastInfo(APP_ID)

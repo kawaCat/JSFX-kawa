@@ -180,7 +180,7 @@ slider2:0.25<0.0,0.9>FREQ
                                                 ,gfx_h/2
                                                 ,false
                                                );
-       lastPTime_ = time_precise();
+        lastPTime_ = time_precise();
     );
     //================================================================
 

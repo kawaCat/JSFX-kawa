@@ -9,15 +9,18 @@ import kawa_ALL.jsfx-inc
 
 // sliders  //( this app lib need Continuous number)
 //--------------------------------------------------------------------
-slider1:0.1 <0.0,1.0>DELAY L
-slider2:0.25<0.0,0.9>DELAY R
-slider3:0.25<0.0,1.0>FEEDBACK
-slider4:1.0 <0,1>DRY / WET
+slider1:0.25<0.0,1.0>DELAY L
+slider2:0.8 <0.0,1.0>DELAY R
+slider3:0.25<0.0,0.95>FEEDBACK
+slider4:0.60<0.0,1.0>DRY / WET
+slider5:0   <0,1, {Normal,Invert}>Delay L Phase
+slider6:0   <0,1, {Normal,Invert}>Delay R Phase
+slider7:0.0 <0,1, {XY Slider,Knob}> Edit Mode
 //====================================================================
-in_pin: left input
-in_pin: right input
-out_pin:left output
-out_pin:right output
+//in_pin: left input
+//in_pin: right input
+//out_pin:left output
+//out_pin:right output
 //====================================================================
 
 @init
@@ -31,6 +34,7 @@ out_pin:right output
     //create Layer ID
     //================================================================
     layer_001  = LAYER_create("LAYER01");
+    layer_002  = LAYER_create("LAYER01");
     //================================================================
 
     //create Component and add to layer 1 .
@@ -40,26 +44,32 @@ out_pin:right output
     comp_KONB_ID_R  = KNOB_create( "Delay R") ;
     COMPONENT_setSliderIndex(comp_KONB_ID_L,1);
     COMPONENT_setSliderIndex(comp_KONB_ID_R,2);
+    //================================================================
+    
     //----------------------------------------------------------------
     LAYER_addChildComponent(layer_001  , comp_Border);
-    LAYER_addChildComponent(layer_001  , SLIDER_2_comp);
     LAYER_addChildComponent(layer_001  , comp_KONB_ID_L);
     LAYER_addChildComponent(layer_001  , comp_KONB_ID_R);
+    LAYER_addChildComponent(layer_001  , comp_XYSlider_1);
+    LAYER_addChildComponent(layer_001  , comp_XYSlider_1);
     //================================================================
 
     // layer 2
     //================================================================
-    comp_BUTTON   = BUTTON_create("DBG");
-    comp_SLIDER_1 = SLIDER_create("TEST4");
+    comp_XYSlider_1 = XYSLIDER_create("comp_XYSlider_1");
+    XYSLIDER_setSliderIndexX(comp_XYSlider_1,2);
+    XYSLIDER_setSliderIndexY(comp_XYSlider_1,1);
     //----------------------------------------------------------------
-    LAYER_addChildComponent(LAYER_002 , comp_BUTTON);
-    LAYER_addChildComponent(LAYER_002 , comp_SLIDER_1);
-    //================================================================
+    LAYER_addChildComponent(layer_002 , comp_Border);// shared with layer1
+    LAYER_addChildComponent(layer_002 , comp_XYSlider_1);
+
 
     // layer add to app
     //================================================================
     APP_addChildComponent(app_ID,layer_001 );
-    LAYER_setActive(layer_001 ,true);
+    APP_addChildComponent(app_ID,layer_002 );
+    LAYER_setActive(layer_001 ,false);
+    LAYER_setActive(layer_002 ,true);
     //================================================================
 
     // canvase test
@@ -83,6 +93,8 @@ out_pin:right output
 //====================================================================
     COMPONENT_setValue(comp_KONB_ID_L,slider1,false);
     COMPONENT_setValue(comp_KONB_ID_R,slider2,false);
+    XYSLIDER_setXValue(comp_XYSlider_1,slider2,false);
+    XYSLIDER_setYValue(comp_XYSlider_1,slider1,false);
     //================================================================
     APP_SliderChanged(app_ID); // notify for update lastValue
     //================================================================
@@ -107,11 +119,11 @@ out_pin:right output
                      ,(spl0+spl1)/2+delay_R*0.9*slider3 );  
     //================================================================
     delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
-                                            , -delaySize * 0.5
+                                            , -delaySize 
                                             * COMPONENT_getValue(comp_KONB_ID_L)
                                             );
     delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
-                                            , -delaySize * 0.5
+                                            , -delaySize
                                             * COMPONENT_getValue(comp_KONB_ID_R)
                                             );
     //================================================================
@@ -120,8 +132,10 @@ out_pin:right output
     delay_L = spl0+ delay_L;
     delay_R = spl1+ delay_R;
     //================================================================
-    spl0 = spl0 *(1-slider4   ) + (spl0 + delay_L ) * (slider4   ) ;
-    spl1 = spl1 *(1-slider4   ) + (spl1 + delay_R ) * (slider4   ) ;
+    (slider5 ==1) ? invertL =-1 : invertL = 1;
+    (slider6 ==1) ? invertR =-1 : invertR = 1;
+    spl0 = spl0 *(1-slider4   ) + ( delay_L ) * (slider4   )*invertL ;
+    spl1 = spl1 *(1-slider4   ) + ( delay_R ) * (slider4   )*invertR ;
     //================================================================
 
 @gfx 200 400
@@ -202,12 +216,24 @@ out_pin:right output
     lastCAP = mouse_cap;
     //================================================================
     
+  
+    LAYER_setActive(layer_001 ,slider7 ~= 0);
+    LAYER_setActive(layer_002 ,slider7 == 0);
+          
     //================================================================
-    ( APP_isMouseButtonPressed(app_ID)  ==true) ?
-    ( 0;);
-    
-    ( APP_isMouseButtonReleased(app_ID) ==true) ?
-    ( 0;);
+    ( APP_isMouseButtonPressed_Right(app_ID) ==true) ?
+    ( 
+        (LAYER_isActive( layer_001) ==true)?
+        (
+            LAYER_setActive(layer_001 ,false);
+            LAYER_setActive(layer_002 ,true);
+        ):(
+            LAYER_setActive(layer_001 ,true);
+            LAYER_setActive(layer_002 ,false);
+        );
+        
+        slider7 = slider7 == 0;
+    );
     //================================================================
     
     // alignment position when resized.
@@ -220,7 +246,7 @@ out_pin:right output
         CANVAS_recreateCanvas ( canvas_WAVE_R );
         //============================================================
         RECTANGLE_copyTo      ( layer_001 ,app_ID);  // layer resize 
-        RECTANGLE_copyTo      ( LAYER_002,app_ID);  // layer resize 
+        RECTANGLE_copyTo      ( layer_002 ,app_ID);  // layer resize 
         //============================================================
     );
     //================================================================
@@ -241,6 +267,30 @@ out_pin:right output
         //============================================================
     );
     //================================================================
+    
+    //================================================================
+    ( LAYER_isAreaResized(layer_002 ) ==true)   ?
+    (
+        RECTANGLE_copyTo          (comp_Border,layer_001 );
+        RECTANGLE_cropFromTopP    (comp_Border,0.025);
+        //============================================================
+        RECTANGLE_copyTo          (comp_XYSlider_1,layer_001 );
+        RECTANGLE_reduceP         (comp_XYSlider_1,0.1,0.1);   
+    );
+    //================================================================
+    (    COMPONENT_isValueChanged( comp_KONB_ID_L) ==true
+      || COMPONENT_isValueChanged( comp_KONB_ID_R) ==true
+      || XYSLIDER_isXValueChanged( comp_XYSlider_1) ==true
+      || XYSLIDER_isYValueChanged( comp_XYSlider_1) ==true
+    )?
+    (
+        COMPONENT_setValue(comp_KONB_ID_L,slider1,false);
+        COMPONENT_setValue(comp_KONB_ID_R,slider2,false);
+        XYSLIDER_setXValue(comp_XYSlider_1,slider2,false);
+        XYSLIDER_setYValue(comp_XYSlider_1,slider1,false);
+    );
+    //================================================================
+    
 
     // if animation
     //================================================================
@@ -250,7 +300,7 @@ out_pin:right output
     
     // plugin Title Str
     //================================================================
-    RECTANGLE_drawBottomRightText( app_ID,"kawa Test Delay");
+    RECTANGLE_drawBottomRightText( app_ID,"Doubler Delay");
     //================================================================
 
 //====================================================================
