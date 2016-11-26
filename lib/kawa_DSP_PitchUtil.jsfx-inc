@@ -1,0 +1,128 @@
+
+
+// pitch UTIL functions 
+//====================================================================
+@init
+//====================================================================
+DEFINE_SHARP_MARK = "#" ; // ♯
+DEFINE_FLAT_MARK  = "b" ; // ♭
+//DEFINE_SHARP_MARK = "♯" ; // ♯
+//DEFINE_FLAT_MARK  =  "♭" ;
+//====================================================================
+
+__temp_Match_Capture = 0; // !!
+//====================================================================
+function pitchNameToPitchNumber( pitchString )// C-2 ~ G8 まで？
+    local ( octaveNum
+          , basedPitchName
+          , basePitchNum
+          , offsetNum
+          , outPitchNumber
+          , tempStr
+          //, tempCapture
+          )
+(
+    //local viriable reset
+    //================================================================
+    octaveNum = 3;
+    offsetNum = 0;
+    basePitchNum = 0;
+    basedPitchName ="";
+    outPitchNumber = 60;
+    basedPitchName = #;
+    __temp_Match_Capture = 0;
+    //================================================================
+    match("*?%{__temp_Match_Capture}d",pitchString);
+    //================================================================
+    octaveNum = __temp_Match_Capture +2;
+    //================================================================
+    tempStr=#;
+    sprintf(tempStr,"*?%s*?",DEFINE_SHARP_MARK);
+    ( match(tempStr,pitchString)== true )?
+    (
+        offsetNum = 1;
+    );  
+    tempStr=#;
+    sprintf(tempStr,"*?%s*?",DEFINE_FLAT_MARK);
+    (match(tempStr,pitchString)== true )?
+    (
+        offsetNum = -1;
+    );
+    //================================================================
+    strcpy_substr(basedPitchName,pitchString, 0, 1);
+    //================================================================
+    (strnicmp(basedPitchName, "C", 1 ) == 0 )? (basePitchNum = 0);
+    (strnicmp(basedPitchName, "D", 1 ) == 0 )? (basePitchNum = 2);
+    (strnicmp(basedPitchName, "E", 1 ) == 0 )? (basePitchNum = 4);
+    (strnicmp(basedPitchName, "F", 1 ) == 0 )? (basePitchNum = 5);
+    (strnicmp(basedPitchName, "G", 1 ) == 0 )? (basePitchNum = 7);
+    (strnicmp(basedPitchName, "A", 1 ) == 0 )? (basePitchNum = 9);
+    (strnicmp(basedPitchName, "B", 1 ) == 0 )? (basePitchNum = 11);
+    //================================================================
+    outPitchNumber = 12*octaveNum +basePitchNum+ offsetNum;
+    //================================================================
+    outPitchNumber =min(max(outPitchNumber,0),127);
+    //================================================================
+    outPitchNumber;//return
+);
+//====================================================================
+function pitchNumberToPitchName( pitchNumber ,isUseFlatmark)// between 0 to 127. and default sharpMark
+    local ( outPitchName,octaveNum,basedPitchNum,basedPitchName,offsetName)
+(
+    //local viriable reset
+    //================================================================
+    octaveNum = floor( pitchNumber / 12 );
+    basedPitchNum = pitchNumber % 12 ;
+    outPitchName = #;
+    ( isUseFlatmark ==true ) ? offsetName = DEFINE_FLAT_MARK :offsetName = DEFINE_SHARP_MARK;
+    //================================================================
+    (basedPitchNum == 0 )?( sprintf(outPitchName,"%s%d"  ,"C"           ,octaveNum -2));
+    (basedPitchNum == 1 )?( sprintf(outPitchName,"%s%s%d","C",offsetName,octaveNum -2));
+    (basedPitchNum == 2 )?( sprintf(outPitchName,"%s%d"  ,"D"           ,octaveNum -2));
+    (basedPitchNum == 3 )?( sprintf(outPitchName,"%s%s%d","D",offsetName,octaveNum -2));
+    (basedPitchNum == 4 )?( sprintf(outPitchName,"%s%d"  ,"E"           ,octaveNum -2));
+    (basedPitchNum == 5 )?( sprintf(outPitchName,"%s%d"  ,"F",offsetName,octaveNum -2));
+    (basedPitchNum == 6 )?( sprintf(outPitchName,"%s%s%d","F",offsetName,octaveNum -2));
+    (basedPitchNum == 7 )?( sprintf(outPitchName,"%s%d"  ,"G"           ,octaveNum -2));
+    (basedPitchNum == 8 )?( sprintf(outPitchName,"%s%s%d","G",offsetName,octaveNum -2));
+    (basedPitchNum == 9 )?( sprintf(outPitchName,"%s%d"  ,"A"           ,octaveNum -2));
+    (basedPitchNum == 10)?( sprintf(outPitchName,"%s%s%d","A",offsetName,octaveNum -2));
+    (basedPitchNum == 11)?( sprintf(outPitchName,"%s%d"  ,"B"           ,octaveNum -2));
+    //================================================================
+    outPitchName;//return 
+    //================================================================
+);
+//====================================================================
+//based on witti "calc note To freq" jsfx
+//====================================================================
+function pitchNumberToFreq( pitchNum,base_a4Freq)
+    local ( outFreq )
+(
+    outFreq =0;
+    ( pitchNum >= 12 ) || ( pitchNum < 127 ) ?
+    (
+        outFreq = base_a4Freq * pow(2,(pitchNum-69)/12);
+    ):(
+        outFreq = -1;
+    );
+    //================================================================
+    outFreq; //return
+);
+//====================================================================
+function pitchNameToFreq( pitchName,base_a4Freq)
+    local ( outFreq,pitchNum )
+(
+    outFreq  = 0;
+    pitchNum = pitchNameToPitchNumber( pitchName );
+    //================================================================
+    ( pitchNum >= 12 ) || ( pitchNum < 127 ) ?
+    (
+        outFreq = base_a4Freq * pow(2,(pitchNum-69)/12);
+    ):(
+        outFreq = -1;
+    );
+    //================================================================
+    outFreq; //return
+);
+//====================================================================
+

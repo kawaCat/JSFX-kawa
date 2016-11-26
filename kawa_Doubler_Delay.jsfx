@@ -12,15 +12,18 @@ import kawa_ALL.jsfx-inc
 slider1:0.25<0.0,1.0>DELAY L
 slider2:0.8 <0.0,1.0>DELAY R
 slider3:0.25<0.0,0.95>FEEDBACK
-slider4:0.60<0.0,1.0>DRY / WET
-slider5:0   <0,1, {Normal,Invert}>Delay L Phase
-slider6:0   <0,1, {Normal,Invert}>Delay R Phase
-slider7:0.0 <0,1, {XY Slider,Knob}> Edit Mode
+slider4:0.50<0.0,1.0>DRY / WET
+slider5:1.0 <0,2, {0.25 sec,0.5 sec,1.0 sec}> Max Delay Time
+slider6:0   <0,1, {Normal,Invert}>Delay L Phase
+slider7:0   <0,1, {Normal,Invert}>Delay R Phase
+slider8:0.0 <0,1, {Off,On}> Delay Stereo Flip
+slider9:0.0 <0,1, {XY Slider,Knob}> Edit Mode
+
 //====================================================================
-//in_pin: left input
-//in_pin: right input
-//out_pin:left output
-//out_pin:right output
+in_pin: left input
+in_pin: right input
+out_pin:left output
+out_pin:right output
 //====================================================================
 
 @init
@@ -113,17 +116,36 @@ slider7:0.0 <0,1, {XY Slider,Knob}> Edit Mode
     //================================================================
  
     //================================================================
+    ( slider5  == 0)?
+    (
+        // 0.25 sec == srate/4
+        delayTime = delaySize/4 ;
+        //============================================================
+    ):(slider5 == 1)?
+    (
+        // 0.5 sec == srate/2
+        delayTime = delaySize/2 ;
+        //============================================================
+    ):(slider5 == 2)?
+    (
+        // 1 sec == srate
+        delayTime = delaySize ;
+        //============================================================
+    );
+    //================================================================
+ 
+    //================================================================
     CURSOLBUFFER_push( DELAY_ARRAY_L
                      ,(spl0+spl1)/2+delay_L*0.9*slider3 );    
     CURSOLBUFFER_push( DELAY_ARRAY_R
                      ,(spl0+spl1)/2+delay_R*0.9*slider3 );  
     //================================================================
     delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
-                                            , -delaySize 
+                                            , -delayTime 
                                             * COMPONENT_getValue(comp_KONB_ID_L)
                                             );
     delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
-                                            , -delaySize
+                                            , -delayTime
                                             * COMPONENT_getValue(comp_KONB_ID_R)
                                             );
     //================================================================
@@ -132,10 +154,16 @@ slider7:0.0 <0,1, {XY Slider,Knob}> Edit Mode
     delay_L = spl0+ delay_L;
     delay_R = spl1+ delay_R;
     //================================================================
-    (slider5 ==1) ? invertL =-1 : invertL = 1;
-    (slider6 ==1) ? invertR =-1 : invertR = 1;
-    spl0 = spl0 *(1-slider4   ) + ( delay_L ) * (slider4   )*invertL ;
-    spl1 = spl1 *(1-slider4   ) + ( delay_R ) * (slider4   )*invertR ;
+    (slider6 ==1) ? invertL =-1 : invertL = 1;
+    (slider7 ==1) ? invertR =-1 : invertR = 1;
+    (slider8 ==1)?
+    (   
+        spl0 = spl0 *(1-slider4   ) + ( delay_R ) * (slider4   )*invertR ;
+        spl1 = spl1 *(1-slider4   ) + ( delay_L ) * (slider4   )*invertL;
+    ):(
+        spl0 = spl0 *(1-slider4   ) + ( delay_L ) * (slider4   )*invertL ;
+        spl1 = spl1 *(1-slider4   ) + ( delay_R ) * (slider4   )*invertR ;
+    );
     //================================================================
 
 @gfx 200 400
@@ -217,8 +245,8 @@ slider7:0.0 <0,1, {XY Slider,Knob}> Edit Mode
     //================================================================
     
   
-    LAYER_setActive(layer_001 ,slider7 ~= 0);
-    LAYER_setActive(layer_002 ,slider7 == 0);
+    LAYER_setActive(layer_001 ,slider9 ~= 0);
+    LAYER_setActive(layer_002 ,slider9 == 0);
           
     //================================================================
     ( APP_isMouseButtonPressed_Right(app_ID) ==true) ?
@@ -232,7 +260,7 @@ slider7:0.0 <0,1, {XY Slider,Knob}> Edit Mode
             LAYER_setActive(layer_002 ,false);
         );
         
-        slider7 = slider7 == 0;
+        slider9 = slider9 == 0;
     );
     //================================================================
     

@@ -9,7 +9,7 @@ import kawa_ALL.jsfx-inc
 
 // sliders //( this app lib need Continuous number)
 //--------------------------------------------------------------------
-slider1:0<0,2,{Equal Split,Mid Side,LR Split}> Split Type
+slider1:1<0,2,{Equal Split,Mid Side,LR Split}> Split Type
 
 //====================================================================
 in_pin: left input

@@ -15,10 +15,10 @@ slider3: 0.0<0,1,{FLANGER,PHASER}>MODE
 slider4: 0.0<0,1>FEEDBACK( x100 %)
 slider5: 1.0<0,1>DRY / WET
 //====================================================================
-//in_pin: left input
-//in_pin: right input
-//out_pin:left output
-//out_pin:right output
+in_pin: left input
+in_pin: right input
+out_pin:left output
+out_pin:right output
 //====================================================================
 
 //====================================================================

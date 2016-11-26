@@ -15,10 +15,10 @@ slider3:0<0,1,{Normal,Deep}> Chorus Mode
 slider4:1<0,1>DRY / WET
 //====================================================================
 // ??
-//in_pin: left input
-//in_pin: right input
-//out_pin:left output
-//out_pin:right output
+in_pin: left input
+in_pin: right input
+out_pin:left output
+out_pin:right output
 //====================================================================
 @init
 //====================================================================

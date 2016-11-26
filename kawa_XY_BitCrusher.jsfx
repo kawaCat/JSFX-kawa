@@ -12,10 +12,10 @@ import kawa_ALL.jsfx-inc
 slider1:0.25<0.0,1.0.0001>BIT 
 slider2:0.25<0.0,0.9>FREQ
 //====================================================================
-//in_pin: left input
-//in_pin: right input
-//out_pin:left output
-//out_pin:right output
+in_pin: left input
+in_pin: right input
+out_pin:left output
+out_pin:right output
 //====================================================================
 
 @init

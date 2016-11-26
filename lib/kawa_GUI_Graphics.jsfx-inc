@@ -874,12 +874,20 @@ function drawFillArc2(_cx,_cy,_r,_r2,_sA,_eA,_div)
         //============================================================
         
         //===========================================================
+        // gfx_triangle( innerPointlast_X  , innerPointlast_Y  // innerlast
+        //             , outerPointLast_X  , outerPointLast_Y  // outerLast
+        //             , outerPointNew_X   , outerPointNew_Y   //  outerNew
+        //             );
+        // //============================================================
+        // gfx_triangle( innerPointNew_X  , innerPointNew_Y  // innerNew
+        //             , outerPointNew_X  , outerPointNew_Y  // outerLast
+        //             , innerPointlast_X , innerPointlast_Y //  outerNew
+        //             );
+        //============================================================
         gfx_triangle( innerPointlast_X  , innerPointlast_Y  // innerlast
                     , outerPointLast_X  , outerPointLast_Y  // outerLast
                     , outerPointNew_X   , outerPointNew_Y   //  outerNew
-                    );
-        //============================================================
-        gfx_triangle( innerPointNew_X  , innerPointNew_Y  // innerNew
+                    , innerPointNew_X  , innerPointNew_Y  // innerNew
                     , outerPointNew_X  , outerPointNew_Y  // outerLast
                     , innerPointlast_X , innerPointlast_Y //  outerNew
                     );

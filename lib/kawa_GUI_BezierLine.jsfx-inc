@@ -507,7 +507,7 @@ function BEZIERLINE_drawPointCircle_withRect( BEZIERLINE_ID,radius,alpha,isDrawB
 
 
 //====================================================================
-// BEZIERLINE
+// BEZIERLINE GROUPE
 //====================================================================
 function BEZIERLINEGROUP_create()
     local( BEZIERLINEGROUP_ID

@@ -18,7 +18,7 @@
 
 // define for  WAVE TABLE
 //====================================================================
-MIN_WAVETABLE_OSC_HZ = 40; //40hz
+MIN_WAVETABLE_OSC_HZ = 10; //40hz
 //====================================================================
 WT_OSC_TYPE_SINE   = 1;
 WT_OSC_TYPE_SAW    = 2;
@@ -383,7 +383,7 @@ function _WAVETABLE_init_(WAVETABLE_ID)
         //============================================================
         //Blit sawtooth: += (-1)^g+1(1/g)sin(wnT)
         g = 1;
-        while ( g <= 5)
+        while ( g <= 30)
         (
             //========================================================
             // down saw m_SawtoothArray_BL5[i] += (1.0/n)*sin(2.0*pi*i*n/1024.0);
@@ -403,7 +403,7 @@ function _WAVETABLE_init_(WAVETABLE_ID)
         //============================================================
         //triangle: += (-1)^g(1/(2g+1+^2)sin(w(2n+1)T)
         g = 0;
-        while ( g < 3+1)
+        while ( g < 5) 
         (
             ARRAY_setValueAt( WAVETABLE_getWaveArrayTriBL(WAVETABLE_ID)
                             , count_DD 
