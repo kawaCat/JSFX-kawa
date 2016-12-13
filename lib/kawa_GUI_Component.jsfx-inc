@@ -169,6 +169,7 @@ function COMPONENT_setMaxValue(COMPONENT_ID,v)         ( STATIC_MASTER_BUFF[COMP
 function COMPONENT_isActive(COMPONENT_ID)              ( STATIC_MASTER_BUFF[COMPONENT_ID+_RECTANGLE_getElementNum(COMPONENT_ID)+8];);
 function COMPONENT_getIsActive(COMPONENT_ID)           ( STATIC_MASTER_BUFF[COMPONENT_ID+_RECTANGLE_getElementNum(COMPONENT_ID)+8];);
 function COMPONENT_setIsActive(COMPONENT_ID,v)         ( STATIC_MASTER_BUFF[COMPONENT_ID+_RECTANGLE_getElementNum(COMPONENT_ID)+8]=v;);
+function COMPONENT_setActive(COMPONENT_ID,v)           ( COMPONENT_setIsActive(COMPONENT_ID,v); );
 //====================================================================
 function COMPONENT_toggleIsActive( COMPONENT_ID)
 (

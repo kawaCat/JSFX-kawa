@@ -367,3 +367,18 @@ function getBezierAngleCB(t,x1,y1,bX1,bY1,bX2,bY2,x2,y2) local (tp,dx,dy,angleRa
     angleRad;
 );
 //====================================================================
+
+//====================================================================
+// Under the Hood : Soft Knee
+// http://forum.cockos.com/showthread.php?t=164815
+//====================================================================
+// function singlepole(in,target,coeff) ( in*coeff + target*(1-coeff); );
+// // coff = exp(-1/(ms/1000*srate));
+// smooth_coeff = exp(-1/(0.5/1000*srate)); // 0.5 ms smoothing
+// gain_envelope = singlepole(gain_envelope,new_gain_value,smooth_coeff);
+//====================================================================
+function singlepole(in,target,coeff) 
+(   
+    in*coeff + target*(1-coeff); 
+);
+//====================================================================

@@ -9,7 +9,7 @@ import kawa_ALL.jsfx-inc
 // sliders //( this app lib need Continuous number)
 //--------------------------------------------------------------------
 slider1:1<0,2,{Equal Split,Mid Side,LR Split}> Split Type
-slider2:0<0,1,0.0001> Equal Split Mix
+slider2:0.5<0,1,0.0001> Equal Split Mix
 slider3:0<-96,20,0.0001> [ch1/ch2] Gain [dB]
 slider4:0<-96,20,0.0001> [ch3/ch4] Gain [dB]
 

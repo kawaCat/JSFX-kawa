@@ -10,7 +10,7 @@ import kawa_ALL.jsfx-inc
 // sliders //( this app lib need Continuous number)
 //--------------------------------------------------------------------
 slider1:0.25<0.0,1.0>RATE 
-slider2:0.25<0.0,0.9>WIDTH
+slider2:0.25<0.0,1.0>WIDTH
 slider3:0<0,1,{Normal,Deep}> Chorus Mode
 slider4:1<0,1>DRY / WET
 //====================================================================
@@ -60,6 +60,8 @@ out_pin:right output
     delaySize = srate;
     DELAY_ARRAY_L = CURSOLBUFFER_create(delaySize);
     DELAY_ARRAY_R = CURSOLBUFFER_create(delaySize);
+    DELAY_ARRAY_L_MIXED = CURSOLBUFFER_create(100);
+    DELAY_ARRAY_R_MIXED = CURSOLBUFFER_create(100);
     //================================================================
     
     //================================================================
@@ -70,6 +72,7 @@ out_pin:right output
     PARTICLE_controller = PARTICLE_CONTROLLER_create();
     //================================================================
 
+    smooth_coeff = exp(-1/(40/1000*srate)); // 40 ms smoothing
 @slider
 //====================================================================
     XYSLIDER_setXValue(comp_XYSlider_1,slider1,false);
@@ -93,9 +96,7 @@ out_pin:right output
     //================================================================
  
     //================================================================
-    CURSOLBUFFER_push( DELAY_ARRAY_L ,spl0 );
-    CURSOLBUFFER_push( DELAY_ARRAY_R ,spl1 );
-   
+    
     //================================================================
     (slider3 ==0)?
     (
@@ -112,13 +113,38 @@ out_pin:right output
         chorusWidth = ( srate* 0.0001  )*200* XYSLIDER_getYValue(comp_XYSlider_1) ;
     );
     //================================================================
-    delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
-                                            , -chorusWidth * valueX -1 );
-    delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
-                                            , -chorusWidth * valueX -1  );
+    
+    CURSOLBUFFER_push( DELAY_ARRAY_L ,spl0 );
+    CURSOLBUFFER_push( DELAY_ARRAY_R ,spl1 );
+//    delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
+//                                               , - chorusWidth * valueX -1 );
+//    delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
+//                                               , - chorusWidth * valueX -1 );
     //================================================================
-    spl0 = spl0 *(1-slider4) + (spl0 + delay_L ) * (slider4) ;
-    spl1 = spl1 *(1-slider4) + (spl1 + delay_R ) * (slider4) ;
+   
+    
+    // coff = exp(-1/(ms/1000*srate));
+    newOffsetSample =  chorusWidth * valueX+1;
+    offsetSample = singlepole(offsetSample,newOffsetSample,smooth_coeff);
+    
+   
+    //================================================================
+    delay_L = CURSOLBUFFER_getOffsettedValueWithInterp( DELAY_ARRAY_L
+                                                      , offsetSample );
+    //================================================================
+    delay_R = CURSOLBUFFER_getOffsettedValueWithInterp( DELAY_ARRAY_R
+                                                      , offsetSample );
+    
+    CURSOLBUFFER_push( DELAY_ARRAY_L_MIXED , (spl0 + delay_L ) );
+    CURSOLBUFFER_push( DELAY_ARRAY_R_MIXED , (spl1 + delay_R ) );
+    //================================================================
+    wet_L = CURSOLBUFFER_getOffsettedValueWithInterp( DELAY_ARRAY_L_MIXED
+                                                      , 40 );
+    wet_R = CURSOLBUFFER_getOffsettedValueWithInterp( DELAY_ARRAY_R_MIXED
+                                                      , 40 );
+    //================================================================
+    spl0 = spl0 *(1-slider4) + (wet_L ) * (slider4) ;
+    spl1 = spl1 *(1-slider4) + (wet_R ) * (slider4) ;
     //================================================================
 
 @gfx 200 400

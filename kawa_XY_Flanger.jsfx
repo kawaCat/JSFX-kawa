@@ -79,7 +79,10 @@ out_pin:right output
     // for particle 
     PARTICLE_controller = PARTICLE_CONTROLLER_create();
     //================================================================
-
+    // parameter Smoozing
+    smooth_coeff = exp(-1/(0.1/1000*srate)); // 0.5 ms smoothing
+    //================================================================
+    
 @slider
 //====================================================================
     //XYSLIDER_setYValue(comp_XYSlider_1,slider1,false);
@@ -125,14 +128,22 @@ out_pin:right output
         
         chorusWidth = srate* ( 0.001  );
         //============================================================
-        delay_L = CURSOLBUFFER_getOffsettedValue( delay_ARRAY_L
-                                                , -srate/rateX * 0.000001 * XYSLIDER_getYValue(comp_XYSlider_1)
-                                                  -chorusWidth * XYSLIDER_getXValue(comp_XYSlider_1) );
-        delay_R = CURSOLBUFFER_getOffsettedValue( delay_ARRAY_R
-                                                , -srate/rateY * 0.000050  * XYSLIDER_getXValue(comp_XYSlider_1)
-                                                  -chorusWidth * XYSLIDER_getXValue(comp_XYSlider_1) );
+        //smoozing
         //============================================================
-        
+        newOffsetSample =  chorusWidth * XYSLIDER_getXValue(comp_XYSlider_1);
+        offsetSample = singlepole(offsetSample,newOffsetSample,smooth_coeff);
+        //============================================================
+        newOffsetSamplePhase_L = srate/rateX * 0.000001 * XYSLIDER_getYValue(comp_XYSlider_1);
+        newOffsetSamplePhase_R = srate/rateX * 0.000050 * XYSLIDER_getXValue(comp_XYSlider_1);
+        //============================================================
+        offsetSamplePhase_L = singlepole(offsetSamplePhase_L,newOffsetSamplePhase_L,smooth_coeff);
+        offsetSamplePhase_R = singlepole(offsetSamplePhase_R,newOffsetSamplePhase_R,smooth_coeff);
+        //============================================================
+        delay_L = CURSOLBUFFER_getOffsettedValueWithInterp( delay_ARRAY_L
+                                                          , offsetSamplePhase_L + offsetSample );
+        delay_R = CURSOLBUFFER_getOffsettedValueWithInterp( delay_ARRAY_R
+                                                          , offsetSamplePhase_R + offsetSample );
+        //============================================================
     ):( // FLANGER MODE
         //============================================================
         rateX= slider1;
@@ -155,10 +166,17 @@ out_pin:right output
         
         chorusWidth = srate* ( 0.002 * XYSLIDER_getYValue(comp_XYSlider_1) );
         //============================================================
-        delay_L = CURSOLBUFFER_getOffsettedValue( delay_ARRAY_L
-                                                , -chorusWidth * XYSLIDER_getXValue(comp_XYSlider_1) );
-        delay_R = CURSOLBUFFER_getOffsettedValue( delay_ARRAY_R
-                                                , -chorusWidth * XYSLIDER_getXValue(comp_XYSlider_1) );
+        //smoozing
+        //============================================================
+        newOffsetSample =  chorusWidth * XYSLIDER_getXValue(comp_XYSlider_1);
+        offsetSample = singlepole(offsetSample,newOffsetSample,smooth_coeff);
+        //============================================================
+        
+        //============================================================
+        delay_L = CURSOLBUFFER_getOffsettedValueWithInterp( delay_ARRAY_L
+                                                          , offsetSample );
+        delay_R = CURSOLBUFFER_getOffsettedValueWithInterp( delay_ARRAY_R
+                                                          , offsetSample );
         //============================================================
     );
     //================================================================

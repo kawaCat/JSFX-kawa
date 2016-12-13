@@ -4,7 +4,7 @@
 
 //====================================================================
 // DCOffset 
-// based onhri :JS: DC Filter [filters/dc_remove]
+// based on :JS: DC Filter [filters/dc_remove]
 //====================================================================
 function DCOFFSET_create() local ( DCOFFSET_ID )
 (

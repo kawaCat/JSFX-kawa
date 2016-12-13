@@ -396,7 +396,7 @@ function _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,pos )
     
     out = pos;
     //================================================================
-    ( bufSize <=  pos)  ? (out = 0;);
+    ( bufSize <=  pos)  ? (out -= bufSize;);
     ( pos     < 0    )  ? (out += bufSize;);
     //================================================================
     out;
@@ -422,7 +422,7 @@ function CURSOLBUFFER_getValueOffsetFromLastPushedPos(CIRCLEBUFFER_ID,offsetNum)
 function CURSOLBUFFER_getLastPushedValue( CIRCLEBUFFER_ID)
 (
     CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID
-                                    ,CURSOLBUFFER_getLastCursolPos(CIRCLEBUFFER_ID));
+                                ,CURSOLBUFFER_getLastCursolPos(CIRCLEBUFFER_ID));
 );
 //====================================================================
 function CURSOLBUFFER_getAt(CIRCLEBUFFER_ID,cursolPos) //aliase of function CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,cursolPos)
@@ -460,6 +460,122 @@ function CURSOLBUFFER_pushAndBackStep(CIRCLEBUFFER_ID,v)
     CURSOLBUFFER_stepBackCursolPos(CIRCLEBUFFER_ID);
 );
 //====================================================================
+// get interPolationed y value
+//====================================================================
+function _CUR_dLinTerp( x1,  x2,  y1,  y2,  interPolationPos)local (denom,out,dx)
+(
+    //================================================================
+    denom = x2 - x1;
+    out = y1;
+    //================================================================
+    (denom == 0)?
+    (
+        out = y1; // should not ever happen
+    ):(
+        // calculate decimal position of x
+        dx = (interPolationPos - x1)/(x2 - x1);
+        // use weighted sum method of interpolating
+        out= dx*y2 + (1-dx)*y1;
+        //============================================================
+    );
+    out;
+    //================================================================
+);
+//====================================================================
+// http://musicdsp.org/archive.php?classid=4#98
+//====================================================================
+function CURSOLBUFFER_getOffsettedValueWithInterp(CIRCLEBUFFER_ID,delaySample)
+    local ( back
+          , bufSize
+          , counter
+          , index0
+          , index_1
+          , index1
+          , index2
+          , y_1 , y0, y1, y2
+          , x
+          , c0 , c1, c2, c3
+          , output
+        )
+(
+ //inline float feed(float const in,float const feedback,double const delay)
+    bufSize = CURSOLBUFFER_getMaxSize(CIRCLEBUFFER_ID);
+    // calculate delay offset
+    counter = CURSOLBUFFER_getCursolPos(CIRCLEBUFFER_ID)-1;
+    back = counter-delaySample;
+    
+    //================================================================
+    // clip lookback buffer-bound
+    ( back < 0.0 )?
+    (
+        back = bufSize + back;
+    );
+    //================================================================
+    // compute interpolation left-floor
+    index0 = floor(back);
+    
+    // compute interpolation right-floor
+    index_1 = index0-1;
+    index1  = index0+1;
+    index2  = index0+2;
+    
+    // clip interp. buffer-bound
+//    ( index_1<0) ?( index_1=bufSize-1;);
+    index_1 = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,index_1) ;
+    index1 = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,index1) ;
+    index2 = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,index2) ;
+    
+    // get neighbourgh samples
+    y_1 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,index_1);
+    y0  = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,index0) ;
+    y1  = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,index1) ;
+    y2  = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,index2) ;
+    
+    //================================================================
+    // compute interpolation x
+    x = back-index0;
+    //================================================================
+    
+    // calculate
+    c0 = y0;
+    c1 = 0.5 * (y1-y_1);
+    c2 = y_1 - 2.5 * y0 + 2.0*y1 - 0.5*y2;
+    c3 = 0.5 * (y2-y_1) + 1.5*(y0-y1);
+    //================================================================
+    
+    output =((c3*x+c2)*x+c1)*x+c0;
+    
+    //output = _CUR_dLinTerp( index0,  index1,  c0,  c1,  x);
+    //================================================================
+    //output;//return
+    // add to delay buffer
+    //CURSOLBUFFER_push(CIRCLEBUFFER_ID,in+output);
+    
+    output;//return
+    // increment delay counter
+    // counter++;
+    
+    // clip delay counter
+    // if(counter>=MAX_WG_DELAY)
+    //     counter=0;
+    
+    // return output
+    //return output;
+    //================================================================
+);
+//====================================================================
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
