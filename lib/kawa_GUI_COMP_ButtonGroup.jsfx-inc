@@ -135,6 +135,8 @@ function BUTTONGROUP_setCurrentButtonComponentByName(BUTTONGROUP_ID,buttonName)
     BUTTON_ON ( targetComp ,true);
     _BUTTONGROUP_setNeedResized(BUTTONGROUP_ID,true);
     //================================================================
+    slider( COMPONENT_getSliderIndex(BUTTONGROUP_ID) ) 
+                = _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID);;
 );
 //====================================================================
 function BUTTONGROUP_setCurrentButtonComponentByIndex(BUTTONGROUP_ID,indexNum)
@@ -150,6 +152,8 @@ function BUTTONGROUP_setCurrentButtonComponentByIndex(BUTTONGROUP_ID,indexNum)
         BUTTONGROUP_setCurrentButtonComponentByComponent(BUTTONGROUP_ID,button_);
     );
     //================================================================
+    slider( COMPONENT_getSliderIndex(BUTTONGROUP_ID) ) 
+                = _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID);;
 );
 //====================================================================
 function BUTTONGROUP_stepCurrentButtonIndex(BUTTONGROUP_ID,stepNum )
@@ -197,6 +201,8 @@ function BUTTONGROUP_resized(BUTTONGROUP_ID,parrentRECT )
         count_A +=1;
     );
     //================================================================
+     _BUTTONGROUP_setNeedResized(BUTTONGROUP_ID,true);
+    //================================================================
 );
 //====================================================================
 function BUTTONGROUP_update(BUTTONGROUP_ID)  
@@ -208,18 +214,19 @@ function BUTTONGROUP_update(BUTTONGROUP_ID)
     (     _BUTTONGROUP_getNeedResized(BUTTONGROUP_ID) ==true
        && RECTANGLE_getWidth (BUTTONGROUP_ID ) != 0  // is @GFX active?
        && RECTANGLE_getHeight(BUTTONGROUP_ID ) != 0  // is @GFX active?
+       ||  COMPONENT_isParrentLayerResized( BUTTONGROUP_ID) ==true
      )?
     (
         BUTTONGROUP_resized( BUTTONGROUP_ID
                            , COMPONENT_getParrentLAYRE(BUTTONGROUP_ID));
-        _BUTTONGROUP_setNeedResized(BUTTONGROUP_ID,false);
+        _BUTTONGROUP_setNeedResized(BUTTONGROUP_ID,false);//in resized
     );
     //================================================================
     buttonArray = _BUTTONGROUP_getChildButtonArray(BUTTONGROUP_ID);
     //================================================================
     count_A = 0;
     //================================================================
-    
+
     //================================================================
     while ( count_A < ARRAY_getBufferSize(buttonArray) )
     (   
@@ -227,16 +234,16 @@ function BUTTONGROUP_update(BUTTONGROUP_ID)
         //============================================================
         BUTTON_update( bt );    
         //============================================================
-        (   BUTTON_isON( bt ) ==true 
-         && _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID) != count_A ) ?
-        (
-            BUTTONGROUP_setCurrentButtonComponentByComponent(BUTTONGROUP_ID,bt);
-            //========================================================
-            slider( COMPONENT_getSliderIndex(BUTTONGROUP_ID) ) 
-                = _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID);;
-            //========================================================
-            slider_automate(2 ^ COMPONENT_getSliderIndex(BUTTONGROUP_ID) -1 );
-        );
+            (   BUTTON_isON( bt ) ==true 
+             && _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID) != count_A ) ?
+            (
+                BUTTONGROUP_setCurrentButtonComponentByComponent(BUTTONGROUP_ID,bt);
+                //========================================================
+                slider( COMPONENT_getSliderIndex(BUTTONGROUP_ID) ) 
+                    = _BUTTONGROUP_getCurrentButtonIndex (BUTTONGROUP_ID);;
+                //========================================================
+                slider_automate(2 ^ COMPONENT_getSliderIndex(BUTTONGROUP_ID) -1 );
+            );
         //============================================================
         count_A +=1;
     );
@@ -327,8 +334,14 @@ function BUTTONGROUP_mouseButtonReleased( BUTTONGROUP_ID,MOUSEINFO_ID )
             BUTTON_mouseButtonReleased( ARRAY_getAt(buttonArray,count_A)
                                       , MOUSEINFO_ID);
         );
-        (RECTANGLE_isContainMouse(BUTTONGROUP_ID) == true) ?
+        //============================================================
+        (      RECTANGLE_isContainMouse(BUTTONGROUP_ID) == true 
+            && RECTANGLE_isContainMouse(ARRAY_getAt(buttonArray,count_A)) == true 
+        ) ?
         (
+            _BUTTONGROUP_setLastIndex( BUTTONGROUP_ID
+                                     , _BUTTONGROUP_getCurrentButtonIndex(BUTTONGROUP_ID));
+            BUTTONGROUP_setCurrentButtonComponentByIndex(BUTTONGROUP_ID,count_A);
             slider_automate(2 ^ COMPONENT_getSliderIndex(BUTTONGROUP_ID) -1 );
         );
         //============================================================

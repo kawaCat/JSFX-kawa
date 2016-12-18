@@ -373,7 +373,9 @@ function APP_SliderChanged(APP_ID)
         while ( count_ < childNUM )
         (
             LAYER_update( ARRAY_getAt(childCompoArray_ID,count_)
-                        , APP_ID);
+                        , APP_ID
+                        , true //// Whether is call from SliderChanged 
+                        );
             //========================================================
             count_ +=1;
         );
@@ -411,7 +413,9 @@ function APP_update(APP_ID)
         while ( count_ < childNUM )
         (
             LAYER_update( ARRAY_getAt(childCompoArray_ID,count_)
-                        , APP_ID);
+                        , APP_ID
+                        , false // Whether is call from SliderChanged 
+                        );
             //========================================================
             count_ +=1;
         );

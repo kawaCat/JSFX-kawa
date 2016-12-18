@@ -14,6 +14,7 @@ import kawa_DSP_PitchUtil.jsfx-inc
 import kawa_DSP_DCOffset.jsfx-inc
 import kawa_DSP_MSProcess.jsfx-inc
 import kawa_DSP_WaveSine.jsfx-inc
+import kawa_DSP_WaveTable.jsfx-inc
 import kawa_DSP_RingMod.jsfx-inc
 import kawa_DSP_RBJFilter.jsfx-inc
 import kawa_DSP_Panner.jsfx-inc

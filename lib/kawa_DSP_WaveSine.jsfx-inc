@@ -4,77 +4,32 @@
 //====================================================================
 //  WAVESINE_create() 
 //====================================================================
-//    WAVESINE_getRate      (WAVESINE_ID)         
-//    WAVESINE_getCountTime (WAVESINE_ID)    
-//    WAVESINE_getSampleRate(WAVESINE_ID)   
-//    WAVESINE_setRate      (WAVESINE_ID,v)       
-//    WAVESINE_setCountTime (WAVESINE_ID,v)  
-//    WAVESINE_setSampleRate(WAVESINE_ID,v) 
+//    WAVESINE_getRate             (WAVESINE_ID)         
+//    WAVESINE_getCountTime        (WAVESINE_ID)    
+//    WAVESINE_getSampleRate       (WAVESINE_ID)   
+//    WAVESINE_getGenerateWaveType (WAVESINE_ID)   
+//    WAVESINE_getPolarType        (WAVESINE_ID)   
+//    WAVESINE_setRate             (WAVESINE_ID,v)       
+//    WAVESINE_setCountTime        (WAVESINE_ID,v)  
+//    WAVESINE_setSampleRate       (WAVESINE_ID,v) 
+//    WAVESINE_setGenerateWaveType (WAVESINE_ID,v) 
+//    WAVESINE_setPolarType        (WAVESINE_ID,v)  
 //====================================================================
-//    WAVESINE_getAndTick   (WAVESINE_ID)
-//    WAVESINE_get          (WAVESINE_ID)
-//====================================================================
-
-
-// define for  WAVE TABLE
-//====================================================================
-MIN_WAVETABLE_OSC_HZ = 10; //10hz
-//====================================================================
-WT_OSC_TYPE_SINE   = 1;
-WT_OSC_TYPE_SAW    = 2;
-WT_OSC_TYPE_TRI    = 3;
-WT_OSC_TYPE_SQUARE = 4;
-//====================================================================
-WT_TABLE_MODE_NORAML    = 1;
-WT_TABLE_MODE_BANDLIMIT = 2;
-//====================================================================
-WT_POLARITY_BIPOLAR  = 1;
-WT_POLARITY_UNIPOLAR = 2;//absolute bias
+//    WAVESINE_getAndTick          (WAVESINE_ID)
+//    WAVESINE_get                 (WAVESINE_ID)
 //====================================================================
 
 //====================================================================
-//  WAVETABLE_create()
-//  based on https://github.com/srejv/dspplayground/blob/master/src/wavetable.c
+// generate wave Type
 //====================================================================
-//    WAVETABLE_getFrequency      (WAVETABLE_ID)
-//    WAVETABLE_getSampleRate     (WAVETABLE_ID)
-//    WAVETABLE_getReadIndex      (WAVETABLE_ID)
-//    WAVETABLE_getQuadReadIndex  (WAVETABLE_ID)
-//    WAVETABLE_getInvertFlag     (WAVETABLE_ID)
+DEFINE_GENERATE_WAVE_TYPE_SIN  = 0;
+DEFINE_GENERATE_WAVE_TYPE_SAW  = 1;
+DEFINE_GENERATE_WAVE_TYPE_RECT = 2;
+DEFINE_GENERATE_WAVE_TYPE_TRI  = 3;
 //====================================================================
-//    WAVETABLE_getOscType        (WAVETABLE_ID)
-//    WAVETABLE_getTableMode      (WAVETABLE_ID)
-//    WAVETABLE_getPolarityMode   (WAVETABLE_ID)
+DEFINE_WAVE_SIGNALE_BIPOLAR    = 0;
+DEFINE_WAVE_SIGNALE_UNIPOLAR   = 1;
 //====================================================================
-//    WAVETABLE_getWaveTableSize  (WAVETABLE_ID)
-//====================================================================
-//    WAVETABLE_getWaveArraySin   (WAVETABLE_ID)
-//    WAVETABLE_getWaveArraySaw   (WAVETABLE_ID)
-//    WAVETABLE_getWaveArrayTri   (WAVETABLE_ID)
-//    WAVETABLE_getWaveArraySqu   (WAVETABLE_ID)
-//    WAVETABLE_getWaveArraySawBL (WAVETABLE_ID)
-//    WAVETABLE_getWaveArrayTriBL (WAVETABLE_ID)
-//    WAVETABLE_getWaveArraySquBL (WAVETABLE_ID)
-//====================================================================
-//    WAVETABLE_setReadIndex      (WAVETABLE_ID,v)
-//    WAVETABLE_setQuadReadIndex  (WAVETABLE_ID,v)
-//    WAVETABLE_setInvertFlag     (WAVETABLE_ID,v)
-//====================================================================
-//    WAVETABLE_setOscType        (WAVETABLE_ID,v)
-//    WAVETABLE_setTableMode      (WAVETABLE_ID,v)
-//    WAVETABLE_setPolarityMode   (WAVETABLE_ID,v)
-//====================================================================
-//    WAVETABLE_setFrequency      (WAVETABLE_ID,hz)
-//    WAVETABLE_setSampleRate     (WAVETABLE_ID,newSampleRate)
-//====================================================================
-//    WAVETABLE_reset             (WAVETABLE_ID)
-//    WAVETABLE_prepareForPlay    (WAVETABLE_ID)
-//====================================================================
-//    WAVETABLE_tickReadIndex     (WAVETABLE_ID) 
-//====================================================================
-//    WAVETABLE_doOscillate       (WAVETABLE_ID,isNeedTick)
-//====================================================================
-
 
 //====================================================================
 // wave Sine genelator
@@ -85,37 +40,104 @@ function WAVESINE_create() local (WAVESINE_ID)
     WAVESINE_ID = STATIC_MASTER_BUFF_ID;
     //================================================================
     STATIC_MASTER_BUFF[WAVESINE_ID]   = "DELTATIME";   // class name
-    STATIC_MASTER_BUFF[WAVESINE_ID+1] = 5;             // total Element Num 
+    STATIC_MASTER_BUFF[WAVESINE_ID+1] = 8;             // total Element Num 
     //================================================================
     STATIC_MASTER_BUFF[WAVESINE_ID+2] = 440 ;          // RATE hz
     STATIC_MASTER_BUFF[WAVESINE_ID+3] = 0;             // count Time
     STATIC_MASTER_BUFF[WAVESINE_ID+4] = srate;         // sampleRate
     STATIC_MASTER_BUFF[WAVESINE_ID+5] = 0;             // last genelated Wave sin
-    STATIC_MASTER_BUFF[WAVESINE_ID+6] = STATIC_MASTER_BUFF[WAVESINE_ID+1];  // element Num Only DeletaTime Class
+    STATIC_MASTER_BUFF[WAVESINE_ID+6] = DEFINE_GENERATE_WAVE_TYPE_SIN;      // waveType
+    STATIC_MASTER_BUFF[WAVESINE_ID+7] = DEFINE_WAVE_SIGNALE_BIPOLAR;      // waveType
+    STATIC_MASTER_BUFF[WAVESINE_ID+8] = STATIC_MASTER_BUFF[WAVESINE_ID+1];  // element Num only this class
     //================================================================
     STATIC_MASTER_BUFF_ID += STRUCT_getElementNum(WAVESINE_ID)+1;
     //================================================================
     WAVESINE_ID;
 );
 //====================================================================
-function _WAVESINE_getElementNum  (WAVESINE_ID)   (STATIC_MASTER_BUFF[WAVESINE_ID+6]; );
+function _WAVESINE_getElementNum  (WAVESINE_ID)   (STATIC_MASTER_BUFF[WAVESINE_ID+8]; );
 //====================================================================
-function WAVESINE_getRate         (WAVESINE_ID)   (STATIC_MASTER_BUFF[WAVESINE_ID+2]; );
-function WAVESINE_getCountTime    (WAVESINE_ID)   (STATIC_MASTER_BUFF[WAVESINE_ID+3]; );
-function WAVESINE_getSampleRate   (WAVESINE_ID)   (STATIC_MASTER_BUFF[WAVESINE_ID+4]; );
-function _WAVESINE_getLastWaveSine(WAVESINE_ID)   (STATIC_MASTER_BUFF[WAVESINE_ID+5]; );
+function WAVESINE_getRate            (WAVESINE_ID)   (STATIC_MASTER_BUFF[WAVESINE_ID+2]; );
+function WAVESINE_getCountTime       (WAVESINE_ID)   (STATIC_MASTER_BUFF[WAVESINE_ID+3]; );
+function WAVESINE_getSampleRate      (WAVESINE_ID)   (STATIC_MASTER_BUFF[WAVESINE_ID+4]; );
+function _WAVESINE_getLastWaveSine   (WAVESINE_ID)   (STATIC_MASTER_BUFF[WAVESINE_ID+5]; );
+function WAVESINE_getGenerateWaveType(WAVESINE_ID)   (STATIC_MASTER_BUFF[WAVESINE_ID+6]; );
+function WAVESINE_getPolarType       (WAVESINE_ID)   (STATIC_MASTER_BUFF[WAVESINE_ID+7]; );
 //====================================================================
-function WAVESINE_setRate         (WAVESINE_ID,v) (STATIC_MASTER_BUFF[WAVESINE_ID+2] = v; );
-function WAVESINE_setCountTime    (WAVESINE_ID,v) (STATIC_MASTER_BUFF[WAVESINE_ID+3] = v; );
-function WAVESINE_setSampleRate   (WAVESINE_ID,v) (STATIC_MASTER_BUFF[WAVESINE_ID+4] = v; );
-function _WAVESINE_setLastWaveSine(WAVESINE_ID,v) (STATIC_MASTER_BUFF[WAVESINE_ID+5] = v; );
+function WAVESINE_setRate            (WAVESINE_ID,v) (STATIC_MASTER_BUFF[WAVESINE_ID+2] = v; );
+function WAVESINE_setCountTime       (WAVESINE_ID,v) (STATIC_MASTER_BUFF[WAVESINE_ID+3] = v; );
+function WAVESINE_setSampleRate      (WAVESINE_ID,v) (STATIC_MASTER_BUFF[WAVESINE_ID+4] = v; );
+function _WAVESINE_setLastWaveSine   (WAVESINE_ID,v) (STATIC_MASTER_BUFF[WAVESINE_ID+5] = v; );
+function WAVESINE_setGenerateWaveType(WAVESINE_ID,v) (STATIC_MASTER_BUFF[WAVESINE_ID+6] = v; );
+function WAVESINE_setPolarType       (WAVESINE_ID,v) (STATIC_MASTER_BUFF[WAVESINE_ID+7] = v; );
 //====================================================================
-function _WAVESINE_gen(WAVESINE_ID) local (wave,timeCount,sampleRate,rate)
+function _WAVESINE_gen(WAVESINE_ID) 
+    local (  wave
+           , timeCount
+           , sampleRate
+           , rate
+           , waveType
+           , oneDivSample//for saw,rect,tri
+           , rateCount //for triangle
+           )
 (
     timeCount = WAVESINE_getCountTime(WAVESINE_ID);
     sampleRate = WAVESINE_getSampleRate(WAVESINE_ID);
     rate = WAVESINE_getRate(WAVESINE_ID);
-    wave = sin( (2*$pi* rate * timeCount)/sampleRate );
+    //================================================================
+    waveType = WAVESINE_getGenerateWaveType(WAVESINE_ID);
+    polarType = WAVESINE_getPolarType(WAVESINE_ID);
+    //================================================================
+    ( waveType == DEFINE_GENERATE_WAVE_TYPE_SIN )?
+    (
+        wave = sin( (2*$pi* rate * timeCount)/sampleRate );
+        //============================================================
+        ( polarType == DEFINE_WAVE_SIGNALE_UNIPOLAR)?
+        (
+            wave = abs(wave);
+        );
+        //============================================================
+    ):(waveType == DEFINE_GENERATE_WAVE_TYPE_RECT )?
+    (
+        // Rect 
+        oneDivSample = srate/ ( 2 * rate );
+        wave =(floor(timeCount / oneDivSample )% 2 );
+        //============================================================
+        (polarType == DEFINE_WAVE_SIGNALE_BIPOLAR)?
+        (
+            wave = wave *2 -1;
+        );
+        //============================================================
+    ):(waveType == DEFINE_GENERATE_WAVE_TYPE_SAW )?
+    (
+        // saw
+        oneDivSample = srate/ ( 2 * rate );
+        //============================================================
+        wave  = 1-( (timeCount  % oneDivSample)/oneDivSample ) ;
+        //============================================================
+        (polarType == DEFINE_WAVE_SIGNALE_BIPOLAR)?
+        (
+            wave = wave *2 -1;
+        );
+        //============================================================
+    ):(waveType == DEFINE_GENERATE_WAVE_TYPE_TRI )?
+    (
+        //tri
+        //amp =1 ;
+        rateCount = ceil(srate/2/rate);
+        //============================================================
+        // http://stackoverflow.com/questions/1073606/is-there-a-one-line-function-that-generates-a-triangle-wave
+        // y = (A/P) * (P - abs(x % (2*P) - P) )
+        //============================================================
+        wave = ( 1 /rateCount) 
+                   * ( rateCount - abs( timeCount % (2*rateCount)-rateCount)) ;
+        //============================================================
+        (polarType == DEFINE_WAVE_SIGNALE_BIPOLAR)?
+        (
+            wave = wave *2 -1;
+        );
+        //============================================================
+    );
     //================================================================
     _WAVESINE_setLastWaveSine(WAVESINE_ID,wave);
     //================================================================
@@ -150,582 +172,4 @@ function WAVESINE_get(WAVESINE_ID)
 //====================================================================
 
 
-//====================================================================
-// get interPolationed y value
-//====================================================================
-function dLinTerp( x1,  x2,  y1,  y2,  interPolationPos)local (denom,out,dx)
-(
-    //================================================================
-    denom = x2 - x1;
-    out = y1;
-    //================================================================
-    (denom == 0)?
-    (
-        out = y1; // should not ever happen
-    ):(
-        // calculate decimal position of x
-        dx = (interPolationPos - x1)/(x2 - x1);
-        // use weighted sum method of interpolating
-        out= dx*y2 + (1-dx)*y1;
-        //============================================================
-    );
-    out;
-    //================================================================
-);
-//====================================================================
 
-
-//====================================================================
-// WAVETABLE_ class
-//====================================================================
-// based on https://github.com/srejv/dspplayground/blob/master/src/wavetable.c
-//====================================================================
-function _WAVETABLE_getElementNum    (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+4]; );
-//====================================================================
-function WAVETABLE_getFrequency      (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+2]; );
-function WAVETABLE_getSampleRate     (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+3]; );
-function WAVETABLE_getReadIndex      (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+5]; );
-function WAVETABLE_getQuadReadIndex  (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+6]; );
-function _WAVETABLE_getIncValue      (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+7]; );
-function WAVETABLE_getInvertFlag     (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+8]; );
-//====================================================================
-function WAVETABLE_getOscType        (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+9]; );
-function WAVETABLE_getTableMode      (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+10]; );
-function WAVETABLE_getPolarityMode   (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+11]; );
-//====================================================================
-function WAVETABLE_getWaveTableSize  (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+12]; );
-//====================================================================
-function WAVETABLE_getWaveArraySin   (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+13]; );
-function WAVETABLE_getWaveArraySaw   (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+14]; );
-function WAVETABLE_getWaveArrayTri   (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+15]; );
-function WAVETABLE_getWaveArraySqu   (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+16]; );
-function WAVETABLE_getWaveArraySawBL (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+17]; );
-function WAVETABLE_getWaveArrayTriBL (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+18]; );
-function WAVETABLE_getWaveArraySquBL (WAVETABLE_ID)   (STATIC_MASTER_BUFF[WAVETABLE_ID+19]; );
-//====================================================================
-
-//====================================================================
-function WAVETABLE_setReadIndex      (WAVETABLE_ID,v) (STATIC_MASTER_BUFF[WAVETABLE_ID+5] = max(0,v); );
-function WAVETABLE_setQuadReadIndex  (WAVETABLE_ID,v) (STATIC_MASTER_BUFF[WAVETABLE_ID+6] = max(0,v); );
-function _WAVETABLE_setIncValue      (WAVETABLE_ID,v) (STATIC_MASTER_BUFF[WAVETABLE_ID+7] = max(0,v); );
-function WAVETABLE_setInvertFlag     (WAVETABLE_ID,v) (STATIC_MASTER_BUFF[WAVETABLE_ID+8] = v; );
-//====================================================================
-function WAVETABLE_setOscType        (WAVETABLE_ID,v) (STATIC_MASTER_BUFF[WAVETABLE_ID+9] = v; );
-function WAVETABLE_setTableMode      (WAVETABLE_ID,v) (STATIC_MASTER_BUFF[WAVETABLE_ID+10]= v; );
-function WAVETABLE_setPolarityMode   (WAVETABLE_ID,v) (STATIC_MASTER_BUFF[WAVETABLE_ID+11]= v; );
-//====================================================================
-
-//====================================================================
-function _WAVETABLE_cookFrequency(WAVETABLE_ID) local ( newIncValue,wtsize,sampleRate,frequency)
-(
-    wtsize = WAVETABLE_getWaveTableSize (WAVETABLE_ID);
-    sampleRate = WAVETABLE_getSampleRate(WAVETABLE_ID);
-    frequency = WAVETABLE_getFrequency(WAVETABLE_ID);
-    //================================================================
-    // inc = L*fd/fs
-    // self.m_f_inc = (1024.0 * self.m_fFrequency_Hz)/self.m_nSampleRate;
-    //================================================================
-    newIncValue = floor( (wtsize*frequency)/sampleRate);
-    //================================================================
-   
-    //================================================================
-    _WAVETABLE_setIncValue(WAVETABLE_ID,newIncValue);
-);
-//====================================================================
-
-//====================================================================
-function WAVETABLE_setFrequency    (WAVETABLE_ID,hz)   
-(
-    (     WAVETABLE_getFrequency(WAVETABLE_ID) != hz 
-       &&  hz > MIN_WAVETABLE_OSC_HZ)?
-    (
-        STATIC_MASTER_BUFF[WAVETABLE_ID+2] = hz; 
-        _WAVETABLE_cookFrequency(WAVETABLE_ID);
-    );
-);
-//====================================================================
-function WAVETABLE_reset(WAVETABLE_ID)local ( WTSize )
-(
-    WTsize = WAVETABLE_getWaveTableSize(WAVETABLE_ID);
-    WAVETABLE_setReadIndex (WAVETABLE_ID,0.0);
-    WAVETABLE_setQuadReadIndex (WAVETABLE_ID, WTsize/4);//1/4 of our 1024 point buffer
-);
-//====================================================================
-function WAVETABLE_prepareForPlay(WAVETABLE_ID)
-(
-    WAVETABLE_reset(WAVETABLE_ID); // reset the index
-    _WAVETABLE_cookFrequency(WAVETABLE_ID);// cook curent frequency
-);
-//====================================================================
-function _WAVETABLE_prepareArrayMAXSize(WAVETABLE_ID,MAXSize)
-(
-    ARRAY_setBufferSize ( WAVETABLE_getWaveArraySin  (WAVETABLE_ID),MAXSize);
-    ARRAY_setBufferSize ( WAVETABLE_getWaveArraySaw  (WAVETABLE_ID),MAXSize);
-    ARRAY_setBufferSize ( WAVETABLE_getWaveArrayTri  (WAVETABLE_ID),MAXSize);
-    ARRAY_setBufferSize ( WAVETABLE_getWaveArraySqu  (WAVETABLE_ID),MAXSize);
-    ARRAY_setBufferSize ( WAVETABLE_getWaveArraySawBL(WAVETABLE_ID),MAXSize);
-    ARRAY_setBufferSize ( WAVETABLE_getWaveArrayTriBL(WAVETABLE_ID),MAXSize);
-    ARRAY_setBufferSize ( WAVETABLE_getWaveArraySquBL(WAVETABLE_ID),MAXSize);
-);
-//====================================================================
-function _WAVETABLE_setWaveTableSize(WAVETABLE_ID,v)   
-(   STATIC_MASTER_BUFF[WAVETABLE_ID+12]=floor(v); 
-    _WAVETABLE_prepareArrayMAXSize(WAVETABLE_ID,v);
-);
-//====================================================================
-function _WAVETABLE_init_(WAVETABLE_ID)
-    local( sizeCheck,wtSize,half_WtSize,quad_WtSize
-         , mt1,bt1, mt2,bt2, mtf2,btf2, ms1,ms2,bs2
-         , fMaxTri, fMaxSaw,fMaxSqr
-         , count_DD,g
-         )
-(
-    //STATIC_MASTER_BUFF[WAVETABLE_ID+3] = srate;
-    //================================================================
-    // wtSize = srate * (1/MIN_WAVETABLE_OSC_HZ);
-    wtSize = WAVETABLE_getSampleRate(WAVETABLE_ID) * (1/MIN_WAVETABLE_OSC_HZ);
-    //================================================================
-    sizeCheck = (wtSize) & 1024;
-    //================================================================
-    
-    ( sizeCheck ~= 0)?( wtSize = wtSize+(1024-sizeCheck); );
-    //================================================================
-    ( (wtSize & 2) != 0)? ( wtSize +=1;);
-    //================================================================
-    _WAVETABLE_setWaveTableSize(WAVETABLE_ID, wtSize);
-    //================================================================
-    
-    //================================================================
-    half_WtSize = wtSize/2 ;
-    quad_WtSize = wtSize/4 ;
-    //================================================================
-    ( (quad_WtSize &2 ) ~= 0 )?( quad_WtSize -=1; );
-    //================================================================
-    
-    // slope and y-intercept values for the
-    // Triangle Wave
-    //================================================================
-    mt1  =  1.0/quad_WtSize;  bt1  =  0.0;  // rising edge1:
-    mt2  =  1.0/quad_WtSize;  bt2  = -1.0;  // rising edge2:
-    mtf2 = -2.0/half_WtSize;  btf2 =  1.0;  // falling edge:
-    //================================================================
-    // Sawtooth
-    ms1 = 1.0/half_WtSize; bs1 =  0.0;// rising edge1:
-    ms2 = 1.0/half_WtSize; bs2 = -1.0;// rising edge2:
-    //================================================================
-    fMaxTri = 0;
-    fMaxSaw = 0;
-    fMaxSqr = 0;
-    //================================================================
-    
-    count_DD = 0;
-    while ( count_DD <= wtSize)
-    (
-        //Sin
-        //============================================================
-        ARRAY_setValueAt( WAVETABLE_getWaveArraySin ( WAVETABLE_ID)
-                        , count_DD
-                        , sin( (count_DD/wtSize)*(2*$pi) ));
-        //============================================================
-        //Sawtooth
-        (count_DD < half_WtSize)?
-        (
-            ARRAY_setValueAt(  WAVETABLE_getWaveArraySaw ( WAVETABLE_ID)
-                             , count_DD
-                             , ms1*count_DD + bs1 );
-        ):(
-            ARRAY_setValueAt(WAVETABLE_getWaveArraySaw ( WAVETABLE_ID)
-                                                       , count_DD
-                                                       , ms2*(count_DD-half_WtSize-1) + bs2
-                                                       );
-        );
-        //============================================================
-        //Triangle
-        (count_DD < quad_WtSize)?
-        (
-            ARRAY_setValueAt(WAVETABLE_getWaveArrayTri ( WAVETABLE_ID)
-                           , count_DD
-                           , mt1*count_DD + bt1 );//mx + b; rising edge 1
-            //========================================================
-        ):(    count_DD >= quad_WtSize 
-            && count_DD <  quad_WtSize+half_WtSize) ?
-        (
-            ARRAY_setValueAt(WAVETABLE_getWaveArrayTri ( WAVETABLE_ID)
-                           , count_DD
-                           , mtf2*(count_DD-quad_WtSize) + btf2 );// mx + b; falling edge
-            //========================================================
-        ):(
-            ARRAY_setValueAt(WAVETABLE_getWaveArrayTri ( WAVETABLE_ID)
-                           , count_DD
-                           , mt2 *(count_DD-quad_WtSize -half_WtSize) + bt2);// mx + b; falling edge
-            //========================================================
-        );
-        //============================================================
-        //square
-        ( count_DD < half_WtSize )?
-        (
-            ARRAY_setValueAt(WAVETABLE_getWaveArraySqu ( WAVETABLE_ID)
-                                                       , count_DD
-                                                       , 1);// mx + b; falling edge
-        ):(
-            ARRAY_setValueAt(WAVETABLE_getWaveArraySqu ( WAVETABLE_ID)
-                                                       , count_DD
-                                                       , -1);// mx + b; falling edge
-        );
-        //============================================================
-        
-        //BLIT wave
-        //============================================================
-        // zero to start, then loops build the rest
-        ARRAY_setValueAt(WAVETABLE_getWaveArraySawBL(WAVETABLE_ID), count_DD , 0);
-        ARRAY_setValueAt(WAVETABLE_getWaveArrayTriBL(WAVETABLE_ID), count_DD , 0);
-        ARRAY_setValueAt(WAVETABLE_getWaveArraySquBL(WAVETABLE_ID), count_DD , 0);
-        //============================================================
-        //Blit sawtooth: += (-1)^g+1(1/g)sin(wnT)
-        g = 1;
-        while ( g <= 30)
-        (
-            //========================================================
-            // down saw m_SawtoothArray_BL5[i] += (1.0/n)*sin(2.0*pi*i*n/1024.0);
-            ARRAY_setValueAt( WAVETABLE_getWaveArraySawBL(WAVETABLE_ID)
-                            , count_DD 
-                            ,   
-                            // pow( -1.0, (g+1) ) 
-                                //*(1.0/n)*sin(2.0*pi*i*n/1024.0);
-                                ARRAY_getValueAt( WAVETABLE_getWaveArraySawBL(WAVETABLE_ID),count_DD )
-                              +   pow(-1.0, g+1.0 ) 
-                                * (1.0/g) 
-                                * sin( 2.0*$pi * count_DD*g /wtSize)
-                            );
-            //========================================================
-            g+=1;
-        );
-        //============================================================
-        //triangle: += (-1)^g(1/(2g+1+^2)sin(w(2n+1)T)
-        g = 0;
-        while ( g < 5) 
-        (
-            ARRAY_setValueAt( WAVETABLE_getWaveArrayTriBL(WAVETABLE_ID)
-                            , count_DD 
-                            ,   
-                               ARRAY_getValueAt( WAVETABLE_getWaveArrayTriBL(WAVETABLE_ID),count_DD )
-                              +   pow(-1.0, g)
-                                *(1.0/ pow((2*g + 1), 2.0)) 
-                                * sin( ( 2.0*$pi*(2.0*g + 1)*count_DD) /wtSize)
-                                
-                                
-                            );
-            //========================================================
-            g+=1;
-        );
-        //============================================================
-        //square: += (1/g)sin(wnT)
-        g = 1;
-        while ( g < 8)
-        (
-            ARRAY_setValueAt( WAVETABLE_getWaveArraySquBL(WAVETABLE_ID)
-                            , count_DD 
-                            ,   
-                               ARRAY_getValueAt( WAVETABLE_getWaveArraySquBL(WAVETABLE_ID),count_DD )
-                              +  (1.0/g)*sin( (2.0 * $pi * count_DD * g)/wtSize )
-                            );
-            //========================================================
-            g +=2;
-        );
-        //============================================================
-        
-        //============================================================
-        // store the max values
-        ( count_DD == 0 )?
-        (
-            fMaxSaw = ARRAY_getValueAt( WAVETABLE_getWaveArraySawBL(WAVETABLE_ID),count_DD );
-            fMaxTri = ARRAY_getValueAt( WAVETABLE_getWaveArrayTriBL(WAVETABLE_ID),count_DD );
-            fMaxSqr = ARRAY_getValueAt( WAVETABLE_getWaveArraySquBL(WAVETABLE_ID),count_DD );
-        ):(
-        
-            fMaxSaw = max(fMaxSaw, ARRAY_getValueAt( WAVETABLE_getWaveArraySawBL(WAVETABLE_ID),count_DD ));
-            fMaxTri = max(fMaxTri, ARRAY_getValueAt( WAVETABLE_getWaveArrayTriBL(WAVETABLE_ID),count_DD ));
-            fMaxSqr = max(fMaxSqr, ARRAY_getValueAt( WAVETABLE_getWaveArraySquBL(WAVETABLE_ID),count_DD ));
-        );
-        //============================================================
-        
-        //============================================================
-        count_DD+=1;
-    );
-    //================================================================
-    // normalize the bandlimited tables
-    count_DD = 0;
-    while ( count_DD < wtSize)
-    (
-        ARRAY_setValueAt( WAVETABLE_getWaveArraySawBL(WAVETABLE_ID)
-                            , count_DD 
-                            ,  ARRAY_getValueAt( WAVETABLE_getWaveArraySawBL(WAVETABLE_ID),count_DD )/ fMaxSaw 
-                            );
-        //============================================================
-        ARRAY_setValueAt( WAVETABLE_getWaveArrayTriBL(WAVETABLE_ID)
-                            , count_DD 
-                            ,  ARRAY_getValueAt( WAVETABLE_getWaveArrayTriBL(WAVETABLE_ID),count_DD )/ fMaxTri 
-                            );
-        //============================================================
-        ARRAY_setValueAt( WAVETABLE_getWaveArraySquBL(WAVETABLE_ID)
-                            , count_DD 
-                            ,  ARRAY_getValueAt( WAVETABLE_getWaveArraySquBL(WAVETABLE_ID),count_DD )/ fMaxSqr 
-                            );
-        //============================================================
-        count_DD+=1;
-    );
-    //================================================================
-   
-    //================================================================
-    // clear variables
-    WAVETABLE_setReadIndex    (WAVETABLE_ID,0.0);
-    WAVETABLE_setQuadReadIndex(WAVETABLE_ID,0.0);
-    _WAVETABLE_setIncValue    (WAVETABLE_ID,0.0);
-    //================================================================
-        
-    //================================================================
-    WAVETABLE_reset(WAVETABLE_ID);
-    // recalcurate
-    _WAVETABLE_cookFrequency(WAVETABLE_ID);
-    //================================================================
-);
-//====================================================================
-function WAVETABLE_tickReadIndex( WAVETABLE_ID) local (wtSize)
-(
-    // wave table Size
-    wtSize = WAVETABLE_getWaveTableSize(WAVETABLE_ID);
-    //================================================================
-    // add the increment for next time
-    WAVETABLE_setReadIndex( WAVETABLE_ID
-                          , floor(WAVETABLE_getReadIndex(WAVETABLE_ID) +_WAVETABLE_getIncValue(WAVETABLE_ID))
-                          );
-    WAVETABLE_setQuadReadIndex( WAVETABLE_ID
-                              , floor(WAVETABLE_getQuadReadIndex(WAVETABLE_ID) +_WAVETABLE_getIncValue(WAVETABLE_ID))
-                              );
-    //================================================================
-    // check for wrap
-    ( WAVETABLE_getReadIndex(WAVETABLE_ID) >= wtSize)?
-    (
-        WAVETABLE_setReadIndex( WAVETABLE_ID
-                              , floor(WAVETABLE_getReadIndex(WAVETABLE_ID) -wtSize- 1)
-                              );
-    );
-    //================================================================
-    ( WAVETABLE_getQuadReadIndex(WAVETABLE_ID) > wtSize)?
-    (
-        WAVETABLE_setQuadReadIndex( WAVETABLE_ID
-                                  , floor(WAVETABLE_getQuadReadIndex(WAVETABLE_ID) -wtSize-1)
-                                  );
-    );
-    //================================================================
-);
-//====================================================================
-function WAVETABLE_doOscillate(WAVETABLE_ID,isNeedTick)
-    local ( outSample
-          , outQuadPhaseSample
-          , wtSize 
-          , nReadIndex
-          , nQuadPhaseReadIndex
-          , fFrac
-          , fQuadFrac
-          , nReadIndexNext
-          , nQuadPhaseReadIndexNext
-          , OSC_Type
-          )
-(
-    // wave table Size
-    wtSize = WAVETABLE_getWaveTableSize(WAVETABLE_ID);
-    // our output value for this cycle
-    outSample = 0; 
-    outQuadPhaseSample = 0;
-    //================================================================
-    // get INT part
-    nReadIndex          = floor(WAVETABLE_getReadIndex(WAVETABLE_ID));
-    nQuadPhaseReadIndex = floor(WAVETABLE_getQuadReadIndex(WAVETABLE_ID));
-    //================================================================
-    // get FRAC part
-    fFrac = WAVETABLE_getReadIndex(WAVETABLE_ID) - nReadIndex;
-    fQuadFrac = WAVETABLE_getQuadReadIndex(WAVETABLE_ID) - nQuadPhaseReadIndex;
-    //================================================================
-    
-    // setup second index for interpolation; wrap the buffer if needed
-    //================================================================
-    nReadIndexNext = 0;;
-    ( nReadIndex + 1 >= wtSize)?
-    (   
-        nReadIndexNext = 0 
-    ):(
-        nReadIndexNext = nReadIndex+1
-    );
-    //================================================================
-    nQuadPhaseReadIndexNext = 0;;
-    ( nQuadPhaseReadIndex + 1 >= wtSize)?
-    (   
-        nQuadPhaseReadIndexNext = 0 
-    ):(
-        nQuadPhaseReadIndexNext = nQuadPhaseReadIndex+1
-    );
-    //================================================================
-    
-    //================================================================
-    // interpolate the output
-    //================================================================
-    OSC_Type = WAVETABLE_getOscType(WAVETABLE_ID);
-    //================================================================
-    targetArray = 0;
-    //================================================================
-    ( OSC_Type == WT_OSC_TYPE_SINE )?
-    (
-        targetArray = WAVETABLE_getWaveArraySin(WAVETABLE_ID);
-        //============================================================
-    ):(OSC_Type == WT_OSC_TYPE_SAW )?
-    (
-        //============================================================
-        (WAVETABLE_getTableMode(WAVETABLE_ID) == WT_TABLE_MODE_NORAML)?
-        (
-            targetArray = WAVETABLE_getWaveArraySaw(WAVETABLE_ID);
-        ):(
-            targetArray = WAVETABLE_getWaveArraySawBL(WAVETABLE_ID);
-        );
-        //============================================================
-    ):(OSC_Type == WT_OSC_TYPE_TRI )?
-    (
-        //============================================================
-        (WAVETABLE_getTableMode(WAVETABLE_ID) == WT_TABLE_MODE_NORAML)?
-        (
-            targetArray = WAVETABLE_getWaveArrayTri(WAVETABLE_ID);
-        ):(
-            targetArray = WAVETABLE_getWaveArrayTriBL(WAVETABLE_ID);
-        );
-        //============================================================
-    ):(OSC_Type == WT_OSC_TYPE_SQUARE )?
-    (
-        //============================================================
-        (WAVETABLE_getTableMode(WAVETABLE_ID) == WT_TABLE_MODE_NORAML)?
-        (
-            targetArray = WAVETABLE_getWaveArraySqu(WAVETABLE_ID);
-        ):(
-            targetArray = WAVETABLE_getWaveArraySquBL(WAVETABLE_ID);
-        );
-        //============================================================
-    );
-    //================================================================
-    outSample = dLinTerp( 0
-                        , 1
-                        , ARRAY_getValueAt( targetArray,nReadIndex )
-                        , ARRAY_getValueAt( targetArray,nReadIndexNext )
-                        , fFrac);
-    //================================================================                        
-    outQuadPhaseSample = dLinTerp( 0
-                                 , 1
-                                 , ARRAY_getValueAt( targetArray,nQuadPhaseReadIndex )
-                                 , ARRAY_getValueAt( targetArray,nQuadPhaseReadIndexNext )
-                                 , fQuadFrac);
-    //================================================================
-       
-    //================================================================
-    ( isNeedTick ==true)?
-    (
-        WAVETABLE_tickReadIndex( WAVETABLE_ID)
-    );
-    //================================================================
-    
-    //================================================================
-    (WAVETABLE_getInvertFlag(WAVETABLE_ID)==true )?
-    (
-        outSample *= -1.0;
-        outQuadPhaseSample *= -1.0;
-    );
-    //================================================================
-    ( WAVETABLE_getPolarityMode(WAVETABLE_ID) == WT_POLARITY_UNIPOLAR )?
-    (   
-        outSample = outSample/2 +0.5;
-        outQuadPhase = outQuadPhase/2 +0.5;
-    );
-    //================================================================
-    outSample;
-    //================================================================
-);
-//====================================================================
-function WAVETABLE_setSampleRate   (WAVETABLE_ID,newSampleRate)local(newWtsize)
-(
-    STATIC_MASTER_BUFF[WAVETABLE_ID+3] = newSampleRate;
-    newWtsize =newSampleRate * (1/MIN_WAVETABLE_OSC_HZ);
-    //================================================================
-    _WAVETABLE_setWaveTableSize(WAVETABLE_ID,newWtsize);
-    //================================================================
-    _WAVETABLE_init_(WAVETABLE_ID);
-);
-//====================================================================
-
-//====================================================================
-function WAVETABLE_create( sampleRate_)
-    local ( WAVETABLE_ID
-          , SinArray
-          , SawArray
-          , TriArray
-          , SquArray
-          , sawBLArray
-          , TriBLArray
-          , SquBLArray
-          , waveTableSize
-          )
-(
-    waveTableSize =  sampleRate_ * (1/MIN_WAVETABLE_OSC_HZ);
-    //================================================================
-    SinArray   = ARRAY_create(waveTableSize);
-    SawArray   = ARRAY_create(waveTableSize);
-    TriArray   = ARRAY_create(waveTableSize);
-    SquArray   = ARRAY_create(waveTableSize);
-    sawBLArray = ARRAY_create(waveTableSize);
-    TriBLArray = ARRAY_create(waveTableSize);
-    SquBLArray = ARRAY_create(waveTableSize);
-    ARRAY_setBufferSize ( SinArray,waveTableSize);
-    ARRAY_setBufferSize ( SawArray,waveTableSize);
-    ARRAY_setBufferSize ( TriArray,waveTableSize);
-    ARRAY_setBufferSize ( SquArray,waveTableSize);
-    ARRAY_setBufferSize ( sawBLArray,waveTableSize);
-    ARRAY_setBufferSize ( TriBLArray,waveTableSize);
-    ARRAY_setBufferSize ( SquBLArray,waveTableSize);
-    //================================================================
-    WAVETABLE_ID = STATIC_MASTER_BUFF_ID;
-    //================================================================
-    STATIC_MASTER_BUFF[WAVETABLE_ID]    = "WAVE TABLE";             // class name
-    STATIC_MASTER_BUFF[WAVETABLE_ID+1]  = 19;                      // total Element Num 
-    //================================================================
-    STATIC_MASTER_BUFF[WAVETABLE_ID+2]  = 440 ;                    // frequency(Hz)
-    STATIC_MASTER_BUFF[WAVETABLE_ID+3]  = sampleRate_ ;            // sampleRate
-    STATIC_MASTER_BUFF[WAVETABLE_ID+4]  = STATIC_MASTER_BUFF[WAVESINE_ID+1];  // element Num Only DeletaTime Class
-    //================================================================
-    STATIC_MASTER_BUFF[WAVETABLE_ID+5]  = 0;                       // read Index
-    STATIC_MASTER_BUFF[WAVETABLE_ID+6]  = 0;                       // Quad Phase Read Index
-    STATIC_MASTER_BUFF[WAVETABLE_ID+7]  = 0;                       // inc
-    STATIC_MASTER_BUFF[WAVETABLE_ID+8]  = false;                   // invert flag
-    //================================================================
-    STATIC_MASTER_BUFF[WAVETABLE_ID+9]  = WT_OSC_TYPE_SINE ;       // OSC mode
-    STATIC_MASTER_BUFF[WAVETABLE_ID+10] = WT_TABLE_MODE_NORAML;    // Table Mode
-    STATIC_MASTER_BUFF[WAVETABLE_ID+11] = WT_POLARITY_BIPOLAR;     // Polarity Mode
-    //================================================================
-    STATIC_MASTER_BUFF[WAVETABLE_ID+12] = waveTableSize;           // waveTable size
-    //================================================================
-    STATIC_MASTER_BUFF[WAVETABLE_ID+13] = SinArray;  
-    STATIC_MASTER_BUFF[WAVETABLE_ID+14] = SawArray;  
-    STATIC_MASTER_BUFF[WAVETABLE_ID+15] = TriArray;  
-    STATIC_MASTER_BUFF[WAVETABLE_ID+16] = SquArray;  
-    STATIC_MASTER_BUFF[WAVETABLE_ID+17] = sawBLArray;
-    STATIC_MASTER_BUFF[WAVETABLE_ID+18] = TriBLArray;
-    STATIC_MASTER_BUFF[WAVETABLE_ID+19] = SquBLArray;
-    //================================================================
-    
-    //================================================================
-    STATIC_MASTER_BUFF_ID += STRUCT_getElementNum(WAVETABLE_ID)+1;
-    //================================================================
-    
-    // do init();
-    _WAVETABLE_init_(WAVETABLE_ID);
-    
-    //================================================================
-    WAVETABLE_ID;
-    //================================================================
-);
-//====================================================================

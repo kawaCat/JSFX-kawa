@@ -12,13 +12,16 @@ import kawa_ALL.jsfx-inc
 slider1:0.25<0.0,1.0>RATE 
 slider2:0.25<0.0,1.0>WIDTH
 slider3:0<0,1,{Normal,Deep}> Chorus Mode
-slider4:1<0,1>DRY / WET
+slider4:0<0,3,{Sin,Saw,Rect,Tri}> Wave Type
+slider5:0<0,50> Smoozing (ms)
+slider6:1<0,1>DRY / WET
 //====================================================================
 // ??
 in_pin: left input
 in_pin: right input
 out_pin:left output
 out_pin:right output
+// out_pin: Modulation Signal Out ( for debug ("spl2" is in near line 119. i used Osciloscope(cockos jsfx) for check )
 //====================================================================
 @init
 //====================================================================
@@ -71,14 +74,21 @@ out_pin:right output
     // for particle 
     PARTICLE_controller = PARTICLE_CONTROLLER_create();
     //================================================================
-
-    smooth_coeff = exp(-1/(40/1000*srate)); // 40 ms smoothing
+    waveSignale_ID = WAVESINE_create();
+    WAVESINE_setPolarType (waveSignale_ID,DEFINE_WAVE_SIGNALE_UNIPOLAR);
+    //================================================================
+    
+    smooth_coeff = exp(-1/(slider5/1000*srate)); // 4 ms smoothing
+    //================================================================
 @slider
 //====================================================================
     XYSLIDER_setXValue(comp_XYSlider_1,slider1,false);
     XYSLIDER_setYValue(comp_XYSlider_1,slider2,false);
+    WAVESINE_setGenerateWaveType(waveSignale_ID,slider4);
     //================================================================
-   // APP_SliderChanged(app_ID); // notify for update lastValue
+    smooth_coeff = exp(-1/(slider5/1000*srate)); 
+    //================================================================
+    APP_SliderChanged(app_ID); // notify for update lastValue
     //================================================================
     
 @block
@@ -94,40 +104,48 @@ out_pin:right output
     f_max_R = max(f_max_R,spl1);
     f_min_R = min(f_min_R,spl1);
     //================================================================
- 
-    //================================================================
     
     //================================================================
     (slider3 ==0)?
     (
         //normal Mode
         rateX= slider1 * 5;//Max 5hz
-        valueX = abs( sin( (2* $pi* rateX * timeX )/srate));
-        timeX +=1;(timeX>=srate/rateX)?( timeX=0;);
+        //============================================================
+        WAVESINE_setRate(waveSignale_ID,rateX);
+        newValueX = ( WAVESINE_getAndTick (waveSignale_ID));
+        valueX = singlepole(valueX,newValueX,smooth_coeff);
+        //============================================================
         chorusWidth = ( srate* 0.0001 )*10* XYSLIDER_getYValue(comp_XYSlider_1) ;
+        // spl2 = valueX;
     ):(
         //deep Mode
         rateX= slider1 * 1;//Max 12hz
-        valueX = abs( sin( (2* $pi* rateX * timeX )/srate));
-        timeX +=1;(timeX>=srate/rateX)?( timeX=0;);
+        //============================================================
+        WAVESINE_setRate(waveSignale_ID,rateX);
+        newValueX = ( WAVESINE_getAndTick (waveSignale_ID));
+        valueX = singlepole(valueX,newValueX,smooth_coeff);
+        //============================================================
         chorusWidth = ( srate* 0.0001  )*200* XYSLIDER_getYValue(comp_XYSlider_1) ;
+        //============================================================
     );
     //================================================================
     
     CURSOLBUFFER_push( DELAY_ARRAY_L ,spl0 );
     CURSOLBUFFER_push( DELAY_ARRAY_R ,spl1 );
-//    delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
-//                                               , - chorusWidth * valueX -1 );
-//    delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
-//                                               , - chorusWidth * valueX -1 );
+    //================================================================
+    // dirty process (this process getted with noise in the case of pure sine wave.)
+    // delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
+    //                                         , - chorusWidth * valueX -1 );
+    // delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
+    //                                         , - chorusWidth * valueX -1 );
     //================================================================
    
-    
-    // coff = exp(-1/(ms/1000*srate));
+    //================================================================
     newOffsetSample =  chorusWidth * valueX+1;
     offsetSample = singlepole(offsetSample,newOffsetSample,smooth_coeff);
+    //================================================================
     
-   
+    // with interpolation ??
     //================================================================
     delay_L = CURSOLBUFFER_getOffsettedValueWithInterp( DELAY_ARRAY_L
                                                       , offsetSample );
@@ -143,8 +161,10 @@ out_pin:right output
     wet_R = CURSOLBUFFER_getOffsettedValueWithInterp( DELAY_ARRAY_R_MIXED
                                                       , 40 );
     //================================================================
-    spl0 = spl0 *(1-slider4) + (wet_L ) * (slider4) ;
-    spl1 = spl1 *(1-slider4) + (wet_R ) * (slider4) ;
+    spl0 = spl0 *(1-slider6) + (wet_L ) * (slider6) ;
+    spl1 = spl1 *(1-slider6) + (wet_R ) * (slider6) ;
+    //================================================================
+    
     //================================================================
 
 @gfx 200 400

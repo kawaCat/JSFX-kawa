@@ -549,22 +549,26 @@ function _LAYER_mouseWheeled(LAYER_ID,targetCOMPONENT_ID,MOUSEINFO_ID)
 //====================================================================
 //call from top App
 //====================================================================
-function LAYER_update(LAYER_ID,parrentRectID)
+function LAYER_update(LAYER_ID,parrentRectID,isCallFromSliderChanged)
     local (childCompoArray_ID,count_,childNUM )
 (
     
     //================================================================
     ( LAYER_isActive(LAYER_ID) ==true)?
     (
-        //============================================================
-        LAYER_setIsResized( LAYER_ID
-                          , ( RECTANGLE_compare( _LAYER_getLastLayerAreaRect(LAYER_ID)
-                                               , LAYER_ID) ==false ) ) ;
-        //============================================================
-        
-        //store Rectangle info to last Rectangle 
-        //============================================================
-        RECTANGLE_copyTo(_LAYER_getLastLayerAreaRect(LAYER_ID),LAYER_ID);
+        ( isCallFromSliderChanged == false)?
+        (
+            //========================================================
+            LAYER_setIsResized( LAYER_ID
+                              , ( RECTANGLE_compare( _LAYER_getLastLayerAreaRect(LAYER_ID)
+                                                   , LAYER_ID) ==false ) ) ;
+            //========================================================
+            
+            //store Rectangle info to last Rectangle 
+            //========================================================
+            RECTANGLE_copyTo(_LAYER_getLastLayerAreaRect(LAYER_ID),LAYER_ID);
+            //========================================================
+        );
         //============================================================
         
         //============================================================
@@ -582,14 +586,14 @@ function LAYER_update(LAYER_ID,parrentRectID)
             //========================================================
             _LAYER_update(LAYER_ID,ARRAY_getAt(childCompoArray_ID,count_) ) ;
             //========================================================
-            ( COMPONENT_isSizeChanged( ARRAY_getAt(childCompoArray_ID,count_)) == true  ) ?
-            (
-                _LAYER_resized( LAYER_ID
-                              , ARRAY_getAt(childCompoArray_ID,count_)
-                              , LAYER_ID);//parent Rectangle from component
-            );
-            //========================================================
-             COMPONENT_storeLastRectAngle(  ARRAY_getAt(childCompoArray_ID,count_) );
+            // ( COMPONENT_isSizeChanged( ARRAY_getAt(childCompoArray_ID,count_)) == true  ) ?
+            // (
+            //     _LAYER_resized( LAYER_ID
+            //                   , ARRAY_getAt(childCompoArray_ID,count_)
+            //                   , LAYER_ID);//parent Rectangle from component
+            // );
+            // //========================================================
+            //  COMPONENT_storeLastRectAngle(  ARRAY_getAt(childCompoArray_ID,count_) );
             //========================================================
             count_ +=1;
         );

@@ -12,8 +12,10 @@ import kawa_ALL.jsfx-inc
 slider1: 0.1<0.0,1.0>RATE 
 slider2: 0.6<0.0,1.0>WIDTH
 slider3: 0.0<0,1,{FLANGER,PHASER}>MODE
-slider4: 0.0<0,1>FEEDBACK( x100 %)
-slider5: 1.0<0,1>DRY / WET
+slider4: 0<0,3,{Sin,Saw,Rect,Tri}> WAVE TYPE
+slider5: 0<0,500> FADE SMOOZING(ms)
+slider6: 0.0<0,1>FEEDBACK( x100 %)
+slider7: 1.0<0,1>DRY / WET
 //====================================================================
 in_pin: left input
 in_pin: right input
@@ -80,14 +82,27 @@ out_pin:right output
     PARTICLE_controller = PARTICLE_CONTROLLER_create();
     //================================================================
     // parameter Smoozing
-    smooth_coeff = exp(-1/(0.1/1000*srate)); // 0.5 ms smoothing
+    smooth_coeff = exp(-1/(0.1/1000*srate)); // 0.1 ms smoothing
     //================================================================
+    waveSignale_ID_X = WAVESINE_create();
+    waveSignale_ID_Y = WAVESINE_create();
+    //================================================================
+    smooth_coeff_MOD = exp(-1/(10/1000*srate)); // 0.1 ms smoothing
+    //WAVESINE_setPolarType (waveSignale_ID_X,DEFINE_WAVE_SIGNALE_UNIPOLAR);
+    //WAVESINE_setPolarType (waveSignale_ID_Y,DEFINE_WAVE_SIGNALE_UNIPOLAR);
     
 @slider
 //====================================================================
     //XYSLIDER_setYValue(comp_XYSlider_1,slider1,false);
     //XYSLIDER_setXValue(comp_XYSlider_1,slider2,false);
+    //================================================================
     COMPONENT_setValue(comp_PHASER_ModeButton,slider3,faluse);
+    WAVESINE_setGenerateWaveType(waveSignale_ID_X,slider4);
+    WAVESINE_setGenerateWaveType(waveSignale_ID_Y,slider4);
+    //================================================================
+    //smooth_coeff = exp(-1/(slider6/1000*srate)); 
+    
+    smooth_coeff_MOD = exp(-1/(slider5/1000*srate)); 
     //================================================================
     APP_SliderChanged(app_ID); // notify for update lastValue
     //================================================================
@@ -110,17 +125,20 @@ out_pin:right output
     (
         //============================================================
         rateX = slider1 * 0.60 + 0.001;
-        valueX = 0.5 + sin( (2*$pi* rateX * timeX )/srate)/2;
-        timeX +=1;(timeX>=srate/rateX)?( timeX=0;);
+        WAVESINE_setRate(waveSignale_ID_X,rateX);
+        newValueX = 0.5+( WAVESINE_getAndTick (waveSignale_ID_X))/2;
+        valueX = singlepole(valueX,newValueX,smooth_coeff_MOD);
         //============================================================
+        
         rateY = slider2 * 0.03 + 0.001;
-        valueY = 0.5 + sin( (2*$pi* rateY * timeY)/srate)/2;
-        timeY +=1;(timeY>=srate/rateY)?( timeY=0;);
+        WAVESINE_setRate(waveSignale_ID_Y,rateY);
+        newValueY = 0.5+( WAVESINE_getAndTick (waveSignale_ID_Y))/2;
+        valueY = singlepole(valueY,newValueY,smooth_coeff_MOD);
         //============================================================
         
         //============================================================
-        CURSOLBUFFER_push( delay_ARRAY_L,spl0 -delay_L*0.8*slider4 );    
-        CURSOLBUFFER_push( delay_ARRAY_R,spl1 -delay_R*0.8*slider4 );  
+        CURSOLBUFFER_push( delay_ARRAY_L,spl0 -delay_L*0.8*slider6 );    
+        CURSOLBUFFER_push( delay_ARRAY_R,spl1 -delay_R*0.8*slider6 );  
         
         //============================================================
         XYSLIDER_setXValue(comp_XYSlider_1,valueX,false);
@@ -147,17 +165,19 @@ out_pin:right output
     ):( // FLANGER MODE
         //============================================================
         rateX= slider1;
-        valueX = 0.5 + sin( (2*$pi* rateX * timeX)/srate)/2 ;
-        timeX +=1;(timeX>=srate/rateX)?( timeX=0;);
+        WAVESINE_setRate(waveSignale_ID_X,rateX);
+        newValueX = 0.5+( WAVESINE_getAndTick (waveSignale_ID_X))/2;
+        valueX = singlepole(valueX,newValueX,smooth_coeff_MOD);
         //============================================================
         rateY = slider2;
-        valueY = 0.55 + sin( (2*$pi* rateY * timeY)/srate)/2*0.9;
-        timeY +=1;(timeY>=srate/rateY)?( timeY=0;);
+        WAVESINE_setRate(waveSignale_ID_Y,rateY);
+        newValueY = 0.55+( WAVESINE_getAndTick (waveSignale_ID_Y))/2*0.9;
+        valueY = singlepole(valueY,newValueY,smooth_coeff_MOD);
         //============================================================
         
         //============================================================
-        CURSOLBUFFER_push( delay_ARRAY_L,spl0 +delay_L*slider4*0.8 );    
-        CURSOLBUFFER_push( delay_ARRAY_R,spl1 +delay_R*slider4*0.8 );  
+        CURSOLBUFFER_push( delay_ARRAY_L,spl0 +delay_L*slider6*0.8 );    
+        CURSOLBUFFER_push( delay_ARRAY_R,spl1 +delay_R*slider6*0.8 );  
         
         //============================================================
         XYSLIDER_setXValue(comp_XYSlider_1,valueX,false);
@@ -180,8 +200,8 @@ out_pin:right output
         //============================================================
     );
     //================================================================
-    spl0 = spl0 *(1-slider5) + (spl0 + delay_L ) * (slider5) ;
-    spl1 = spl1 *(1-slider5) + (spl1 + delay_R ) * (slider5) ;
+    spl0 = spl0 *(1-slider7) + (spl0 + delay_L ) * (slider7) ;
+    spl1 = spl1 *(1-slider7) + (spl1 + delay_R ) * (slider7) ;
     //================================================================
 
 @gfx 200 400

@@ -44,6 +44,8 @@
 ___tempHSB ; // !!
 //====================================================================
 
+
+
 //====================================================================
 function drawWaveBufferToCanvas(CANVAS_ID,waveMax,waveMin,oneBar_Width,vAmp,alpha,hueOffset)
     local ( lastDest,tempCanvasSlot,halfHeight
