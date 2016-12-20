@@ -13,10 +13,10 @@ slider1:0.25<0.0,1.0>RATE
 slider2:0.25<0.0,1.0>WIDTH
 slider3:0<0,1,{Normal,Deep}> Chorus Mode
 slider4:0<0,3,{Sin,Saw,Rect,Tri}> Wave Type
-slider5:0<0,50> Smoozing (ms)
+slider5:0<0,100> Smoozing (ms)
 slider6:1<0,1>DRY / WET
+slider7:0<0,1,{Wave,Modulation}>View
 //====================================================================
-// ??
 in_pin: left input
 in_pin: right input
 out_pin:left output
@@ -80,11 +80,18 @@ out_pin:right output
     
     smooth_coeff = exp(-1/(slider5/1000*srate)); // 4 ms smoothing
     //================================================================
+    
+    waveSignalForGraph_ID = WAVESINE_create();
+    WAVESINE_setPolarType (waveSignalForGraph_ID,DEFINE_WAVE_SIGNALE_UNIPOLAR);
+    bufferForGraph = CURSOLBUFFER_create (srate*3);
+    bufferForGraphReadPtr = 0;
+    //================================================================
 @slider
 //====================================================================
     XYSLIDER_setXValue(comp_XYSlider_1,slider1,false);
     XYSLIDER_setYValue(comp_XYSlider_1,slider2,false);
     WAVESINE_setGenerateWaveType(waveSignale_ID,slider4);
+    WAVESINE_setGenerateWaveType(waveSignalForGraph_ID,slider4);
     //================================================================
     smooth_coeff = exp(-1/(slider5/1000*srate)); 
     //================================================================
@@ -116,7 +123,13 @@ out_pin:right output
         valueX = singlepole(valueX,newValueX,smooth_coeff);
         //============================================================
         chorusWidth = ( srate* 0.0001 )*10* XYSLIDER_getYValue(comp_XYSlider_1) ;
-        // spl2 = valueX;
+        //============================================================
+        WAVESINE_setRate(waveSignalForGraph_ID,rateX);
+        valueXForGraph_new = ( WAVESINE_getAndTick (waveSignalForGraph_ID));
+        valueXForGraph = singlepole(valueXForGraph,valueXForGraph_new,smooth_coeff);
+        //============================================================
+        CURSOLBUFFER_push( bufferForGraph ,valueXForGraph );
+        //============================================================
     ):(
         //deep Mode
         rateX= slider1 * 1;//Max 12hz
@@ -127,13 +140,18 @@ out_pin:right output
         //============================================================
         chorusWidth = ( srate* 0.0001  )*200* XYSLIDER_getYValue(comp_XYSlider_1) ;
         //============================================================
+        WAVESINE_setRate(waveSignalForGraph_ID,rateX);
+        valueXForGraph_new = ( WAVESINE_getAndTick (waveSignalForGraph_ID));
+        valueXForGraph = singlepole(valueXForGraph,valueXForGraph_new,smooth_coeff);
+        //============================================================
+        CURSOLBUFFER_push( bufferForGraph ,valueXForGraph );
     );
     //================================================================
     
     CURSOLBUFFER_push( DELAY_ARRAY_L ,spl0 );
     CURSOLBUFFER_push( DELAY_ARRAY_R ,spl1 );
     //================================================================
-    // dirty process (this process getted with noise in the case of pure sine wave.)
+    //  (this process getted with noise in the case of pure sine wave.)
     // delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
     //                                         , - chorusWidth * valueX -1 );
     // delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
@@ -175,41 +193,91 @@ out_pin:right output
     drawSinWaveCircle(100,0.8,1,0.0043);
     //================================================================
 
-    // canvase test
-    //================================================================
-    drawWaveBufferToCanvas(canvas_WAVE_L
-                          ,f_max_L
-                          ,f_min_L
-                          ,40 * XYSLIDER_getXValue(comp_XYSlider_1)
-                          ,0.3
-                          ,1
-                          ,80);
-    //================================================================
-    drawWaveBufferToCanvas(canvas_WAVE_R
-                          ,f_max_R
-                          ,f_min_R
-                          ,40 * XYSLIDER_getYValue(comp_XYSlider_1)
-                          ,0.4
-                          ,1
-                          ,0);
-    //================================================================
-    gfx_a =0.6;
-    CANVAS_blitImage4(canvas_WAVE_R,1,0);
-    CANVAS_blitImage4(canvas_WAVE_L,1,0);
-    gfx_a =1;
+     // for particle 
+    PARTICLE_CONTROLLER_update ( PARTICLE_controller );
+ 
+    (slider7 ==0)?
+    (
+    
+    
+        // canvase test
+        //================================================================
+        drawWaveBufferToCanvas(canvas_WAVE_L
+                              ,f_max_L
+                              ,f_min_L
+                              ,40 * XYSLIDER_getXValue(comp_XYSlider_1)
+                              ,0.3
+                              ,1
+                              ,80);
+        //================================================================
+        drawWaveBufferToCanvas(canvas_WAVE_R
+                              ,f_max_R
+                              ,f_min_R
+                              ,40 * XYSLIDER_getYValue(comp_XYSlider_1)
+                              ,0.4
+                              ,1
+                              ,0);
+        //================================================================
+        gfx_a =0.6;
+        CANVAS_blitImage4(canvas_WAVE_R,1,0);
+        CANVAS_blitImage4(canvas_WAVE_L,1,0);
+        gfx_a =1;
+    );
     //================================================================
     // final background
     //================================================================
     drawDotGrid(16,16,0.6);
     //================================================================
+    
+    //================================================================
+    (slider7 ==1)?
+    (
+        bufferNum = CURSOLBUFFER_getMaxSize( bufferForGraph);
+        drawPointNum = min(srate/rateX*2,srate);
+        xDelta = gfx_w / drawPointNum;
+        count_BB = 0;
+        lastVV_YY = 0;
+        lastVV_XX = gfx_w;
+        //============================================================
+        while(count_BB < drawPointNum )
+        (
+            //========================================================
+            xx = gfx_w-count_BB *xDelta;
+            vv_YY = CURSOLBUFFER_getOffsettedValue(   bufferForGraph
+                                              ,  -count_BB );
+            //========================================================                               
+            yy = -vv_YY * gfx_h/2*0.4 +gfx_h/2;
+            //========================================================
+            bufferForGraphReadPtr +=1;
+            (bufferForGraphReadPtr >= bufferNum)?
+            (      
+            bufferForGraphReadPtr = 0;  
+            );
+                   
+            gfx_a = 0.1;gfx_r = 1;gfx_g = 1;gfx_b = 1;   
+            //========================================================
+            gfx_rect(xx,yy,1,gfx_h/2-yy+1,false);
+
+            gfx_a = 0.4;gfx_r = 0;gfx_g = 0;gfx_b = 0;  
+            gfx_line(lastVV_XX,lastVV_YY,xx+1,yy,false);
+            lastVV_XX = xx;
+            lastVV_YY = yy;
+            //========================================================
+            count_BB += 1;
+        );
+        gfx_a = 1;
+        gfx_rect( 0,gfx_h/2-1, gfx_w, 2,true);
+    );
+    //================================================================
+  
+   
    
     // for debug
     //================================================================
-    DBGMESSAGE_drawAllMessage(DBG);
+    //DBGMESSAGE_drawAllMessage(DBG);
     //================================================================
     
-    // for particle 
-    PARTICLE_CONTROLLER_update ( PARTICLE_controller );
+   
     //================================================================
     ( APP_isMouseButtonHoldingPress(app_ID)  ==true) ? 
     (

@@ -22,6 +22,10 @@ function DCOFFSET_create() local ( DCOFFSET_ID )
     DCOFFSET_ID;
 );
 //====================================================================
+
+//====================================================================
+function _DCOFFSET_getElementNum(DCOFFSET_ID) ( STATIC_MASTER_BUFF[DELTATIME_ID + 4];);// protected
+//====================================================================
 function _DCOFFSET_getLastItem(DCOFFSET_ID)   ( STATIC_MASTER_BUFF[DCOFFSET_ID+2] ;);
 function _DCOFFSET_getLastOtem(DCOFFSET_ID)   ( STATIC_MASTER_BUFF[DCOFFSET_ID+3] ;);
 function _DCOFFSET_setLastItem(DCOFFSET_ID,v) ( STATIC_MASTER_BUFF[DCOFFSET_ID+2] =v;);

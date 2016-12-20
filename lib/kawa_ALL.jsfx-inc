@@ -5,6 +5,7 @@
 import kawa_DEFINE_.jsfx-inc
 import kawa_UTIL.jsfx-inc
 import kawa_DeltaTime.jsfx-inc
+import kawa_SinglePole.jsfx-inc
 //--------------------------------------------------------------------
 import kawa_ARRAY_.jsfx-inc
 import kawa_DBG.jsfx-inc
