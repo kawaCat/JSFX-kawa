@@ -21,7 +21,6 @@ in_pin: left input
 in_pin: right input
 out_pin:left output
 out_pin:right output
-// out_pin: Modulation Signal Out ( for debug ("spl2" is in near line 119. i used Osciloscope(cockos jsfx) for check )
 //====================================================================
 @init
 //====================================================================
@@ -132,7 +131,7 @@ out_pin:right output
         //============================================================
     ):(
         //deep Mode
-        rateX= slider1 * 1;//Max 12hz
+        rateX= slider1 * 1;//Max 1hz
         //============================================================
         WAVESINE_setRate(waveSignale_ID,rateX);
         newValueX = ( WAVESINE_getAndTick (waveSignale_ID));
@@ -193,15 +192,13 @@ out_pin:right output
     drawSinWaveCircle(100,0.8,1,0.0043);
     //================================================================
 
-     // for particle 
+    // for particle 
     PARTICLE_CONTROLLER_update ( PARTICLE_controller );
- 
+    //================================================================
     (slider7 ==0)?
     (
-    
-    
         // canvase test
-        //================================================================
+        //============================================================
         drawWaveBufferToCanvas(canvas_WAVE_L
                               ,f_max_L
                               ,f_min_L
@@ -209,7 +206,7 @@ out_pin:right output
                               ,0.3
                               ,1
                               ,80);
-        //================================================================
+        //============================================================
         drawWaveBufferToCanvas(canvas_WAVE_R
                               ,f_max_R
                               ,f_min_R
@@ -217,7 +214,7 @@ out_pin:right output
                               ,0.4
                               ,1
                               ,0);
-        //================================================================
+        //============================================================
         gfx_a =0.6;
         CANVAS_blitImage4(canvas_WAVE_R,1,0);
         CANVAS_blitImage4(canvas_WAVE_L,1,0);
@@ -251,33 +248,32 @@ out_pin:right output
             bufferForGraphReadPtr +=1;
             (bufferForGraphReadPtr >= bufferNum)?
             (      
-            bufferForGraphReadPtr = 0;  
+                bufferForGraphReadPtr = 0;  
             );
+            //========================================================
                    
             gfx_a = 0.1;gfx_r = 1;gfx_g = 1;gfx_b = 1;   
-            //========================================================
             gfx_rect(xx,yy,1,gfx_h/2-yy+1,false);
-
+            //========================================================
             gfx_a = 0.4;gfx_r = 0;gfx_g = 0;gfx_b = 0;  
             gfx_line(lastVV_XX,lastVV_YY,xx+1,yy,false);
+            //========================================================
             lastVV_XX = xx;
             lastVV_YY = yy;
             //========================================================
             count_BB += 1;
         );
+        //============================================================
         gfx_a = 1;
         gfx_rect( 0,gfx_h/2-1, gfx_w, 2,true);
     );
     //================================================================
-  
-   
    
     // for debug
     //================================================================
     //DBGMESSAGE_drawAllMessage(DBG);
     //================================================================
-    
-   
+
     //================================================================
     ( APP_isMouseButtonHoldingPress(app_ID)  ==true) ? 
     (
@@ -313,7 +309,6 @@ out_pin:right output
     ( APP_isMouseButtonReleased(app_ID) ==true) ?
     ( 0;);
     //================================================================
-    
     
     // alignment position when resized.
     //================================================================

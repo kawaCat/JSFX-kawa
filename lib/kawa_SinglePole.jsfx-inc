@@ -4,6 +4,18 @@
 //====================================================================
 @init
 //====================================================================
+// createSinglePole() local ( SINGLEPOLE_id )
+//====================================================================
+//     SINGLEPOLE_getLastValue       (SINGLEPOLE_id)  
+//     SINGLEPOLE_getSampleRate      (SINGLEPOLE_id)  
+//     SINGLEPOLE_getSmoozingCoeff   (SINGLEPOLE_id)  
+//     SINGLEPOLE_getSmoozingTime    (SINGLEPOLE_id)  
+//====================================================================
+//     SINGLEPOLE_setSampleRate      (SINGLEPOLE_id,v)
+//     SINGLEPOLE_setSmoozingTime    (SINGLEPOLE_id,v)  //ms time
+//====================================================================
+//     SINGLEPOLE_getSmoozedValue    (SINGLEPOLE_id,inValue) 
+//====================================================================
 
 
 //====================================================================

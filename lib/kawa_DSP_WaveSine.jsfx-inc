@@ -39,7 +39,7 @@ function WAVESINE_create() local (WAVESINE_ID)
     //================================================================
     WAVESINE_ID = STATIC_MASTER_BUFF_ID;
     //================================================================
-    STATIC_MASTER_BUFF[WAVESINE_ID]   = "DELTATIME";   // class name
+    STATIC_MASTER_BUFF[WAVESINE_ID]   = "WAVESINE";    // class name
     STATIC_MASTER_BUFF[WAVESINE_ID+1] = 8;             // total Element Num 
     //================================================================
     STATIC_MASTER_BUFF[WAVESINE_ID+2] = 440 ;          // RATE hz

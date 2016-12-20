@@ -374,7 +374,6 @@ function CURSOLBUFFER_stepBackCursolPos(CIRCLEBUFFER_ID)
     );
     //================================================================
 );
-
 //====================================================================
 function CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,cursolPos)
     local (bufSize,curPos_)
@@ -520,10 +519,10 @@ function CURSOLBUFFER_getOffsettedValueWithInterp(CIRCLEBUFFER_ID,delaySample)
     index2  = index0+2;
     
     // clip interp. buffer-bound
-//    ( index_1<0) ?( index_1=bufSize-1;);
+    //( index_1<0) ?( index_1=bufSize-1;);
     index_1 = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,index_1) ;
-    index1 = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,index1) ;
-    index2 = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,index2) ;
+    index1  = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,index1) ;
+    index2  = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,index2) ;
     
     // get neighbourgh samples
     y_1 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,index_1);
@@ -542,24 +541,20 @@ function CURSOLBUFFER_getOffsettedValueWithInterp(CIRCLEBUFFER_ID,delaySample)
     c2 = y_1 - 2.5 * y0 + 2.0*y1 - 0.5*y2;
     c3 = 0.5 * (y2-y_1) + 1.5*(y0-y1);
     //================================================================
-    
     output =((c3*x+c2)*x+c1)*x+c0;
-    
-    //output = _CUR_dLinTerp( index0,  index1,  c0,  c1,  x);
     //================================================================
-    //output;//return
-    // add to delay buffer
-    //CURSOLBUFFER_push(CIRCLEBUFFER_ID,in+output);
-    
     output;//return
+    // add to delay buffer
+    // CURSOLBUFFER_push(CIRCLEBUFFER_ID,in+output);
+    // output;//return
+    //================================================================
     // increment delay counter
     // counter++;
-    
+    //================================================================
     // clip delay counter
     // if(counter>=MAX_WG_DELAY)
     //     counter=0;
-    
-    // return output
+    //================================================================
     //return output;
     //================================================================
 );

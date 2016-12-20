@@ -24,7 +24,7 @@ function BUTTONGROUP_create(name)
     //================================================================
     STATIC_MASTER_BUFF[BUTTONGROUP_ID + 1]  = baseClassElementNum +7;// total elementNUM
     //================================================================　
-    STATIC_MASTER_BUFF[BUTTONGROUP_ID + baseClassElementNum + 1]  = STATIC_MASTER_BUFF[BUTTONGROUP_ID + 1]; // element num in  BUTTON CLASS
+    STATIC_MASTER_BUFF[BUTTONGROUP_ID + baseClassElementNum + 1]  = STATIC_MASTER_BUFF[BUTTONGROUP_ID + 1]; // element num in  this CLASS
     STATIC_MASTER_BUFF[BUTTONGROUP_ID + baseClassElementNum + 2]  = childButtons; // child button  array
     STATIC_MASTER_BUFF[BUTTONGROUP_ID + baseClassElementNum + 3]  = 0; // current buttons ID
     STATIC_MASTER_BUFF[BUTTONGROUP_ID + baseClassElementNum + 4]  = true; //is Need Resized() flag.

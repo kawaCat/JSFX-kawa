@@ -27,7 +27,7 @@ function XYSLIDER_create(name)
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 4] = -1;     // sliderYIndex
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 5] = 0.5;    // X value
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 6] = 0.5;    // Y value
-    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 7]  = STATIC_MASTER_BUFF[XYSLIDER_ID + 1] ;// element Num in TEXT class.
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 7]  = STATIC_MASTER_BUFF[XYSLIDER_ID + 1] ;// element Num in this class.
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 8]  = 0 ;// last X value
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 9]  = 0 ;// last Y value.
     //================================================================

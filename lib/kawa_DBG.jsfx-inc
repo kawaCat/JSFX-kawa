@@ -83,7 +83,6 @@ function DBGMESSAGE_toggleActive(DBGMSG_ID)
     DBGMESSAGE_setActive( DBGMSG_ID
                         ,( DBGMESSAGE_getActive(DBGMSG_ID) == false ) );
 );
-
 //====================================================================
 function _DBGMESSAGE_getStringSlotCursol(DBGMSG_ID)           ( STATIC_MASTER_BUFF[DBGMSG_ID+3];);
 function _DBGMESSAGE_setStringSlotCursol(DBGMSG_ID,newCursol) ( STATIC_MASTER_BUFF[DBGMSG_ID+3] = newCursol;);

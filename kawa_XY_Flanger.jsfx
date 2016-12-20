@@ -39,14 +39,14 @@ out_pin:right output
 
     //create Component and add to layer 1 .
     //================================================================
-    comp_Border   = COMPONENT_create("TEST");
+    comp_Border     = COMPONENT_create("TEST");
     comp_XYSlider_1 = XYSLIDER_create("comp_XYSlider_1");
     comp_PHASER_ModeButton   = BUTTON_create("FLANGER");
     BUTTON_setOnTextPostFix (comp_PHASER_ModeButton,"");
     BUTTON_setOffTextPostFix(comp_PHASER_ModeButton,"");
     COMPONENT_changeColor( comp_PHASER_ModeButton
-                      ,"butonOnBackGroundColor"
-                      ,1,1,0,1);
+                         , "butonOnBackGroundColor"
+                         , 1,1,0,1);//r,g,b,a
     //================================================================
     COMPONENT_setSliderIndex(comp_PHASER_ModeButton,3);
     COMPONENT_changeColor(comp_PHASER_ModeButton,"textColor_mouseon",0,0,0,1);
@@ -88,20 +88,14 @@ out_pin:right output
     waveSignale_ID_Y = WAVESINE_create();
     //================================================================
     smooth_coeff_MOD = exp(-1/(10/1000*srate)); // 0.1 ms smoothing
-    //WAVESINE_setPolarType (waveSignale_ID_X,DEFINE_WAVE_SIGNALE_UNIPOLAR);
-    //WAVESINE_setPolarType (waveSignale_ID_Y,DEFINE_WAVE_SIGNALE_UNIPOLAR);
+    //================================================================
     
 @slider
 //====================================================================
-    //XYSLIDER_setYValue(comp_XYSlider_1,slider1,false);
-    //XYSLIDER_setXValue(comp_XYSlider_1,slider2,false);
-    //================================================================
     COMPONENT_setValue(comp_PHASER_ModeButton,slider3,faluse);
     WAVESINE_setGenerateWaveType(waveSignale_ID_X,slider4);
     WAVESINE_setGenerateWaveType(waveSignale_ID_Y,slider4);
     //================================================================
-    //smooth_coeff = exp(-1/(slider6/1000*srate)); 
-    
     smooth_coeff_MOD = exp(-1/(slider5/1000*srate)); 
     //================================================================
     APP_SliderChanged(app_ID); // notify for update lastValue
@@ -221,7 +215,7 @@ out_pin:right output
                           ,0.3
                           ,1
                           ,80);
-
+    //================================================================
     drawWaveBufferToCanvas(canvas_WAVE_R
                           ,f_max_R
                           ,f_min_R
@@ -242,7 +236,7 @@ out_pin:right output
    
     // for debug
     //================================================================
-    DBGMESSAGE_drawAllMessage(DBG);
+    //DBGMESSAGE_drawAllMessage(DBG);
     //================================================================
     
     // for particle 
@@ -278,7 +272,6 @@ out_pin:right output
     ( APP_isMouseButtonReleased(app_ID) ==true) ?
     ( 0;);
     //================================================================
-    
     
     // alignment position when resized.
     //================================================================

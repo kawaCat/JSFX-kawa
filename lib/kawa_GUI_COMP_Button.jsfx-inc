@@ -3,7 +3,6 @@
 @init
 //====================================================================
 
-
 //====================================================================
 // Inheritance List
 // * Rectangle
@@ -28,7 +27,6 @@ function BUTTON_create(name) local (BUTTON_ID,baseClassElementNum)
     STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (BUTTON_ID)+1; // increment next entry Bufff Point
     //================================================================
 
-
     // init prepare.
     //================================================================
     
@@ -48,8 +46,6 @@ function BUTTON_create(name) local (BUTTON_ID,baseClassElementNum)
     
     COMPONENT_setComponentInfoValue( BUTTON_ID,"buttonOnText_Post" ,":ON ") ;
     COMPONENT_setComponentInfoValue( BUTTON_ID,"buttonOffText_Post",":OFF") ;
-    
-   
     //================================================================
     BUTTON_ID; //retrun
 );

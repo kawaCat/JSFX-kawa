@@ -14,7 +14,7 @@ function RINGMOD_create()local(RINGMOD_ID,dc_offset) //speed  Div 0.1 ~
     STATIC_MASTER_BUFF[RINGMOD_ID+1] = 3;           // total Element Num 
     //================================================================
     STATIC_MASTER_BUFF[RINGMOD_ID+2] = dc_offset;   // lastItm
-    STATIC_MASTER_BUFF[RINGMOD_ID+3] = STATIC_MASTER_BUFF[RINGMOD_ID+1];  // element Num Only DeletaTime Class
+    STATIC_MASTER_BUFF[RINGMOD_ID+3] = STATIC_MASTER_BUFF[RINGMOD_ID+1];  // element Num Only this Class
     //================================================================
     STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(RINGMOD_ID)+1;
     //================================================================

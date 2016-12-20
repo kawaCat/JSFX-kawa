@@ -312,7 +312,7 @@ function PARTICLE_CONTROLLER_create()
     STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+1] = 5;                       // total element Num
     //================================================================
     STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+2] = _particleElementBuffer;  // particleElement buffer
-    STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+3] = STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+1]; // particleElement buffer
+    STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+3] = STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+1]; //total elementNum in thins class
     STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+4] = maxParticleNum;          // maxparticleNum
     STATIC_MASTER_BUFF[PARTICLE_CONTROLLER_ID+5] = 0;                       // cursol pos
     //================================================================

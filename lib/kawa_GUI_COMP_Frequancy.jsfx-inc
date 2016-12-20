@@ -988,7 +988,7 @@ function FREQUENCY_create(name)
     
     //================================================================
     STATIC_MASTER_BUFF[FREQUENCY_ID + 1]  = baseClassElementNum +9;// total elementNUM
-    STATIC_MASTER_BUFF[FREQUENCY_ID + baseClassElementNum + 1]  = STATIC_MASTER_BUFF[FREQUENCY_ID + 1]; // element num in  BUTTON CLASS
+    STATIC_MASTER_BUFF[FREQUENCY_ID + baseClassElementNum + 1]  = STATIC_MASTER_BUFF[FREQUENCY_ID + 1]; // element num in  this CLASS
     //================================================================
     STATIC_MASTER_BUFF[FREQUENCY_ID + baseClassElementNum + 2]  = childRbjFilterArray; // child RBj Filters
     STATIC_MASTER_BUFF[FREQUENCY_ID + baseClassElementNum + 3]  = linePointArray ;
@@ -1049,8 +1049,8 @@ function FREQUENCY_draw(FREQUENCY_ID)
           , db_Y
           , db_Text
           , sampleRate_
-		  , mouseHZ_Text
-		  , mouseHZ
+          , mouseHZ_Text
+          , mouseHZ
           )
 (
     last_a=gfx_a;last_r=gfx_r;last_g=gfx_g;last_b=gfx_b;

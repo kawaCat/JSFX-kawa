@@ -29,7 +29,7 @@ function SLIDERTYPE2_create(name)
     STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 1] = 0;  // non use
     STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 2] = 0;  // non use
     STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 3] = 0;  // non use
-    STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 4] = STATIC_MASTER_BUFF[SLIDERTYPE2_ID + 1] ;// element Num in TEXT class.
+    STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 4] = STATIC_MASTER_BUFF[SLIDERTYPE2_ID + 1] ;// element Num in this class.
     STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 5] = SLIDERTYPE2_TEXT_TYPE_RAW;//text Parameter Draw Type
     //================================================================
     STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (SLIDERTYPE2_ID)+1; // next entry Bufff Point

@@ -607,7 +607,7 @@ function WAVETABLE_create( sampleRate_)
     //================================================================
     STATIC_MASTER_BUFF[WAVETABLE_ID+2]  = 440 ;                    // frequency(Hz)
     STATIC_MASTER_BUFF[WAVETABLE_ID+3]  = sampleRate_ ;            // sampleRate
-    STATIC_MASTER_BUFF[WAVETABLE_ID+4]  = STATIC_MASTER_BUFF[WAVESINE_ID+1];  // element Num Only DeletaTime Class
+    STATIC_MASTER_BUFF[WAVETABLE_ID+4]  = STATIC_MASTER_BUFF[WAVESINE_ID+1];  // element Num Only this Class
     //================================================================
     STATIC_MASTER_BUFF[WAVETABLE_ID+5]  = 0;                       // read Index
     STATIC_MASTER_BUFF[WAVETABLE_ID+6]  = 0;                       // Quad Phase Read Index
