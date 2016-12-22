@@ -117,6 +117,7 @@ function TEXT_mouseButtonPressd(TEXT_ID,MOUSEINFO_ID )local(circle_Area_ID)
     ( RECTANGLE_isContainMouse(TEXT_ID) ==true) ?
     (
         DBG(" TEXT Mouse Button Press IN");
+        SetLastMousePressdComponent(TEXT_ID);
         COMPONENT_setIsMousePressStartedInThisComp(TEXT_ID,true);
         ;
     ):(
@@ -132,6 +133,7 @@ function TEXT_mouseButtonReleased( TEXT_ID,MOUSEINFO_ID )local (tempstr)
     (
         //============================================================
         DBG(" TEXT Mouse Button Released");
+        SetLastMouseReleasedComponent(TEXT_ID);
         //============================================================
     );
     //================================================================
@@ -143,6 +145,7 @@ function TEXT_mouseWheeled(TEXT_ID,MOUSEINFO_ID )
     ( RECTANGLE_isContainMouse(TEXT_ID) ==true) ?
     (
         DBG(" TEXT Mouse Wheeld");
+        SetLastMouseWheeledComponent(TEXT_ID);
     );
     //================================================================
 );

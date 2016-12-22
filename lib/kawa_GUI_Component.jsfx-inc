@@ -349,6 +349,7 @@ function COMPONENT_mouseButtonPressd(COMPONENT_ID,MOUSEINFO_ID )local(circle_Are
     ( RECTANGLE_isContainMouse(COMPONENT_ID) ==true) ?
     (
         DBG("COMPO_MOUSE_BUTTON_PRESS_IN");
+        SetLastMousePressdComponent(XYSLIDER_ID);
         COMPONENT_setIsMousePressStartedInThisComp(COMPONENT_ID,true);
     ):(
         COMPONENT_setIsMousePressStartedInThisComp(COMPONENT_ID,false);
@@ -362,6 +363,7 @@ function COMPONENT_mouseButtonReleased( COMPONENT_ID,MOUSEINFO_ID )
     ( RECTANGLE_isContainMouse(COMPONENT_ID) ==true) ?
     (
         DBG("COMPO_MOUSE_BUTTON_RELEASE");
+        SetLastMouseReleasedComponent(COMPONENT_ID);
     );
     //================================================================
 );
@@ -372,6 +374,7 @@ function COMPONENT_mouseWheeled(COMPONENT_ID,MOUSEINFO_ID )
     ( RECTANGLE_isContainMouse(COMPONENT_ID) ==true) ?
     (
         DBG("COMPO_MOUSE_WHEELD");
+        SetLastMouseWheeledComponent(COMPONENT_ID);
     );
     //================================================================
 );

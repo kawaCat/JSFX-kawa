@@ -1,0 +1,122 @@
+
+
+//====================================================================
+@init
+//====================================================================
+
+
+//todo 
+//====================================================================
+// COMPONENT Indexer
+//====================================================================
+function COMPONENT_INDEXER_create()local(COMPONENT_INDEXR_ID) 
+(
+    COMPONENT_INDEXR_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID]   = "COMPONENT_INDEXER";  // class name
+    STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+1] = 10;                   // total Element Num 
+    //================================================================
+    STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+2] = 0;                  // last MousePressd_Component_ID
+    STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+3] = 0;                  // last MouseReleased_Component_ID
+    STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+4] = 0;                  // last MouseWheeled_Component_ID
+    STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+5] = 0;                  // last Evented COmponent
+    STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+6] = 0;                  // last Evented COmponent
+    STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+7] = STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+1];  // element Num Only this Class
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(COMPONENT_INDEXR_ID)+1;
+    //================================================================
+    COMPONENT_INDEXR_ID;
+);
+//====================================================================
+function _COMPONENT_INDEXER_getElementNum                (COMPONENT_INDEXR_ID)   ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 7];);// protected
+//====================================================================
+function COMPONENT_INDEXER_getLastEventedComponent       (COMPONENT_INDEXR_ID)   ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 5];);
+function _COMPONENT_INDEXER_setLastEventedComponent      (COMPONENT_INDEXR_ID,v) ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 5]=v;);
+function COMPONENT_INDEXER_getLastTouchedComponent       (COMPONENT_INDEXR_ID)   ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 6];);
+function _COMPONENT_INDEXER_setLastTouchedComponent      (COMPONENT_INDEXR_ID,v) ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 6]=v;);
+//====================================================================
+function COMPONENT_INDEXER_getLastMousePressedComponent  (COMPONENT_INDEXR_ID)   ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 2];);
+function COMPONENT_INDEXER_getLastMouseReleasedComponent (COMPONENT_INDEXR_ID)   ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 3];);
+function COMPONENT_INDEXER_getLastMouseWheeledComponent  (COMPONENT_INDEXR_ID)   ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 4];);
+//====================================================================
+
+//====================================================================
+function COMPONENT_INDEXER_setLastMousePressedComponent  (COMPONENT_INDEXR_ID,v) 
+( 
+    STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 2]=v;
+    //================================================================
+    _COMPONENT_INDEXER_setLastEventedComponent(COMPONENT_INDEXR_ID,v);
+    _COMPONENT_INDEXER_setLastTouchedComponent(COMPONENT_INDEXR_ID,v);
+    //================================================================
+);
+//====================================================================
+function COMPONENT_INDEXER_setLastMouseReleasedComponent (COMPONENT_INDEXR_ID,v) 
+( 
+    STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 3]=v;
+    //================================================================
+    _COMPONENT_INDEXER_setLastEventedComponent(COMPONENT_INDEXR_ID,v);
+    _COMPONENT_INDEXER_setLastTouchedComponent(COMPONENT_INDEXR_ID,v);
+    //================================================================
+);
+//====================================================================
+function COMPONENT_INDEXER_setLastMouseWheeledComponent  (COMPONENT_INDEXR_ID,v) 
+( 
+    STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 4]=v;
+    //================================================================
+    _COMPONENT_INDEXER_setLastEventedComponent(COMPONENT_INDEXR_ID,v);
+    _COMPONENT_INDEXER_setLastTouchedComponent(COMPONENT_INDEXR_ID,v);
+    //================================================================
+);
+//====================================================================
+
+//====================================================================
+//create as static  
+//====================================================================
+STATIC_COMPONENT_INDEXER = COMPONENT_INDEXER_create();
+//====================================================================
+function GetLastMousePressdComponent()
+(
+    COMPONENT_INDEXER_getLastMousePressedComponent(STATIC_COMPONENT_INDEXER);//return 
+);
+//====================================================================
+function GetLastMouseReleasedComponent()
+(
+    COMPONENT_INDEXER_getLastMouseReleasedComponent(STATIC_COMPONENT_INDEXER);//return 
+);
+//====================================================================
+function GetLastMouseWheeledComponent()
+(
+    COMPONENT_INDEXER_getLastMouseWheeledComponent(STATIC_COMPONENT_INDEXER);
+);
+//====================================================================
+function GetLastLastEventedComponent()
+(
+    COMPONENT_INDEXER_getLastEventedComponent(STATIC_COMPONENT_INDEXER);
+);
+//====================================================================
+function GetLastTouchedComponent()
+(
+    COMPONENT_INDEXER_getLastTouchedComponent(STATIC_COMPONENT_INDEXER);
+);
+//====================================================================
+
+
+
+//====================================================================
+function SetLastMousePressdComponent(v)
+(
+    COMPONENT_INDEXER_setLastMousePressedComponent(STATIC_COMPONENT_INDEXER,v);//return 
+);
+//====================================================================
+function SetLastMouseReleasedComponent(v)
+(
+    COMPONENT_INDEXER_setLastMouseReleasedComponent(STATIC_COMPONENT_INDEXER,v);//return 
+);
+//====================================================================
+function SetLastMouseWheeledComponent(v)
+(
+    COMPONENT_INDEXER_setLastMouseWheeledComponent(STATIC_COMPONENT_INDEXER,v);
+);
+//====================================================================
+
+

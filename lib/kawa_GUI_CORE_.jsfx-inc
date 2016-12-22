@@ -96,6 +96,8 @@
 //    RECTANGLE_setHeight          (RECT_ID,newHeight) 
 //    RECTANGLE_setX2              (RECT_ID,newX2) 
 //    RECTANGLE_setY2              (RECT_ID,newY2) 
+//    RECTANGLE_getCenterX         (RECT_ID)          
+//    RECTANGLE_getCenterY         (RECT_ID)          
 //    RECTANGLE_move               (RECT_ID,moveX,moveY)
 //    RECTANGLE_reduce             (RECT_ID,reduceX,reduceY) 
 //    RECTANGLE_expand             (RECT_ID,expandX,expandY) 
@@ -453,7 +455,7 @@ function POINT_getAngle(POINT_A,POINT_B)local  (out)
                ,POINT_getX (POINT_B ) - POINT_getX (POINT_A )
                );
     //================================================================
-    out = rad(360); //top Y is 0 
+    //out = rad(360); //top Y is 0 
     out; // right = rad 0
 );
 //====================================================================

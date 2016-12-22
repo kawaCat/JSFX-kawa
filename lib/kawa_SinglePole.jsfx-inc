@@ -26,7 +26,7 @@ function createSinglePole() local ( SINGLEPOLE_id )
     STATIC_MASTER_BUFF[SINGLEPOLE_id]   = "SINGLEPOLE";// class name
     STATIC_MASTER_BUFF[SINGLEPOLE_id+1] = 6;           // total Element Num 
     //================================================================
-    STATIC_MASTER_BUFF[SINGLEPOLE_id+2] = 1;           // Smoozeing TIme
+    STATIC_MASTER_BUFF[SINGLEPOLE_id+2] = 0;           // Smoozeing TIme
     STATIC_MASTER_BUFF[SINGLEPOLE_id+3] = 0.0;         // last Value
     STATIC_MASTER_BUFF[SINGLEPOLE_id+4] = 0.0;         // smoozed_coeff
     STATIC_MASTER_BUFF[SINGLEPOLE_id+5] = srate;       // sampleRate
@@ -43,7 +43,7 @@ function createSinglePole() local ( SINGLEPOLE_id )
 function _SINGLEPOLE_getElementNum     (SINGLEPOLE_id)    ( STATIC_MASTER_BUFF[SINGLEPOLE_id + 6];);// protected
 //====================================================================
 function SINGLEPOLE_getLastValue       (SINGLEPOLE_id)    ( STATIC_MASTER_BUFF[SINGLEPOLE_id+3] ;);
-function _SINGLEPOLE_setLastValue      (SINGLEPOLE_id,v)  ( STATIC_MASTER_BUFF[SINGLEPOLE_id+3] =v;);
+function SINGLEPOLE_setLastValue       (SINGLEPOLE_id,v)  ( STATIC_MASTER_BUFF[SINGLEPOLE_id+3] =v;);
 //====================================================================
 function SINGLEPOLE_getSampleRate      (SINGLEPOLE_id)    ( STATIC_MASTER_BUFF[SINGLEPOLE_id+5] ;);
 function SINGLEPOLE_setSampleRate      (SINGLEPOLE_id,v)  ( STATIC_MASTER_BUFF[SINGLEPOLE_id+5] =v;);
@@ -70,7 +70,7 @@ function _SINGLEPOLE_calcurateCoeff(SINGLEPOLE_id )
 //====================================================================
 function SINGLEPOLE_setSmoozingTime   (SINGLEPOLE_id,v)  //ms time
 ( 
-    STATIC_MASTER_BUFF[DCOFFSET_ID+2] =v;
+    STATIC_MASTER_BUFF[SINGLEPOLE_id+2] =v; //!
     //================================================================
     _SINGLEPOLE_calcurateCoeff(SINGLEPOLE_id );
     //================================================================
@@ -98,7 +98,7 @@ function SINGLEPOLE_getSmoozedValue( SINGLEPOLE_id,inValue)
                                      , inValue
                                      , smoozingCoeff );
     //================================================================
-    _SINGLEPOLE_setLastValue(SINGLEPOLE_id,outValue);
+    SINGLEPOLE_setLastValue(SINGLEPOLE_id,outValue);
     //================================================================
     outValue;//return
 );

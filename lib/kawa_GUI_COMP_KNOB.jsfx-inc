@@ -179,6 +179,7 @@ function KNOB_mouseButtonPressd(KNOB_ID,MOUSEINFO_ID )local(circle_Area_ID)
     //================================================================
     ( RECTANGLE_isContainMouse(KNOB_ID) ==true) ?
     (
+        SetLastMousePressdComponent(KNOB_ID);
         DBG(" KNOB Mouse Button Press IN");
         COMPONENT_setIsMousePressStartedInThisComp(KNOB_ID,true);
     ):(
@@ -194,6 +195,7 @@ function KNOB_mouseButtonReleased( KNOB_ID,MOUSEINFO_ID )local (tempstr)
     (
         //============================================================
         DBG(" KNOB Mouse Button Released");
+        SetLastMouseReleasedComponent(KNOB_ID);
     );
     //================================================================
 );
@@ -210,6 +212,7 @@ function KNOB_mouseWheeled(KNOB_ID,MOUSEINFO_ID )
                           , true
                           );
         //============================================================
+        SetLastMouseWheeledComponent(KNOB_ID);
     );
     //================================================================
 );

@@ -173,6 +173,7 @@ function SLIDER_mouseButtonPressd(SLIDER_ID,MOUSEINFO_ID )local(circle_Area_ID)
     //================================================================
     ( RECTANGLE_isContainMouse(SLIDER_ID) ==true) ?
     (
+        SetLastMousePressdComponent(SLIDER_ID);
         DBG(" SLIDER Mouse Button Press IN");
         COMPONENT_setIsMousePressStartedInThisComp(SLIDER_ID,true);
     ):(
@@ -196,6 +197,7 @@ function SLIDER_mouseButtonReleased( SLIDER_ID,MOUSEINFO_ID )local (tempstr)
     (
         //============================================================
         DBG(" SLIDER Mouse Button Released");
+        SetLastMouseReleasedComponent(SLIDER_ID);
     );
     //================================================================
     _SLIDER_setIsCircleAreaPressed(SLIDER_ID,false);
@@ -215,6 +217,7 @@ function SLIDER_mouseWheeled(SLIDER_ID,MOUSEINFO_ID )
                           , true);
        
         //============================================================
+        SetLastMouseWheeledComponent(SLIDER_ID);
     );
     //================================================================
 );

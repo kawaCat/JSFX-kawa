@@ -4,19 +4,19 @@
 //====================================================================
 // MASTER DEFINE HEADER
 //====================================================================
-STATICE_BUILD_DATE = "ver 2016/10/31";
+STATICE_BUILD_DATE = "ver DEVELOPE";
 //====================================================================
 true  = 1;
 false = 0;
 //====================================================================
 // max 8380000;about
 //====================================================================
-STATIC_MASTER_BUFF                       = 3000;//start ID
-STATIC_MASTER_BUFF_ID                    = 0;     //cursol pointer
+STATIC_MASTER_BUFF                       = 3000;    // start ID ( can use ( 20 man- 3 zen) 
+STATIC_MASTER_BUFF_ID                    = 0;       // cursol pointer
 //====================================================================
-STATIC_MAP_BUFF_START                    = 200000 ; //  20 man
-STATIC_ARRAY_BUFF_START                  = 1000000; // 100 man
-STATIC_CIRCLE_BUFF_START                 = 4000000; // 400 man 
+STATIC_MAP_BUFF_START                    = 200000 ; // 20 man  ( can use (100 man- 20 man) 
+STATIC_ARRAY_BUFF_START                  = 1000000; // 100 man ( can use (400 man- 100 man) 
+STATIC_CIRCLE_BUFF_START                 = 4000000; // 400 man ( can use (800 man- 400 man) 
 //====================================================================
 
 //====================================================================
@@ -24,7 +24,7 @@ STATIC_TEMP_BUFFER                       = 8380000 -10000 ;
 STATIC_TEMP_STRING_START_SLOT_NUM_START  = 900; 
 STATIC_TEMP_STRING_START_SLOT_NUM        = STATIC_TEMP_STRING_START_SLOT_NUM_START; 
 //====================================================================
-STATIC_CANVAS_SLOT_CURSOL                = 1; // 0..127 max 127 Component
+STATIC_CANVAS_SLOT_CURSOL                = 1;  // 0..127 max 120
 STATIC_CLEAR_CANVAS_SLOT                 = 126;//use clear canvas image. temporaly.
 STATIC_MASTER_CANVAS_SLOT                = 127;//use clear canvas image. temporaly.
 //====================================================================

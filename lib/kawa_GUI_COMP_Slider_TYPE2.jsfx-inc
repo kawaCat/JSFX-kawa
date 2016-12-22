@@ -24,7 +24,7 @@ function SLIDERTYPE2_create(name)
     baseClassElementNum =_COMPONENT_getElementNum(SLIDERTYPE2_ID);
     //================================================================
     STATIC_MASTER_BUFF[SLIDERTYPE2_ID ]     = "SLIDERTYPE2";           // classTYPE
-    STATIC_MASTER_BUFF[SLIDERTYPE2_ID + 1]  = baseClassElementNum + 4; // elementNUM
+    STATIC_MASTER_BUFF[SLIDERTYPE2_ID + 1]  = baseClassElementNum + 5; // elementNUM
     //================================================================
     STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 1] = 0;  // non use
     STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 2] = 0;  // non use
@@ -215,6 +215,7 @@ function SLIDERTYPE2_mouseButtonPressd(SLIDERTYPE2_ID,MOUSEINFO_ID )local(circle
     ( RECTANGLE_isContainMouse(SLIDERTYPE2_ID) ==true) ?
     (
         DBG(" SLIDER Mouse Button Press IN");
+        SetLastMousePressdComponent(SLIDERTYPE2_ID);
         COMPONENT_setIsMousePressStartedInThisComp(SLIDERTYPE2_ID,true);
     ):(
         COMPONENT_setIsMousePressStartedInThisComp(SLIDERTYPE2_ID,false);
@@ -228,6 +229,7 @@ function SLIDERTYPE2_mouseButtonReleased( SLIDERTYPE2_ID,MOUSEINFO_ID )local (te
     ( RECTANGLE_isContainMouse(SLIDERTYPE2_ID) ==true) ?
     (
         DBG(" SLIDER Mouse Button Released");
+        SetLastMouseReleasedComponent(SLIDERTYPE2_ID);
     );
     //================================================================
 );
@@ -245,6 +247,7 @@ function SLIDERTYPE2_mouseWheeled(SLIDERTYPE2_ID,MOUSEINFO_ID )
                           ,true
                           );
         //============================================================
+        SetLastMouseWheeledComponent(SLIDERTYPE2_ID);
     );
     //================================================================
 );

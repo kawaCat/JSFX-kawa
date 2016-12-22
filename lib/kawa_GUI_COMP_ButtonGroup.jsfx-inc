@@ -312,6 +312,8 @@ function BUTTONGROUP_mouseButtonPressd(BUTTONGROUP_ID,MOUSEINFO_ID )
         (RECTANGLE_isContainMouse(BUTTONGROUP_ID) == true) ?
         (
             slider_automate(2 ^ COMPONENT_getSliderIndex(BUTTONGROUP_ID) -1 );
+            //========================================================
+            SetLastMousePressdComponent(BUTTONGROUP_ID); // !!!
         );
         //============================================================
         count_A +=1;
@@ -343,6 +345,8 @@ function BUTTONGROUP_mouseButtonReleased( BUTTONGROUP_ID,MOUSEINFO_ID )
                                      , _BUTTONGROUP_getCurrentButtonIndex(BUTTONGROUP_ID));
             BUTTONGROUP_setCurrentButtonComponentByIndex(BUTTONGROUP_ID,count_A);
             slider_automate(2 ^ COMPONENT_getSliderIndex(BUTTONGROUP_ID) -1 );
+            //========================================================
+            SetLastMouseReleasedComponent(BUTTONGROUP_ID);// !!!
         );
         //============================================================
         count_A +=1;
@@ -372,6 +376,8 @@ function BUTTONGROUP_mouseWheeled(BUTTONGROUP_ID,MOUSEINFO_ID )
                                           , MOUSEINFO_getMouseWheelDiffV_ABS    (MOUSEINFO_ID) );
         
         slider_automate(2 ^ COMPONENT_getSliderIndex(BUTTONGROUP_ID) -1 );
+        //============================================================
+        SetLastMouseWheeledComponent(BUTTONGROUP_ID); // !!
     );
     //================================================================
 );

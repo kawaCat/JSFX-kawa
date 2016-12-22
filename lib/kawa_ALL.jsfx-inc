@@ -26,6 +26,8 @@ import kawa_GUI_Graphics.jsfx-inc
 import kawa_GUI_particle.jsfx-inc
 import kawa_GUI_BezierLine.jsfx-inc
 //--------------------------------------------------------------------
+import kawa_GUI_COMPONENT_Indexer.jsfx-inc
+//--------------------------------------------------------------------
 import kawa_GUI_Component.jsfx-inc
 import kawa_GUI_COMP_Button.jsfx-inc
 import kawa_GUI_COMP_ButtonGroup.jsfx-inc

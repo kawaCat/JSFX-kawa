@@ -290,21 +290,25 @@ function BPMDELAY_process(BPMDELAY_ID,inSample)
     //================================================================
     
     //================================================================
-    effectedValue = CURSOLBUFFER_getOffsettedValue( delayArray
-                                                  , -delaySample );
+    //effectedValue = CURSOLBUFFER_getOffsettedValue( delayArray
+    //                                              , -delaySample );
+    //================================================================
+    effectedValue = CURSOLBUFFER_getOffsettedValueWithInterp( delayArray
+                                                            , delaySample );
+    
     //================================================================
     effectedValue *= delayGainValue;
     //================================================================
     _BPMDELAY_setWetvalue(BPMDELAY_ID,effectedValue);
     //================================================================
 
-    PANNER_setPanValue(panner_class,panValue);
+    //PANNER_setPanValue(panner_class,panValue);
     //================================================================
-    ( RECTANGLE_isSame( _BPMDELAY_getLastRectangle (BPMDELAY_ID),BPMDELAY_ID ) == false)?
-    (
-        0;
-        //BPMDELAY_resized(BPMDELAY_ID);
-    );
+    //( RECTANGLE_isSame( _BPMDELAY_getLastRectangle (BPMDELAY_ID),BPMDELAY_ID ) == false)?
+    //(
+    //    0;
+    //    //BPMDELAY_resized(BPMDELAY_ID);
+    //);
     //================================================================
     RECTANGLE_copyTo( _BPMDELAY_getLastRectangle (BPMDELAY_ID),BPMDELAY_ID);
     //================================================================
@@ -344,7 +348,6 @@ function BPMDELAY_getEffectedSample_R(BPMDELAY_ID)
     out;
 );
 //====================================================================
-
 
 
 //====================================================================

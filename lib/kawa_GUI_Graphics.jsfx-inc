@@ -45,6 +45,71 @@ ___tempHSB ; // !!
 //====================================================================
 
 
+//====================================================================
+function drawCircleWaveSignale( _cx,_cy
+                              , _CursolBuffer_ID
+                              , _radius
+                              , _signalGain
+                              )
+    //================================================================
+    local (  bufferNum 
+            ,drawPointNum
+            ,angleDelta
+            ,count_BB
+            ,last_YY
+            ,last_XX
+            ,xx_
+            ,yy_
+            ,value_
+            ,roted_X
+            ,roted_Y
+            ,targetAngle
+            )
+(
+    //================================================================
+    bufferNum = CURSOLBUFFER_getMaxSize( _CursolBuffer_ID);
+    drawPointNum = bufferNum;
+    angleDelta = 1.0/ drawPointNum;
+    xDelta = 1;
+    count_BB = 0;
+    last_YY = _cy -_radius;
+    last_XX = _cx;
+    //================================================================
+    while(count_BB < drawPointNum )
+    (
+        //============================================================
+        xx_ = _cx ;
+        value_ = CURSOLBUFFER_getOffsettedValue( _CursolBuffer_ID
+                                               ,  -count_BB );
+        //============================================================
+        yy_ = _cy-_radius- _signalGain*value_;
+        //============================================================
+        targetAngle = angleDelta *count_BB;
+        roted_X = rotPoint_X(xx_,yy_,_cx,_cy,$pi*2*targetAngle);
+        roted_Y = rotPoint_Y(xx_,yy_,_cx,_cy,$pi*2*targetAngle);
+        //============================================================
+//        gfx_r=1;gfx_g=1;gfx_b=1;gfx_a= 0.06;
+//        gfx_triangle( _cx,_cy
+//                     , last_XX,last_YY
+//                     , roted_X,roted_Y
+//                     );
+        //============================================================
+        gfx_r=1;gfx_g=1;gfx_b=0;gfx_a= 1;
+        //============================================================
+        gfx_line(last_XX,last_YY,roted_X,roted_Y,false);
+        //============================================================
+        
+        //============================================================
+        last_XX = roted_X;
+        last_YY = roted_Y;
+        //============================================================
+        count_BB+=1;
+    );
+    //================================================================
+);
+//====================================================================
+
+
 
 //====================================================================
 function drawWaveBufferToCanvas(CANVAS_ID,waveMax,waveMin,oneBar_Width,vAmp,alpha,hueOffset)
@@ -361,7 +426,7 @@ function POINT_drawLine(POINT_A_ID,POINT_B_ID,thickNess)
 (
     angleRad =  POINT_getAngle(POINT_A_ID,POINT_ID_B);
     cx = POINT_getX(POINT_A_ID );
-    cy = POINT_getY(POINT_B_ID );
+    cy = POINT_getY(POINT_A_ID );
     //================================================================
     x1_L = rotPoint_X(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)-thickNess,cx,cy,angleRad);
     y1_L = rotPoint_Y(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)-thickNess,cx,cy,angleRad);

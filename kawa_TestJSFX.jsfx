@@ -324,5 +324,10 @@ out_pin:right output
       RECTANGLE_drawBottomRightText( app_ID,"kawa Test");
     //================================================================
     
+    
+    __lastTouchedCOmponent_ID = GetLastTouchedComponent();
+    #className = #;
+    sprintf(className,STRUCT_getStructType( __lastTouchedCOmponent_ID ) );
+    
 //====================================================================
 // 続

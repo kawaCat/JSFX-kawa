@@ -1229,6 +1229,7 @@ function FREQUENCY_mouseButtonPressd(FREQUENCY_ID,MOUSEINFO_ID )local(circle_Are
     //================================================================
     ( RECTANGLE_isContainMouse(FREQUENCY_ID) ==true) ?
     (
+        SetLastMousePressdComponent(FREQUENCY_ID);
         DBG(" Mouse Button Press on Frequency Component");
         COMPONENT_setIsMousePressStartedInThisComp(FREQUENCY_ID,true);
     ):(
@@ -1245,10 +1246,8 @@ function FREQUENCY_mouseButtonReleased( FREQUENCY_ID,MOUSEINFO_ID )local (tempst
         //============================================================
         DBG(" Mouse Button Released on Frequency Component");
         //============================================================
-        (COMPONENT_isMousePressStartedInThisComp(FREQUENCY_ID) ==true)?
-        (
-            BUTTON_toggleOnOff(FREQUENCY_ID,true);
-        );
+        SetLastMouseReleasedComponent(FREQUENCY_ID);
+        //============================================================
     );
     //================================================================
 );
@@ -1259,6 +1258,7 @@ function FREQUENCY_mouseWheeled(FREQUENCY_ID,MOUSEINFO_ID )
     ( RECTANGLE_isContainMouse(FREQUENCY_ID) ==true) ?
     (
         DBG(" Mouse Wheeld on Frequency Component");
+        SetLastMouseWheeledComponent(FREQUENCY_ID);
     );
     //================================================================
 );

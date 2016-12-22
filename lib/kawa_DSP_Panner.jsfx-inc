@@ -5,30 +5,51 @@
 //====================================================================
 // SImple Panner
 //====================================================================
-function PANNNER_create()  local(PANNNER_ID) //speed  Div 0.1 ~
+function PANNNER_create()  
+    local( PANNNER_ID
+         , singlePole_ID_L
+         , singlePole_ID_R
+         ) 
 (
+    singlePole_ID_L =createSinglePole();
+    singlePole_ID_R =createSinglePole();
+    SINGLEPOLE_setSmoozingTime(singlePole_ID_L,200);//smooze 200ms
+    SINGLEPOLE_setSmoozingTime(singlePole_ID_R,200);//smooze 200ms
+    //================================================================
     PANNNER_ID = STATIC_MASTER_BUFF_ID;
     //================================================================
     STATIC_MASTER_BUFF[PANNNER_ID]   = "PANNNER";   // class name
-    STATIC_MASTER_BUFF[PANNNER_ID+1] = 3;           // total Element Num 
+    STATIC_MASTER_BUFF[PANNNER_ID+1] = 5;           // total Element Num 
     //================================================================
     STATIC_MASTER_BUFF[PANNNER_ID+2] = STATIC_MASTER_BUFF[PANNNER_ID+1];  // element Num Only this Class
-    STATIC_MASTER_BUFF[PANNNER_ID+3] = 0.5;         // pan value ( 0=left, 0.5=center, 1.0=right)
+    STATIC_MASTER_BUFF[PANNNER_ID+3] = 0.5;                     // pan value ( 0=left, 0.5=center, 1.0=right)
+    STATIC_MASTER_BUFF[PANNNER_ID+4] = singlePole_ID_L;         //
+    STATIC_MASTER_BUFF[PANNNER_ID+5] = singlePole_ID_R;         //
     //================================================================
     STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(PANNNER_ID)+1;
     //================================================================
     PANNNER_ID;
 );
 //====================================================================
-function _PANNNER_getElementNum(PANNNER_ID)   ( STATIC_MASTER_BUFF[PANNNER_ID+2];);
+function _PANNNER_getElementNum     (PANNNER_ID)        ( STATIC_MASTER_BUFF[PANNNER_ID+2];);
 //====================================================================
-function PANNER_getPanValue    (PANNNER_ID)   ( STATIC_MASTER_BUFF[PANNNER_ID+3];);
-function PANNER_setPanValue    (PANNNER_ID,v) ( STATIC_MASTER_BUFF[PANNNER_ID+3]= v;); //0.0 ~0.5 ~ 1.0
+function PANNER_getPanValue         (PANNNER_ID)        ( STATIC_MASTER_BUFF[PANNNER_ID+3];);
+function PANNER_setPanValue         (PANNNER_ID,v)      ( STATIC_MASTER_BUFF[PANNNER_ID+3]= v;); //0.0 ~0.5 ~ 1.0
 //====================================================================
-function PANNER_getLeft        (PANNNER_ID,inSample) local ( out,panValue,amp)
+function _PANNER_getSinglePole_ID_L (PANNNER_ID )       ( STATIC_MASTER_BUFF[PANNNER_ID+4];);
+function _PANNER_getSinglePole_ID_R (PANNNER_ID )       ( STATIC_MASTER_BUFF[PANNNER_ID+5];);
+//====================================================================
+function PANNER_getLeft           (PANNNER_ID,inSample) 
+    local ( out
+          , panValue
+          , amp
+          , SINGLEPOLE_id_L)
 ( 
     //================================================================
-    panValue = PANNER_getPanValue(PANNNER_ID);
+    panValue = PANNER_getPanValue(PANNNER_ID );
+    SINGLEPOLE_id_L = _PANNER_getSinglePole_ID_L (PANNNER_ID );
+    //================================================================
+    amp = 1;
     //================================================================
     ( panValue > 0.5)?
     (
@@ -37,23 +58,34 @@ function PANNER_getLeft        (PANNNER_ID,inSample) local ( out,panValue,amp)
         amp = 1;
     );
     //================================================================
+    amp = SINGLEPOLE_getSmoozedValue(SINGLEPOLE_id_L,amp);
+    amp = min(max(0,amp),1);
     out = inSample* amp;
     //================================================================
     out;
 );
 //====================================================================
-function PANNER_getRight       (PANNNER_ID,inSample)local ( out,panValue ,amp)
+function PANNER_getRight       (PANNNER_ID,inSample)
+    local ( out
+          , panValue
+          , amp
+          , SINGLEPOLE_id_R)
 ( 
     //================================================================
-    panValue = PANNER_getPanValue(PANNNER_ID);
+    panValue = PANNER_getPanValue(PANNNER_ID );
+    SINGLEPOLE_id_R= _PANNER_getSinglePole_ID_R (PANNNER_ID );
     //================================================================
-    ( panValue > 0.5)?
+    amp = 1;
+    //================================================================
+        ( panValue > 0.5)?
     (
         amp = 1;
     ):(
         amp = 1-abs( (PANNER_getPanValue(PANNNER_ID)-0.5)/0.5 );
     );
     //================================================================
+    amp = SINGLEPOLE_getSmoozedValue(SINGLEPOLE_id_R,amp);
+    amp = min(max(0,amp),1);
     out = inSample* amp;
     //================================================================
     out;

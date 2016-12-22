@@ -12,10 +12,10 @@ import kawa_ALL.jsfx-inc
 slider1:0.25<0.0,1.0>RATE 
 slider2:0.25<0.0,1.0>WIDTH
 slider3:0<0,1,{Normal,Deep}> Chorus Mode
-slider4:0<0,3,{Sin,Saw,Rect,Tri}> Wave Type
-slider5:0<0,100> Smoozing (ms)
+slider4:0<0,3,{Sin,Saw,Rect,Tri}> WAVE TYPE
+slider5:0<0,100> SMOOZING (ms)
 slider6:1<0,1>DRY / WET
-slider7:0<0,1,{Wave,Modulation}>View
+slider7:0<0,1,{Wave,Modulation}>VIEW
 //====================================================================
 in_pin: left input
 in_pin: right input
@@ -169,7 +169,7 @@ out_pin:right output
     //================================================================
     delay_R = CURSOLBUFFER_getOffsettedValueWithInterp( DELAY_ARRAY_R
                                                       , offsetSample );
-    
+    //================================================================
     CURSOLBUFFER_push( DELAY_ARRAY_L_MIXED , (spl0 + delay_L ) );
     CURSOLBUFFER_push( DELAY_ARRAY_R_MIXED , (spl1 + delay_R ) );
     //================================================================
@@ -230,7 +230,7 @@ out_pin:right output
     (slider7 ==1)?
     (
         bufferNum = CURSOLBUFFER_getMaxSize( bufferForGraph);
-        drawPointNum = min(srate/rateX*2,srate);
+        drawPointNum = min(srate/rateX*2,srate/2);
         xDelta = gfx_w / drawPointNum;
         count_BB = 0;
         lastVV_YY = 0;
@@ -345,6 +345,7 @@ out_pin:right output
     RECTANGLE_drawBottomRightText( app_ID,"XY Chorus");
     //================================================================
 
+   
 //====================================================================
 // 続
 

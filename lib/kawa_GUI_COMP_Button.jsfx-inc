@@ -130,6 +130,7 @@ function BUTTON_mouseButtonPressd(BUTTON_ID,MOUSEINFO_ID )local(circle_Area_ID)
     //================================================================
     ( RECTANGLE_isContainMouse(BUTTON_ID) ==true) ?
     (
+        SetLastMousePressdComponent(BUTTON_ID);
         DBG(" BUTTON Mouse Button Press IN");
         COMPONENT_setIsMousePressStartedInThisComp(BUTTON_ID,true);
     ):(
@@ -145,6 +146,7 @@ function BUTTON_mouseButtonReleased( BUTTON_ID,MOUSEINFO_ID )local (tempstr)
     (
         //============================================================
         DBG(" BUTTON Mouse Button Released");
+        SetLastMouseReleasedComponent(BUTTON_ID);
         //============================================================
         (COMPONENT_isMousePressStartedInThisComp(BUTTON_ID) ==true)?
         (
@@ -160,6 +162,7 @@ function BUTTON_mouseWheeled(BUTTON_ID,MOUSEINFO_ID )
     ( RECTANGLE_isContainMouse(BUTTON_ID) ==true) ?
     (
         DBG(" BUTTON Mouse Wheeld");
+        SetLastMouseWheeledComponent(BUTTON_ID);
     );
     //================================================================
 );

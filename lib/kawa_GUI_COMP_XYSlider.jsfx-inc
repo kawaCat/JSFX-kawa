@@ -4,6 +4,10 @@
 //====================================================================
 
 //====================================================================
+DEFINE_XYSLIDER_DISTANCE_DRAWMODE_NONE         = 0;
+DEFINE_XYSLIDER_DISTANCE_DRAWMODE_CENTER       = 1;
+DEFINE_XYSLIDER_DISTANCE_DRAWMODE_CENTER_ANGLE = 2;
+//====================================================================
 // Inheritance List
 // * Rectangle
 // * Component
@@ -19,7 +23,7 @@ function XYSLIDER_create(name)
     
     //================================================================
     STATIC_MASTER_BUFF[XYSLIDER_ID ]     = "XYSLIDER";                  // classTYPE
-    STATIC_MASTER_BUFF[XYSLIDER_ID + 1]  = baseClassElementNum + 9;     // total elementNUM
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 1]  = baseClassElementNum + 11;     // total elementNUM
     //================================================================
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 1] = circle_Area_ID;
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 2] = false;  // is Pressd incircleArea
@@ -28,8 +32,11 @@ function XYSLIDER_create(name)
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 5] = 0.5;    // X value
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 6] = 0.5;    // Y value
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 7]  = STATIC_MASTER_BUFF[XYSLIDER_ID + 1] ;// element Num in this class.
-    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 8]  = 0 ;// last X value
-    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 9]  = 0 ;// last Y value.
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 8]  = 0 ;    // last X value
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 9]  = 0 ;    // last Y value.
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 10]  = 0 ;   // xyDistance from center;
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 11]  = DEFINE_XYSLIDER_DISTANCE_DRAWMODE_NONE ;// isDistanceDrawMode
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 12]  = 0 ;  // xyValue angle from center;
     //================================================================
     STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (XYSLIDER_ID)+1; // next entry Bufff Point
     //================================================================
@@ -59,9 +66,49 @@ function XYSLIDER_getLastValueY(XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_
 function XYSLIDER_setLastValueX(XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 8]=v;);
 function XYSLIDER_setLastValueY(XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 9]=v;);
 //====================================================================
+function XYSLIDER_getXYDistanceFromCenter( XYSLIDER_ID)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 10];);
+function XYSLIDER_setXYDistanceFromCenter( XYSLIDER_ID,v)  ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 10]=v;);
+function XYSLIDER_getXYDistanceDrawMode  ( XYSLIDER_ID)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 11];);
+function XYSLIDER_setXYDistanceDrawMode  ( XYSLIDER_ID,v)  ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 11]=v;);
+function XYSLIDER_getXYAngleFromCenter   ( XYSLIDER_ID)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 12];);
+function XYSLIDER_setXYAngleFromCenter   ( XYSLIDER_ID,v)  ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 12]=v;);
+//====================================================================
+
 
 //====================================================================
-function XYSLIDER_setXValue(XYSLIDER_ID,v,isSendReaper)
+function _XYSLIDER_updateXyValueAngleFromCentero(XYSLIDER_ID)
+    local (xx_,yy_ ,angle)
+(
+    //================================================================
+    xx_ = XYSLIDER_getXValue(XYSLIDER_ID) ;
+    yy_ = XYSLIDER_getYValue(XYSLIDER_ID) ;
+    //================================================================
+    angle = atan2(  0.5 -yy_
+                  , 0.5 -xx_ );
+    //================================================================
+    XYSLIDER_setXYAngleFromCenter ( XYSLIDER_ID,angle);
+    //================================================================
+);
+//====================================================================
+
+//====================================================================
+function _XYSLIDER_updateXyValueDistanceFromCentero(XYSLIDER_ID)
+    local ( distanceFromCenter,distanceTarget)
+(
+    //================================================================
+    distanceFromCenter = getManhattanDist(  0.5
+                                          , 0.5
+                                          , XYSLIDER_getXValue  (XYSLIDER_ID) 
+                                          , XYSLIDER_getYValue  (XYSLIDER_ID) 
+                                         );
+    //================================================================
+    distanceTarget = getManhattanDist( 0.5,0.5,0.0,0.0);
+    //================================================================
+    XYSLIDER_setXYDistanceFromCenter(XYSLIDER_ID,distanceFromCenter);
+    //================================================================
+);
+//====================================================================
+function XYSLIDER_setXValue(XYSLIDER_ID,v,isSendReaper)  
 ( 
     _XYSLIDER_setXValue(XYSLIDER_ID,v);
     //================================================================
@@ -70,6 +117,9 @@ function XYSLIDER_setXValue(XYSLIDER_ID,v,isSendReaper)
         slider( XYSLIDER_getSliderIndexX(XYSLIDER_ID) ) = v;
         slider_automate(2 ^ XYSLIDER_getSliderIndexX(XYSLIDER_ID)-1);
     );
+    //================================================================
+    _XYSLIDER_updateXyValueDistanceFromCentero(XYSLIDER_ID);
+    _XYSLIDER_updateXyValueAngleFromCentero(XYSLIDER_ID);
     //================================================================
 );
 //====================================================================
@@ -84,6 +134,9 @@ function XYSLIDER_setYValue(XYSLIDER_ID,v,isSendReaper)
         slider_automate(2 ^ XYSLIDER_getSliderIndexY(XYSLIDER_ID)-1);
     );
     //================================================================
+    _XYSLIDER_updateXyValueDistanceFromCentero(XYSLIDER_ID);
+    _XYSLIDER_updateXyValueAngleFromCentero(XYSLIDER_ID);
+    //================================================================
 );
 //====================================================================
 
@@ -94,12 +147,12 @@ function _XYSLIDER_setIsCircleAreaPressed(XYSLIDER_ID,v)( STATIC_MASTER_BUFF[XYS
 //====================================================================
 function XYSLIDER_getCircleAreaCX(XYSLIDER_ID)
 (
-    CIRcLE_getCX ( XYSLIDER_getCircleArea(XYSLIDER_ID));
+    CIRCLE_getCX ( XYSLIDER_getCircleArea(XYSLIDER_ID));
 );
 //====================================================================
 function XYSLIDER_getCircleAreaCY(XYSLIDER_ID)
 (
-    CIRcLE_getCY ( XYSLIDER_getCircleArea(XYSLIDER_ID));
+    CIRCLE_getCY ( XYSLIDER_getCircleArea(XYSLIDER_ID));
 );
 //====================================================================
 
@@ -159,14 +212,28 @@ function _XYSLIDER_positionToYValue(XYSLIDER_ID,y_) local (out,meterHeight,tempY
 
 
 //====================================================================
-function XYSLIDER_isXValueChanged( XYSLIDER_ID)
+function XYSLIDER_isXValueChanged( XYSLIDER_ID)local  ( out )
 (
-    ( XYSLIDER_getLastValueX( XYSLIDER_ID) !=  XYSLIDER_getXValue(XYSLIDER_ID) );
+    out = false;
+    //================================================================
+    ( XYSLIDER_getLastValueX( XYSLIDER_ID) !=  XYSLIDER_getXValue(XYSLIDER_ID) )?
+    (
+        out =true;
+    );
+    //================================================================
+    out;
 );
 //====================================================================
-function XYSLIDER_isYValueChanged( XYSLIDER_ID)
+function XYSLIDER_isYValueChanged( XYSLIDER_ID)local  ( out )
 (
-    (  XYSLIDER_getLastValueY( XYSLIDER_ID) !=  XYSLIDER_getYValue(XYSLIDER_ID));
+    out = false;
+    //================================================================
+    (  XYSLIDER_getLastValueY( XYSLIDER_ID) !=  XYSLIDER_getYValue(XYSLIDER_ID))?
+    (
+        out =true;
+    );
+    //================================================================
+    out;
 );
 //====================================================================
 
@@ -188,6 +255,165 @@ function XYSLIDER_resized(XYSLIDER_ID,parrentRECT )
 (
     0;
 );
+//====================================================================
+function _XYSLIDER_drawXYDistance(XYSLIDER_ID,XXXX,YYYY)
+    local (  radius
+           , lineH
+           , cx
+           , cy
+           , x,y,w,h,xx_,yy_ 
+           , angle
+           , thicknes
+           , drawStr_dist
+           , str_W
+           , str_H
+           , marginX
+           , marginY
+           )
+(
+    cx = RECTANGLE_getCenterX(XYSLIDER_ID);
+    cy = RECTANGLE_getCenterY(XYSLIDER_ID);
+    x = RECTANGLE_getX(XYSLIDER_ID);
+    y = RECTANGLE_getY(XYSLIDER_ID);
+    w = RECTANGLE_getWidth(XYSLIDER_ID);
+    h = RECTANGLE_getHeight(XYSLIDER_ID);
+    //================================================================
+    xx_ = XYSLIDER_getXValue(XYSLIDER_ID) ;
+    yy_ = XYSLIDER_getYValue(XYSLIDER_ID) ;
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"blue");
+    //================================================================
+    angle = atan2(  cy -YYYY
+                  , cx -XXXX );
+    //================================================================
+    radius = (min(w,h)-15)/2 * XYSLIDER_getXYDistanceFromCenter(XYSLIDER_ID);
+    gfx_circle( cx,cy,radius,true);
+    //================================================================
+    thicknes = 2;
+    //================================================================
+    p1X = rotPoint_X(cx,cy-thicknes,cx,cy,   angle); 
+    p1Y = rotPoint_Y(cx,cy-thicknes,cx,cy,   angle); 
+    p2X = rotPoint_X(XXXX,YYYY-thicknes,XXXX,YYYY,   angle); 
+    p2Y = rotPoint_Y(XXXX,YYYY-thicknes,XXXX,YYYY,   angle); 
+    p3X = rotPoint_X(XXXX,YYYY+thicknes,XXXX,YYYY,   angle); ; 
+    p3Y = rotPoint_Y(XXXX,YYYY+thicknes,XXXX,YYYY,   angle);
+    p4X = rotPoint_X(cx,cy+thicknes,cx,cy,   angle); ; 
+    p4Y = rotPoint_Y(cx,cy+thicknes,cx,cy,   angle); ; 
+    //================================================================
+    gfx_triangle(   p1X,p1Y
+                  , p2X,p2Y
+                  , p3X,p3Y
+                  , p4X,p4Y
+                );
+    //================================================================
+    gfx_a = 1.0;
+    //================================================================
+    drawStr_dist = #;
+    sprintf ( drawStr_dist,"Distance: %.2f %% " ,XYSLIDER_getXYDistanceFromCenter(XYSLIDER_ID) *100);
+    //================================================================
+    gfx_measurestr(drawStr_dist,str_W,str_H);
+    //================================================================
+    marginX =5;
+    marginY =5;
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+    //================================================================
+    gfx_rect(  cx - str_W/2 - marginX
+              ,cy - str_H/2 - marginY
+              ,str_W + marginX*2
+              ,str_H + marginY*2
+            );
+    //================================================================
+    gfx_x = cx - str_W/2;
+    gfx_y = cy - str_H/2;
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
+    gfx_drawstr(drawStr_dist);
+    //================================================================
+);
+//====================================================================
+function _XYSLIDER_drawXYAngleFromCenter(XYSLIDER_ID,XXXX,YYYY)
+    local (  radius
+           , lineH
+           , cx
+           , cy
+           , x,y,w,h,xx_,yy_ 
+           , angle
+           , thicknes
+           , drawStr_dist
+           , str_W
+           , str_H
+           , marginX
+           , marginY
+           )
+(
+    cx = RECTANGLE_getCenterX(XYSLIDER_ID);
+    cy = RECTANGLE_getCenterY(XYSLIDER_ID);
+    x = RECTANGLE_getX(XYSLIDER_ID);
+    y = RECTANGLE_getY(XYSLIDER_ID);
+    w = RECTANGLE_getWidth(XYSLIDER_ID);
+    h = RECTANGLE_getHeight(XYSLIDER_ID);
+    //================================================================
+    xx_ = XYSLIDER_getXValue(XYSLIDER_ID) ;
+    yy_ = XYSLIDER_getYValue(XYSLIDER_ID) ;
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"blue");
+    //================================================================
+    angle = atan2(  cy -YYYY
+                  , cx -XXXX );
+    //================================================================
+    radius = (min(w,h))/4 ;
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"green");
+    //drawFillArc(cx,cy,radius/2,angle-$pi/2,-$pi -$pi/2,64);
+    gfx_circle ( cx,cy,radius/2,true);
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"blue");
+    drawFillArc(cx,cy,radius,$pi/2,angle-$pi/2,32);
+    //================================================================
+    thicknes = 2;
+    //================================================================
+    p1X = rotPoint_X(cx,cy-thicknes,cx,cy,   angle); 
+    p1Y = rotPoint_Y(cx,cy-thicknes,cx,cy,   angle); 
+    p2X = rotPoint_X(XXXX,YYYY-thicknes,XXXX,YYYY,   angle); 
+    p2Y = rotPoint_Y(XXXX,YYYY-thicknes,XXXX,YYYY,   angle); 
+    p3X = rotPoint_X(XXXX,YYYY+thicknes,XXXX,YYYY,   angle); ; 
+    p3Y = rotPoint_Y(XXXX,YYYY+thicknes,XXXX,YYYY,   angle);
+    p4X = rotPoint_X(cx,cy+thicknes,cx,cy,   angle); ; 
+    p4Y = rotPoint_Y(cx,cy+thicknes,cx,cy,   angle); ; 
+    //================================================================
+    gfx_triangle(   p1X,p1Y
+                  , p2X,p2Y
+                  , p3X,p3Y
+                  , p4X,p4Y
+                );
+    //================================================================
+    
+    //================================================================
+    drawStr_dist = #;
+    sprintf ( drawStr_dist,"Angle: %.2f Deg " ,360 -deg(angle+$pi ));
+    //================================================================
+    gfx_measurestr(drawStr_dist,str_W,str_H);
+    //================================================================
+    marginX =5;
+    marginY =5;
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+    //================================================================
+    gfx_rect(  cx - str_W/2 - marginX
+              ,cy - str_H/2 - marginY
+              ,str_W + marginX*2
+              ,str_H + marginY*2
+            );
+    //================================================================
+    gfx_x = cx - str_W/2;
+    gfx_y = cy - str_H/2;
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
+    gfx_drawstr(drawStr_dist);
+    //================================================================
+);
+//====================================================================
+
+
 //====================================================================
 function XYSLIDER_draw(XYSLIDER_ID)
 local ( radius,lineH,x,y,w,h,circle_Area_ID
@@ -231,15 +457,38 @@ local ( radius,lineH,x,y,w,h,circle_Area_ID
     //================================================================
     margin =3;
     //================================================================
-    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
-    gfx_rect(x+w/2
-            ,y+h/2
-            ,tempStrW+margin*2
-            ,tempStrH+margin*2,true);
-    COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
-    gfx_x = x+w/2+margin;
-    gfx_y = y+h/2+margin;
-    gfx_drawstr( "X 0.5 : Y 0.5");
+    
+    //================================================================
+    ( XYSLIDER_getXYDistanceDrawMode( XYSLIDER_ID) == DEFINE_XYSLIDER_DISTANCE_DRAWMODE_NONE)?
+    (
+        COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+        gfx_rect(x+w/2
+                ,y+h/2
+                ,tempStrW+margin*2
+                ,tempStrH+margin*2,true);
+        COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
+        gfx_x = x+w/2+margin;
+        gfx_y = y+h/2+margin;
+        gfx_drawstr( "X 0.5 : Y 0.5");
+        //============================================================
+    ):( XYSLIDER_getXYDistanceDrawMode( XYSLIDER_ID) == DEFINE_XYSLIDER_DISTANCE_DRAWMODE_CENTER)?
+    (
+        COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
+        gfx_x = x+w/2+margin;
+        gfx_y = y+h/2+margin;
+        //============================================================
+        _XYSLIDER_drawXYDistance(XYSLIDER_ID,XXXX,YYYY);
+        //============================================================
+    ):( XYSLIDER_getXYDistanceDrawMode( XYSLIDER_ID) == DEFINE_XYSLIDER_DISTANCE_DRAWMODE_CENTER_ANGLE)?
+    (
+        COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
+        gfx_x = x+w/2+margin;
+        gfx_y = y+h/2+margin;
+        //============================================================
+        _XYSLIDER_drawXYAngleFromCenter(XYSLIDER_ID,XXXX,YYYY);
+    );
+    //================================================================
+    
     //================================================================
     COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
     gfx_rect(x
@@ -321,6 +570,9 @@ local ( radius,lineH,x,y,w,h,circle_Area_ID
         gfx_circle( floor(XXXX),floor(YYYY) , radius -4    ,true);
     );
     //================================================================
+    
+    
+    //================================================================
     COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
     //================================================================
 );
@@ -344,7 +596,6 @@ function XYSLIDER_mouseMoved(XYSLIDER_ID,MOUSEINFO_ID)local(XXX,YYY)
         XYSLIDER_setXValue(XYSLIDER_ID,XXX,true) ;
         XYSLIDER_setYValue(XYSLIDER_ID,YYY,true) ;
         //============================================================
-        //============================================================
         DBG(" XY SLIDER -- X Changed");
         DBG_FLOAT(XYSLIDER_getXValue(XYSLIDER_ID) );
         //============================================================
@@ -361,6 +612,7 @@ function XYSLIDER_mouseButtonPressd(XYSLIDER_ID,MOUSEINFO_ID )local(circle_Area_
     ( RECTANGLE_isContainMouse(XYSLIDER_ID) ==true) ?
     (
         DBG(" SLIDER Mouse Button Press IN");
+        SetLastMousePressdComponent(XYSLIDER_ID);
         COMPONENT_setIsMousePressStartedInThisComp(XYSLIDER_ID,true);
     ):(
         COMPONENT_setIsMousePressStartedInThisComp(XYSLIDER_ID,false);
@@ -383,6 +635,7 @@ function XYSLIDER_mouseButtonReleased( XYSLIDER_ID,MOUSEINFO_ID )local (tempstr)
     (
         //============================================================
         DBG(" SLIDER Mouse Button Released");
+        SetLastMouseReleasedComponent(XYSLIDER_ID);
     );
     //================================================================
     _XYSLIDER_setIsCircleAreaPressed(XYSLIDER_ID,false);
@@ -405,6 +658,7 @@ function XYSLIDER_mouseWheeled(XYSLIDER_ID,MOUSEINFO_ID )
         //============================================================
         DBG_FLOAT(COMPONENT_getValue(XYSLIDER_ID) );
         //============================================================
+        SetLastMouseWheeledComponent(XYSLIDER_ID);
     );
     //================================================================
 );
