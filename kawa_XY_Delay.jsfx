@@ -51,17 +51,21 @@ out_pin:right output
     comp_Border  = COMPONENT_create("TEST");
     //================================================================
     comp_XYSlider_1 = XYSLIDER_create("comp_XYSlider_1");
+    //================================================================
     XYSLIDER_setSliderIndexX(comp_XYSlider_1,2);
     XYSLIDER_setSliderIndexY(comp_XYSlider_1,1);
     //================================================================
     XYSLIDER_setXYDistanceDrawMode( comp_XYSlider_1,DEFINE_XYSLIDER_DISTANCE_DRAWMODE_CENTER);
-    XYSLIDER_setIsDrawGrid(comp_XYSlider_1,true);
     XYSLIDER_setIsNeedCrossCursolLine(comp_XYSlider_1,true);
+    XYSLIDER_setIsUseGridParamerOnMousePt(comp_XYSlider_1,true);
+    XYSLIDER_setIsDrawGrid(comp_XYSlider_1,true);
+    //================================================================
     XYSLIDER_setXGridParamName(comp_XYSlider_1,"X: 32th x ");
     XYSLIDER_setYGridParamName(comp_XYSlider_1,"Y: 32th x ");
     //================================================================
     LAYER_addChildComponent(layer_002 , comp_Border);// shared with layer1
     LAYER_addChildComponent(layer_002 , comp_XYSlider_1);
+    //================================================================
 
     // layer add to app
     //================================================================
@@ -137,10 +141,7 @@ out_pin:right output
     
 @sample
 //====================================================================
-    f_max_L = max(f_max_L,spl0);
-    f_min_L = min(f_min_L,spl0);
-    f_max_R = max(f_max_R,spl1);
-    f_min_R = min(f_min_R,spl1);
+    
     //================================================================
  
     //================================================================
@@ -242,7 +243,11 @@ out_pin:right output
                                              , -delayTime_R
                                              );
     //================================================================
-
+    (slider8 == 0)? // LR MIXED
+    (
+        delay_L = ( delay_L+delay_R )/2;
+        delay_R = ( delay_L+delay_R )/2;
+    );
     //================================================================
     (slider8 == 2)? //if pinpon
     (
@@ -277,6 +282,11 @@ out_pin:right output
     maxSample = max(abs(f_min_L), f_max_L )+max(abs(f_min_R), f_max_R );
     maxSample = (96.0+valueToDecivel(maxSample/2))/96.0;
     maxSample = SINGLEPOLE_getSmoozedValue(singlePole_ID_GRAPH,maxSample);
+    //================================================================
+    f_max_L = max(f_max_L,spl0);
+    f_min_L = min(f_min_L,spl0);
+    f_max_R = max(f_max_R,spl1);
+    f_min_R = min(f_min_R,spl1);
     //================================================================
 
 @gfx 200 400

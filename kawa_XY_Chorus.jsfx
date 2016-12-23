@@ -42,6 +42,11 @@ out_pin:right output
     XYSLIDER_setSliderIndexX(comp_XYSlider_1,1);
     XYSLIDER_setSliderIndexY(comp_XYSlider_1,2);
     //----------------------------------------------------------------
+    XYSLIDER_setIsNeedCrossCursolLine(comp_XYSlider_1,true);
+    XYSLIDER_setIsDrawGrid(comp_XYSlider_1,true);
+    XYSLIDER_setXGridParam(comp_XYSlider_1,0.1);
+    XYSLIDER_setYGridParam(comp_XYSlider_1,0.1);
+    //----------------------------------------------------------------
     LAYER_addChildComponent(layer_001  , comp_Border);
     LAYER_addChildComponent(layer_001  , comp_XYSlider_1);
     //================================================================

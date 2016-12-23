@@ -51,6 +51,9 @@ out_pin:right output
     COMPONENT_setSliderIndex(comp_PHASER_ModeButton,3);
     COMPONENT_changeColor(comp_PHASER_ModeButton,"textColor_mouseon",0,0,0,1);
     //----------------------------------------------------------------
+    XYSLIDER_setIsNeedCrossCursolLine(comp_XYSlider_1,true);
+    XYSLIDER_setIsDrawGrid(comp_XYSlider_1,true);
+    //----------------------------------------------------------------
     LAYER_addChildComponent(layer_001  , comp_Border );
     LAYER_addChildComponent(layer_001  , comp_PHASER_ModeButton);
     LAYER_addChildComponent(layer_001  , comp_XYSlider_1);
