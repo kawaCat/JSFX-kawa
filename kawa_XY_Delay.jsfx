@@ -12,9 +12,9 @@ import kawa_ALL.jsfx-inc
 slider1:0.7  <0.0,1.0>DELAY L
 slider2:0.25 <0.0,1.0>DELAY R
 slider3:0.45 <0.0,0.9>FEEDBACK
-slider4:0    <0,250,0.1>EDIT SMOOZING (ms)
+slider4:0.0 <0,250,0.1>EDIT SMOOZING (ms)
 slider5:0.4  <0.0,1.0>DRY / WET
-slider6:3    <0,5, {0.0625 sec ,0.125 sec ,0.25 sec,0.5 sec,1.0 sec,0.5 sec ~ 1.0 sec} > MAX DELAY TIME
+slider6:3    <0,5, {0.0625 sec ,0.125 sec ,0.25 sec,0.5 sec,1.0 sec} > MAX DELAY TIME
 slider7:0    <0,3, {NORMAL,INVERT - L,INVERT - R,INVERT - BOTH}>DELAY PHASE
 slider8:1    <0,2, {LR MIXED,LR SEPARATE,PINPON DELAY}>DELAY TYPE
 slider9:0.0  <0,1, {Off,On}> DELAY STEREO FLIP
@@ -55,7 +55,11 @@ out_pin:right output
     XYSLIDER_setSliderIndexY(comp_XYSlider_1,1);
     //================================================================
     XYSLIDER_setXYDistanceDrawMode( comp_XYSlider_1,DEFINE_XYSLIDER_DISTANCE_DRAWMODE_CENTER);
-    //----------------------------------------------------------------
+    XYSLIDER_setIsDrawGrid(comp_XYSlider_1,true);
+    XYSLIDER_setIsNeedCrossCursolLine(comp_XYSlider_1,true);
+    XYSLIDER_setXGridParamName(comp_XYSlider_1,"X: 32th x ");
+    XYSLIDER_setYGridParamName(comp_XYSlider_1,"Y: 32th x ");
+    //================================================================
     LAYER_addChildComponent(layer_002 , comp_Border);// shared with layer1
     LAYER_addChildComponent(layer_002 , comp_XYSlider_1);
 
@@ -96,6 +100,9 @@ out_pin:right output
     singlePole_ID_GRAPH =createSinglePole();
     SINGLEPOLE_setSmoozingTime(singlePole_ID_GRAPH,400);//smooze 5ms
     //================================================================
+    delayTime = srate ;
+    //================================================================
+    
 @slider
 //====================================================================
     XYSLIDER_setXValue(comp_XYSlider_1,slider2,false);
@@ -118,6 +125,15 @@ out_pin:right output
     f_max_L = 0;f_min_L = 0;
     f_max_R = 0;f_min_R = 0;
     //================================================================
+    _safeTempo = max(min(tempo,360),40 );
+    _sampleFor32thNote = get32thNote_Sample (_safeTempo,srate);
+    //================================================================
+    _sampleFor32thNote = get32thNote_Sample (_safeTempo,srate);
+    _gridParam = max(_sampleFor32thNote,1)/ max(delayTime ,1 );
+    XYSLIDER_setXGridParam(comp_XYSlider_1,_gridParam);
+    XYSLIDER_setYGridParam(comp_XYSlider_1,_gridParam);
+    //================================================================
+    
     
 @sample
 //====================================================================
@@ -157,12 +173,6 @@ out_pin:right output
         // 1 sec == srate
         delayTime = srate  ;
         delayTimeOffset = 0;
-        //============================================================
-    ):(slider6 == 5)?
-    (
-        // 1 sec == srate
-        delayTime =  srate/2 ;
-        delayTimeOffset = srate/2 ;
         //============================================================
     )
     ;
@@ -284,7 +294,7 @@ out_pin:right output
                           , f_max_L
                           , f_min_L
                           , 3 *  XYSLIDER_getXValue(comp_XYSlider_1)
-                          , 0.5
+                          , 0.3
                           , 1
                           , 80);
     //================================================================
@@ -292,7 +302,7 @@ out_pin:right output
                           , f_max_R
                           , f_min_R
                           , 3 *  XYSLIDER_getYValue(comp_XYSlider_1)
-                          , 0.6
+                          , 0.4
                           , 1
                           , 0);
     //================================================================
@@ -310,7 +320,7 @@ out_pin:right output
     // for particle 
     PARTICLE_CONTROLLER_update ( PARTICLE_controller );
     //================================================================
-    // gfx_a=1;gfx_r=1;gfx_g=;gfx_b=0;
+    // gfx_a=1;gfx_r=1;gfx_g=1;gfx_b=0;
     // //================================================================
     // drawCircleWaveSignale(  gfx_w/2
     //                       , gfx_h/2
@@ -435,10 +445,29 @@ out_pin:right output
     ):( slider6 == 2)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 0.25);
     ):( slider6 == 3)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 0.50);
     ):( slider6 == 4)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 1.0);
-    ):( slider6 == 5)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 1.0);
     );
     //================================================================
     gfx_drawstr(drawText);
+    //================================================================
+    
+    _gridXValue = XYSLIDER_getGridValueParameter_X (comp_XYSlider_1);
+    _gridYValue = XYSLIDER_getGridValueParameter_Y (comp_XYSlider_1);
+    //================================================================
+    sprintf (drawText,"Delay L(Beat):16th x %1.2f ", _gridXValue / 2);
+    gfx_measurestr(drawText,str_W,str_H);
+    //================================================================
+    gfx_y = RECTANGLE_getY2(comp_Border)+ 5;
+    gfx_x = gfx_w - str_W-5;
+    gfx_drawstr(drawText);
+    //================================================================
+    sprintf (drawText,"Delay R(Beat):16th x %1.2f ", _gridYValue / 2);
+    gfx_measurestr(drawText,str_W,str_H);
+    //================================================================
+    gfx_y = gfx_y+gfx_texth +3;
+    gfx_x = gfx_w - str_W-5;
+    gfx_drawstr(drawText);
+    //================================================================
+    
     //================================================================
     gfx_setfont(0);
     //================================================================

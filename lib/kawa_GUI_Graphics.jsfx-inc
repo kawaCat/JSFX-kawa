@@ -46,11 +46,7 @@ ___tempHSB ; // !!
 
 
 //====================================================================
-function drawCircleWaveSignale( _cx,_cy
-                              , _CursolBuffer_ID
-                              , _radius
-                              , _signalGain
-                              )
+function drawCircleWaveSignale( _cx,_cy , _CursolBuffer_ID _radius, _signalGain)
     //================================================================
     local (  bufferNum 
             ,drawPointNum
@@ -88,11 +84,11 @@ function drawCircleWaveSignale( _cx,_cy
         roted_X = rotPoint_X(xx_,yy_,_cx,_cy,$pi*2*targetAngle);
         roted_Y = rotPoint_Y(xx_,yy_,_cx,_cy,$pi*2*targetAngle);
         //============================================================
-//        gfx_r=1;gfx_g=1;gfx_b=1;gfx_a= 0.06;
-//        gfx_triangle( _cx,_cy
-//                     , last_XX,last_YY
-//                     , roted_X,roted_Y
-//                     );
+        // gfx_r=1;gfx_g=1;gfx_b=1;gfx_a= 0.06;
+        // gfx_triangle( _cx,_cy
+        //              , last_XX,last_YY
+        //              , roted_X,roted_Y
+        //              );
         //============================================================
         gfx_r=1;gfx_g=1;gfx_b=0;gfx_a= 1;
         //============================================================
@@ -527,6 +523,36 @@ function POINT_drawLineWithRect_2(POINT_A_ID,POINT_B_ID,rectAngle_)
     //================================================================
 );
 //====================================================================
+function DrawLine_WithThickNess(x1_,y1_,x2_,y2_,thickness)
+    local ( angle
+          , p1X ,p1Y
+          , p2X ,p2Y
+          , p3X ,p3Y
+          , p4X ,p4Y
+          )
+(
+    //================================================================
+    angle = atan2( y2_ -y1_ 
+                 , x2_ -x1_ );
+    //================================================================
+    p1X = rotPoint_X(x1_,y1_-thickness,x1_,y1_,   angle); 
+    p1Y = rotPoint_Y(x1_,y1_-thickness,x1_,y1_,   angle); 
+    p2X = rotPoint_X(x2_,y2_-thickness,x2_,y2_,   angle); 
+    p2Y = rotPoint_Y(x2_,y2_-thickness,x2_,y2_,   angle); 
+    p3X = rotPoint_X(x2_,y2_+thickness,x2_,y2_,   angle); ; 
+    p3Y = rotPoint_Y(x2_,y2_+thickness,x2_,y2_,   angle);
+    p4X = rotPoint_X(x1_,y1_+thickness,x1_,y1_,   angle); ; 
+    p4Y = rotPoint_Y(x1_,y1_+thickness,x1_,y1_,   angle); ; 
+    //================================================================
+    gfx_triangle(   p1X,p1Y
+                  , p2X,p2Y
+                  , p3X,p3Y
+                  , p4X,p4Y
+                );
+    //================================================================
+);
+//====================================================================
+
 
 
 

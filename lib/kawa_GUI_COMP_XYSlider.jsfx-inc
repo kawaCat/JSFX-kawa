@@ -22,23 +22,29 @@ function XYSLIDER_create(name)
     //================================================================
     
     //================================================================
-    STATIC_MASTER_BUFF[XYSLIDER_ID ]     = "XYSLIDER";                  // classTYPE
-    STATIC_MASTER_BUFF[XYSLIDER_ID + 1]  = baseClassElementNum + 11;     // total elementNUM
+    STATIC_MASTER_BUFF[XYSLIDER_ID ]     = "XYSLIDER";                    // classTYPE
+    STATIC_MASTER_BUFF[XYSLIDER_ID + 1]  = baseClassElementNum + 20;      // total elementNUM
     //================================================================
-    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 1] = circle_Area_ID;
-    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 2] = false;  // is Pressd incircleArea
-    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 3] = -1;     // sliderXIndex
-    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 4] = -1;     // sliderYIndex
-    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 5] = 0.5;    // X value
-    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 6] = 0.5;    // Y value
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 1]  = circle_Area_ID;
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 2]  = false;   // is Pressd incircleArea
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 3]  = -1;      // sliderXIndex
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 4]  = -1;      // sliderYIndex
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 5]  = 0.5;     // X value
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 6]  = 0.5;     // Y value
     STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 7]  = STATIC_MASTER_BUFF[XYSLIDER_ID + 1] ;// element Num in this class.
-    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 8]  = 0 ;    // last X value
-    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 9]  = 0 ;    // last Y value.
-    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 10]  = 0 ;   // xyDistance from center;
-    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 11]  = DEFINE_XYSLIDER_DISTANCE_DRAWMODE_NONE ;// isDistanceDrawMode
-    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 12]  = 0 ;  // xyValue angle from center;
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 8]  = 0 ;      // last X value
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 9]  = 0 ;      // last Y value.
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 10] = 0 ;      // xyDistance from center;
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 11] = DEFINE_XYSLIDER_DISTANCE_DRAWMODE_NONE ;// isDistanceDrawMode
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 12] = 0 ;      // xyValue angle from center;
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 13] = false ;  // is draw Cross Line.
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 14] = false ;  // is drawGrid.
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 15] = 0.1 ;    // is X Grid param
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 16] = 0.1 ;    // is y Grid param.
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 17] = "x:" ;   // x Grid paramer Name
+    STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 18] = "y:" ;   // y Grid paramer Name
     //================================================================
-    STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (XYSLIDER_ID)+1; // next entry Bufff Point
+    STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (XYSLIDER_ID)+1;        // next entry Bufff Point (increment)
     //================================================================
     // init prepare.
     //================================================================
@@ -66,14 +72,30 @@ function XYSLIDER_getLastValueY(XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_
 function XYSLIDER_setLastValueX(XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 8]=v;);
 function XYSLIDER_setLastValueY(XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 9]=v;);
 //====================================================================
-function XYSLIDER_getXYDistanceFromCenter( XYSLIDER_ID)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 10];);
-function XYSLIDER_setXYDistanceFromCenter( XYSLIDER_ID,v)  ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 10]=v;);
-function XYSLIDER_getXYDistanceDrawMode  ( XYSLIDER_ID)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 11];);
-function XYSLIDER_setXYDistanceDrawMode  ( XYSLIDER_ID,v)  ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 11]=v;);
-function XYSLIDER_getXYAngleFromCenter   ( XYSLIDER_ID)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 12];);
-function XYSLIDER_setXYAngleFromCenter   ( XYSLIDER_ID,v)  ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 12]=v;);
+function XYSLIDER_getXYDistanceFromCenter         ( XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 10];);
+function XYSLIDER_setXYDistanceFromCenter         ( XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 10]=v;);
+function XYSLIDER_getXYDistanceDrawMode           ( XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 11];);
+function XYSLIDER_setXYDistanceDrawMode           ( XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 11]=v;);
+function XYSLIDER_getXYAngleFromCenter            ( XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 12];);
+function XYSLIDER_setXYAngleFromCenter            ( XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 12]=v;);
+//====================================================================
+function XYSLIDER_getIsNeedCrossCursolLine        ( XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 13];);
+function XYSLIDER_setIsNeedCrossCursolLine        ( XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 13]=v;);
 //====================================================================
 
+//====================================================================
+function XYSLIDER_getIsDrawGrid                   ( XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 14];);
+function XYSLIDER_setIsDrawGrid                   ( XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 14]=v;);
+function XYSLIDER_getXGridParam                   ( XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 15];);
+function XYSLIDER_setXGridParam                   ( XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 15]=v;);
+function XYSLIDER_getYGridParam                   ( XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 16];);
+function XYSLIDER_setYGridParam                   ( XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 16]=v;);
+//====================================================================
+function XYSLIDER_getXGridParamName ( XYSLIDER_ID)  ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 17];);
+function XYSLIDER_setXGridParamName ( XYSLIDER_ID,v)( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 17]=v;);
+function XYSLIDER_getYGridParamName ( XYSLIDER_ID)  ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 18];);
+function XYSLIDER_setYGridParamName ( XYSLIDER_ID,v)( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 18]=v;);
+//====================================================================
 
 //====================================================================
 function _XYSLIDER_updateXyValueAngleFromCentero(XYSLIDER_ID)
@@ -209,8 +231,6 @@ function _XYSLIDER_positionToYValue(XYSLIDER_ID,y_) local (out,meterHeight,tempY
 );
 //====================================================================
 
-
-
 //====================================================================
 function XYSLIDER_isXValueChanged( XYSLIDER_ID)local  ( out )
 (
@@ -232,6 +252,31 @@ function XYSLIDER_isYValueChanged( XYSLIDER_ID)local  ( out )
     (
         out =true;
     );
+    //================================================================
+    out;
+);
+//====================================================================
+function XYSLIDER_getGridValueParameter_X(XYSLIDER_ID)
+    local (x_GridDelta,xValue,out)
+(
+    //================================================================
+    x_GridDelta  =XYSLIDER_getXGridParam(XYSLIDER_ID);
+    xValue =  XYSLIDER_getXValue(XYSLIDER_ID);
+    //================================================================
+    out = xValue / x_GridDelta;
+    //================================================================
+    out;
+    //================================================================
+);
+//====================================================================
+function XYSLIDER_getGridValueParameter_Y(XYSLIDER_ID)
+    local (y_GridDelta,yValue,out)
+(
+    //================================================================
+    y_GridDelta  =XYSLIDER_getYGridParam(XYSLIDER_ID);
+    yValue =  XYSLIDER_getYValue(XYSLIDER_ID);
+    //================================================================
+    out = yValue / y_GridDelta;
     //================================================================
     out;
 );
@@ -291,20 +336,9 @@ function _XYSLIDER_drawXYDistance(XYSLIDER_ID,XXXX,YYYY)
     //================================================================
     thicknes = 2;
     //================================================================
-    p1X = rotPoint_X(cx,cy-thicknes,cx,cy,   angle); 
-    p1Y = rotPoint_Y(cx,cy-thicknes,cx,cy,   angle); 
-    p2X = rotPoint_X(XXXX,YYYY-thicknes,XXXX,YYYY,   angle); 
-    p2Y = rotPoint_Y(XXXX,YYYY-thicknes,XXXX,YYYY,   angle); 
-    p3X = rotPoint_X(XXXX,YYYY+thicknes,XXXX,YYYY,   angle); ; 
-    p3Y = rotPoint_Y(XXXX,YYYY+thicknes,XXXX,YYYY,   angle);
-    p4X = rotPoint_X(cx,cy+thicknes,cx,cy,   angle); ; 
-    p4Y = rotPoint_Y(cx,cy+thicknes,cx,cy,   angle); ; 
+    DrawLine_WithThickNess(cx,cy,XXXX,YYYY,thicknes);
     //================================================================
-    gfx_triangle(   p1X,p1Y
-                  , p2X,p2Y
-                  , p3X,p3Y
-                  , p4X,p4Y
-                );
+    
     //================================================================
     gfx_a = 1.0;
     //================================================================
@@ -372,20 +406,7 @@ function _XYSLIDER_drawXYAngleFromCenter(XYSLIDER_ID,XXXX,YYYY)
     //================================================================
     thicknes = 2;
     //================================================================
-    p1X = rotPoint_X(cx,cy-thicknes,cx,cy,   angle); 
-    p1Y = rotPoint_Y(cx,cy-thicknes,cx,cy,   angle); 
-    p2X = rotPoint_X(XXXX,YYYY-thicknes,XXXX,YYYY,   angle); 
-    p2Y = rotPoint_Y(XXXX,YYYY-thicknes,XXXX,YYYY,   angle); 
-    p3X = rotPoint_X(XXXX,YYYY+thicknes,XXXX,YYYY,   angle); ; 
-    p3Y = rotPoint_Y(XXXX,YYYY+thicknes,XXXX,YYYY,   angle);
-    p4X = rotPoint_X(cx,cy+thicknes,cx,cy,   angle); ; 
-    p4Y = rotPoint_Y(cx,cy+thicknes,cx,cy,   angle); ; 
-    //================================================================
-    gfx_triangle(   p1X,p1Y
-                  , p2X,p2Y
-                  , p3X,p3Y
-                  , p4X,p4Y
-                );
+    DrawLine_WithThickNess(cx,cy,XXXX,YYYY,thicknes);
     //================================================================
     
     //================================================================
@@ -415,9 +436,223 @@ function _XYSLIDER_drawXYAngleFromCenter(XYSLIDER_ID,XXXX,YYYY)
 
 
 //====================================================================
+function _XYSLIDER_drawGrid(XYSLIDER_ID,pointerRadius)
+    local( , x,y,w,h,xx_,yy_ 
+           , x_GridDelta
+           , y_GridDelta
+           , _cc_X_fPos
+           , _cc_Y_fPos
+           , _Y_drawX1,_Y_drawY1, _Y_drawX2,_Y_drawY2
+           , _X_drawX1,_X_drawY1, _X_drawX2,_X_drawY2
+           , _saftyCountX
+           , _saftyCountY
+           , _saftyCount_Check
+           , _cc_X_count
+           , _cc_Y_count
+           , _cc_X_Norm
+           , _cc_Y_Norm
+           , _radius
+           , _X_TotalGrid_Num
+           , _Y_TotalGrid_Num
+           , _temp_Alpha
+           , _targetAlpha
+           , _radiusPoint
+         )
+(
+    _radiusPoint = pointerRadius;
+    //================================================================
+    x = RECTANGLE_getX(XYSLIDER_ID)     + _radiusPoint;
+    y = RECTANGLE_getY(XYSLIDER_ID)     + _radiusPoint;
+    w = RECTANGLE_getWidth(XYSLIDER_ID) - _radiusPoint*2;
+    h = RECTANGLE_getHeight(XYSLIDER_ID)- _radiusPoint*2;
+    //================================================================
+    x_GridDelta =XYSLIDER_getXGridParam(XYSLIDER_ID);
+    y_GridDelta =XYSLIDER_getYGridParam(XYSLIDER_ID);
+    //================================================================
+    _saftyCountX = 0;
+    _saftyCountY = 0;
+    _saftyCount_Check = 30;
+    //================================================================
+    _cc_X_count  = 0;
+    _cc_Y_count  = 0;
+    _cc_X_Norm = 0;
+    _cc_Y_Norm = 0;
+    //================================================================
+    _radius = 2.5;
+    _X_TotalGrid_Num = 1.0 /x_GridDelta ;
+    _Y_TotalGrid_Num = 1.0 /y_GridDelta ;
+    //================================================================
+    
+    _temp_Alpha =COMPONENT_getComponentAlpha (XYSLIDER_ID);
+    _targetAlpha = _temp_Alpha *0.7;//???
+    //================================================================
+
+    //================================================================
+    // XX 
+    //================================================================
+    _cc_X_count  = 0;
+    _saftyCountX = 0;
+    //================================================================
+    while ( _cc_X_count < _X_TotalGrid_Num)
+    (
+        //============================================================
+        ( _saftyCountX > _saftyCount_Check)?(_cc_X_count = 100; ); //safty break;
+        //============================================================
+        _cc_X_Norm =  x_GridDelta* _cc_X_count;
+        //============================================================
+        _X_drawX1 = floor( x + w *_cc_X_Norm);
+        _X_drawY1 = floor( y )    - _radiusPoint;;
+        _X_drawX2 = _X_drawX1;
+        _X_drawY2 = floor( y + h )+ _radiusPoint;;
+        //============================================================
+        (    _cc_X_count % 2 == 1 
+          && _X_TotalGrid_Num > 2) ? 
+        ( 
+            gfx_a = _targetAlpha*0.6; ;
+        ):(
+            gfx_a = _targetAlpha;
+        );
+        //============================================================
+        gfx_line (_X_drawX1,_X_drawY1, _X_drawX2,_X_drawY2,true);
+        //============================================================
+        _cc_X_count +=1;
+        _saftyCountX +=1;
+        //============================================================
+    );
+    //================================================================
+    
+    //================================================================
+    // YY
+    //================================================================
+    _cc_Y_count  = 0;
+    //================================================================
+    while ( _cc_Y_count < _Y_TotalGrid_Num )
+    (
+        ( _saftyCountY > _saftyCount_Check)?(_cc_Y_count = 100; ); //safty,break;
+        //============================================================
+        _cc_Y_Norm =  y_GridDelta* _cc_Y_count;
+        //============================================================
+        _Y_drawX1 = floor( x  )              - _radiusPoint;
+        _Y_drawY1 = floor( y + h *_cc_Y_Norm);
+        _Y_drawX2 = floor( x + w )           + _radiusPoint;
+        _Y_drawY2 = _Y_drawY1                ;
+        //============================================================
+        (    _cc_Y_count % 2 == 1 
+          && _Y_TotalGrid_Num > 2 )?
+        ( 
+            gfx_a =_targetAlpha*0.6; 
+        ):(
+            gfx_a = _targetAlpha;
+        );
+        //============================================================
+        gfx_line (_Y_drawX1,_Y_drawY1, _Y_drawX2,_Y_drawY2);
+        //============================================================
+        gfx_a =_targetAlpha; 
+        //============================================================
+        
+        //============================================================
+        // cross 
+        //============================================================
+        _cc_X_count  = 0;
+        _saftyCountX = 0;
+        //============================================================
+        while ( _cc_X_count < _X_TotalGrid_Num)
+        (
+            //========================================================
+            ( _saftyCountX > _saftyCount_Check)?(_cc_X_count = 100; ); //safty break;
+            //========================================================
+            _cc_X_Norm =  x_GridDelta* _cc_X_count;
+            //========================================================
+            _X_drawX1 = floor( x + w *_cc_X_Norm);
+            _X_drawY1 = floor( y )    - _radiusPoint;;
+            _X_drawX2 = _X_drawX1;
+            _X_drawY2 = floor( y + h )+ _radiusPoint;;
+            //========================================================
+            (     _cc_X_count % 2 == 0 
+              &&  _cc_Y_count % 2 == 0
+             )?
+            (
+                gfx_a = _targetAlpha;
+                //====================================================
+                gfx_circle ( floor( x + w *x_GridDelta* ( _cc_X_count) )
+                           , floor( y + h *y_GridDelta* ( _cc_Y_count) )
+                           , _radius,true );
+            );
+            //========================================================
+            _cc_X_count +=1;
+            _saftyCountX +=1;
+            //========================================================
+        );
+        //============================================================
+        
+        _saftyCountY += 1;
+        _cc_Y_count+=1;
+       
+    );
+    //================================================================
+    gfx_a = _temp_Alpha;
+    //================================================================
+);
+//====================================================================
+// testing
+//====================================================================
+function _XYSLIDER_draw_GridValue ( XYSLIDER_ID,xx_,yy_)
+    local (x ,y,w ,h
+          ,cx ,cy
+          ,_x_tl
+          ,_y_tl
+          ,_marginX
+          ,_marginY
+          ,drawStr_dist
+          ,str_W
+          ,str_H
+          ,str_H
+          )
+(
+    x = RECTANGLE_getX(XYSLIDER_ID);
+    y = RECTANGLE_getY(XYSLIDER_ID);
+    w = RECTANGLE_getWidth(XYSLIDER_ID);
+    h = RECTANGLE_getHeight(XYSLIDER_ID);
+    cx = RECTANGLE_getCenterX(XYSLIDER_ID);
+    cy = RECTANGLE_getCenterY(XYSLIDER_ID);
+    //================================================================
+    _gridXValue = XYSLIDER_getGridValueParameter_X (XYSLIDER_ID);
+    _gridYValue = XYSLIDER_getGridValueParameter_Y (XYSLIDER_ID);
+    //================================================================
+    _x_tl =  xx_; 
+    _y_tl =  cy-gfx_texth*2;
+    _marginX =5;
+    _marginY =5;
+    //================================================================
+    drawStr_dist = #;
+    sprintf ( drawStr_dist,"32th x %.2f" ,_gridXValue);
+    //================================================================
+    gfx_measurestr(drawStr_dist,str_W,str_H);
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+    gfx_rect(   _x_tl
+              , _y_tl
+              ,str_W + _marginX*2
+              ,str_H + _marginY*2
+            );
+    //================================================================
+    gfx_x = _x_tl + _marginX;
+    gfx_y = _y_tl + _marginY;
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
+    gfx_drawstr(drawStr_dist);
+    //================================================================
+);
+//====================================================================
+
+
+//====================================================================
 function XYSLIDER_draw(XYSLIDER_ID)
 local ( radius,lineH,x,y,w,h,circle_Area_ID
-      , tempStr,tempStrW,tempStrH,XXXX,YYYY,margin)
+      , tempStr,tempStrW,tempStrH,XXXX,YYYY,margin,temp_Alpha
+      , _onMouseX_Offset
+      , _onMouseY_Offset
+      )
 (
     //================================================================
     x = RECTANGLE_getX(XYSLIDER_ID);
@@ -433,18 +668,54 @@ local ( radius,lineH,x,y,w,h,circle_Area_ID
     gfx_a = 0.5  *COMPONENT_getComponentAlpha(XYSLIDER_ID);
     gfx_rect( x, y, w, h,true);
     //================================================================
+    
+    
+    //================================================================
+    // draw Center Line
     COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
     //================================================================
     gfx_line(  x +w/2 ,y 
              , x +w/2 ,y+h);
     gfx_line(  x   ,y+h/2
               ,x+w ,y+h/2);
+              
+    //================================================================
+    // Draw Grid
+    //================================================================
+    (XYSLIDER_getIsDrawGrid(XYSLIDER_ID) == true)?
+    (
+        COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
+        _XYSLIDER_drawGrid(XYSLIDER_ID,radius);
+    );
+    //================================================================
+    
+    //================================================================
+    // draw Center line and Bounds
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+    //================================================================
     gfx_rect( x, y, w, h,false);         
     //================================================================
     circle_Area_ID =  XYSLIDER_getCircleArea(XYSLIDER_ID);
     //================================================================
     XXXX = (x+radius)+ (w-radius*2 ) * XYSLIDER_getXValue(XYSLIDER_ID) ;
     YYYY = (y+radius)+ (h-radius*2 ) * XYSLIDER_getYValue(XYSLIDER_ID) ; 
+    //================================================================
+    
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+    //================================================================
+    // draw Cross  Lines;
+    //================================================================
+    ( XYSLIDER_getIsNeedCrossCursolLine(XYSLIDER_ID)==true)?
+    (
+        // horizontal
+        gfx_line ( x , YYYY,x+w,YYYY);
+        // vertical
+        gfx_line ( XXXX , y,XXXX,y+h);
+        //============================================================
+    );
+    //================================================================
+    
     //================================================================
     CIRCLE_setCX(circle_Area_ID,XXXX );
     CIRCLE_setCY(circle_Area_ID,YYYY);
@@ -547,22 +818,44 @@ local ( radius,lineH,x,y,w,h,circle_Area_ID
         //value 
         //============================================================
         tempStr =#;
-        sprintf(  tempStr
+        
+        //============================================================
+        (XYSLIDER_getIsDrawGrid(XYSLIDER_ID) == true)?
+        (
+            //========================================================
+            sprintf(  tempStr
+                   ,"%s%1.2f\n%s%1.2f"
+                   , XYSLIDER_getXGridParamName(XYSLIDER_ID)
+                   , XYSLIDER_getGridValueParameter_X(XYSLIDER_ID)
+                   , XYSLIDER_getYGridParamName(XYSLIDER_ID)
+                   , XYSLIDER_getGridValueParameter_Y(XYSLIDER_ID)
+                   );
+            //========================================================
+        ):(
+            sprintf(  tempStr
                 ,"x %1.2f :y %1.2f "
                 , XYSLIDER_getXValue(XYSLIDER_ID)
                 , XYSLIDER_getYValue(XYSLIDER_ID)
                 );
+        );
+        //============================================================
+        
+        
         //============================================================
         gfx_measurestr(tempStr,tempStrW,tempStrH);
         //============================================================
         COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
-        gfx_rect(max(x,min(mouse_x,x+w-(tempStrW+margin*2)-radius -5)) +radius +5
-                ,max(y,min(mouse_y,y+h-(tempStrH+margin*2)-radius -5)) +radius +5
+        
+        _onMouseX_Offset = 1;
+        _onMouseY_Offset = 1;
+        //============================================================
+        gfx_rect(max(x,min(XXXX,x+w-(tempStrW+margin*2)-radius -_onMouseX_Offset)) +radius +_onMouseX_Offset
+                ,max(y,min(YYYY,y+h-(tempStrH+margin*2)-radius -_onMouseY_Offset)) +radius +_onMouseY_Offset
                 ,tempStrW+margin*2
                 ,tempStrH+margin*2,true);
         COMPONENT_changeColorGfx( XYSLIDER_ID,"white");
-        gfx_x = max(x,min(mouse_x,x+w-(tempStrW+margin*2)-radius -5))+margin +radius +5;
-        gfx_y = max(y,min(mouse_y,y+h-(tempStrH+margin*2)-radius -5))+margin +radius +5;
+        gfx_x = max(x,min(XXXX,x+w-(tempStrW+margin*2)-radius -_onMouseX_Offset))+margin +radius +_onMouseX_Offset;
+        gfx_y = max(y,min(YYYY,y+h-(tempStrH+margin*2)-radius -_onMouseY_Offset))+margin +radius +_onMouseY_Offset;
         gfx_drawstr( tempStr);
         //============================================================
     ):(
