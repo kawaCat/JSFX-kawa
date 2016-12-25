@@ -7,6 +7,7 @@
 // createSinglePole() local ( SINGLEPOLE_id )
 //====================================================================
 //     SINGLEPOLE_getLastValue       (SINGLEPOLE_id)  
+//     SINGLEPOLE_setLastValue       (SINGLEPOLE_id,v) //use for reset  
 //     SINGLEPOLE_getSampleRate      (SINGLEPOLE_id)  
 //     SINGLEPOLE_getSmoozingCoeff   (SINGLEPOLE_id)  
 //     SINGLEPOLE_getSmoozingTime    (SINGLEPOLE_id)  
@@ -15,6 +16,7 @@
 //     SINGLEPOLE_setSmoozingTime    (SINGLEPOLE_id,v)  //ms time
 //====================================================================
 //     SINGLEPOLE_getSmoozedValue    (SINGLEPOLE_id,inValue) 
+//     SINGLEPOLE_isFinished         (SINGLEPOLE_id)
 //====================================================================
 
 
@@ -31,6 +33,7 @@ function createSinglePole() local ( SINGLEPOLE_id )
     STATIC_MASTER_BUFF[SINGLEPOLE_id+4] = 0.0;         // smoozed_coeff
     STATIC_MASTER_BUFF[SINGLEPOLE_id+5] = srate;       // sampleRate
     STATIC_MASTER_BUFF[SINGLEPOLE_id+6] = STATIC_MASTER_BUFF[SINGLEPOLE_id+1];  // element Num Only this Class
+    STATIC_MASTER_BUFF[SINGLEPOLE_id+7] = 0.0;         // last Input value
     //================================================================
     STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(SINGLEPOLE_id)+1;
     //================================================================
@@ -51,6 +54,9 @@ function SINGLEPOLE_setSampleRate      (SINGLEPOLE_id,v)  ( STATIC_MASTER_BUFF[S
 function SINGLEPOLE_getSmoozingCoeff   (SINGLEPOLE_id)    ( STATIC_MASTER_BUFF[SINGLEPOLE_id+4] ;);
 function _SINGLEPOLE_setSmoozingCoeff  (SINGLEPOLE_id,v)  ( STATIC_MASTER_BUFF[SINGLEPOLE_id+4] =v;);
 //====================================================================
+function _SINGLEPOLE_getlastInputValue (SINGLEPOLE_id)    ( STATIC_MASTER_BUFF[SINGLEPOLE_id+7] ;);
+function _SINGLEPOLE_setlastInputValue (SINGLEPOLE_id,v)  ( STATIC_MASTER_BUFF[SINGLEPOLE_id+7] =v;);
+//====================================================================
 
 //====================================================================
 function SINGLEPOLE_getSmoozingTime    (SINGLEPOLE_id)    ( STATIC_MASTER_BUFF[SINGLEPOLE_id+2] ;);
@@ -70,13 +76,43 @@ function _SINGLEPOLE_calcurateCoeff(SINGLEPOLE_id )
 //====================================================================
 function SINGLEPOLE_setSmoozingTime   (SINGLEPOLE_id,v)  //ms time
 ( 
-    STATIC_MASTER_BUFF[SINGLEPOLE_id+2] =v; //!
+    STATIC_MASTER_BUFF[SINGLEPOLE_id+2] =v; 
     //================================================================
     _SINGLEPOLE_calcurateCoeff(SINGLEPOLE_id );
     //================================================================
 );
 //====================================================================
 
+
+//====================================================================
+function SINGLEPOLE_isFinished(SINGLEPOLE_id)
+    local (out ,lastInValue,lastValue)
+(
+    out = false;
+    //================================================================
+    lastInValue = _SINGLEPOLE_getlastInputValue(SINGLEPOLE_id);
+    lastValue   = SINGLEPOLE_getLastValue(SINGLEPOLE_id);
+    //================================================================
+    ( lastInValue == lastValue ) ?
+    (
+        out = true;
+    );
+    //================================================================
+    out;
+);
+//====================================================================
+function SINGLEPOLE_isActive(SINGLEPOLE_id)
+    local (out ,lastInValue,lastValue)
+(
+    out = false;
+    //================================================================
+    (SINGLEPOLE_isFinished(SINGLEPOLE_id) == false ) ?
+    (
+        out = true;
+    );
+    //================================================================
+    out;
+);
 //====================================================================
 function _SINGLEPOLE_singlepole(lastValue,newValue,coeff) 
 (   
@@ -93,6 +129,8 @@ function SINGLEPOLE_getSmoozedValue( SINGLEPOLE_id,inValue)
     smoozingTime = SINGLEPOLE_getSmoozingTime(SINGLEPOLE_id);
     lastValue = SINGLEPOLE_getLastValue(SINGLEPOLE_id);
     smoozingCoeff = SINGLEPOLE_getSmoozingCoeff(SINGLEPOLE_id);
+    //================================================================
+    _SINGLEPOLE_setlastInputValue (SINGLEPOLE_id,inValue);
     //================================================================
     outValue = _SINGLEPOLE_singlepole( lastValue
                                      , inValue

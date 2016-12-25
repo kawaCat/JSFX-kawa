@@ -103,6 +103,9 @@ out_pin:right output
 //    FREQUENCY_changeRbjFilter_activeState(canvasFreq,1,true);
     //================================================================
     
+    
+    //================================================================
+    
 @slider
 //====================================================================
     COMPONENT_setValue( comp_SLIDER_2,slider1,false );
@@ -143,6 +146,11 @@ out_pin:right output
     spl1 = out_LL;
     
     _FREQUENCY_pushSampleToFFTBuffer(canvasFreq,out_LL );  
+    //================================================================
+    
+    
+  
+    
 
 @gfx 200 400
 //====================================================================

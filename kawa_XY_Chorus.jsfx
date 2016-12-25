@@ -84,12 +84,17 @@ out_pin:right output
     
     smooth_coeff = exp(-1/(slider5/1000*srate)); // 4 ms smoothing
     //================================================================
-    
     waveSignalForGraph_ID = WAVESINE_create();
     WAVESINE_setPolarType (waveSignalForGraph_ID,DEFINE_WAVE_SIGNALE_UNIPOLAR);
     bufferForGraph = CURSOLBUFFER_create (srate*3);
-    bufferForGraphReadPtr = 0;
     //================================================================
+    
+    //================================================================
+    MAX_CHORUS_RATE = 5;
+    MAX_CHORUS_WIDTH = 1;
+    //================================================================
+    
+    
 @slider
 //====================================================================
     XYSLIDER_setXValue(comp_XYSlider_1,slider1,false);
@@ -100,6 +105,20 @@ out_pin:right output
     smooth_coeff = exp(-1/(slider5/1000*srate)); 
     //================================================================
     APP_SliderChanged(app_ID); // notify for update lastValue
+    //================================================================
+    (slider3 ==0)?
+    (
+        //normal mode
+        MAX_CHORUS_RATE  = 5;
+        MAX_CHORUS_WIDTH = 1;
+        //============================================================
+        rateX= slider1 * MAX_CHORUS_RATE;//Max 5hz
+    ):(
+        // deep Mode
+        MAX_CHORUS_RATE =1;
+        MAX_CHORUS_WIDTH = 20;
+        rateX= slider1 * MAX_CHORUS_RATE;//Max 1hz
+    );
     //================================================================
     
 @block
@@ -119,14 +138,16 @@ out_pin:right output
     //================================================================
     (slider3 ==0)?
     (
+        
         //normal Mode
-        rateX= slider1 * 5;//Max 5hz
+        rateX= slider1 * MAX_CHORUS_RATE;//Max 5hz
         //============================================================
         WAVESINE_setRate(waveSignale_ID,rateX);
         newValueX = ( WAVESINE_getAndTick (waveSignale_ID));
         valueX = singlepole(valueX,newValueX,smooth_coeff);
         //============================================================
-        chorusWidth = ( srate* 0.0001 )*10* XYSLIDER_getYValue(comp_XYSlider_1) ;
+        chorusWidth =   ( srate * 0.001 )* MAX_CHORUS_WIDTH
+                        * XYSLIDER_getYValue(comp_XYSlider_1) ;
         //============================================================
         WAVESINE_setRate(waveSignalForGraph_ID,rateX);
         valueXForGraph_new = ( WAVESINE_getAndTick (waveSignalForGraph_ID));
@@ -136,13 +157,14 @@ out_pin:right output
         //============================================================
     ):(
         //deep Mode
-        rateX= slider1 * 1;//Max 1hz
+        rateX= slider1 * MAX_CHORUS_RATE;//Max 1hz
         //============================================================
         WAVESINE_setRate(waveSignale_ID,rateX);
         newValueX = ( WAVESINE_getAndTick (waveSignale_ID));
         valueX = singlepole(valueX,newValueX,smooth_coeff);
         //============================================================
-        chorusWidth = ( srate* 0.0001  )*200* XYSLIDER_getYValue(comp_XYSlider_1) ;
+        chorusWidth = ( srate * 0.001  ) * MAX_CHORUS_WIDTH 
+                     * XYSLIDER_getYValue(comp_XYSlider_1) ;
         //============================================================
         WAVESINE_setRate(waveSignalForGraph_ID,rateX);
         valueXForGraph_new = ( WAVESINE_getAndTick (waveSignalForGraph_ID));
@@ -151,7 +173,6 @@ out_pin:right output
         CURSOLBUFFER_push( bufferForGraph ,valueXForGraph );
     );
     //================================================================
-    
     CURSOLBUFFER_push( DELAY_ARRAY_L ,spl0 );
     CURSOLBUFFER_push( DELAY_ARRAY_R ,spl1 );
     //================================================================
@@ -175,18 +196,21 @@ out_pin:right output
     delay_R = CURSOLBUFFER_getOffsettedValueWithInterp( DELAY_ARRAY_R
                                                       , offsetSample );
     //================================================================
+    // wet_L = delay_L;
+    // wet_R = delay_R;
+    //================================================================
     CURSOLBUFFER_push( DELAY_ARRAY_L_MIXED , (spl0 + delay_L ) );
     CURSOLBUFFER_push( DELAY_ARRAY_R_MIXED , (spl1 + delay_R ) );
     //================================================================
-    wet_L = CURSOLBUFFER_getOffsettedValueWithInterp( DELAY_ARRAY_L_MIXED
+    wet_L = CURSOLBUFFER_getOffsettedValueWith3rdSplineInterp( DELAY_ARRAY_L_MIXED
                                                       , 40 );
-    wet_R = CURSOLBUFFER_getOffsettedValueWithInterp( DELAY_ARRAY_R_MIXED
+    wet_R = CURSOLBUFFER_getOffsettedValueWith5thSplineInterp( DELAY_ARRAY_R_MIXED
                                                       , 40 );
+    //================================================================
+    
     //================================================================
     spl0 = spl0 *(1-slider6) + (wet_L ) * (slider6) ;
     spl1 = spl1 *(1-slider6) + (wet_R ) * (slider6) ;
-    //================================================================
-    
     //================================================================
 
 @gfx 200 400
@@ -234,40 +258,9 @@ out_pin:right output
     //================================================================
     (slider7 ==1)?
     (
-        bufferNum = CURSOLBUFFER_getMaxSize( bufferForGraph);
         drawPointNum = min(srate/rateX*2,srate/2);
-        xDelta = gfx_w / drawPointNum;
-        count_BB = 0;
-        lastVV_YY = 0;
-        lastVV_XX = gfx_w;
         //============================================================
-        while(count_BB < drawPointNum )
-        (
-            //========================================================
-            xx = gfx_w-count_BB *xDelta;
-            vv_YY = CURSOLBUFFER_getOffsettedValue(   bufferForGraph
-                                              ,  -count_BB );
-            //========================================================                               
-            yy = -vv_YY * gfx_h/2*0.4 +gfx_h/2;
-            //========================================================
-            bufferForGraphReadPtr +=1;
-            (bufferForGraphReadPtr >= bufferNum)?
-            (      
-                bufferForGraphReadPtr = 0;  
-            );
-            //========================================================
-                   
-            gfx_a = 0.1;gfx_r = 1;gfx_g = 1;gfx_b = 1;   
-            gfx_rect(xx,yy,1,gfx_h/2-yy+1,false);
-            //========================================================
-            gfx_a = 0.4;gfx_r = 0;gfx_g = 0;gfx_b = 0;  
-            gfx_line(lastVV_XX,lastVV_YY,xx+1,yy,false);
-            //========================================================
-            lastVV_XX = xx;
-            lastVV_YY = yy;
-            //========================================================
-            count_BB += 1;
-        );
+        Draw_WaveGraph( bufferForGraph,drawPointNum,0,0,gfx_w,gfx_h);
         //============================================================
         gfx_a = 1;
         gfx_rect( 0,gfx_h/2-1, gfx_w, 2,true);
@@ -349,6 +342,26 @@ out_pin:right output
     //================================================================
     RECTANGLE_drawBottomRightText( app_ID,"XY Chorus");
     //================================================================
+    
+    //================================================================
+    // draw Parameter Info
+    //================================================================
+    drawText = #;
+    //================================================================
+    sprintf (drawText,"Chorus Rate : %1.2f Hz ", rateX );
+    //================================================================
+    gfx_r = 0;gfx_g =0;gfx_b =0;gfx_a = 1;
+    gfx_x = 5;
+    gfx_y = gfx_h-(gfx_texth)*2-2;
+    gfx_drawstr(drawText);
+    //================================================================
+    sprintf (drawText,"Chorus Width: %1.2f ms", MAX_CHORUS_WIDTH * XYSLIDER_getYValue(comp_XYSlider_1) );
+    //================================================================
+    gfx_x = 5;
+    gfx_y = gfx_h-gfx_texth-1;
+    gfx_drawstr(drawText);
+    //================================================================
+    
 
    
 //====================================================================

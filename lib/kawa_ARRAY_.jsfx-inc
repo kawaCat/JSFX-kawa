@@ -560,8 +560,117 @@ function CURSOLBUFFER_getOffsettedValueWithInterp(CIRCLEBUFFER_ID,delaySample)
 );
 //====================================================================
 
+//====================================================================
+// 3rd order Spline interp
+// http://musicdsp.org/archive.php?classid=5#62
+function CURSOLBUFFER_getOffsettedValueWith3rdSplineInterp(CIRCLEBUFFER_ID,delaySample)
+    local ( out
+          , bufSize
+          , counter
+          , back
+          , index_0
+          , x
+          , p0_index,p1_index,p2_index,p3_index
+          , p0,p1,p2,p3
+          )
+(
+    
+    //================================================================
+    bufSize = CURSOLBUFFER_getMaxSize(CIRCLEBUFFER_ID);
+    counter = CURSOLBUFFER_getCursolPos(CIRCLEBUFFER_ID)-1;
+    back = counter-delaySample;
+    //================================================================
+    // clip lookback buffer-bound
+    back = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,back);
+    //================================================================
+    index_0 =floor( back );
+    x =  back - index_0;
+    //================================================================
+    p0_index  = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0-2)) ;
+    p1_index  = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0-1)) ;
+    p2_index  = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0)) ;
+    p3_index  = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0+1)) ;
+    //================================================================
+    L1 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p0_index);
+    L0 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p1_index);
+    H0 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p2_index);
+    H1 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p3_index);
+    //================================================================
+    out =  L0 
+           + 0.5 *
+           x*(H0-L1 +
+              x*(H0 + L0*(-2) + L1 +
+                 x*( (H0 - L0)*9 + (L1 - H1)*3 +
+                    x*((L0 - H0)*15 + (H1 -  L1)*5 +
+                       x*((H0 - L0)*6 + (L1 - H1)*2 )))));
+    //================================================================
+    out;
+);
+//====================================================================
 
-
+//====================================================================
+// 5-point spline interpollation
+// http://musicdsp.org/archive.php?classid=5#60
+//nMask = sizeofwavetable-1 where sizeofwavetable is a power of two.
+function CURSOLBUFFER_getOffsettedValueWith5thSplineInterp(CIRCLEBUFFER_ID,delaySample)
+    local ( out
+          , bufSize
+          , counter
+          , back
+          , index_0
+          , x
+          , p0_index,p1_index,p2_index,p3_index,p4_index,p5_index
+          , p0,p1,p2,p3,p4,p5
+          )
+(
+//nMask = sizeofwavetable-1 where sizeofwavetable is a power of two.
+//double interpolate(double* wavetable, int nMask, double location)
+    //================================================================
+    // 5-point spline 
+    //================================================================
+    bufSize = CURSOLBUFFER_getMaxSize(CIRCLEBUFFER_ID);
+    counter = CURSOLBUFFER_getCursolPos(CIRCLEBUFFER_ID)-1;
+    // int nearest_sample = (int) location;
+    // double x = location - (double) nearest_sample;
+    back = counter-delaySample;
+    //================================================================
+    // clip lookback buffer-bound
+    ( back < 0.0 )?
+    (
+        back = bufSize + back;
+    );
+    //================================================================
+    
+    index_0 =floor( back );
+    x =  back - index_0;
+    //================================================================
+    
+    //================================================================
+    // nMask = sizeofwavetable-1 where sizeofwavetable is a power of two.
+    // nMask = bufSize -1;
+    p0_index  = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0-2)) ;
+    p1_index  = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0-1)) ;
+    p2_index  = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0)) ;
+    p3_index  = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0+1)) ;
+    p4_index  = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0+2)) ;
+    p5_index  = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0+3)) ;
+    //================================================================
+    p0 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p0_index);
+    p1 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p1_index);
+    p2 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p2_index);
+    p3 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p3_index);
+    p4 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p4_index);
+    p5 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p5_index);
+    //================================================================
+    out = p2 + 0.04166666666*x*((p3-p1)*16.0+(p0-p4)*2.0
+             + x *((p3+p1)*16.0-p0-p2*30.0- p4
+             + x *(p3*66.0-p2*70.0-p4*33.0+p1*39.0+ p5*7.0- p0*9.0
+             + x *( p2*126.0-p3*124.0+p4*61.0-p1*64.0- p5*12.0+p0*13.0
+             + x *((p3-p2)*50.0+(p1-p4)*25.0+(p5-p0)*5.0)))));
+    //================================================================
+    out;
+);
+//====================================================================
 
 
 

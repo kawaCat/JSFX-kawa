@@ -20,7 +20,6 @@ out_pin:right output
 
 @init
 //====================================================================
-
     // create APP ID
     //================================================================
     app_ID = APP_create();
@@ -35,8 +34,10 @@ out_pin:right output
     //================================================================
     comp_Border  = COMPONENT_create("TEST");
     comp_XYSlider_1 = XYSLIDER_create("comp_XYSlider_1");
+    //================================================================
     XYSLIDER_setSliderIndexX(comp_XYSlider_1,2);
     XYSLIDER_setSliderIndexY(comp_XYSlider_1,1);
+    XYSLIDER_setIsNeedCrossCursolLine(comp_XYSlider_1,true);
     //----------------------------------------------------------------
     LAYER_addChildComponent(layer_001  , comp_Border);
     LAYER_addChildComponent(layer_001  , comp_XYSlider_1);
@@ -62,6 +63,7 @@ out_pin:right output
     // for particle 
     PARTICLE_controller = PARTICLE_CONTROLLER_create();
     //================================================================
+    DEFINE_MAX_BIT = 16;
     
     //bitCrusher params
     //================================================================
@@ -100,18 +102,22 @@ out_pin:right output
     //fFreq =1- XYSLIDER_getYValue(comp_XYSlider_1);;
     fFreq = XYSLIDER_getXValue(comp_XYSlider_1);;
     
+    //================================================================
     f_fPhase -=1.0/srate;
     //================================================================
     (    fFreq == 1.0 
       || f_fPhase < 0.) ?
     (
-        f_fPhase += 1.0/(fFreq*47000.+1000);
+        f_fPhase += 1.0/(fFreq*srate);
         //============================================================
         ( fBits  < 1.0)?
         (
-            f_fStep = fBits*510+2;
-            f_fLastValueL=(floor(spl0*f_fStep)) /f_fStep;
-            f_fLastValueR=(floor(spl1*f_fStep)) /f_fStep;
+            //JS eefect on  "witti's bitcrusher jsfx Effect"
+            f_fStep = pow(1/2,(fBits*DEFINE_MAX_BIT)) ;
+            //========================================================
+            f_fLastValueL = f_fStep * floor( spl0/f_fStep +0.5 );
+            f_fLastValueR = f_fStep * floor( spl1/f_fStep +0.5 );
+            //========================================================
         ):(
             f_fLastValueL = spl0;
             f_fLastValueR = spl1;
@@ -120,7 +126,8 @@ out_pin:right output
     //================================================================
     spl0 = f_fLastValueL;
     spl1 = f_fLastValueR;
-
+    gmem[0]=12345164;
+    
 @gfx 200 400
 //====================================================================
     // direct draw background to
@@ -161,7 +168,7 @@ out_pin:right output
    
     // for debug
     //================================================================
-    DBGMESSAGE_drawAllMessage(DBG);
+    //DBGMESSAGE_drawAllMessage(DBG);
     //================================================================
     
     // for particle 
@@ -242,6 +249,23 @@ out_pin:right output
     //================================================================
     
 
+    drawText = #;
+    //================================================================
+    gfx_r = 0;gfx_g =0;gfx_b =0;gfx_a = 1;
+    //================================================================
+    sprintf (drawText,"S Rate : %1.2f khz",fFreq*srate/1000 );
+    //================================================================
+    gfx_r = 0;gfx_g =0;gfx_b =0;gfx_a = 1;
+    gfx_x = 5;
+    gfx_y = gfx_h-(gfx_texth)*1.05*2-1;
+    gfx_drawstr(drawText);
+    //================================================================
+    sprintf (drawText,"Bit    : %1.2f bit", fBits*DEFINE_MAX_BIT);
+    //================================================================
+    gfx_x = 5;
+    gfx_y = gfx_h-gfx_texth-2;
+    gfx_drawstr(drawText);
+    //================================================================
 //====================================================================
 // 続
 

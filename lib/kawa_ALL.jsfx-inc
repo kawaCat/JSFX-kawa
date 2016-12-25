@@ -20,6 +20,10 @@ import kawa_DSP_RingMod.jsfx-inc
 import kawa_DSP_RBJFilter.jsfx-inc
 import kawa_DSP_Panner.jsfx-inc
 //====================================================================
+import kawa_MIDI_ADSR.jsfx-inc
+
+
+//====================================================================
 import kawa_GUI_CORE_.jsfx-inc
 import kawa_GUI_Colors_.jsfx-inc
 import kawa_GUI_Graphics.jsfx-inc

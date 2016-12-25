@@ -48,6 +48,7 @@ function get32thNote_Pqn   (Tempo) ( 1/8; );
 //====================================================================
 function sample2Ppq        (sampleNum,Tempo,sampleRate_) ( sampleNum / get4thNote_Sample(Tempo,sampleRate_););
 function sample2Sec        (sampleNum,sampleRate_)       ( sampleNum / ( sampleRate_ ) ;);
+function sample2MSec       (sampleNum,sampleRate_)       ( sampleNum / ( sampleRate_ )*1000;);
 function sample2Rate       (sampleNum,sampleRate_)       ( sampleNum / sampleRate_ ;);
 //====================================================================
 function pqn2SampleNum     (pqnNum,Tempo,sampleRate_)    ( pqnNum    * get4thNote_Sample(Tempo,sampleRate_););

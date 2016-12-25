@@ -5,7 +5,7 @@
 //====================================================================
 // define for  WAVE TABLE
 //====================================================================
-MIN_WAVETABLE_OSC_HZ = 10; //10hz
+MIN_WAVETABLE_OSC_HZ = 1; //10hz
 //====================================================================
 WT_OSC_TYPE_SINE   = 1;
 WT_OSC_TYPE_SAW    = 2;
@@ -139,8 +139,6 @@ function _WAVETABLE_cookFrequency(WAVETABLE_ID) local ( newIncValue,wtsize,sampl
     //================================================================
     newIncValue = floor( (wtsize*frequency)/sampleRate);
     //================================================================
-   
-    //================================================================
     _WAVETABLE_setIncValue(WAVETABLE_ID,newIncValue);
 );
 //====================================================================
@@ -204,6 +202,8 @@ function _WAVETABLE_init_(WAVETABLE_ID)
     //================================================================
     ( (wtSize & 2) != 0)? ( wtSize +=1;);
     //================================================================
+    
+    //??
     _WAVETABLE_setWaveTableSize(WAVETABLE_ID, wtSize);
     //================================================================
     
@@ -416,7 +416,7 @@ function WAVETABLE_tickReadIndex( WAVETABLE_ID) local (wtSize)
                               );
     //================================================================
     // check for wrap
-    ( WAVETABLE_getReadIndex(WAVETABLE_ID) >= wtSize)?
+    ( WAVETABLE_getReadIndex(WAVETABLE_ID) > wtSize)?
     (
         WAVETABLE_setReadIndex( WAVETABLE_ID
                               , floor(WAVETABLE_getReadIndex(WAVETABLE_ID) -wtSize- 1)
@@ -463,7 +463,7 @@ function WAVETABLE_doOscillate(WAVETABLE_ID,isNeedTick)
     // setup second index for interpolation; wrap the buffer if needed
     //================================================================
     nReadIndexNext = 0;;
-    ( nReadIndex + 1 >= wtSize)?
+    ( nReadIndex + 1 > wtSize)?
     (   
         nReadIndexNext = 0 
     ):(
@@ -471,7 +471,7 @@ function WAVETABLE_doOscillate(WAVETABLE_ID,isNeedTick)
     );
     //================================================================
     nQuadPhaseReadIndexNext = 0;;
-    ( nQuadPhaseReadIndex + 1 >= wtSize)?
+    ( nQuadPhaseReadIndex + 1 >  wtSize)?
     (   
         nQuadPhaseReadIndexNext = 0 
     ):(
@@ -522,19 +522,24 @@ function WAVETABLE_doOscillate(WAVETABLE_ID,isNeedTick)
         //============================================================
     );
     //================================================================
-    outSample = dLinTerp( 0
-                        , 1
-                        , ARRAY_getValueAt( targetArray,nReadIndex )
-                        , ARRAY_getValueAt( targetArray,nReadIndexNext )
-                        , fFrac);
+    //outSample = dLinTerp( 0
+    //                    , 1
+    //                    , ARRAY_getValueAt( targetArray,nReadIndex )
+    //                    , ARRAY_getValueAt( targetArray,nReadIndexNext )
+    //                    , fFrac);
     //================================================================                        
-    outQuadPhaseSample = dLinTerp( 0
-                                 , 1
-                                 , ARRAY_getValueAt( targetArray,nQuadPhaseReadIndex )
-                                 , ARRAY_getValueAt( targetArray,nQuadPhaseReadIndexNext )
-                                 , fQuadFrac);
+    //outQuadPhaseSample = dLinTerp( 0
+    //                             , 1
+    //                             , ARRAY_getValueAt( targetArray,nQuadPhaseReadIndex )
+    //                             , ARRAY_getValueAt( targetArray,nQuadPhaseReadIndexNext )
+    //                             , fQuadFrac);
     //================================================================
-       
+    
+    outSample          = ARRAY_getValueAt( targetArray,nReadIndex );
+    outQuadPhaseSample = ARRAY_getValueAt( targetArray,nQuadPhaseReadIndexNext );
+    //================================================================
+    
+    
     //================================================================
     ( isNeedTick ==true)?
     (

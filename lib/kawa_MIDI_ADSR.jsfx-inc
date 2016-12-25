@@ -1,0 +1,227 @@
+
+
+//====================================================================
+@init
+//====================================================================
+//====================================================================
+// MIDI_ ADSR 
+//====================================================================
+// function MIDI_ADSR_create() 
+//====================================================================
+//     MIDI_ADSR_getAttackTime          ( MIDI_ADSR_ID)   
+//     MIDI_ADSR_getDecayTime           ( MIDI_ADSR_ID)   
+//     MIDI_ADSR_getSustaineLevel       ( MIDI_ADSR_ID ) 
+//     MIDI_ADSR_getReleaseTime         ( MIDI_ADSR_ID)   
+//====================================================================
+//     MIDI_ADSR_setAttackTime          ( MIDI_ADSR_ID,v) 
+//     MIDI_ADSR_setDecayTime           ( MIDI_ADSR_ID,v) 
+//     MIDI_ADSR_setSustaineLevel       ( MIDI_ADSR_ID,v )
+//     MIDI_ADSR_setReleaseTime         ( MIDI_ADSR_ID,v) 
+//====================================================================
+//     MIDI_ADSR_getEnvelopeState       ( MIDI_ADSR_ID)   
+//     MIDI_ADSR_setEnvelopeState       ( MIDI_ADSR_ID,v) 
+//====================================================================
+//     MIDI_ADSR_toAttackState          ( MIDI_ADSR_ID )  
+//     MIDI_ADSR_toReleaseState         ( MIDI_ADSR_ID )  
+//     MIDI_ADSR_noteOn                 ( MIDI_ADSR_ID)   //aliase of MIDI_ADSR_toAttackState()
+//     MIDI_ADSR_noteOff                ( MIDI_ADSR_ID)   //aliase of MIDI_ADSR_toReleaseState()
+//====================================================================
+//     MIDI_ADSR_isIdle                 (MIDI_ADSR_ID )   
+//     MIDI_ADSR_isAttackState          (MIDI_ADSR_ID )   
+//     MIDI_ADSR_isDecayState           (MIDI_ADSR_ID )   
+//     MIDI_ADSR_isSustaineState        (MIDI_ADSR_ID )   
+//     MIDI_ADSR_isReleaseState         (MIDI_ADSR_ID )   
+//     MIDI_ADSE_isRunning              (MIDI_ADSR_ID )   
+//====================================================================
+//     MIDI_ADSR_allReset               (MIDI_ADSR_ID )
+//====================================================================
+//     MIDI_ADSR_getEnvelopeValue       (MIDI_ADSR_ID )
+//====================================================================
+
+//====================================================================
+DEFINE_MIDI_ADSR_STATE_IDLE    = 0;
+DEFINE_MIDI_ADSR_STATE_ATTACK  = 1;
+DEFINE_MIDI_ADSR_STATE_DECAY   = 2;
+DEFINE_MIDI_ADSR_STATE_SUSTAIN = 3;
+DEFINE_MIDI_ADSR_STATE_RELEASE = 4;
+//====================================================================
+
+//====================================================================
+// MIDI_ ADSR 
+//====================================================================
+function MIDI_ADSR_create() 
+    local (  MIDI_ADSR_ID
+           , envelope_A_ID
+           , envelope_D_ID
+           , envelope_R_ID )
+(
+    //================================================================
+    envelope_A_ID = createSinglePole();
+    envelope_D_ID = createSinglePole();
+    envelope_R_ID = createSinglePole();
+    //================================================================
+    SINGLEPOLE_setSmoozingTime(envelope_A_ID,1.7); // default 1.7 ms.
+    SINGLEPOLE_setSmoozingTime(envelope_D_ID,10);  // default 10  ms.
+    SINGLEPOLE_setSmoozingTime(envelope_R_ID,100); // default 100 ms.
+    //================================================================
+    MIDI_ADSR_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[MIDI_ADSR_ID]   = "MIDI_ADSR";                 // class name
+    STATIC_MASTER_BUFF[MIDI_ADSR_ID+1] = 7;                           // total Element Num 
+    //================================================================
+    STATIC_MASTER_BUFF[MIDI_ADSR_ID+2] = STATIC_MASTER_BUFF[MSPROCESS_ID+1];  // element Num Only this Class
+    STATIC_MASTER_BUFF[MIDI_ADSR_ID+3] = envelope_A_ID;                       // Attack SinglePole ID Envelope
+    STATIC_MASTER_BUFF[MIDI_ADSR_ID+4] = envelope_D_ID;                       // Decay SinglePole ID Envelope
+    STATIC_MASTER_BUFF[MIDI_ADSR_ID+5] = 1.0;                                 // Sustain level
+    STATIC_MASTER_BUFF[MIDI_ADSR_ID+6] = envelope_R_ID;                       // Release Envelope
+    STATIC_MASTER_BUFF[MIDI_ADSR_ID+7] = DEFINE_MIDI_ADSR_STATE_IDLE;         // Envelope State
+    //================================================================
+    STATIC_MASTER_BUFF_ID += STRUCT_getElementNum(MIDI_ADSR_ID)+1;
+    //================================================================
+    MIDI_ADSR_ID;
+);
+//====================================================================
+function _MIDI_ADSR_getElementNum         ( MIDI_ADSR_ID)   ( STATIC_MASTER_BUFF[MIDI_ADSR_ID + 2];); // protected
+//====================================================================
+function _MIDI_ADSR_getAttackSinglepoleID ( MIDI_ADSR_ID)   ( STATIC_MASTER_BUFF[MIDI_ADSR_ID + 3];); // protected
+function _MIDI_ADSR_getDecaySinglepoleID  ( MIDI_ADSR_ID)   ( STATIC_MASTER_BUFF[MIDI_ADSR_ID + 4];); // protected
+function _MIDI_ADSR_getReleaseSinglepoleID( MIDI_ADSR_ID)   ( STATIC_MASTER_BUFF[MIDI_ADSR_ID + 6];); // protected
+//====================================================================
+function MIDI_ADSR_getSustaineLevel       ( MIDI_ADSR_ID )  ( STATIC_MASTER_BUFF[MIDI_ADSR_ID + 5];);
+function MIDI_ADSR_setSustaineLevel       ( MIDI_ADSR_ID,v )( STATIC_MASTER_BUFF[MIDI_ADSR_ID + 5]=v;);
+//====================================================================
+function MIDI_ADSR_getAttackTime          ( MIDI_ADSR_ID)   ( SINGLEPOLE_getSmoozingTime( _MIDI_ADSR_getAttackSinglepoleID  ( MIDI_ADSR_ID) ););
+function MIDI_ADSR_getDecayTime           ( MIDI_ADSR_ID)   ( SINGLEPOLE_getSmoozingTime( _MIDI_ADSR_getDecaySinglepoleID   ( MIDI_ADSR_ID) ););
+function MIDI_ADSR_getReleaseTime         ( MIDI_ADSR_ID)   ( SINGLEPOLE_getSmoozingTime( _MIDI_ADSR_getReleaseSinglepoleID ( MIDI_ADSR_ID) ););
+//====================================================================
+function MIDI_ADSR_setAttackTime          ( MIDI_ADSR_ID,v) ( SINGLEPOLE_setSmoozingTime( _MIDI_ADSR_getAttackSinglepoleID  ( MIDI_ADSR_ID),v ););
+function MIDI_ADSR_setDecayTime           ( MIDI_ADSR_ID,v) ( SINGLEPOLE_setSmoozingTime( _MIDI_ADSR_getDecaySinglepoleID   ( MIDI_ADSR_ID),v ););
+function MIDI_ADSR_setReleaseTime         ( MIDI_ADSR_ID,v) ( SINGLEPOLE_setSmoozingTime( _MIDI_ADSR_getReleaseSinglepoleID ( MIDI_ADSR_ID),v ););
+//====================================================================
+function MIDI_ADSR_getEnvelopeState       ( MIDI_ADSR_ID)   ( STATIC_MASTER_BUFF[MIDI_ADSR_ID + 7];);
+function MIDI_ADSR_setEnvelopeState       ( MIDI_ADSR_ID,v) ( STATIC_MASTER_BUFF[MIDI_ADSR_ID + 7]=v;);
+//====================================================================
+
+//====================================================================
+function MIDI_ADSR_toAttackState          ( MIDI_ADSR_ID )  ( MIDI_ADSR_setEnvelopeState(MIDI_ADSR_ID,DEFINE_MIDI_ADSR_STATE_ATTACK););
+function MIDI_ADSR_toReleaseState         ( MIDI_ADSR_ID )  ( MIDI_ADSR_setEnvelopeState(MIDI_ADSR_ID,DEFINE_MIDI_ADSR_STATE_RELEASE););
+//====================================================================
+function MIDI_ADSR_noteOn                 ( MIDI_ADSR_ID)   ( MIDI_ADSR_toAttackState (MIDI_ADSR_ID) );
+function MIDI_ADSR_noteOff                ( MIDI_ADSR_ID)   ( MIDI_ADSR_toReleaseState(MIDI_ADSR_ID) );
+//====================================================================
+
+//====================================================================
+function _MIDI_ADSR_checkBool(a,b)local (out)(out = false;(a==b)? out = true; out;);
+//====================================================================
+function MIDI_ADSR_isIdle                 (MIDI_ADSR_ID )   ( _MIDI_ADSR_checkBool(MIDI_ADSR_getEnvelopeState(MIDI_ADSR_ID),DEFINE_MIDI_ADSR_STATE_IDLE););
+function MIDI_ADSR_isAttackState          (MIDI_ADSR_ID )   ( _MIDI_ADSR_checkBool(MIDI_ADSR_getEnvelopeState(MIDI_ADSR_ID),DEFINE_MIDI_ADSR_STATE_ATTACK););
+function MIDI_ADSR_isDecayState           (MIDI_ADSR_ID )   ( _MIDI_ADSR_checkBool(MIDI_ADSR_getEnvelopeState(MIDI_ADSR_ID),DEFINE_MIDI_ADSR_STATE_DECAY););
+function MIDI_ADSR_isSustaineState        (MIDI_ADSR_ID )   ( _MIDI_ADSR_checkBool(MIDI_ADSR_getEnvelopeState(MIDI_ADSR_ID),DEFINE_MIDI_ADSR_STATE_SUSTAIN););
+function MIDI_ADSR_isReleaseState         (MIDI_ADSR_ID )   ( _MIDI_ADSR_checkBool(MIDI_ADSR_getEnvelopeState(MIDI_ADSR_ID),DEFINE_MIDI_ADSR_STATE_RELEASE););
+function MIDI_ADSE_isRunning              (MIDI_ADSR_ID )   ( _MIDI_ADSR_checkBool(MIDI_ADSR_isIdle(MIDI_ADSR_ID),false ););
+//====================================================================
+function MIDI_ADSR_allReset(MIDI_ADSR_ID )
+(
+    MIDI_ADSR_setEnvelopeState(MIDI_ADSR_ID,DEFINE_MIDI_ADSR_STATE_IDLE) ;
+    //================================================================
+    SINGLEPOLE_setLastValue(_MIDI_ADSR_getAttackSinglepoleID ( MIDI_ADSR_ID ),0);
+    SINGLEPOLE_setLastValue(_MIDI_ADSR_getDecaySinglepoleID  ( MIDI_ADSR_ID ),0);
+    SINGLEPOLE_setLastValue(_MIDI_ADSR_getReleaseSinglepoleID( MIDI_ADSR_ID ),0);
+    //================================================================
+);
+//====================================================================
+
+//====================================================================
+function MIDI_ADSR_getEnvelopeValue( MIDI_ADSR_ID)
+    local ( ENVELOPE_STATE
+          , envelope_A_
+          , envelope_D_
+          , envelope_R_
+          , envGain
+          , ENVLOPE_SUSATIN_LV
+          )
+(
+    //================================================================
+    ENVELOPE_STATE = MIDI_ADSR_getEnvelopeState(MIDI_ADSR_ID);
+    //================================================================
+    (ENVELOPE_STATE !=DEFINE_MIDI_ADSR_STATE_IDLE)?
+    (
+        //============================================================
+        envelope_A_        = _MIDI_ADSR_getAttackSinglepoleID  ( MIDI_ADSR_ID );
+        envelope_D_        = _MIDI_ADSR_getDecaySinglepoleID   ( MIDI_ADSR_ID );
+        envelope_R_        = _MIDI_ADSR_getReleaseSinglepoleID ( MIDI_ADSR_ID );
+        ENVLOPE_SUSATIN_LV =  MIDI_ADSR_getSustaineLevel       ( MIDI_ADSR_ID );
+        envGain = 0.0;
+        //============================================================
+        //caheck is Release State?
+        (     ENVELOPE_STATE != DEFINE_MIDI_ADSR_STATE_RELEASE )?
+        (
+            (      ENVELOPE_STATE == 1
+                && SINGLEPOLE_isActive ( envelope_A_) ==true)?
+            (
+                //====================================================
+                // Attack state
+                //====================================================
+                ENVELOPE_STATE = DEFINE_MIDI_ADSR_STATE_ATTACK;      // to attack State
+                //====================================================
+                envGain = SINGLEPOLE_getSmoozedValue(envelope_A_,1); // attack value To 1.0 value
+                SINGLEPOLE_setLastValue(envelope_D_,envGain);        // set Decay last value.
+                SINGLEPOLE_setLastValue(envelope_R_,envGain);        //set Release last value.(for seamless).
+                //====================================================
+            ):  (SINGLEPOLE_isActive ( envelope_D_) ==true)?
+            (
+                //====================================================
+                // Decay State
+                //====================================================
+                ENVELOPE_STATE = DEFINE_MIDI_ADSR_STATE_DECAY;      // to Decay State
+                //====================================================
+                envGain = SINGLEPOLE_getSmoozedValue(envelope_D_,ENVLOPE_SUSATIN_LV);// To Sustain value
+                SINGLEPOLE_setLastValue(envelope_R_,envGain);  //set Release last value.(for seamless).
+                //====================================================
+            ):(
+                //====================================================
+                // Sustain State
+                //====================================================
+                ENVELOPE_STATE = DEFINE_MIDI_ADSR_STATE_SUSTAIN;// to sustain state
+                //====================================================
+                envGain = ENVLOPE_SUSATIN_LV;
+                SINGLEPOLE_setLastValue(envelope_D_,envGain);  // set Decay last value. ( equal decay is Finished)
+                SINGLEPOLE_setLastValue(envelope_R_,envGain);  // set Release last value.(for seamless).
+                //====================================================
+            );
+            //========================================================
+        ):(
+            //========================================================
+            envGain =  SINGLEPOLE_getSmoozedValue(envelope_R_,0); // To Zero Value.
+            SINGLEPOLE_setLastValue(envelope_A_,envGain);         // set Attack Value attack (for seamless).
+            SINGLEPOLE_setLastValue(envelope_D_,envGain);         // reset decay
+            //========================================================
+            ( SINGLEPOLE_isActive(envelope_R_) == true)?
+            (
+                //====================================================
+                // Release State
+                //====================================================
+                ENVELOPE_STATE = DEFINE_MIDI_ADSR_STATE_RELEASE;     // to release state
+                //====================================================
+            ):(
+                // set To IDLE State
+                ENVELOPE_STATE = DEFINE_MIDI_ADSR_STATE_IDLE;
+                //====================================================
+            );
+            //========================================================
+        );
+        //============================================================
+    );
+    //================================================================
+    MIDI_ADSR_setEnvelopeState(MIDI_ADSR_ID,ENVELOPE_STATE);//store state info
+    //================================================================
+    envGain;//return
+);
+//====================================================================
+
+
+
+
+
+
+

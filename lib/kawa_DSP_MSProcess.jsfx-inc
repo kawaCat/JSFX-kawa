@@ -23,6 +23,8 @@ function MSPROCESS_create() local ( MSPROCESS_ID )
     MSPROCESS_ID;
 );
 //====================================================================
+function _MSPROCESS_getElementNum(MSPROCESS_ID) ( STATIC_MASTER_BUFF[MSPROCESS_ID + 5];);// protected
+//====================================================================
 function MSPROCESS_getMid   (MSPROCESS_ID)     ( STATIC_MASTER_BUFF[MSPROCESS_ID+2] ;);
 function MSPROCESS_getSideL (MSPROCESS_ID)     ( STATIC_MASTER_BUFF[MSPROCESS_ID+3] ;);
 function MSPROCESS_getSideR (MSPROCESS_ID)     ( STATIC_MASTER_BUFF[MSPROCESS_ID+4] ;);

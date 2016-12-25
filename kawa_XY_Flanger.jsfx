@@ -9,13 +9,16 @@ import kawa_ALL.jsfx-inc
 
 // sliders//( this app lib need Continuous number)
 //--------------------------------------------------------------------
-slider1: 0.1<0.0,1.0>RATE 
-slider2: 0.6<0.0,1.0>WIDTH
+slider1: 0.1<0.0,1.0>RATE X
+slider2: 0.6<0.0,1.0>RATE Y
 slider3: 0.0<0,1,{FLANGER,PHASER}>MODE
 slider4: 0<0,3,{Sin,Saw,Rect,Tri}> WAVE TYPE
 slider5: 0<0,500> FADE SMOOZING(ms)
-slider6: 0.0<0,1>FEEDBACK( x100 %)
+slider6: 0.0<0,0.95>FEEDBACK( x100 %)
 slider7: 1.0<0,1>DRY / WET
+slider8: 0<0,1,{Wave,Modulation}>VIEW
+//====================================================================
+
 //====================================================================
 in_pin: left input
 in_pin: right input
@@ -26,7 +29,7 @@ out_pin:right output
 //====================================================================
 @init
 //====================================================================
-
+      
     // create APP ID
     //================================================================
     app_ID = APP_create();
@@ -86,12 +89,19 @@ out_pin:right output
     //================================================================
     // parameter Smoozing
     smooth_coeff = exp(-1/(0.1/1000*srate)); // 0.1 ms smoothing
+    smooth_coeff_MOD = exp(-1/(10/1000*srate)); // 0.1 ms smoothing
     //================================================================
     waveSignale_ID_X = WAVESINE_create();
     waveSignale_ID_Y = WAVESINE_create();
     //================================================================
-    smooth_coeff_MOD = exp(-1/(10/1000*srate)); // 0.1 ms smoothing
+    
     //================================================================
+    DEFINE_MAX_WIDTH = 2;
+    offsetTime_MS = 0;
+    //================================================================
+    bufferForGraph = CURSOLBUFFER_create (srate*3);
+    //================================================================
+    
     
 @slider
 //====================================================================
@@ -103,6 +113,22 @@ out_pin:right output
     //================================================================
     APP_SliderChanged(app_ID); // notify for update lastValue
     //================================================================
+    
+    //================================================================
+    ( BUTTON_isON(comp_PHASER_ModeButton) ==true)? //phaser mode
+    (
+        DEFINE_MAX_WIDTH = 1; // 1ms
+        //============================================================
+        rateX = slider1 * 0.60 + 0.001;
+        rateY = slider2 * 0.03 + 0.001;
+    ):(
+        DEFINE_MAX_WIDTH = 2; // 2ms
+        rateX = slider1;
+        rateY = slider2;
+    );  
+    //================================================================
+    
+    
 @block
 //====================================================================
     f_max_L = 0;f_min_L = 0;
@@ -118,8 +144,9 @@ out_pin:right output
     //================================================================
  
     //================================================================
-    (BUTTON_isON(comp_PHASER_ModeButton) ==true)? //phaser mode
+    ( BUTTON_isON(comp_PHASER_ModeButton) ==true)? //phaser mode
     (
+        DEFINE_MAX_WIDTH = 1;
         //============================================================
         rateX = slider1 * 0.60 + 0.001;
         WAVESINE_setRate(waveSignale_ID_X,rateX);
@@ -141,7 +168,7 @@ out_pin:right output
         XYSLIDER_setXValue(comp_XYSlider_1,valueX,false);
         XYSLIDER_setYValue(comp_XYSlider_1,valueY,false);
         
-        chorusWidth = srate* ( 0.001  );
+        chorusWidth = srate* ( 0.001 ) * DEFINE_MAX_WIDTH;
         //============================================================
         //smoozing
         //============================================================
@@ -154,13 +181,14 @@ out_pin:right output
         offsetSamplePhase_L = singlepole(offsetSamplePhase_L,newOffsetSamplePhase_L,smooth_coeff);
         offsetSamplePhase_R = singlepole(offsetSamplePhase_R,newOffsetSamplePhase_R,smooth_coeff);
         //============================================================
-        delay_L = CURSOLBUFFER_getOffsettedValueWithInterp( delay_ARRAY_L
-                                                          , offsetSamplePhase_L + offsetSample );
-        delay_R = CURSOLBUFFER_getOffsettedValueWithInterp( delay_ARRAY_R
-                                                          , offsetSamplePhase_R + offsetSample );
+        delay_L = CURSOLBUFFER_getOffsettedValueWith5thSplineInterp( delay_ARRAY_L
+                                                                   , offsetSamplePhase_L + offsetSample );
+        delay_R = CURSOLBUFFER_getOffsettedValueWith5thSplineInterp( delay_ARRAY_R
+                                                                   , offsetSamplePhase_R + offsetSample );
         //============================================================
     ):( // FLANGER MODE
         //============================================================
+        DEFINE_MAX_WIDTH = 2;
         rateX= slider1;
         WAVESINE_setRate(waveSignale_ID_X,rateX);
         newValueX = 0.5+( WAVESINE_getAndTick (waveSignale_ID_X))/2;
@@ -181,7 +209,7 @@ out_pin:right output
         XYSLIDER_setYValue(comp_XYSlider_1,valueY,false);
         //============================================================
         
-        chorusWidth = srate* ( 0.002 * XYSLIDER_getYValue(comp_XYSlider_1) );
+        chorusWidth = ( srate * 0.001 ) * DEFINE_MAX_WIDTH * XYSLIDER_getYValue(comp_XYSlider_1) ;
         //============================================================
         //smoozing
         //============================================================
@@ -190,12 +218,17 @@ out_pin:right output
         //============================================================
         
         //============================================================
-        delay_L = CURSOLBUFFER_getOffsettedValueWithInterp( delay_ARRAY_L
-                                                          , offsetSample );
-        delay_R = CURSOLBUFFER_getOffsettedValueWithInterp( delay_ARRAY_R
-                                                          , offsetSample );
+        delay_L = CURSOLBUFFER_getOffsettedValueWith5thSplineInterp( delay_ARRAY_L
+                                                                   , offsetSample );
+        delay_R = CURSOLBUFFER_getOffsettedValueWith5thSplineInterp( delay_ARRAY_R
+                                                                   , offsetSample );
         //============================================================
     );
+    //================================================================
+    offsetTime_MS = sample2MSec(offsetSample,srate);
+    //================================================================
+    CURSOLBUFFER_push( bufferForGraph ,  XYSLIDER_getYValue(comp_XYSlider_1) 
+                                       * XYSLIDER_getXValue(comp_XYSlider_1));
     //================================================================
     spl0 = spl0 *(1-slider7) + (spl0 + delay_L ) * (slider7) ;
     spl1 = spl1 *(1-slider7) + (spl1 + delay_R ) * (slider7) ;
@@ -211,31 +244,48 @@ out_pin:right output
 
     // canvase test
     //================================================================
-    drawWaveBufferToCanvas(canvas_WAVE_L
-                          ,f_max_L
-                          ,f_min_L
-                          ,5
-                          ,0.3
-                          ,1
-                          ,80);
-    //================================================================
-    drawWaveBufferToCanvas(canvas_WAVE_R
-                          ,f_max_R
-                          ,f_min_R
-                          ,5
-                          ,0.4
-                          ,1
-                          ,0);
-    //================================================================
-    gfx_a =0.6;
-    CANVAS_blitImage4(canvas_WAVE_R,1,0);
-    CANVAS_blitImage4(canvas_WAVE_L,1,0);
-    gfx_a =1;
+    (slider8 ==0)?
+    (
+        //============================================================
+        drawWaveBufferToCanvas(canvas_WAVE_L
+                              ,f_max_L
+                              ,f_min_L
+                              ,5
+                              ,0.3
+                              ,1
+                              ,80);
+        //============================================================
+        drawWaveBufferToCanvas(canvas_WAVE_R
+                              ,f_max_R
+                              ,f_min_R
+                              ,5
+                              ,0.4
+                              ,1
+                              ,0);
+        //============================================================
+        gfx_a =0.6;
+        CANVAS_blitImage4(canvas_WAVE_R,1,0);
+        CANVAS_blitImage4(canvas_WAVE_L,1,0);
+        gfx_a =1;
+    );
     //================================================================
     // final background
     //================================================================
     drawDotGrid(16,16,0.6);
     //================================================================
+   
+    //================================================================
+    (slider8 ==1)?
+    (
+        drawPointNum = min(srate/rateX*2,srate/2);
+        //============================================================
+        Draw_WaveGraph( bufferForGraph,drawPointNum,0,0,gfx_w,gfx_h);
+        //============================================================
+        gfx_a = 1;
+        gfx_rect( 0,gfx_h/2-1, gfx_w, 2,true);
+    );
+    //================================================================
+   
    
     // for debug
     //================================================================
@@ -314,6 +364,7 @@ out_pin:right output
     );
     //================================================================
     
+    
     //================================================================
     // if animation
     //================================================================
@@ -327,6 +378,43 @@ out_pin:right output
     //================================================================
     RECTANGLE_drawBottomRightText( app_ID,"XY Flanger");
     //================================================================
+
+    //================================================================
+    // draw Parameter Info
+    //================================================================
+    drawText = #;
+    //================================================================
+    gfx_r = 0;gfx_g =0;gfx_b =0;gfx_a = 1;
+    //================================================================
+    sprintf (drawText,"Max Width: %1.2f ms ", DEFINE_MAX_WIDTH);
+    gfx_measurestr(drawText,str_W,str_H);
+    //================================================================
+    gfx_y = RECTANGLE_getY2(comp_PHASER_ModeButton)+ 5;
+    gfx_x = 5;
+    gfx_drawstr(drawText);
+    //================================================================
+    
+    //================================================================
+    sprintf (drawText,"Mod Rate X : %1.2f Hz ", rateX );
+    //================================================================
+    gfx_x = 5;
+    gfx_y = gfx_h-(gfx_texth)*1.05*3-1;
+    gfx_drawstr(drawText);
+    //================================================================
+    sprintf (drawText,"Mod Rate Y : %1.2f Hz", rateY);
+    //================================================================
+    gfx_r = 0;gfx_g =0;gfx_b =0;gfx_a = 1;
+    gfx_x = 5;
+    gfx_y = gfx_h-(gfx_texth)*1.05*2-1;
+    gfx_drawstr(drawText);
+    //================================================================
+    sprintf (drawText,"Width (ms) : %1.2f ms", offsetTime_MS);
+    //================================================================
+    gfx_x = 5;
+    gfx_y = gfx_h-gfx_texth-2;
+    gfx_drawstr(drawText);
+    //================================================================
+
 
 //====================================================================
 // 続

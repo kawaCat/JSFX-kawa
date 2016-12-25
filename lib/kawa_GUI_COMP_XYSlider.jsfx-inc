@@ -673,11 +673,105 @@ function _XYSLIDER_draw_GridValue ( XYSLIDER_ID,xx_,yy_)
     //================================================================
 );
 //====================================================================
-
+function _XYSLIDER_drawCrossCursol(XYSLIDER_ID,XXXX,YYYY)
+    local (x,y,w,h
+          , cx,cy
+          ,_triangle_WidthV
+          ,_triangle_WidthT
+          ,tempStr
+          ,tempStrW
+          ,tempStrH)
+(
+    //================================================================
+    x = RECTANGLE_getX(XYSLIDER_ID);
+    y = RECTANGLE_getY(XYSLIDER_ID);
+    w = RECTANGLE_getWidth(XYSLIDER_ID);
+    h = RECTANGLE_getHeight(XYSLIDER_ID);
+    cx =RECTANGLE_getCenterX(XYSLIDER_ID);
+    cy =RECTANGLE_getCenterY(XYSLIDER_ID);
+    //================================================================
+    // horizontal
+    gfx_line ( x , YYYY,x+w,YYYY);
+    // vertical
+    gfx_line ( XXXX , y,XXXX,y+h);
+    //================================================================
+    _triangle_WidthV  = 5;
+    _triangle_WidthT  = 5;
+    //================================================================
+    gfx_triangle( x,YYYY-_triangle_WidthV
+                , x,YYYY+_triangle_WidthV
+                , x+_triangle_WidthT,YYYY
+                );
+    //================================================================
+    gfx_triangle( x+w,YYYY-_triangle_WidthV
+                , x+w,YYYY+_triangle_WidthV
+                , x+w-_triangle_WidthT,YYYY
+                );
+    //================================================================
+    gfx_triangle( XXXX-_triangle_WidthV,y
+                , XXXX+_triangle_WidthV,y
+                , XXXX,y+_triangle_WidthT
+                );
+    //================================================================
+    gfx_triangle( XXXX-_triangle_WidthV,y+h
+                , XXXX+_triangle_WidthV,y+h
+                , XXXX,y+h-_triangle_WidthT
+                );
+    //================================================================
+    _triangle_WidthV  = 3;
+    _triangle_WidthT  = 3;
+    //================================================================
+    gfx_triangle( XXXX-_triangle_WidthV,cy
+                , XXXX,cy-_triangle_WidthT
+                , XXXX+_triangle_WidthV,cy
+                , XXXX,cy+_triangle_WidthT
+                );
+    //================================================================
+    gfx_triangle( cx,YYYY-_triangle_WidthV
+                , cx-_triangle_WidthT,YYYY
+                , cx,YYYY+_triangle_WidthV
+                , cx+_triangle_WidthT,YYYY
+                );
+    //================================================================
+    
+    tempStr = #;
+    //================================================================
+    (XYSLIDER_getIsUseGridParamerOnMousePt(XYSLIDER_ID) == true)?
+    (
+        sprintf( tempStr,"%.2f",XYSLIDER_getGridValueParameter_Y(XYSLIDER_ID) );
+        //============================================================
+    ):(
+        sprintf( tempStr,"%.2f",XYSLIDER_getYValue(XYSLIDER_ID) );
+    );
+    //================================================================
+    gfx_measurestr(tempStr,tempStrW,tempStrH);
+    //================================================================
+    gfx_x = x-tempStrW-1;
+    gfx_y = YYYY-gfx_texth/2;
+    //================================================================
+    gfx_drawstr(tempStr);
+    //================================================================
+    (XYSLIDER_getIsUseGridParamerOnMousePt(XYSLIDER_ID) == true)?
+    (
+        sprintf( tempStr,"%.2f",XYSLIDER_getGridValueParameter_X(XYSLIDER_ID) );
+        //============================================================
+    ):(
+        sprintf( tempStr,"%.2f",XYSLIDER_getXValue(XYSLIDER_ID) );
+    );
+    //================================================================
+    
+    gfx_measurestr(tempStr,tempStrW,tempStrH);
+    //================================================================
+    gfx_x = XXXX-tempStrW/2;
+    gfx_y = y+h+gfx_texth/2;
+    //================================================================
+    gfx_drawstr(tempStr);
+    //================================================================
+);
 
 //====================================================================
 function XYSLIDER_draw(XYSLIDER_ID)
-local ( radius,lineH,x,y,w,h,circle_Area_ID
+local ( radius,lineH,x,y,w,h,cx,cy,circle_Area_ID
       , tempStr,tempStrW,tempStrH,XXXX,YYYY,margin,temp_Alpha
       , _onMouseX_Offset
       , _onMouseY_Offset
@@ -688,6 +782,8 @@ local ( radius,lineH,x,y,w,h,circle_Area_ID
     y = RECTANGLE_getY(XYSLIDER_ID);
     w = RECTANGLE_getWidth(XYSLIDER_ID);
     h = RECTANGLE_getHeight(XYSLIDER_ID);
+    cx =RECTANGLE_getCenterX(XYSLIDER_ID);
+    cy =RECTANGLE_getCenterY(XYSLIDER_ID);
     //================================================================
     radius = 12;
     lineH  = 1;
@@ -722,7 +818,7 @@ local ( radius,lineH,x,y,w,h,circle_Area_ID
     //================================================================
     COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
     //================================================================
-    gfx_rect( x, y, w, h,false);         
+    gfx_rect( x, y, w+1, h+1,false);         
     //================================================================
     circle_Area_ID =  XYSLIDER_getCircleArea(XYSLIDER_ID);
     //================================================================
@@ -736,11 +832,7 @@ local ( radius,lineH,x,y,w,h,circle_Area_ID
     //================================================================
     ( XYSLIDER_getIsNeedCrossCursolLine(XYSLIDER_ID)==true)?
     (
-        // horizontal
-        gfx_line ( x , YYYY,x+w,YYYY);
-        // vertical
-        gfx_line ( XXXX , y,XXXX,y+h);
-        //============================================================
+        _XYSLIDER_drawCrossCursol(XYSLIDER_ID,XXXX,YYYY);
     );
     //================================================================
     
