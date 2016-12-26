@@ -1,19 +1,15 @@
-desc:kawa_Doubler_Delay 
-slider1:0.25<0.0,1.0>DELAY L 
-slider2:0.8 <0.0,1.0>DELAY R 
-slider3:0.25<0.0,0.95>FEEDBACK 
-slider4:0.50<0.0,1.0>DRY / WET 
-slider5:1.0 <0,3, {0.125sec,0.25 sec,0.5 sec,1.0 sec}> Max Delay Time 
-slider6:0 <0,1, {Normal,Invert}>Delay L Phase 
-slider7:0 <0,1, {Normal,Invert}>Delay R Phase 
-slider8:0.0 <0,1, {Off,On}> Delay Stereo Flip 
-slider9:0.0 <0,1, {XY Slider,Knob}> Edit Mode 
+desc:kawa Particle Animation 
+slider1:0 <0,1,>-RECT_ON 
+slider2:1 <0,1,>-CIRCLE_ON 
+slider3:0 <0,1,>-HEX_ON 
+slider4:0 <0,1,>-TRI_ON 
+slider5:0 <0,1,>-STAR_ON 
 in_pin: left input 
 in_pin: right input 
 out_pin:left output 
 out_pin:right output 
 @init 
-STATICE_BUILD_DATE = "build 2016/12/26"; 
+STATICE_BUILD_DATE = "2016/12/26"; 
 true = 1; 
 false = 0; 
 STATIC_MASTER_BUFF = 3000; 
@@ -308,6 +304,87 @@ function DELTATIME_getDeltaTimeWithStepValue(DELTATIME_ID,addValue) local (dt)
  DELTATIME_stepByValue(DELTATIME_ID,addValue); 
  dt = DELTATIME_getDeltaTime(DELTATIME_ID); 
  dt; 
+); 
+function createSinglePole() local ( SINGLEPOLE_id ) 
+( 
+ SINGLEPOLE_id = STATIC_MASTER_BUFF_ID; 
+ STATIC_MASTER_BUFF[SINGLEPOLE_id] = "SINGLEPOLE"; 
+ STATIC_MASTER_BUFF[SINGLEPOLE_id+1] = 6; 
+ STATIC_MASTER_BUFF[SINGLEPOLE_id+2] = 0; 
+ STATIC_MASTER_BUFF[SINGLEPOLE_id+3] = 0.0; 
+ STATIC_MASTER_BUFF[SINGLEPOLE_id+4] = 0.0; 
+ STATIC_MASTER_BUFF[SINGLEPOLE_id+5] = srate; 
+ STATIC_MASTER_BUFF[SINGLEPOLE_id+6] = STATIC_MASTER_BUFF[SINGLEPOLE_id+1]; 
+ STATIC_MASTER_BUFF[SINGLEPOLE_id+7] = 0.0; 
+ STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(SINGLEPOLE_id)+1; 
+ SINGLEPOLE_id; 
+); 
+function _SINGLEPOLE_getElementNum (SINGLEPOLE_id) ( STATIC_MASTER_BUFF[SINGLEPOLE_id + 6];); 
+function SINGLEPOLE_getLastValue (SINGLEPOLE_id) ( STATIC_MASTER_BUFF[SINGLEPOLE_id+3] ;); 
+function SINGLEPOLE_setLastValue (SINGLEPOLE_id,v) ( STATIC_MASTER_BUFF[SINGLEPOLE_id+3] =v;); 
+function SINGLEPOLE_getSampleRate (SINGLEPOLE_id) ( STATIC_MASTER_BUFF[SINGLEPOLE_id+5] ;); 
+function SINGLEPOLE_setSampleRate (SINGLEPOLE_id,v) ( STATIC_MASTER_BUFF[SINGLEPOLE_id+5] =v;); 
+function SINGLEPOLE_getSmoozingCoeff (SINGLEPOLE_id) ( STATIC_MASTER_BUFF[SINGLEPOLE_id+4] ;); 
+function _SINGLEPOLE_setSmoozingCoeff (SINGLEPOLE_id,v) ( STATIC_MASTER_BUFF[SINGLEPOLE_id+4] =v;); 
+function _SINGLEPOLE_getlastInputValue (SINGLEPOLE_id) ( STATIC_MASTER_BUFF[SINGLEPOLE_id+7] ;); 
+function _SINGLEPOLE_setlastInputValue (SINGLEPOLE_id,v) ( STATIC_MASTER_BUFF[SINGLEPOLE_id+7] =v;); 
+function SINGLEPOLE_getSmoozingTime (SINGLEPOLE_id) ( STATIC_MASTER_BUFF[SINGLEPOLE_id+2] ;); 
+function _SINGLEPOLE_calcurateCoeff(SINGLEPOLE_id ) 
+ local (smoozingTime,newCoeff,sampleRate_) 
+( 
+ smoozingTime = SINGLEPOLE_getSmoozingTime(SINGLEPOLE_id); 
+ sampleRate_ = SINGLEPOLE_getSampleRate(SINGLEPOLE_id); 
+ newCoeff = exp(-1/(smoozingTime/1000*sampleRate_)); 
+ _SINGLEPOLE_setSmoozingCoeff(SINGLEPOLE_id,newCoeff); 
+ newCoeff; 
+); 
+function SINGLEPOLE_setSmoozingTime (SINGLEPOLE_id,v) 
+( 
+ STATIC_MASTER_BUFF[SINGLEPOLE_id+2] =v; 
+ _SINGLEPOLE_calcurateCoeff(SINGLEPOLE_id ); 
+); 
+function SINGLEPOLE_isFinished(SINGLEPOLE_id) 
+ local (out ,lastInValue,lastValue) 
+( 
+ out = false; 
+ lastInValue = _SINGLEPOLE_getlastInputValue(SINGLEPOLE_id); 
+ lastValue = SINGLEPOLE_getLastValue(SINGLEPOLE_id); 
+ ( lastInValue == lastValue ) ? 
+ ( 
+ out = true; 
+ ); 
+ out; 
+); 
+function SINGLEPOLE_isActive(SINGLEPOLE_id) 
+ local (out ,lastInValue,lastValue) 
+( 
+ out = false; 
+ (SINGLEPOLE_isFinished(SINGLEPOLE_id) == false ) ? 
+ ( 
+ out = true; 
+ ); 
+ out; 
+); 
+function _SINGLEPOLE_singlepole(lastValue,newValue,coeff) 
+( 
+ lastValue*coeff + newValue*(1-coeff); 
+); 
+function SINGLEPOLE_getSmoozedValue( SINGLEPOLE_id,inValue) 
+ local ( smoozingTime 
+ , lastValue 
+ , smoozingCoeff 
+ , outValue 
+ ) 
+( 
+ smoozingTime = SINGLEPOLE_getSmoozingTime(SINGLEPOLE_id); 
+ lastValue = SINGLEPOLE_getLastValue(SINGLEPOLE_id); 
+ smoozingCoeff = SINGLEPOLE_getSmoozingCoeff(SINGLEPOLE_id); 
+ _SINGLEPOLE_setlastInputValue (SINGLEPOLE_id,inValue); 
+ outValue = _SINGLEPOLE_singlepole( lastValue 
+ , inValue 
+ , smoozingCoeff ); 
+ SINGLEPOLE_setLastValue(SINGLEPOLE_id,outValue); 
+ outValue; 
 ); 
 function ARRAY_create(maxSizeInt)local (ARRAY_ID,instanceNUM) local (maxSize) 
 ( 
@@ -627,6 +704,79 @@ function CURSOLBUFFER_getOffsettedValueWithInterp(CIRCLEBUFFER_ID,delaySample)
  output =((c3*x+c2)*x+c1)*x+c0; 
  output; 
 ); 
+function CURSOLBUFFER_getOffsettedValueWith3rdSplineInterp(CIRCLEBUFFER_ID,delaySample) 
+ local ( out 
+ , bufSize 
+ , counter 
+ , back 
+ , index_0 
+ , x 
+ , p0_index,p1_index,p2_index,p3_index 
+ , p0,p1,p2,p3 
+ ) 
+( 
+ bufSize = CURSOLBUFFER_getMaxSize(CIRCLEBUFFER_ID); 
+ counter = CURSOLBUFFER_getCursolPos(CIRCLEBUFFER_ID)-1; 
+ back = counter-delaySample; 
+ back = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,back); 
+ index_0 =floor( back ); 
+ x = back - index_0; 
+ p0_index = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0-2)) ; 
+ p1_index = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0-1)) ; 
+ p2_index = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0)) ; 
+ p3_index = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0+1)) ; 
+ L1 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p0_index); 
+ L0 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p1_index); 
+ H0 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p2_index); 
+ H1 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p3_index); 
+ out = L0 
+ + 0.5 * 
+ x*(H0-L1 + 
+ x*(H0 + L0*(-2) + L1 + 
+ x*( (H0 - L0)*9 + (L1 - H1)*3 + 
+ x*((L0 - H0)*15 + (H1 - L1)*5 + 
+ x*((H0 - L0)*6 + (L1 - H1)*2 ))))); 
+ out; 
+); 
+function CURSOLBUFFER_getOffsettedValueWith5thSplineInterp(CIRCLEBUFFER_ID,delaySample) 
+ local ( out 
+ , bufSize 
+ , counter 
+ , back 
+ , index_0 
+ , x 
+ , p0_index,p1_index,p2_index,p3_index,p4_index,p5_index 
+ , p0,p1,p2,p3,p4,p5 
+ ) 
+( 
+ bufSize = CURSOLBUFFER_getMaxSize(CIRCLEBUFFER_ID); 
+ counter = CURSOLBUFFER_getCursolPos(CIRCLEBUFFER_ID)-1; 
+ back = counter-delaySample; 
+ ( back < 0.0 )? 
+ ( 
+ back = bufSize + back; 
+ ); 
+ index_0 =floor( back ); 
+ x = back - index_0; 
+ p0_index = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0-2)) ; 
+ p1_index = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0-1)) ; 
+ p2_index = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0)) ; 
+ p3_index = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0+1)) ; 
+ p4_index = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0+2)) ; 
+ p5_index = _CURSOLBUFFER_safeRoundPos(CIRCLEBUFFER_ID,(index_0+3)) ; 
+ p0 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p0_index); 
+ p1 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p1_index); 
+ p2 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p2_index); 
+ p3 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p3_index); 
+ p4 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p4_index); 
+ p5 = CURSOLBUFFER_getValueFromPos(CIRCLEBUFFER_ID,p5_index); 
+ out = p2 + 0.04166666666*x*((p3-p1)*16.0+(p0-p4)*2.0 
+ + x *((p3+p1)*16.0-p0-p2*30.0- p4 
+ + x *(p3*66.0-p2*70.0-p4*33.0+p1*39.0+ p5*7.0- p0*9.0 
+ + x *( p2*126.0-p3*124.0+p4*61.0-p1*64.0- p5*12.0+p0*13.0 
+ + x *((p3-p2)*50.0+(p1-p4)*25.0+(p5-p0)*5.0))))); 
+ out; 
+); 
 function MAP_ELEM_create(keyName,velue)local(MAP_ELEM_ID) 
 ( 
  MAP_ELEM_ID = STATIC_MASTER_BUFF_ID; 
@@ -826,6 +976,7 @@ function get16thNote_Pqn (Tempo) ( 1/4; );
 function get32thNote_Pqn (Tempo) ( 1/8; ); 
 function sample2Ppq (sampleNum,Tempo,sampleRate_) ( sampleNum / get4thNote_Sample(Tempo,sampleRate_);); 
 function sample2Sec (sampleNum,sampleRate_) ( sampleNum / ( sampleRate_ ) ;); 
+function sample2MSec (sampleNum,sampleRate_) ( sampleNum / ( sampleRate_ )*1000;); 
 function sample2Rate (sampleNum,sampleRate_) ( sampleNum / sampleRate_ ;); 
 function pqn2SampleNum (pqnNum,Tempo,sampleRate_) ( pqnNum * get4thNote_Sample(Tempo,sampleRate_);); 
 function pqn2Rate (pqnNum,Tempo,sampleRate_) ( sample2Rate(pqn2SampleNum( pqnNum,Tempo,sampleRate_),sampleRate_);); 
@@ -844,6 +995,7 @@ function DCOFFSET_create() local ( DCOFFSET_ID )
  STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(DCOFFSET_ID)+1; 
  DCOFFSET_ID; 
 ); 
+function _DCOFFSET_getElementNum(DCOFFSET_ID) ( STATIC_MASTER_BUFF[DELTATIME_ID + 4];); 
 function _DCOFFSET_getLastItem(DCOFFSET_ID) ( STATIC_MASTER_BUFF[DCOFFSET_ID+2] ;); 
 function _DCOFFSET_getLastOtem(DCOFFSET_ID) ( STATIC_MASTER_BUFF[DCOFFSET_ID+3] ;); 
 function _DCOFFSET_setLastItem(DCOFFSET_ID,v) ( STATIC_MASTER_BUFF[DCOFFSET_ID+2] =v;); 
@@ -868,6 +1020,7 @@ function MSPROCESS_create() local ( MSPROCESS_ID )
  STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(MSPROCESS_ID)+1; 
  MSPROCESS_ID; 
 ); 
+function _MSPROCESS_getElementNum(MSPROCESS_ID) ( STATIC_MASTER_BUFF[MSPROCESS_ID + 5];); 
 function MSPROCESS_getMid (MSPROCESS_ID) ( STATIC_MASTER_BUFF[MSPROCESS_ID+2] ;); 
 function MSPROCESS_getSideL (MSPROCESS_ID) ( STATIC_MASTER_BUFF[MSPROCESS_ID+3] ;); 
 function MSPROCESS_getSideR (MSPROCESS_ID) ( STATIC_MASTER_BUFF[MSPROCESS_ID+4] ;); 
@@ -892,7 +1045,7 @@ DEFINE_WAVE_SIGNALE_UNIPOLAR = 1;
 function WAVESINE_create() local (WAVESINE_ID) 
 ( 
  WAVESINE_ID = STATIC_MASTER_BUFF_ID; 
- STATIC_MASTER_BUFF[WAVESINE_ID] = "DELTATIME"; 
+ STATIC_MASTER_BUFF[WAVESINE_ID] = "WAVESINE"; 
  STATIC_MASTER_BUFF[WAVESINE_ID+1] = 8; 
  STATIC_MASTER_BUFF[WAVESINE_ID+2] = 440 ; 
  STATIC_MASTER_BUFF[WAVESINE_ID+3] = 0; 
@@ -1198,40 +1351,68 @@ function RBJFILTER_create(sampleRate_)local(RBJFILTER_ID)
  RBJFILTER_calculateCoeff(RBJFILTER_ID); 
  RBJFILTER_ID; 
 ); 
-function PANNNER_create() local(PANNNER_ID) 
+function PANNNER_create() 
+ local( PANNNER_ID 
+ , singlePole_ID_L 
+ , singlePole_ID_R 
+ ) 
 ( 
+ singlePole_ID_L =createSinglePole(); 
+ singlePole_ID_R =createSinglePole(); 
+ SINGLEPOLE_setSmoozingTime(singlePole_ID_L,200); 
+ SINGLEPOLE_setSmoozingTime(singlePole_ID_R,200); 
  PANNNER_ID = STATIC_MASTER_BUFF_ID; 
  STATIC_MASTER_BUFF[PANNNER_ID] = "PANNNER"; 
- STATIC_MASTER_BUFF[PANNNER_ID+1] = 3; 
+ STATIC_MASTER_BUFF[PANNNER_ID+1] = 5; 
  STATIC_MASTER_BUFF[PANNNER_ID+2] = STATIC_MASTER_BUFF[PANNNER_ID+1]; 
  STATIC_MASTER_BUFF[PANNNER_ID+3] = 0.5; 
+ STATIC_MASTER_BUFF[PANNNER_ID+4] = singlePole_ID_L; 
+ STATIC_MASTER_BUFF[PANNNER_ID+5] = singlePole_ID_R; 
  STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(PANNNER_ID)+1; 
  PANNNER_ID; 
 ); 
-function _PANNNER_getElementNum(PANNNER_ID) ( STATIC_MASTER_BUFF[PANNNER_ID+2];); 
+function _PANNNER_getElementNum (PANNNER_ID) ( STATIC_MASTER_BUFF[PANNNER_ID+2];); 
 function PANNER_getPanValue (PANNNER_ID) ( STATIC_MASTER_BUFF[PANNNER_ID+3];); 
 function PANNER_setPanValue (PANNNER_ID,v) ( STATIC_MASTER_BUFF[PANNNER_ID+3]= v;); 
-function PANNER_getLeft (PANNNER_ID,inSample) local ( out,panValue,amp) 
+function _PANNER_getSinglePole_ID_L (PANNNER_ID ) ( STATIC_MASTER_BUFF[PANNNER_ID+4];); 
+function _PANNER_getSinglePole_ID_R (PANNNER_ID ) ( STATIC_MASTER_BUFF[PANNNER_ID+5];); 
+function PANNER_getLeft (PANNNER_ID,inSample) 
+ local ( out 
+ , panValue 
+ , amp 
+ , SINGLEPOLE_id_L) 
 ( 
- panValue = PANNER_getPanValue(PANNNER_ID); 
+ panValue = PANNER_getPanValue(PANNNER_ID ); 
+ SINGLEPOLE_id_L = _PANNER_getSinglePole_ID_L (PANNNER_ID ); 
+ amp = 1; 
  ( panValue > 0.5)? 
  ( 
  amp = 1-abs( (PANNER_getPanValue(PANNNER_ID)-0.5)/0.5 ); 
  ):( 
  amp = 1; 
  ); 
+ amp = SINGLEPOLE_getSmoozedValue(SINGLEPOLE_id_L,amp); 
+ amp = min(max(0,amp),1); 
  out = inSample* amp; 
  out; 
 ); 
-function PANNER_getRight (PANNNER_ID,inSample)local ( out,panValue ,amp) 
+function PANNER_getRight (PANNNER_ID,inSample) 
+ local ( out 
+ , panValue 
+ , amp 
+ , SINGLEPOLE_id_R) 
 ( 
- panValue = PANNER_getPanValue(PANNNER_ID); 
+ panValue = PANNER_getPanValue(PANNNER_ID ); 
+ SINGLEPOLE_id_R= _PANNER_getSinglePole_ID_R (PANNNER_ID ); 
+ amp = 1; 
  ( panValue > 0.5)? 
  ( 
  amp = 1; 
  ):( 
  amp = 1-abs( (PANNER_getPanValue(PANNNER_ID)-0.5)/0.5 ); 
  ); 
+ amp = SINGLEPOLE_getSmoozedValue(SINGLEPOLE_id_R,amp); 
+ amp = min(max(0,amp),1); 
  out = inSample* amp; 
  out; 
 ); 
@@ -1471,7 +1652,6 @@ function POINT_getAngle(POINT_A,POINT_B)local (out)
  POINT_getY (POINT_B ) - POINT_getY (POINT_A ) 
  ,POINT_getX (POINT_B ) - POINT_getX (POINT_A ) 
  ); 
- out = rad(360); 
  out; 
 ); 
 function CIRCLE_create(x,y,radius)local (CIRCLE_ID) 
@@ -2157,6 +2337,72 @@ function COLOR_changeColorByName(COLOR_ID,colorName )
  ; 
 ); 
 ___tempHSB ; 
+function Draw_WaveGraph( CursolBufferID_ForGraph,drawPointNum,x,y,w,h) 
+ local ( xDelta,count_BB,lastVV_YY,lastVV_XX 
+ , bufferNum,temp_Alpha,xx,yy 
+ , vv_YY 
+ ) 
+( 
+ bufferNum = CURSOLBUFFER_getMaxSize( CursolBufferID_ForGraph); 
+ xDelta = w / drawPointNum; 
+ count_BB = 0; 
+ lastVV_YY = 0; 
+ lastVV_XX = w; 
+ temp_Alpha = gfx_a; 
+ while(count_BB < drawPointNum ) 
+ ( 
+ xx = w-count_BB *xDelta; 
+ vv_YY = CURSOLBUFFER_getOffsettedValue( CursolBufferID_ForGraph 
+ , -count_BB ); 
+ yy = -vv_YY * w/2*0.4 +h/2; 
+ gfx_r = 1;gfx_g = 1;gfx_b = 1; 
+ gfx_rect(xx,yy,1,gfx_h/2-yy+1,false); 
+ gfx_r = 0;gfx_g = 0;gfx_b = 0; 
+ gfx_line(lastVV_XX,lastVV_YY,xx+1,yy,false); 
+ lastVV_XX = xx; 
+ lastVV_YY = yy; 
+ count_BB += 1; 
+ ); 
+ gfx_a = temp_Alpha; 
+); 
+function drawCircleWaveSignale( _cx,_cy , _CursolBuffer_ID _radius, _signalGain) 
+ local ( bufferNum 
+ ,drawPointNum 
+ ,angleDelta 
+ ,count_BB 
+ ,last_YY 
+ ,last_XX 
+ ,xx_ 
+ ,yy_ 
+ ,value_ 
+ ,roted_X 
+ ,roted_Y 
+ ,targetAngle 
+ ) 
+( 
+ bufferNum = CURSOLBUFFER_getMaxSize( _CursolBuffer_ID); 
+ drawPointNum = bufferNum; 
+ angleDelta = 1.0/ drawPointNum; 
+ xDelta = 1; 
+ count_BB = 0; 
+ last_YY = _cy -_radius; 
+ last_XX = _cx; 
+ while(count_BB < drawPointNum ) 
+ ( 
+ xx_ = _cx ; 
+ value_ = CURSOLBUFFER_getOffsettedValue( _CursolBuffer_ID 
+ , -count_BB ); 
+ yy_ = _cy-_radius- _signalGain*value_; 
+ targetAngle = angleDelta *count_BB; 
+ roted_X = rotPoint_X(xx_,yy_,_cx,_cy,$pi*2*targetAngle); 
+ roted_Y = rotPoint_Y(xx_,yy_,_cx,_cy,$pi*2*targetAngle); 
+ gfx_r=1;gfx_g=1;gfx_b=0;gfx_a= 1; 
+ gfx_line(last_XX,last_YY,roted_X,roted_Y,false); 
+ last_XX = roted_X; 
+ last_YY = roted_Y; 
+ count_BB+=1; 
+ ); 
+); 
 function drawWaveBufferToCanvas(CANVAS_ID,waveMax,waveMin,oneBar_Width,vAmp,alpha,hueOffset) 
  local ( lastDest,tempCanvasSlot,halfHeight 
  , yy1,yy2,tempCanvas,vAmp_,CLEAR_CANVAS_SLOT 
@@ -2387,7 +2633,7 @@ function POINT_drawLine(POINT_A_ID,POINT_B_ID,thickNess)
 ( 
  angleRad = POINT_getAngle(POINT_A_ID,POINT_ID_B); 
  cx = POINT_getX(POINT_A_ID ); 
- cy = POINT_getY(POINT_B_ID ); 
+ cy = POINT_getY(POINT_A_ID ); 
  x1_L = rotPoint_X(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)-thickNess,cx,cy,angleRad); 
  y1_L = rotPoint_Y(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)-thickNess,cx,cy,angleRad); 
  x1_R = rotPoint_X(POINT_getX(POINT_A_ID),POINT_getY(POINT_A_ID)+thickNess,cx,cy,angleRad); 
@@ -2466,6 +2712,30 @@ function POINT_drawLineWithRect_2(POINT_A_ID,POINT_B_ID,rectAngle_)
  ,max(y1,min(y2,POINT_getY(POINT_A_ID))) 
  ,max(x1,min(x2,POINT_getX(POINT_B_ID))) 
  ,max(y1,min(y2,POINT_getY(POINT_B_ID))) 
+ ); 
+); 
+function DrawLine_WithThickNess(x1_,y1_,x2_,y2_,thickness) 
+ local ( angle 
+ , p1X ,p1Y 
+ , p2X ,p2Y 
+ , p3X ,p3Y 
+ , p4X ,p4Y 
+ ) 
+( 
+ angle = atan2( y2_ -y1_ 
+ , x2_ -x1_ ); 
+ p1X = rotPoint_X(x1_,y1_-thickness,x1_,y1_, angle); 
+ p1Y = rotPoint_Y(x1_,y1_-thickness,x1_,y1_, angle); 
+ p2X = rotPoint_X(x2_,y2_-thickness,x2_,y2_, angle); 
+ p2Y = rotPoint_Y(x2_,y2_-thickness,x2_,y2_, angle); 
+ p3X = rotPoint_X(x2_,y2_+thickness,x2_,y2_, angle); ; 
+ p3Y = rotPoint_Y(x2_,y2_+thickness,x2_,y2_, angle); 
+ p4X = rotPoint_X(x1_,y1_+thickness,x1_,y1_, angle); ; 
+ p4Y = rotPoint_Y(x1_,y1_+thickness,x1_,y1_, angle); ; 
+ gfx_triangle( p1X,p1Y 
+ , p2X,p2Y 
+ , p3X,p3Y 
+ , p4X,p4Y 
  ); 
 ); 
 function CIRCLE_draw(CIRCLE_ID,antialiase)local (x,y,r) 
@@ -3746,6 +4016,79 @@ function BEZIERLINEGROUP_drawAllWithReq_WithRect(BEZIERLINEGROUP_ID,divNum,reqes
  count_A +=1; 
  ); 
 ); 
+function COMPONENT_INDEXER_create()local(COMPONENT_INDEXR_ID) 
+( 
+ COMPONENT_INDEXR_ID = STATIC_MASTER_BUFF_ID; 
+ STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID] = "COMPONENT_INDEXER"; 
+ STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+1] = 10; 
+ STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+2] = 0; 
+ STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+3] = 0; 
+ STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+4] = 0; 
+ STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+5] = 0; 
+ STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+6] = 0; 
+ STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+7] = STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID+1]; 
+ STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(COMPONENT_INDEXR_ID)+1; 
+ COMPONENT_INDEXR_ID; 
+); 
+function _COMPONENT_INDEXER_getElementNum (COMPONENT_INDEXR_ID) ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 7];); 
+function COMPONENT_INDEXER_getLastEventedComponent (COMPONENT_INDEXR_ID) ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 5];); 
+function _COMPONENT_INDEXER_setLastEventedComponent (COMPONENT_INDEXR_ID,v) ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 5]=v;); 
+function COMPONENT_INDEXER_getLastTouchedComponent (COMPONENT_INDEXR_ID) ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 6];); 
+function _COMPONENT_INDEXER_setLastTouchedComponent (COMPONENT_INDEXR_ID,v) ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 6]=v;); 
+function COMPONENT_INDEXER_getLastMousePressedComponent (COMPONENT_INDEXR_ID) ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 2];); 
+function COMPONENT_INDEXER_getLastMouseReleasedComponent (COMPONENT_INDEXR_ID) ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 3];); 
+function COMPONENT_INDEXER_getLastMouseWheeledComponent (COMPONENT_INDEXR_ID) ( STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 4];); 
+function COMPONENT_INDEXER_setLastMousePressedComponent (COMPONENT_INDEXR_ID,v) 
+( 
+ STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 2]=v; 
+ _COMPONENT_INDEXER_setLastEventedComponent(COMPONENT_INDEXR_ID,v); 
+ _COMPONENT_INDEXER_setLastTouchedComponent(COMPONENT_INDEXR_ID,v); 
+); 
+function COMPONENT_INDEXER_setLastMouseReleasedComponent (COMPONENT_INDEXR_ID,v) 
+( 
+ STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 3]=v; 
+ _COMPONENT_INDEXER_setLastEventedComponent(COMPONENT_INDEXR_ID,v); 
+ _COMPONENT_INDEXER_setLastTouchedComponent(COMPONENT_INDEXR_ID,v); 
+); 
+function COMPONENT_INDEXER_setLastMouseWheeledComponent (COMPONENT_INDEXR_ID,v) 
+( 
+ STATIC_MASTER_BUFF[COMPONENT_INDEXR_ID + 4]=v; 
+ _COMPONENT_INDEXER_setLastEventedComponent(COMPONENT_INDEXR_ID,v); 
+ _COMPONENT_INDEXER_setLastTouchedComponent(COMPONENT_INDEXR_ID,v); 
+); 
+STATIC_COMPONENT_INDEXER = COMPONENT_INDEXER_create(); 
+function GetLastMousePressdComponent() 
+( 
+ COMPONENT_INDEXER_getLastMousePressedComponent(STATIC_COMPONENT_INDEXER); 
+); 
+function GetLastMouseReleasedComponent() 
+( 
+ COMPONENT_INDEXER_getLastMouseReleasedComponent(STATIC_COMPONENT_INDEXER); 
+); 
+function GetLastMouseWheeledComponent() 
+( 
+ COMPONENT_INDEXER_getLastMouseWheeledComponent(STATIC_COMPONENT_INDEXER); 
+); 
+function GetLastLastEventedComponent() 
+( 
+ COMPONENT_INDEXER_getLastEventedComponent(STATIC_COMPONENT_INDEXER); 
+); 
+function GetLastTouchedComponent() 
+( 
+ COMPONENT_INDEXER_getLastTouchedComponent(STATIC_COMPONENT_INDEXER); 
+); 
+function SetLastMousePressdComponent(v) 
+( 
+ COMPONENT_INDEXER_setLastMousePressedComponent(STATIC_COMPONENT_INDEXER,v); 
+); 
+function SetLastMouseReleasedComponent(v) 
+( 
+ COMPONENT_INDEXER_setLastMouseReleasedComponent(STATIC_COMPONENT_INDEXER,v); 
+); 
+function SetLastMouseWheeledComponent(v) 
+( 
+ COMPONENT_INDEXER_setLastMouseWheeledComponent(STATIC_COMPONENT_INDEXER,v); 
+); 
 function createDefaultColorMAP()local (out_c ) 
 ( 
  out_c = MAP_create(); 
@@ -3944,6 +4287,7 @@ function COMPONENT_mouseButtonPressd(COMPONENT_ID,MOUSEINFO_ID )local(circle_Are
  ( RECTANGLE_isContainMouse(COMPONENT_ID) ==true) ? 
  ( 
  DBG("COMPO_MOUSE_BUTTON_PRESS_IN"); 
+ SetLastMousePressdComponent(XYSLIDER_ID); 
  COMPONENT_setIsMousePressStartedInThisComp(COMPONENT_ID,true); 
  ):( 
  COMPONENT_setIsMousePressStartedInThisComp(COMPONENT_ID,false); 
@@ -3954,6 +4298,7 @@ function COMPONENT_mouseButtonReleased( COMPONENT_ID,MOUSEINFO_ID )
  ( RECTANGLE_isContainMouse(COMPONENT_ID) ==true) ? 
  ( 
  DBG("COMPO_MOUSE_BUTTON_RELEASE"); 
+ SetLastMouseReleasedComponent(COMPONENT_ID); 
  ); 
 ); 
 function COMPONENT_mouseWheeled(COMPONENT_ID,MOUSEINFO_ID ) 
@@ -3961,6 +4306,7 @@ function COMPONENT_mouseWheeled(COMPONENT_ID,MOUSEINFO_ID )
  ( RECTANGLE_isContainMouse(COMPONENT_ID) ==true) ? 
  ( 
  DBG("COMPO_MOUSE_WHEELD"); 
+ SetLastMouseWheeledComponent(COMPONENT_ID); 
  ); 
 ); 
 function BUTTON_create(name) local (BUTTON_ID,baseClassElementNum) 
@@ -4044,6 +4390,7 @@ function BUTTON_mouseButtonPressd(BUTTON_ID,MOUSEINFO_ID )local(circle_Area_ID)
 ( 
  ( RECTANGLE_isContainMouse(BUTTON_ID) ==true) ? 
  ( 
+ SetLastMousePressdComponent(BUTTON_ID); 
  DBG(" BUTTON Mouse Button Press IN"); 
  COMPONENT_setIsMousePressStartedInThisComp(BUTTON_ID,true); 
  ):( 
@@ -4055,6 +4402,7 @@ function BUTTON_mouseButtonReleased( BUTTON_ID,MOUSEINFO_ID )local (tempstr)
  ( RECTANGLE_isContainMouse(BUTTON_ID) ==true) ? 
  ( 
  DBG(" BUTTON Mouse Button Released"); 
+ SetLastMouseReleasedComponent(BUTTON_ID); 
  (COMPONENT_isMousePressStartedInThisComp(BUTTON_ID) ==true)? 
  ( 
  BUTTON_toggleOnOff(BUTTON_ID,true); 
@@ -4066,6 +4414,7 @@ function BUTTON_mouseWheeled(BUTTON_ID,MOUSEINFO_ID )
  ( RECTANGLE_isContainMouse(BUTTON_ID) ==true) ? 
  ( 
  DBG(" BUTTON Mouse Wheeld"); 
+ SetLastMouseWheeledComponent(BUTTON_ID); 
  ); 
 ); 
 function BUTTONGROUP_create(name) 
@@ -4276,6 +4625,7 @@ function BUTTONGROUP_mouseButtonPressd(BUTTONGROUP_ID,MOUSEINFO_ID )
  (RECTANGLE_isContainMouse(BUTTONGROUP_ID) == true) ? 
  ( 
  slider_automate(2 ^ COMPONENT_getSliderIndex(BUTTONGROUP_ID) -1 ); 
+ SetLastMousePressdComponent(BUTTONGROUP_ID); 
  ); 
  count_A +=1; 
  ); 
@@ -4300,6 +4650,7 @@ function BUTTONGROUP_mouseButtonReleased( BUTTONGROUP_ID,MOUSEINFO_ID )
  , _BUTTONGROUP_getCurrentButtonIndex(BUTTONGROUP_ID)); 
  BUTTONGROUP_setCurrentButtonComponentByIndex(BUTTONGROUP_ID,count_A); 
  slider_automate(2 ^ COMPONENT_getSliderIndex(BUTTONGROUP_ID) -1 ); 
+ SetLastMouseReleasedComponent(BUTTONGROUP_ID); 
  ); 
  count_A +=1; 
  ); 
@@ -4320,6 +4671,7 @@ function BUTTONGROUP_mouseWheeled(BUTTONGROUP_ID,MOUSEINFO_ID )
  BUTTONGROUP_stepCurrentButtonIndex( BUTTONGROUP_ID 
  , MOUSEINFO_getMouseWheelDiffV_ABS (MOUSEINFO_ID) ); 
  slider_automate(2 ^ COMPONENT_getSliderIndex(BUTTONGROUP_ID) -1 ); 
+ SetLastMouseWheeledComponent(BUTTONGROUP_ID); 
  ); 
 ); 
 function BUTTONGROUP_addButton(BUTTONGROUP_ID,buttonComponent) 
@@ -4485,6 +4837,7 @@ function SLIDER_mouseButtonPressd(SLIDER_ID,MOUSEINFO_ID )local(circle_Area_ID)
 ( 
  ( RECTANGLE_isContainMouse(SLIDER_ID) ==true) ? 
  ( 
+ SetLastMousePressdComponent(SLIDER_ID); 
  DBG(" SLIDER Mouse Button Press IN"); 
  COMPONENT_setIsMousePressStartedInThisComp(SLIDER_ID,true); 
  ):( 
@@ -4502,6 +4855,7 @@ function SLIDER_mouseButtonReleased( SLIDER_ID,MOUSEINFO_ID )local (tempstr)
  ( RECTANGLE_isContainMouse(SLIDER_ID) ==true) ? 
  ( 
  DBG(" SLIDER Mouse Button Released"); 
+ SetLastMouseReleasedComponent(SLIDER_ID); 
  ); 
  _SLIDER_setIsCircleAreaPressed(SLIDER_ID,false); 
 ); 
@@ -4514,6 +4868,7 @@ function SLIDER_mouseWheeled(SLIDER_ID,MOUSEINFO_ID )
  , COMPONENT_getValue(SLIDER_ID) 
  + MOUSEINFO_getMouseWheelDiffV_ABS(MOUSEINFO_ID)/30 
  , true); 
+ SetLastMouseWheeledComponent(SLIDER_ID); 
  ); 
 ); 
 SLIDERTYPE2_TEXT_TYPE_RAW = "RAW"; 
@@ -4526,7 +4881,7 @@ function SLIDERTYPE2_create(name)
  SLIDERTYPE2_ID = COMPONENT_create(name); 
  baseClassElementNum =_COMPONENT_getElementNum(SLIDERTYPE2_ID); 
  STATIC_MASTER_BUFF[SLIDERTYPE2_ID ] = "SLIDERTYPE2"; 
- STATIC_MASTER_BUFF[SLIDERTYPE2_ID + 1] = baseClassElementNum + 4; 
+ STATIC_MASTER_BUFF[SLIDERTYPE2_ID + 1] = baseClassElementNum + 5; 
  STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 1] = 0; 
  STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 2] = 0; 
  STATIC_MASTER_BUFF[SLIDERTYPE2_ID + baseClassElementNum + 3] = 0; 
@@ -4659,6 +5014,7 @@ function SLIDERTYPE2_mouseButtonPressd(SLIDERTYPE2_ID,MOUSEINFO_ID )local(circle
  ( RECTANGLE_isContainMouse(SLIDERTYPE2_ID) ==true) ? 
  ( 
  DBG(" SLIDER Mouse Button Press IN"); 
+ SetLastMousePressdComponent(SLIDERTYPE2_ID); 
  COMPONENT_setIsMousePressStartedInThisComp(SLIDERTYPE2_ID,true); 
  ):( 
  COMPONENT_setIsMousePressStartedInThisComp(SLIDERTYPE2_ID,false); 
@@ -4669,6 +5025,7 @@ function SLIDERTYPE2_mouseButtonReleased( SLIDERTYPE2_ID,MOUSEINFO_ID )local (te
  ( RECTANGLE_isContainMouse(SLIDERTYPE2_ID) ==true) ? 
  ( 
  DBG(" SLIDER Mouse Button Released"); 
+ SetLastMouseReleasedComponent(SLIDERTYPE2_ID); 
  ); 
 ); 
 function SLIDERTYPE2_mouseWheeled(SLIDERTYPE2_ID,MOUSEINFO_ID ) 
@@ -4681,6 +5038,7 @@ function SLIDERTYPE2_mouseWheeled(SLIDERTYPE2_ID,MOUSEINFO_ID )
  + MOUSEINFO_getMouseWheelDiffV_ABS(MOUSEINFO_ID)/30 
  ,true 
  ); 
+ SetLastMouseWheeledComponent(SLIDERTYPE2_ID); 
  ); 
 ); 
 function TEXT_create(name) 
@@ -4754,6 +5112,7 @@ function TEXT_mouseButtonPressd(TEXT_ID,MOUSEINFO_ID )local(circle_Area_ID)
  ( RECTANGLE_isContainMouse(TEXT_ID) ==true) ? 
  ( 
  DBG(" TEXT Mouse Button Press IN"); 
+ SetLastMousePressdComponent(TEXT_ID); 
  COMPONENT_setIsMousePressStartedInThisComp(TEXT_ID,true); 
  ; 
  ):( 
@@ -4765,6 +5124,7 @@ function TEXT_mouseButtonReleased( TEXT_ID,MOUSEINFO_ID )local (tempstr)
  ( RECTANGLE_isContainMouse(TEXT_ID) ==true) ? 
  ( 
  DBG(" TEXT Mouse Button Released"); 
+ SetLastMouseReleasedComponent(TEXT_ID); 
  ); 
 ); 
 function TEXT_mouseWheeled(TEXT_ID,MOUSEINFO_ID ) 
@@ -4772,6 +5132,7 @@ function TEXT_mouseWheeled(TEXT_ID,MOUSEINFO_ID )
  ( RECTANGLE_isContainMouse(TEXT_ID) ==true) ? 
  ( 
  DBG(" TEXT Mouse Wheeld"); 
+ SetLastMouseWheeledComponent(TEXT_ID); 
  ); 
 ); 
 function KNOB_create(name) 
@@ -4890,6 +5251,7 @@ function KNOB_mouseButtonPressd(KNOB_ID,MOUSEINFO_ID )local(circle_Area_ID)
 ( 
  ( RECTANGLE_isContainMouse(KNOB_ID) ==true) ? 
  ( 
+ SetLastMousePressdComponent(KNOB_ID); 
  DBG(" KNOB Mouse Button Press IN"); 
  COMPONENT_setIsMousePressStartedInThisComp(KNOB_ID,true); 
  ):( 
@@ -4901,6 +5263,7 @@ function KNOB_mouseButtonReleased( KNOB_ID,MOUSEINFO_ID )local (tempstr)
  ( RECTANGLE_isContainMouse(KNOB_ID) ==true) ? 
  ( 
  DBG(" KNOB Mouse Button Released"); 
+ SetLastMouseReleasedComponent(KNOB_ID); 
  ); 
 ); 
 function KNOB_mouseWheeled(KNOB_ID,MOUSEINFO_ID ) 
@@ -4913,8 +5276,12 @@ function KNOB_mouseWheeled(KNOB_ID,MOUSEINFO_ID )
  + MOUSEINFO_getMouseWheelDiffV_ABS(MOUSEINFO_ID)/30 
  , true 
  ); 
+ SetLastMouseWheeledComponent(KNOB_ID); 
  ); 
 ); 
+DEFINE_XYSLIDER_DISTANCE_DRAWMODE_NONE = 0; 
+DEFINE_XYSLIDER_DISTANCE_DRAWMODE_CENTER = 1; 
+DEFINE_XYSLIDER_DISTANCE_DRAWMODE_CENTER_ANGLE = 2; 
 function XYSLIDER_create(name) 
  local (XYSLIDER_ID,circle_Area_ID,baseClassElementNum) 
 ( 
@@ -4922,7 +5289,7 @@ function XYSLIDER_create(name)
  XYSLIDER_ID = COMPONENT_create(name); 
  baseClassElementNum =_COMPONENT_getElementNum(XYSLIDER_ID); 
  STATIC_MASTER_BUFF[XYSLIDER_ID ] = "XYSLIDER"; 
- STATIC_MASTER_BUFF[XYSLIDER_ID + 1] = baseClassElementNum + 9; 
+ STATIC_MASTER_BUFF[XYSLIDER_ID + 1] = baseClassElementNum + 20; 
  STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 1] = circle_Area_ID; 
  STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 2] = false; 
  STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 3] = -1; 
@@ -4932,6 +5299,16 @@ function XYSLIDER_create(name)
  STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 7] = STATIC_MASTER_BUFF[XYSLIDER_ID + 1] ; 
  STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 8] = 0 ; 
  STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 9] = 0 ; 
+ STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 10] = 0 ; 
+ STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 11] = DEFINE_XYSLIDER_DISTANCE_DRAWMODE_NONE ; 
+ STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 12] = 0 ; 
+ STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 13] = false ; 
+ STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 14] = false ; 
+ STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 15] = 0.1 ; 
+ STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 16] = 0.1 ; 
+ STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 17] = "x:" ; 
+ STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 18] = "y:" ; 
+ STATIC_MASTER_BUFF[XYSLIDER_ID + baseClassElementNum + 19] = false ; 
  STATIC_MASTER_BUFF_ID += STRUCT_getElementNum (XYSLIDER_ID)+1; 
  MAP_setValue( COMPONENT_getColorMap(XYSLIDER_ID) 
  ,"background_mouseon" 
@@ -4951,6 +5328,46 @@ function XYSLIDER_getLastValueX(XYSLIDER_ID) ( STATIC_MASTER_BUFF[XYSLIDER_ID + 
 function XYSLIDER_getLastValueY(XYSLIDER_ID) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 9];); 
 function XYSLIDER_setLastValueX(XYSLIDER_ID,v) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 8]=v;); 
 function XYSLIDER_setLastValueY(XYSLIDER_ID,v) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 9]=v;); 
+function XYSLIDER_getXYDistanceFromCenter ( XYSLIDER_ID) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 10];); 
+function XYSLIDER_setXYDistanceFromCenter ( XYSLIDER_ID,v) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 10]=v;); 
+function XYSLIDER_getXYDistanceDrawMode ( XYSLIDER_ID) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 11];); 
+function XYSLIDER_setXYDistanceDrawMode ( XYSLIDER_ID,v) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 11]=v;); 
+function XYSLIDER_getXYAngleFromCenter ( XYSLIDER_ID) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 12];); 
+function XYSLIDER_setXYAngleFromCenter ( XYSLIDER_ID,v) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 12]=v;); 
+function XYSLIDER_getIsNeedCrossCursolLine ( XYSLIDER_ID) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 13];); 
+function XYSLIDER_setIsNeedCrossCursolLine ( XYSLIDER_ID,v) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 13]=v;); 
+function XYSLIDER_getIsDrawGrid ( XYSLIDER_ID) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 14];); 
+function XYSLIDER_setIsDrawGrid ( XYSLIDER_ID,v) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 14]=v;); 
+function XYSLIDER_getXGridParam ( XYSLIDER_ID) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 15];); 
+function XYSLIDER_setXGridParam ( XYSLIDER_ID,v) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 15]=v;); 
+function XYSLIDER_getYGridParam ( XYSLIDER_ID) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 16];); 
+function XYSLIDER_setYGridParam ( XYSLIDER_ID,v) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 16]=v;); 
+function XYSLIDER_getXGridParamName ( XYSLIDER_ID) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 17];); 
+function XYSLIDER_setXGridParamName ( XYSLIDER_ID,v) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 17]=v;); 
+function XYSLIDER_getYGridParamName ( XYSLIDER_ID) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 18];); 
+function XYSLIDER_setYGridParamName ( XYSLIDER_ID,v) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 18]=v;); 
+function XYSLIDER_getIsUseGridParamerOnMousePt ( XYSLIDER_ID) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 19];); 
+function XYSLIDER_setIsUseGridParamerOnMousePt ( XYSLIDER_ID,v) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 19] = v;); 
+function _XYSLIDER_updateXyValueAngleFromCentero(XYSLIDER_ID) 
+ local (xx_,yy_ ,angle) 
+( 
+ xx_ = XYSLIDER_getXValue(XYSLIDER_ID) ; 
+ yy_ = XYSLIDER_getYValue(XYSLIDER_ID) ; 
+ angle = atan2( 0.5 -yy_ 
+ , 0.5 -xx_ ); 
+ XYSLIDER_setXYAngleFromCenter ( XYSLIDER_ID,angle); 
+); 
+function _XYSLIDER_updateXyValueDistanceFromCentero(XYSLIDER_ID) 
+ local ( distanceFromCenter,distanceTarget) 
+( 
+ distanceFromCenter = getManhattanDist( 0.5 
+ , 0.5 
+ , XYSLIDER_getXValue (XYSLIDER_ID) 
+ , XYSLIDER_getYValue (XYSLIDER_ID) 
+ ); 
+ distanceTarget = getManhattanDist( 0.5,0.5,0.0,0.0); 
+ XYSLIDER_setXYDistanceFromCenter(XYSLIDER_ID,distanceFromCenter); 
+); 
 function XYSLIDER_setXValue(XYSLIDER_ID,v,isSendReaper) 
 ( 
  _XYSLIDER_setXValue(XYSLIDER_ID,v); 
@@ -4959,6 +5376,8 @@ function XYSLIDER_setXValue(XYSLIDER_ID,v,isSendReaper)
  slider( XYSLIDER_getSliderIndexX(XYSLIDER_ID) ) = v; 
  slider_automate(2 ^ XYSLIDER_getSliderIndexX(XYSLIDER_ID)-1); 
  ); 
+ _XYSLIDER_updateXyValueDistanceFromCentero(XYSLIDER_ID); 
+ _XYSLIDER_updateXyValueAngleFromCentero(XYSLIDER_ID); 
 ); 
 function XYSLIDER_setYValue(XYSLIDER_ID,v,isSendReaper) 
 ( 
@@ -4968,17 +5387,19 @@ function XYSLIDER_setYValue(XYSLIDER_ID,v,isSendReaper)
  slider( XYSLIDER_getSliderIndexY(XYSLIDER_ID) ) = v; 
  slider_automate(2 ^ XYSLIDER_getSliderIndexY(XYSLIDER_ID)-1); 
  ); 
+ _XYSLIDER_updateXyValueDistanceFromCentero(XYSLIDER_ID); 
+ _XYSLIDER_updateXyValueAngleFromCentero(XYSLIDER_ID); 
 ); 
 function XYSLIDER_getCircleArea(XYSLIDER_ID) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+1];); 
 function XYSLIDER_isCircleAreaPressed(XYSLIDER_ID) ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+2];); 
 function _XYSLIDER_setIsCircleAreaPressed(XYSLIDER_ID,v)( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+2]=v;); 
 function XYSLIDER_getCircleAreaCX(XYSLIDER_ID) 
 ( 
- CIRcLE_getCX ( XYSLIDER_getCircleArea(XYSLIDER_ID)); 
+ CIRCLE_getCX ( XYSLIDER_getCircleArea(XYSLIDER_ID)); 
 ); 
 function XYSLIDER_getCircleAreaCY(XYSLIDER_ID) 
 ( 
- CIRcLE_getCY ( XYSLIDER_getCircleArea(XYSLIDER_ID)); 
+ CIRCLE_getCY ( XYSLIDER_getCircleArea(XYSLIDER_ID)); 
 ); 
 function _XYSLIDER_getMeterWidth(XYSLIDER_ID) 
  local (circle_Pointer_ID,x,w,radius,out) 
@@ -5013,13 +5434,39 @@ function _XYSLIDER_positionToYValue(XYSLIDER_ID,y_) local (out,meterHeight,tempY
  radius = CIRCLE_getRadius(XYSLIDER_getCircleArea(XYSLIDER_ID)); 
  out = max( 0,min( (y_- tempY-radius )/(meterHeight) ,1)); 
 ); 
-function XYSLIDER_isXValueChanged( XYSLIDER_ID) 
+function XYSLIDER_isXValueChanged( XYSLIDER_ID)local ( out ) 
 ( 
- ( XYSLIDER_getLastValueX( XYSLIDER_ID) != XYSLIDER_getXValue(XYSLIDER_ID) ); 
+ out = false; 
+ ( XYSLIDER_getLastValueX( XYSLIDER_ID) != XYSLIDER_getXValue(XYSLIDER_ID) )? 
+ ( 
+ out =true; 
+ ); 
+ out; 
 ); 
-function XYSLIDER_isYValueChanged( XYSLIDER_ID) 
+function XYSLIDER_isYValueChanged( XYSLIDER_ID)local ( out ) 
 ( 
- ( XYSLIDER_getLastValueY( XYSLIDER_ID) != XYSLIDER_getYValue(XYSLIDER_ID)); 
+ out = false; 
+ ( XYSLIDER_getLastValueY( XYSLIDER_ID) != XYSLIDER_getYValue(XYSLIDER_ID))? 
+ ( 
+ out =true; 
+ ); 
+ out; 
+); 
+function XYSLIDER_getGridValueParameter_X(XYSLIDER_ID) 
+ local (x_GridDelta,xValue,out) 
+( 
+ x_GridDelta =XYSLIDER_getXGridParam(XYSLIDER_ID); 
+ xValue = XYSLIDER_getXValue(XYSLIDER_ID); 
+ out = xValue / x_GridDelta; 
+ out; 
+); 
+function XYSLIDER_getGridValueParameter_Y(XYSLIDER_ID) 
+ local (y_GridDelta,yValue,out) 
+( 
+ y_GridDelta =XYSLIDER_getYGridParam(XYSLIDER_ID); 
+ yValue = XYSLIDER_getYValue(XYSLIDER_ID); 
+ out = yValue / y_GridDelta; 
+ out; 
 ); 
 function XYSLIDER_update(XYSLIDER_ID) 
 ( 
@@ -5033,14 +5480,351 @@ function XYSLIDER_resized(XYSLIDER_ID,parrentRECT )
 ( 
  0; 
 ); 
-function XYSLIDER_draw(XYSLIDER_ID) 
-local ( radius,lineH,x,y,w,h,circle_Area_ID 
- , tempStr,tempStrW,tempStrH,XXXX,YYYY,margin) 
+function _XYSLIDER_drawXYDistance(XYSLIDER_ID,XXXX,YYYY) 
+ local ( radius 
+ , lineH 
+ , cx 
+ , cy 
+ , x,y,w,h,xx_,yy_ 
+ , angle 
+ , thicknes 
+ , drawStr_dist 
+ , str_W 
+ , str_H 
+ , marginX 
+ , marginY 
+ ) 
+( 
+ cx = RECTANGLE_getCenterX(XYSLIDER_ID); 
+ cy = RECTANGLE_getCenterY(XYSLIDER_ID); 
+ x = RECTANGLE_getX(XYSLIDER_ID); 
+ y = RECTANGLE_getY(XYSLIDER_ID); 
+ w = RECTANGLE_getWidth(XYSLIDER_ID); 
+ h = RECTANGLE_getHeight(XYSLIDER_ID); 
+ xx_ = XYSLIDER_getXValue(XYSLIDER_ID) ; 
+ yy_ = XYSLIDER_getYValue(XYSLIDER_ID) ; 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"blue"); 
+ angle = atan2( cy -YYYY 
+ , cx -XXXX ); 
+ radius = (min(w,h)-15)/2 * XYSLIDER_getXYDistanceFromCenter(XYSLIDER_ID); 
+ gfx_circle( cx,cy,radius,true); 
+ thicknes = 2; 
+ DrawLine_WithThickNess(cx,cy,XXXX,YYYY,thicknes); 
+ gfx_a = 1.0; 
+ drawStr_dist = #; 
+ sprintf ( drawStr_dist,"Distance: %.2f %% " ,XYSLIDER_getXYDistanceFromCenter(XYSLIDER_ID) *100); 
+ gfx_measurestr(drawStr_dist,str_W,str_H); 
+ marginX =5; 
+ marginY =5; 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"black"); 
+ gfx_rect( cx - str_W/2 - marginX 
+ ,cy - str_H/2 - marginY 
+ ,str_W + marginX*2 
+ ,str_H + marginY*2 
+ ); 
+ gfx_x = cx - str_W/2; 
+ gfx_y = cy - str_H/2; 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"white"); 
+ gfx_drawstr(drawStr_dist); 
+); 
+function _XYSLIDER_drawXYAngleFromCenter(XYSLIDER_ID,XXXX,YYYY) 
+ local ( radius 
+ , lineH 
+ , cx 
+ , cy 
+ , x,y,w,h,xx_,yy_ 
+ , angle 
+ , thicknes 
+ , drawStr_dist 
+ , str_W 
+ , str_H 
+ , marginX 
+ , marginY 
+ ) 
+( 
+ cx = RECTANGLE_getCenterX(XYSLIDER_ID); 
+ cy = RECTANGLE_getCenterY(XYSLIDER_ID); 
+ x = RECTANGLE_getX(XYSLIDER_ID); 
+ y = RECTANGLE_getY(XYSLIDER_ID); 
+ w = RECTANGLE_getWidth(XYSLIDER_ID); 
+ h = RECTANGLE_getHeight(XYSLIDER_ID); 
+ xx_ = XYSLIDER_getXValue(XYSLIDER_ID) ; 
+ yy_ = XYSLIDER_getYValue(XYSLIDER_ID) ; 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"blue"); 
+ angle = atan2( cy -YYYY 
+ , cx -XXXX ); 
+ radius = (min(w,h))/4 ; 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"green"); 
+ gfx_circle ( cx,cy,radius/2,true); 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"blue"); 
+ drawFillArc(cx,cy,radius,$pi/2,angle-$pi/2,32); 
+ thicknes = 2; 
+ DrawLine_WithThickNess(cx,cy,XXXX,YYYY,thicknes); 
+ drawStr_dist = #; 
+ sprintf ( drawStr_dist,"Angle: %.2f Deg " ,360 -deg(angle+$pi )); 
+ gfx_measurestr(drawStr_dist,str_W,str_H); 
+ marginX =5; 
+ marginY =5; 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"black"); 
+ gfx_rect( cx - str_W/2 - marginX 
+ ,cy - str_H/2 - marginY 
+ ,str_W + marginX*2 
+ ,str_H + marginY*2 
+ ); 
+ gfx_x = cx - str_W/2; 
+ gfx_y = cy - str_H/2; 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"white"); 
+ gfx_drawstr(drawStr_dist); 
+); 
+function _XYSLIDER_drawGrid(XYSLIDER_ID,pointerRadius) 
+ local( , x,y,w,h,xx_,yy_ 
+ , x_GridDelta 
+ , y_GridDelta 
+ , _cc_X_fPos 
+ , _cc_Y_fPos 
+ , _Y_drawX1,_Y_drawY1, _Y_drawX2,_Y_drawY2 
+ , _X_drawX1,_X_drawY1, _X_drawX2,_X_drawY2 
+ , _saftyCountX 
+ , _saftyCountY 
+ , _saftyCount_Check 
+ , _cc_X_count 
+ , _cc_Y_count 
+ , _cc_X_Norm 
+ , _cc_Y_Norm 
+ , _radius 
+ , _X_TotalGrid_Num 
+ , _Y_TotalGrid_Num 
+ , _temp_Alpha 
+ , _targetAlpha 
+ , _radiusPoint 
+ ) 
+( 
+ _radiusPoint = pointerRadius; 
+ x = RECTANGLE_getX(XYSLIDER_ID) + _radiusPoint; 
+ y = RECTANGLE_getY(XYSLIDER_ID) + _radiusPoint; 
+ w = RECTANGLE_getWidth(XYSLIDER_ID) - _radiusPoint*2; 
+ h = RECTANGLE_getHeight(XYSLIDER_ID)- _radiusPoint*2; 
+ x_GridDelta =XYSLIDER_getXGridParam(XYSLIDER_ID); 
+ y_GridDelta =XYSLIDER_getYGridParam(XYSLIDER_ID); 
+ _saftyCountX = 0; 
+ _saftyCountY = 0; 
+ _saftyCount_Check = 30; 
+ _cc_X_count = 0; 
+ _cc_Y_count = 0; 
+ _cc_X_Norm = 0; 
+ _cc_Y_Norm = 0; 
+ _radius = 2.5; 
+ _X_TotalGrid_Num = 1.0 /x_GridDelta ; 
+ _Y_TotalGrid_Num = 1.0 /y_GridDelta ; 
+ _temp_Alpha =COMPONENT_getComponentAlpha (XYSLIDER_ID); 
+ _targetAlpha = _temp_Alpha *0.7; 
+ _cc_X_count = 0; 
+ _saftyCountX = 0; 
+ while ( _cc_X_count < _X_TotalGrid_Num +1) 
+ ( 
+ ( _saftyCountX > _saftyCount_Check)?(_cc_X_count = 100; ); 
+ _cc_X_Norm = x_GridDelta* _cc_X_count; 
+ _X_drawX1 = floor( x + w *_cc_X_Norm); 
+ _X_drawY1 = floor( y ) - _radiusPoint;; 
+ _X_drawX2 = _X_drawX1; 
+ _X_drawY2 = floor( y + h )+ _radiusPoint;; 
+ (_X_drawX1 <=x+ w )? 
+ ( 
+ ( _cc_X_count % 2 == 1 
+ && _X_TotalGrid_Num > 2 ) ? 
+ ( 
+ gfx_a = _targetAlpha*0.6; ; 
+ ):( 
+ gfx_a = _targetAlpha; 
+ ); 
+ ( _cc_X_Norm != 0.5) ? 
+ gfx_line (_X_drawX1,_X_drawY1, _X_drawX2,_X_drawY2,true); 
+ ):( 
+ _cc_X_count = 100; 
+ ); 
+ _cc_X_count +=1; 
+ _saftyCountX +=1; 
+ ); 
+ _cc_Y_count = 0; 
+ _saftyCountY = 0; 
+ while ( _cc_Y_count < _Y_TotalGrid_Num +1) 
+ ( 
+ ( _saftyCountY > _saftyCount_Check)?(_cc_Y_count = 100; ); 
+ _cc_Y_Norm = y_GridDelta* _cc_Y_count; 
+ _cc_Y_Norm = y_GridDelta* _cc_Y_count; 
+ _Y_drawX1 = floor( x ) - _radiusPoint; 
+ _Y_drawY1 = floor( y + h *_cc_Y_Norm); 
+ _Y_drawX2 = floor( x + w ) + _radiusPoint; 
+ _Y_drawY2 = _Y_drawY1 ; 
+ ( _Y_drawY1 <= y +h 
+ ) ? 
+ ( 
+ ( _cc_Y_count % 2 == 1 
+ && _Y_TotalGrid_Num > 2 )? 
+ ( 
+ gfx_a =_targetAlpha*0.6; 
+ ):( 
+ gfx_a = _targetAlpha; 
+ ); 
+ (_cc_Y_Norm != 0.5) ? 
+ gfx_line (_Y_drawX1,_Y_drawY1, _Y_drawX2,_Y_drawY2); 
+ ):( 
+ _cc_Y_count = 100; 
+ ); 
+ gfx_a =_targetAlpha; 
+ _cc_X_count = 0; 
+ _saftyCountX = 0; 
+ while ( _cc_X_count < _X_TotalGrid_Num +1) 
+ ( 
+ ( _saftyCountX > _saftyCount_Check)?(_cc_X_count = 100; ); 
+ _cc_X_Norm = x_GridDelta* _cc_X_count; 
+ _X_drawX1 = floor( x + w *_cc_X_Norm); 
+ _X_drawY1 = floor( y ) - _radiusPoint;; 
+ _X_drawX2 = _X_drawX1; 
+ _X_drawY2 = floor( y + h )+ _radiusPoint;; 
+ (_X_drawX1 <=x+ w )? 
+ ( 
+ ( _cc_X_count % 2 == 0 
+ && _cc_Y_count % 2 == 0 
+ )? 
+ ( 
+ gfx_a = _targetAlpha; 
+ gfx_circle ( floor( x + w *x_GridDelta* ( _cc_X_count) ) 
+ , floor( y + h *y_GridDelta* ( _cc_Y_count) ) 
+ , _radius,true ); 
+ ); 
+ ):( 
+ _cc_X_count = 100; 
+ ); 
+ _cc_X_count +=1; 
+ _saftyCountX +=1; 
+ ); 
+ _saftyCountY += 1; 
+ _cc_Y_count+=1; 
+ ); 
+ gfx_a = _temp_Alpha; 
+); 
+function _XYSLIDER_draw_GridValue ( XYSLIDER_ID,xx_,yy_) 
+ local (x ,y,w ,h 
+ ,cx ,cy 
+ ,_x_tl 
+ ,_y_tl 
+ ,_marginX 
+ ,_marginY 
+ ,drawStr_dist 
+ ,str_W 
+ ,str_H 
+ ,str_H 
+ ) 
 ( 
  x = RECTANGLE_getX(XYSLIDER_ID); 
  y = RECTANGLE_getY(XYSLIDER_ID); 
  w = RECTANGLE_getWidth(XYSLIDER_ID); 
  h = RECTANGLE_getHeight(XYSLIDER_ID); 
+ cx = RECTANGLE_getCenterX(XYSLIDER_ID); 
+ cy = RECTANGLE_getCenterY(XYSLIDER_ID); 
+ _gridXValue = XYSLIDER_getGridValueParameter_X (XYSLIDER_ID); 
+ _gridYValue = XYSLIDER_getGridValueParameter_Y (XYSLIDER_ID); 
+ _x_tl = xx_; 
+ _y_tl = cy-gfx_texth*2; 
+ _marginX =5; 
+ _marginY =5; 
+ drawStr_dist = #; 
+ sprintf ( drawStr_dist,"32th x %.2f" ,_gridXValue); 
+ gfx_measurestr(drawStr_dist,str_W,str_H); 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"black"); 
+ gfx_rect( _x_tl 
+ , _y_tl 
+ ,str_W + _marginX*2 
+ ,str_H + _marginY*2 
+ ); 
+ gfx_x = _x_tl + _marginX; 
+ gfx_y = _y_tl + _marginY; 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"white"); 
+ gfx_drawstr(drawStr_dist); 
+); 
+function _XYSLIDER_drawCrossCursol(XYSLIDER_ID,XXXX,YYYY) 
+ local (x,y,w,h 
+ , cx,cy 
+ ,_triangle_WidthV 
+ ,_triangle_WidthT 
+ ,tempStr 
+ ,tempStrW 
+ ,tempStrH) 
+( 
+ x = RECTANGLE_getX(XYSLIDER_ID); 
+ y = RECTANGLE_getY(XYSLIDER_ID); 
+ w = RECTANGLE_getWidth(XYSLIDER_ID); 
+ h = RECTANGLE_getHeight(XYSLIDER_ID); 
+ cx =RECTANGLE_getCenterX(XYSLIDER_ID); 
+ cy =RECTANGLE_getCenterY(XYSLIDER_ID); 
+ gfx_line ( x , YYYY,x+w,YYYY); 
+ gfx_line ( XXXX , y,XXXX,y+h); 
+ _triangle_WidthV = 5; 
+ _triangle_WidthT = 5; 
+ gfx_triangle( x,YYYY-_triangle_WidthV 
+ , x,YYYY+_triangle_WidthV 
+ , x+_triangle_WidthT,YYYY 
+ ); 
+ gfx_triangle( x+w,YYYY-_triangle_WidthV 
+ , x+w,YYYY+_triangle_WidthV 
+ , x+w-_triangle_WidthT,YYYY 
+ ); 
+ gfx_triangle( XXXX-_triangle_WidthV,y 
+ , XXXX+_triangle_WidthV,y 
+ , XXXX,y+_triangle_WidthT 
+ ); 
+ gfx_triangle( XXXX-_triangle_WidthV,y+h 
+ , XXXX+_triangle_WidthV,y+h 
+ , XXXX,y+h-_triangle_WidthT 
+ ); 
+ _triangle_WidthV = 3; 
+ _triangle_WidthT = 3; 
+ gfx_triangle( XXXX-_triangle_WidthV,cy 
+ , XXXX,cy-_triangle_WidthT 
+ , XXXX+_triangle_WidthV,cy 
+ , XXXX,cy+_triangle_WidthT 
+ ); 
+ gfx_triangle( cx,YYYY-_triangle_WidthV 
+ , cx-_triangle_WidthT,YYYY 
+ , cx,YYYY+_triangle_WidthV 
+ , cx+_triangle_WidthT,YYYY 
+ ); 
+ tempStr = #; 
+ (XYSLIDER_getIsUseGridParamerOnMousePt(XYSLIDER_ID) == true)? 
+ ( 
+ sprintf( tempStr,"%.2f",XYSLIDER_getGridValueParameter_Y(XYSLIDER_ID) ); 
+ ):( 
+ sprintf( tempStr,"%.2f",XYSLIDER_getYValue(XYSLIDER_ID) ); 
+ ); 
+ gfx_measurestr(tempStr,tempStrW,tempStrH); 
+ gfx_x = x-tempStrW-1; 
+ gfx_y = YYYY-gfx_texth/2; 
+ gfx_drawstr(tempStr); 
+ (XYSLIDER_getIsUseGridParamerOnMousePt(XYSLIDER_ID) == true)? 
+ ( 
+ sprintf( tempStr,"%.2f",XYSLIDER_getGridValueParameter_X(XYSLIDER_ID) ); 
+ ):( 
+ sprintf( tempStr,"%.2f",XYSLIDER_getXValue(XYSLIDER_ID) ); 
+ ); 
+ gfx_measurestr(tempStr,tempStrW,tempStrH); 
+ gfx_x = XXXX-tempStrW/2; 
+ gfx_y = y+h+gfx_texth/2; 
+ gfx_drawstr(tempStr); 
+); 
+function XYSLIDER_draw(XYSLIDER_ID) 
+local ( radius,lineH,x,y,w,h,cx,cy,circle_Area_ID 
+ , tempStr,tempStrW,tempStrH,XXXX,YYYY,margin,temp_Alpha 
+ , _onMouseX_Offset 
+ , _onMouseY_Offset 
+ ) 
+( 
+ x = RECTANGLE_getX(XYSLIDER_ID); 
+ y = RECTANGLE_getY(XYSLIDER_ID); 
+ w = RECTANGLE_getWidth(XYSLIDER_ID); 
+ h = RECTANGLE_getHeight(XYSLIDER_ID); 
+ cx =RECTANGLE_getCenterX(XYSLIDER_ID); 
+ cy =RECTANGLE_getCenterY(XYSLIDER_ID); 
  radius = 12; 
  lineH = 1; 
  COMPONENT_changeColorGfx( XYSLIDER_ID,"white"); 
@@ -5051,16 +5835,29 @@ local ( radius,lineH,x,y,w,h,circle_Area_ID
  , x +w/2 ,y+h); 
  gfx_line( x ,y+h/2 
  ,x+w ,y+h/2); 
- gfx_rect( x, y, w, h,false); 
+ (XYSLIDER_getIsDrawGrid(XYSLIDER_ID) == true)? 
+ ( 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"white"); 
+ _XYSLIDER_drawGrid(XYSLIDER_ID,radius); 
+ ); 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"black"); 
+ gfx_rect( x, y, w+1, h+1,false); 
  circle_Area_ID = XYSLIDER_getCircleArea(XYSLIDER_ID); 
  XXXX = (x+radius)+ (w-radius*2 ) * XYSLIDER_getXValue(XYSLIDER_ID) ; 
  YYYY = (y+radius)+ (h-radius*2 ) * XYSLIDER_getYValue(XYSLIDER_ID) ; 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"black"); 
+ ( XYSLIDER_getIsNeedCrossCursolLine(XYSLIDER_ID)==true)? 
+ ( 
+ _XYSLIDER_drawCrossCursol(XYSLIDER_ID,XXXX,YYYY); 
+ ); 
  CIRCLE_setCX(circle_Area_ID,XXXX ); 
  CIRCLE_setCY(circle_Area_ID,YYYY); 
  CIRCLE_setRadius(circle_Area_ID,radius); 
  tempStr = "X 0.0 : Y 0.0"; 
  gfx_measurestr(tempStr,tempStrW,tempStrH); 
  margin =3; 
+ ( XYSLIDER_getXYDistanceDrawMode( XYSLIDER_ID) == DEFINE_XYSLIDER_DISTANCE_DRAWMODE_NONE)? 
+ ( 
  COMPONENT_changeColorGfx( XYSLIDER_ID,"black"); 
  gfx_rect(x+w/2 
  ,y+h/2 
@@ -5070,6 +5867,19 @@ local ( radius,lineH,x,y,w,h,circle_Area_ID
  gfx_x = x+w/2+margin; 
  gfx_y = y+h/2+margin; 
  gfx_drawstr( "X 0.5 : Y 0.5"); 
+ ):( XYSLIDER_getXYDistanceDrawMode( XYSLIDER_ID) == DEFINE_XYSLIDER_DISTANCE_DRAWMODE_CENTER)? 
+ ( 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"white"); 
+ gfx_x = x+w/2+margin; 
+ gfx_y = y+h/2+margin; 
+ _XYSLIDER_drawXYDistance(XYSLIDER_ID,XXXX,YYYY); 
+ ):( XYSLIDER_getXYDistanceDrawMode( XYSLIDER_ID) == DEFINE_XYSLIDER_DISTANCE_DRAWMODE_CENTER_ANGLE)? 
+ ( 
+ COMPONENT_changeColorGfx( XYSLIDER_ID,"white"); 
+ gfx_x = x+w/2+margin; 
+ gfx_y = y+h/2+margin; 
+ _XYSLIDER_drawXYAngleFromCenter(XYSLIDER_ID,XXXX,YYYY); 
+ ); 
  COMPONENT_changeColorGfx( XYSLIDER_ID,"black"); 
  gfx_rect(x 
  ,y 
@@ -5115,20 +5925,33 @@ local ( radius,lineH,x,y,w,h,circle_Area_ID
  COMPONENT_changeColorGfx( XYSLIDER_ID,"red"); 
  gfx_circle( floor(XXXX),floor(YYYY) , radius -4 ,true); 
  tempStr =#; 
+ (XYSLIDER_getIsUseGridParamerOnMousePt(XYSLIDER_ID) == true)? 
+ ( 
+ sprintf( tempStr 
+ ,"%s%1.2f\n%s%1.2f" 
+ , XYSLIDER_getXGridParamName(XYSLIDER_ID) 
+ , XYSLIDER_getGridValueParameter_X(XYSLIDER_ID) 
+ , XYSLIDER_getYGridParamName(XYSLIDER_ID) 
+ , XYSLIDER_getGridValueParameter_Y(XYSLIDER_ID) 
+ ); 
+ ):( 
  sprintf( tempStr 
  ,"x %1.2f :y %1.2f " 
  , XYSLIDER_getXValue(XYSLIDER_ID) 
  , XYSLIDER_getYValue(XYSLIDER_ID) 
  ); 
+ ); 
  gfx_measurestr(tempStr,tempStrW,tempStrH); 
  COMPONENT_changeColorGfx( XYSLIDER_ID,"black"); 
- gfx_rect(max(x,min(mouse_x,x+w-(tempStrW+margin*2)-radius -5)) +radius +5 
- ,max(y,min(mouse_y,y+h-(tempStrH+margin*2)-radius -5)) +radius +5 
+ _onMouseX_Offset = 1; 
+ _onMouseY_Offset = 1; 
+ gfx_rect(max(x,min(XXXX,x+w-(tempStrW+margin*2)-radius -_onMouseX_Offset)) +radius +_onMouseX_Offset 
+ ,max(y,min(YYYY,y+h-(tempStrH+margin*2)-radius -_onMouseY_Offset)) +radius +_onMouseY_Offset 
  ,tempStrW+margin*2 
  ,tempStrH+margin*2,true); 
  COMPONENT_changeColorGfx( XYSLIDER_ID,"white"); 
- gfx_x = max(x,min(mouse_x,x+w-(tempStrW+margin*2)-radius -5))+margin +radius +5; 
- gfx_y = max(y,min(mouse_y,y+h-(tempStrH+margin*2)-radius -5))+margin +radius +5; 
+ gfx_x = max(x,min(XXXX,x+w-(tempStrW+margin*2)-radius -_onMouseX_Offset))+margin +radius +_onMouseX_Offset; 
+ gfx_y = max(y,min(YYYY,y+h-(tempStrH+margin*2)-radius -_onMouseY_Offset))+margin +radius +_onMouseY_Offset; 
  gfx_drawstr( tempStr); 
  ):( 
  COMPONENT_changeColorGfx( XYSLIDER_ID,"yellow"); 
@@ -5161,6 +5984,7 @@ function XYSLIDER_mouseButtonPressd(XYSLIDER_ID,MOUSEINFO_ID )local(circle_Area_
  ( RECTANGLE_isContainMouse(XYSLIDER_ID) ==true) ? 
  ( 
  DBG(" SLIDER Mouse Button Press IN"); 
+ SetLastMousePressdComponent(XYSLIDER_ID); 
  COMPONENT_setIsMousePressStartedInThisComp(XYSLIDER_ID,true); 
  ):( 
  COMPONENT_setIsMousePressStartedInThisComp(XYSLIDER_ID,false); 
@@ -5177,6 +6001,7 @@ function XYSLIDER_mouseButtonReleased( XYSLIDER_ID,MOUSEINFO_ID )local (tempstr)
  ( RECTANGLE_isContainMouse(XYSLIDER_ID) ==true) ? 
  ( 
  DBG(" SLIDER Mouse Button Released"); 
+ SetLastMouseReleasedComponent(XYSLIDER_ID); 
  ); 
  _XYSLIDER_setIsCircleAreaPressed(XYSLIDER_ID,false); 
 ); 
@@ -5191,6 +6016,7 @@ function XYSLIDER_mouseWheeled(XYSLIDER_ID,MOUSEINFO_ID )
  , true 
  ); 
  DBG_FLOAT(COMPONENT_getValue(XYSLIDER_ID) ); 
+ SetLastMouseWheeledComponent(XYSLIDER_ID); 
  ); 
 ); 
 function _FREQUENCY_getElementNum (FREQUENCY_ID) ( STATIC_MASTER_BUFF[FREQUENCY_ID + _COMPONENT_getElementNum(FREQUENCY_ID)+1];); 
@@ -6020,6 +6846,7 @@ function FREQUENCY_mouseButtonPressd(FREQUENCY_ID,MOUSEINFO_ID )local(circle_Are
 ( 
  ( RECTANGLE_isContainMouse(FREQUENCY_ID) ==true) ? 
  ( 
+ SetLastMousePressdComponent(FREQUENCY_ID); 
  DBG(" Mouse Button Press on Frequency Component"); 
  COMPONENT_setIsMousePressStartedInThisComp(FREQUENCY_ID,true); 
  ):( 
@@ -6031,10 +6858,7 @@ function FREQUENCY_mouseButtonReleased( FREQUENCY_ID,MOUSEINFO_ID )local (tempst
  ( RECTANGLE_isContainMouse(FREQUENCY_ID) ==true) ? 
  ( 
  DBG(" Mouse Button Released on Frequency Component"); 
- (COMPONENT_isMousePressStartedInThisComp(FREQUENCY_ID) ==true)? 
- ( 
- BUTTON_toggleOnOff(FREQUENCY_ID,true); 
- ); 
+ SetLastMouseReleasedComponent(FREQUENCY_ID); 
  ); 
 ); 
 function FREQUENCY_mouseWheeled(FREQUENCY_ID,MOUSEINFO_ID ) 
@@ -6042,6 +6866,7 @@ function FREQUENCY_mouseWheeled(FREQUENCY_ID,MOUSEINFO_ID )
  ( RECTANGLE_isContainMouse(FREQUENCY_ID) ==true) ? 
  ( 
  DBG(" Mouse Wheeld on Frequency Component"); 
+ SetLastMouseWheeledComponent(FREQUENCY_ID); 
  ); 
 ); 
 function LAYER_create(name) 
@@ -7104,15 +7929,10 @@ function BPMDELAY_process(BPMDELAY_ID,inSample)
  , inSample 
  + _BPMDELAY_getWetvalue(BPMDELAY_ID)*0.9*feedBackValue 
  ); 
- effectedValue = CURSOLBUFFER_getOffsettedValue( delayArray 
- , -delaySample ); 
+ effectedValue = CURSOLBUFFER_getOffsettedValueWithInterp( delayArray 
+ , delaySample ); 
  effectedValue *= delayGainValue; 
  _BPMDELAY_setWetvalue(BPMDELAY_ID,effectedValue); 
- PANNER_setPanValue(panner_class,panValue); 
- ( RECTANGLE_isSame( _BPMDELAY_getLastRectangle (BPMDELAY_ID),BPMDELAY_ID ) == false)? 
- ( 
- 0; 
- ); 
  RECTANGLE_copyTo( _BPMDELAY_getLastRectangle (BPMDELAY_ID),BPMDELAY_ID); 
 ); 
 function BPMDELAY_getEffectedSample_L(BPMDELAY_ID) 
@@ -7207,38 +8027,47 @@ function BPMDELAY_create(parrentLayer)
 @init 
  app_ID = APP_create(); 
  layer_001 = LAYER_create("LAYER01"); 
- layer_002 = LAYER_create("LAYER01"); 
- comp_Border = COMPONENT_create("TEST"); 
- comp_KONB_ID_L = KNOB_create( "Delay L") ; 
- comp_KONB_ID_R = KNOB_create( "Delay R") ; 
- COMPONENT_setSliderIndex(comp_KONB_ID_L,1); 
- COMPONENT_setSliderIndex(comp_KONB_ID_R,2); 
- LAYER_addChildComponent(layer_001 , comp_Border); 
- LAYER_addChildComponent(layer_001 , comp_KONB_ID_L); 
- LAYER_addChildComponent(layer_001 , comp_KONB_ID_R); 
- LAYER_addChildComponent(layer_001 , comp_XYSlider_1); 
- LAYER_addChildComponent(layer_001 , comp_XYSlider_1); 
- comp_XYSlider_1 = XYSLIDER_create("comp_XYSlider_1"); 
- XYSLIDER_setSliderIndexX(comp_XYSlider_1,2); 
- XYSLIDER_setSliderIndexY(comp_XYSlider_1,1); 
- LAYER_addChildComponent(layer_002 , comp_Border); 
- LAYER_addChildComponent(layer_002 , comp_XYSlider_1); 
+ comp_Border1 = COMPONENT_create("TEST"); 
+ comp_Border2 = COMPONENT_create("TEST2"); 
+ comp_BUTTON_01 = BUTTON_create("REC"); 
+ comp_BUTTON_02 = BUTTON_create("CIR"); 
+ comp_BUTTON_03 = BUTTON_create("HEX"); 
+ comp_BUTTON_04 = BUTTON_create("TRI"); 
+ comp_BUTTON_05 = BUTTON_create("STA"); 
+ COMPONENT_setSliderIndex(comp_BUTTON_01,1); 
+ COMPONENT_setSliderIndex(comp_BUTTON_02,2); 
+ COMPONENT_setSliderIndex(comp_BUTTON_03,3); 
+ COMPONENT_setSliderIndex(comp_BUTTON_04,4); 
+ COMPONENT_setSliderIndex(comp_BUTTON_05,5); 
+ BUTTON_setOnTextPostFix (comp_BUTTON_01,""); 
+ BUTTON_setOffTextPostFix(comp_BUTTON_01,""); 
+ BUTTON_setOnTextPostFix (comp_BUTTON_02,""); 
+ BUTTON_setOffTextPostFix(comp_BUTTON_02,""); 
+ BUTTON_setOnTextPostFix (comp_BUTTON_03,""); 
+ BUTTON_setOffTextPostFix(comp_BUTTON_03,""); 
+ BUTTON_setOnTextPostFix (comp_BUTTON_04,""); 
+ BUTTON_setOffTextPostFix(comp_BUTTON_04,""); 
+ BUTTON_setOnTextPostFix (comp_BUTTON_05,""); 
+ BUTTON_setOffTextPostFix(comp_BUTTON_05,""); 
+ LAYER_addChildComponent(layer_001 , comp_BUTTON_01); 
+ LAYER_addChildComponent(layer_001 , comp_BUTTON_02); 
+ LAYER_addChildComponent(layer_001 , comp_BUTTON_03); 
+ LAYER_addChildComponent(layer_001 , comp_BUTTON_04); 
+ LAYER_addChildComponent(layer_001 , comp_BUTTON_05); 
+ LAYER_addChildComponent(layer_001 , comp_Border1); 
+ LAYER_addChildComponent(layer_001 , comp_Border2); 
  APP_addChildComponent(app_ID,layer_001 ); 
- APP_addChildComponent(app_ID,layer_002 ); 
- LAYER_setActive(layer_001 ,false); 
- LAYER_setActive(layer_002 ,true); 
- canvas_WAVE_L = CANVAS_create(gfx_w,gfx_h); 
- canvas_WAVE_R = CANVAS_create(gfx_w,gfx_h); 
- delaySize = srate; 
- DELAY_ARRAY_L = CURSOLBUFFER_create(delaySize); 
- DELAY_ARRAY_R = CURSOLBUFFER_create(delaySize); 
- DBG_toggle(DBG); 
+ LAYER_setActive(layer_001 ,true); 
+ CANVS_WAVE_L = CANVAS_create(gfx_w,gfx_h); 
+ CANVS_WAVE_R = CANVAS_create(gfx_w,gfx_h); 
  PARTICLE_controller = PARTICLE_CONTROLLER_create(); 
+ particle_type = PARTICE_DRAW_TYPE_CIRCLE; 
 @slider 
- COMPONENT_setValue(comp_KONB_ID_L,slider1,false); 
- COMPONENT_setValue(comp_KONB_ID_R,slider2,false); 
- XYSLIDER_setXValue(comp_XYSlider_1,slider2,false); 
- XYSLIDER_setYValue(comp_XYSlider_1,slider1,false); 
+ COMPONENT_setValue(comp_BUTTON_01,slider1,false); 
+ COMPONENT_setValue(comp_BUTTON_02,slider2,false); 
+ COMPONENT_setValue(comp_BUTTON_03,slider3,false); 
+ COMPONENT_setValue(comp_BUTTON_04,slider4,false); 
+ COMPONENT_setValue(comp_BUTTON_05,slider5,false); 
  APP_SliderChanged(app_ID); 
 @block 
  f_max_L = 0;f_min_L = 0; 
@@ -7248,141 +8077,128 @@ function BPMDELAY_create(parrentLayer)
  f_min_L = min(f_min_L,spl0); 
  f_max_R = max(f_max_R,spl1); 
  f_min_R = min(f_min_R,spl1); 
- (slider5 == 0)? 
- ( 
- delayTime = delaySize/8 ; 
- ):(slider5 == 1)? 
- ( 
- delayTime = delaySize/4 ; 
- ):(slider5 == 2)? 
- ( 
- delayTime = delaySize/2 ; 
- ):(slider5 == 3)? 
- ( 
- delayTime = delaySize ; 
- ) 
- ; 
- CURSOLBUFFER_push( DELAY_ARRAY_L 
- ,(spl0+spl1)/2+delay_L*0.9*slider3 ); 
- CURSOLBUFFER_push( DELAY_ARRAY_R 
- ,(spl0+spl1)/2+delay_R*0.9*slider3 ); 
- delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L 
- , -delayTime 
- * COMPONENT_getValue(comp_KONB_ID_L) 
- ); 
- delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R 
- , -delayTime 
- * COMPONENT_getValue(comp_KONB_ID_R) 
- ); 
- delay_L = spl0+ delay_L; 
- delay_R = spl1+ delay_R; 
- (slider6 ==1) ? invertL =-1 : invertL = 1; 
- (slider7 ==1) ? invertR =-1 : invertR = 1; 
- (slider8 ==1)? 
- ( 
- spl0 = spl0 *(1-slider4 ) + ( delay_R ) * (slider4 )*invertR ; 
- spl1 = spl1 *(1-slider4 ) + ( delay_L ) * (slider4 )*invertL; 
- ):( 
- spl0 = spl0 *(1-slider4 ) + ( delay_L ) * (slider4 )*invertL ; 
- spl1 = spl1 *(1-slider4 ) + ( delay_R ) * (slider4 )*invertR ; 
- ); 
 @gfx 200 400 
  drawBackGrond_color( 10, 120 , 12*4); 
  drawSinWaveCircle(100,0.8,1,0.0043); 
  drawSinWaveCircle(100,0.8,1,0.0043); 
- drawWaveBufferToCanvas( canvas_WAVE_L 
- , f_max_L 
- , f_min_L 
- , 40 * COMPONENT_getValue(comp_KONB_ID_L) 
- , 0.5 
- , 1 
- , 80); 
- drawWaveBufferToCanvas( canvas_WAVE_R 
- , f_max_R 
- , f_min_R 
- , 40 * COMPONENT_getValue(comp_KONB_ID_R) 
- , 0.6 
- , 1 
- , 0); 
+ drawWaveBufferToCanvas(CANVS_WAVE_L 
+ ,f_max_L 
+ ,f_min_L 
+ ,1 
+ ,0.5 
+ ,1 
+ ,80); 
+ drawWaveBufferToCanvas(CANVS_WAVE_R 
+ ,f_max_R 
+ ,f_min_R 
+ ,1 
+ ,0.6 
+ ,1 
+ ,0); 
  gfx_a =0.6; 
- CANVAS_blitImage4(canvas_WAVE_R,1,0); 
- CANVAS_blitImage4(canvas_WAVE_L,1,0); 
+ CANVAS_blitImage4(CANVS_WAVE_R,1,0); 
+ CANVAS_blitImage4(CANVS_WAVE_L,1,0); 
  gfx_a =1; 
- drawDotGrid(10,10,0.06); 
+ drawDotGrid(20,20,0.04); 
  DBGMESSAGE_drawAllMessage(DBG); 
  PARTICLE_CONTROLLER_update ( PARTICLE_controller ); 
- ( APP_isMouseButtonHoldingPress(app_ID) ==true) ? 
+ (true)? 
  ( 
- PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller); 
- 0; 
+ ( BUTTON_isON(comp_BUTTON_01) == true 
+ || BUTTON_isON(comp_BUTTON_02) == true 
+ || BUTTON_isON(comp_BUTTON_03) == true 
+ || BUTTON_isON(comp_BUTTON_04) == true 
+ || BUTTON_isON(comp_BUTTON_05) == true 
+ ) ? 
+ ( 
+ PARTICLE_CONTROLLER_addParticleType4(PARTICLE_controller,particle_type); 
+ ); 
+ ); 
+ ( COMPONENT_isValueChanged( comp_BUTTON_01 )==true)? 
+ ( 
+ particle_type = PARTICE_DRAW_TYPE_RECT; 
+ BUTTON_OFF( comp_BUTTON_02,true); 
+ BUTTON_OFF( comp_BUTTON_03,true); 
+ BUTTON_OFF( comp_BUTTON_04,true); 
+ BUTTON_OFF( comp_BUTTON_05,true); 
+ ):( COMPONENT_isValueChanged( comp_BUTTON_02 )==true)? 
+ ( 
+ particle_type = PARTICE_DRAW_TYPE_CIRCLE; 
+ BUTTON_OFF( comp_BUTTON_01,true); 
+ BUTTON_OFF( comp_BUTTON_03,true); 
+ BUTTON_OFF( comp_BUTTON_04,true); 
+ BUTTON_OFF( comp_BUTTON_05,true); 
+ ):( COMPONENT_isValueChanged( comp_BUTTON_03 )==true)? 
+ ( 
+ particle_type = PARTICE_DRAW_TYPE_HEX; 
+ BUTTON_OFF( comp_BUTTON_01,true); 
+ BUTTON_OFF( comp_BUTTON_02,true); 
+ BUTTON_OFF( comp_BUTTON_04,true); 
+ BUTTON_OFF( comp_BUTTON_05,true); 
+ ):(COMPONENT_isValueChanged( comp_BUTTON_04 )==true)? 
+ ( 
+ particle_type = PARTICE_DRAW_TYPE_TRI; 
+ BUTTON_OFF( comp_BUTTON_01,true); 
+ BUTTON_OFF( comp_BUTTON_02,true); 
+ BUTTON_OFF( comp_BUTTON_03,true); 
+ BUTTON_OFF( comp_BUTTON_05,true); 
+ ):( COMPONENT_isValueChanged( comp_BUTTON_05 )==true)? 
+ ( 
+ particle_type = PARTICE_DRAW_TYPE_STAR; 
+ BUTTON_OFF( comp_BUTTON_01,true); 
+ BUTTON_OFF( comp_BUTTON_02,true); 
+ BUTTON_OFF( comp_BUTTON_03,true); 
+ BUTTON_OFF( comp_BUTTON_04,true); 
  ); 
  (time_precise() -lastPTime_ > 0.25)? 
  ( 
- PARTICLE_CONTROLLER_addParticleType2_XY ( PARTICLE_controller 
- , gfx_w/2 
- , gfx_h/2 
- , false 
+ PARTICLE_CONTROLLER_addParticleType2_XY (PARTICLE_controller 
+ ,gfx_w/2 
+ ,gfx_h/2 
+ ,true 
  ); 
  lastPTime_ = time_precise(); 
  ); 
  APP_update(app_ID); 
- ( mouse_cap & 2 ==2 && lastCAP != mouse_cap )? 
+ ( mouse_cap & 64 ==64 && lastCAP != mouse_cap )? 
  ( 
- 0; 
+ DBG_toggle(DBG); 
  ); 
  lastCAP = mouse_cap; 
- LAYER_setActive(layer_001 ,slider9 ~= 0); 
- LAYER_setActive(layer_002 ,slider9 == 0); 
- ( APP_isMouseButtonPressed_Right(app_ID) ==true) ? 
+ ( APP_isWindowResized(app_ID) ==true 
+ && APP_isGFX_Enable(app_ID) ==true ) ? 
  ( 
- (LAYER_isActive( layer_001) ==true)? 
- ( 
- LAYER_setActive(layer_001 ,false); 
- LAYER_setActive(layer_002 ,true); 
- ):( 
- LAYER_setActive(layer_001 ,true); 
- LAYER_setActive(layer_002 ,false); 
- ); 
- slider9 = slider9 == 0; 
- ); 
- ( APP_isWindowResized(app_ID) ==true) ? 
- ( 
- RECTANGLE_copyTo ( canvas_WAVE_L,app_ID); 
- RECTANGLE_copyTo ( canvas_WAVE_R,app_ID); 
- CANVAS_recreateCanvas ( canvas_WAVE_L ); 
- CANVAS_recreateCanvas ( canvas_WAVE_R ); 
+ RECTANGLE_copyTo ( CANVS_WAVE_L,app_ID); 
+ RECTANGLE_copyTo ( CANVS_WAVE_R,app_ID); 
+ CANVAS_recreateCanvas ( CANVS_WAVE_L ); 
+ CANVAS_recreateCanvas ( CANVS_WAVE_R ); 
  RECTANGLE_copyTo ( layer_001 ,app_ID); 
- RECTANGLE_copyTo ( layer_002 ,app_ID); 
+ RECTANGLE_copyTo ( LAYER_002,app_ID); 
  ); 
  ( LAYER_isAreaResized(layer_001 ) ==true) ? 
  ( 
- RECTANGLE_copyTo (comp_Border,layer_001 ); 
- RECTANGLE_cropFromTopP (comp_Border,0.025); 
- RECTANGLE_copyTo (comp_KONB_ID_L,layer_001 ); 
- RECTANGLE_removeFromRightP(comp_KONB_ID_L,0.5); 
- RECTANGLE_reduce (comp_KONB_ID_L,5,5); 
- RECTANGLE_copyTo (comp_KONB_ID_R,layer_001 ); 
- RECTANGLE_removeFromLeftP (comp_KONB_ID_R,0.5); 
- RECTANGLE_reduce (comp_KONB_ID_R,5,5); 
+ RECTANGLE_copyTo (comp_Border1,layer_001 ); 
+ RECTANGLE_cropFromTopP (comp_Border1,0.025); 
+ RECTANGLE_copyTo (comp_Border2,layer_001 ); 
+ RECTANGLE_cropFromBottomP(comp_Border2,0.025); 
+ RECTANGLE_copyTo ( comp_BUTTON_01,layer_001 ); 
+ RECTANGLE_removeFromTop ( comp_BUTTON_01,RECTANGLE_getY2(comp_Border1)); 
+ RECTANGLE_cropFromTopP ( comp_BUTTON_01,0.1); 
+ RECTANGLE_cropFromLeftP ( comp_BUTTON_01,1/5); 
+ RECTANGLE_copyTo ( comp_BUTTON_02,comp_BUTTON_01); 
+ RECTANGLE_move ( comp_BUTTON_02,RECTANGLE_getWidth(comp_BUTTON_02),0); 
+ RECTANGLE_copyTo ( comp_BUTTON_03,comp_BUTTON_02); 
+ RECTANGLE_move ( comp_BUTTON_03,RECTANGLE_getWidth(comp_BUTTON_03),0); 
+ RECTANGLE_copyTo ( comp_BUTTON_04,comp_BUTTON_03); 
+ RECTANGLE_move ( comp_BUTTON_04,RECTANGLE_getWidth(comp_BUTTON_04),0); 
+ RECTANGLE_copyTo ( comp_BUTTON_05,comp_BUTTON_04); 
+ RECTANGLE_move ( comp_BUTTON_05,RECTANGLE_getWidth(comp_BUTTON_05),0); 
+ RECTANGLE_reduce( comp_BUTTON_01,3,3); 
+ RECTANGLE_reduce( comp_BUTTON_02,3,3); 
+ RECTANGLE_reduce( comp_BUTTON_03,3,3); 
+ RECTANGLE_reduce( comp_BUTTON_04,3,3); 
+ RECTANGLE_reduce( comp_BUTTON_05,3,3); 
  ); 
- ( LAYER_isAreaResized(layer_002 ) ==true) ? 
- ( 
- RECTANGLE_copyTo (comp_Border,layer_001 ); 
- RECTANGLE_cropFromTopP (comp_Border,0.025); 
- RECTANGLE_copyTo (comp_XYSlider_1,layer_001 ); 
- RECTANGLE_reduceP (comp_XYSlider_1,0.1,0.1); 
- ); 
- ( COMPONENT_isValueChanged( comp_KONB_ID_L) ==true 
- || COMPONENT_isValueChanged( comp_KONB_ID_R) ==true 
- || XYSLIDER_isXValueChanged( comp_XYSlider_1) ==true 
- || XYSLIDER_isYValueChanged( comp_XYSlider_1) ==true 
- )? 
- ( 
- COMPONENT_setValue(comp_KONB_ID_L,slider1,false); 
- COMPONENT_setValue(comp_KONB_ID_R,slider2,false); 
- XYSLIDER_setXValue(comp_XYSlider_1,slider2,false); 
- XYSLIDER_setYValue(comp_XYSlider_1,slider1,false); 
- ); 
- COMPONENT_setComponentAlpha(comp_Border,abs(sin($pi*2*mod*2))); 
+ COMPONENT_setComponentAlpha(comp_Border1,abs(sin($pi*2*mod*2))); 
  mod += 0.01;(mod > 1 )?(mod=0;); 
- RECTANGLE_drawBottomRightText( app_ID,"Doubler Delay"); 
+ RECTANGLE_drawBottomRightText( app_ID,"kawa Particle TEST"); 
