@@ -12,11 +12,12 @@ import kawa_ALL.jsfx-inc
 slider1: 0.1<0.0,1.0>RATE X
 slider2: 0.6<0.0,1.0>RATE Y
 slider3: 0.0<0,1,{FLANGER,PHASER}>MODE
-slider4: 0<0,3,{Sin,Saw,Rect,Tri}> WAVE TYPE
-slider5: 0<0,500> FADE SMOOZING(ms)
+slider4: 0  <0,3,{Sin,Saw,Rect,Tri}> WAVE TYPE
+slider5: 0  <0,500> FADE SMOOZING(ms)
 slider6: 0.0<0,0.95>FEEDBACK( x100 %)
-slider7: 1.0<0,1>DRY / WET
-slider8: 0<0,1,{Wave,Modulation}>VIEW
+slider7: 0<-30.0,10>DRY LEVEL(dB)
+slider8: 0<-30.0,10>WET LEVEL(dB)
+slider9: 0  <0,1,{Wave,Modulation}>VIEW
 //====================================================================
 
 //====================================================================
@@ -102,6 +103,9 @@ out_pin:right output
     bufferForGraph = CURSOLBUFFER_create (srate*3);
     //================================================================
     
+    dryGain = 1.0;
+    wetGain = 1.0;
+    
     
 @slider
 //====================================================================
@@ -127,7 +131,8 @@ out_pin:right output
         rateY = slider2;
     );  
     //================================================================
-    
+    dryGain = decivelToValue(slider7);
+    wetGain = decivelToValue(slider8);
     
 @block
 //====================================================================
@@ -230,10 +235,12 @@ out_pin:right output
     CURSOLBUFFER_push( bufferForGraph ,  XYSLIDER_getYValue(comp_XYSlider_1) 
                                        * XYSLIDER_getXValue(comp_XYSlider_1));
     //================================================================
-    spl0 = spl0 *(1-slider7) + (spl0 + delay_L ) * (slider7) ;
-    spl1 = spl1 *(1-slider7) + (spl1 + delay_R ) * (slider7) ;
+    
+    // mix 
+    spl0 = spl0*dryGain + delay_L * wetGain;
+    spl1 = spl1*dryGain + delay_R * wetGain;
     //================================================================
-
+     
 @gfx 200 400
 //====================================================================
     // direct draw background to
@@ -244,7 +251,7 @@ out_pin:right output
 
     // canvase test
     //================================================================
-    (slider8 ==0)?
+    (slider9 ==0)?
     (
         //============================================================
         drawWaveBufferToCanvas(canvas_WAVE_L
@@ -275,7 +282,7 @@ out_pin:right output
     //================================================================
    
     //================================================================
-    (slider8 ==1)?
+    (slider9 ==1)?
     (
         drawPointNum = min(srate/rateX*2,srate/2);
         //============================================================
@@ -285,8 +292,7 @@ out_pin:right output
         gfx_rect( 0,gfx_h/2-1, gfx_w, 2,true);
     );
     //================================================================
-   
-   
+    
     // for debug
     //================================================================
     //DBGMESSAGE_drawAllMessage(DBG);
@@ -364,7 +370,6 @@ out_pin:right output
     );
     //================================================================
     
-    
     //================================================================
     // if animation
     //================================================================
@@ -414,7 +419,6 @@ out_pin:right output
     gfx_y = gfx_h-gfx_texth-2;
     gfx_drawstr(drawText);
     //================================================================
-
 
 //====================================================================
 // 続

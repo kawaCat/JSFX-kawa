@@ -14,8 +14,9 @@ slider2:0.25<0.0,1.0>WIDTH
 slider3:0<0,1,{Normal,Deep}> Chorus Mode
 slider4:0<0,3,{Sin,Saw,Rect,Tri}> WAVE TYPE
 slider5:0<0,100> SMOOZING (ms)
-slider6:1<0,1>DRY / WET
-slider7:0<0,1,{Wave,Modulation}>VIEW
+slider6:0<-30,10>DRY LEVEL(dB)
+slider7:0<-30,10>WET LEVEL(dB)
+slider8:0<0,1,{Wave,Modulation}>VIEW
 //====================================================================
 in_pin: left input
 in_pin: right input
@@ -90,10 +91,13 @@ out_pin:right output
     //================================================================
     
     //================================================================
-    MAX_CHORUS_RATE = 5;
-    MAX_CHORUS_WIDTH = 1;
+    DEFINE_MAX_CHORUS_RATE = 5;
+    DEFINE_MAX_CHORUS_WIDTH = 1;
     //================================================================
     
+    mixProcess_ID_L = MIXPROCESS_create();
+    mixProcess_ID_R = MIXPROCESS_create();
+    //================================================================
     
 @slider
 //====================================================================
@@ -109,16 +113,22 @@ out_pin:right output
     (slider3 ==0)?
     (
         //normal mode
-        MAX_CHORUS_RATE  = 5;
-        MAX_CHORUS_WIDTH = 1;
+        DEFINE_MAX_CHORUS_RATE  = 5;
+        DEFINE_MAX_CHORUS_WIDTH = 1;
         //============================================================
-        rateX= slider1 * MAX_CHORUS_RATE;//Max 5hz
+        rateX= slider1 * DEFINE_MAX_CHORUS_RATE;//Max 5hz
     ):(
         // deep Mode
-        MAX_CHORUS_RATE =1;
-        MAX_CHORUS_WIDTH = 20;
-        rateX= slider1 * MAX_CHORUS_RATE;//Max 1hz
+        DEFINE_MAX_CHORUS_RATE =1;
+        DEFINE_MAX_CHORUS_WIDTH = 20;
+        rateX= slider1 * DEFINE_MAX_CHORUS_RATE;//Max 1hz
     );
+    //================================================================
+    MIXPROCESS_setMixValue (mixProcess_ID_L,slider6);
+    MIXPROCESS_setMixValue (mixProcess_ID_R,slider6);
+    //================================================================
+    dryGain = decivelToValue(slider6);
+    wetGain = decivelToValue(slider7);
     //================================================================
     
 @block
@@ -138,15 +148,14 @@ out_pin:right output
     //================================================================
     (slider3 ==0)?
     (
-        
         //normal Mode
-        rateX= slider1 * MAX_CHORUS_RATE;//Max 5hz
+        rateX= slider1 * DEFINE_MAX_CHORUS_RATE;//Max 5hz
         //============================================================
         WAVESINE_setRate(waveSignale_ID,rateX);
         newValueX = ( WAVESINE_getAndTick (waveSignale_ID));
         valueX = singlepole(valueX,newValueX,smooth_coeff);
         //============================================================
-        chorusWidth =   ( srate * 0.001 )* MAX_CHORUS_WIDTH
+        chorusWidth =   ( srate * 0.001 )* DEFINE_MAX_CHORUS_WIDTH
                         * XYSLIDER_getYValue(comp_XYSlider_1) ;
         //============================================================
         WAVESINE_setRate(waveSignalForGraph_ID,rateX);
@@ -157,13 +166,13 @@ out_pin:right output
         //============================================================
     ):(
         //deep Mode
-        rateX= slider1 * MAX_CHORUS_RATE;//Max 1hz
+        rateX= slider1 * DEFINE_MAX_CHORUS_RATE;//Max 1hz
         //============================================================
         WAVESINE_setRate(waveSignale_ID,rateX);
         newValueX = ( WAVESINE_getAndTick (waveSignale_ID));
         valueX = singlepole(valueX,newValueX,smooth_coeff);
         //============================================================
-        chorusWidth = ( srate * 0.001  ) * MAX_CHORUS_WIDTH 
+        chorusWidth = ( srate * 0.001  ) * DEFINE_MAX_CHORUS_WIDTH 
                      * XYSLIDER_getYValue(comp_XYSlider_1) ;
         //============================================================
         WAVESINE_setRate(waveSignalForGraph_ID,rateX);
@@ -196,21 +205,21 @@ out_pin:right output
     delay_R = CURSOLBUFFER_getOffsettedValueWithInterp( DELAY_ARRAY_R
                                                       , offsetSample );
     //================================================================
-    // wet_L = delay_L;
-    // wet_R = delay_R;
+
     //================================================================
-    CURSOLBUFFER_push( DELAY_ARRAY_L_MIXED , (spl0 + delay_L ) );
-    CURSOLBUFFER_push( DELAY_ARRAY_R_MIXED , (spl1 + delay_R ) );
+    CURSOLBUFFER_push( DELAY_ARRAY_L_MIXED , ( delay_L ) );
+    CURSOLBUFFER_push( DELAY_ARRAY_R_MIXED , ( delay_R ) );
     //================================================================
     wet_L = CURSOLBUFFER_getOffsettedValueWith3rdSplineInterp( DELAY_ARRAY_L_MIXED
-                                                      , 40 );
-    wet_R = CURSOLBUFFER_getOffsettedValueWith5thSplineInterp( DELAY_ARRAY_R_MIXED
-                                                      , 40 );
+                                                      , 0 );// predelay ?
+    wet_R = CURSOLBUFFER_getOffsettedValueWith3rdSplineInterp( DELAY_ARRAY_R_MIXED
+                                                      , 0 );// predelay ?
     //================================================================
     
     //================================================================
-    spl0 = spl0 *(1-slider6) + (wet_L ) * (slider6) ;
-    spl1 = spl1 *(1-slider6) + (wet_R ) * (slider6) ;
+    // mix 
+    spl0 = spl0*dryGain + wet_L * wetGain;
+    spl1 = spl1*dryGain + wet_R * wetGain;
     //================================================================
 
 @gfx 200 400
@@ -224,7 +233,7 @@ out_pin:right output
     // for particle 
     PARTICLE_CONTROLLER_update ( PARTICLE_controller );
     //================================================================
-    (slider7 ==0)?
+    (slider8 ==0)?
     (
         // canvase test
         //============================================================
@@ -256,7 +265,7 @@ out_pin:right output
     //================================================================
     
     //================================================================
-    (slider7 ==1)?
+    (slider8 ==1)?
     (
         drawPointNum = min(srate/rateX*2,srate/2);
         //============================================================
@@ -355,14 +364,13 @@ out_pin:right output
     gfx_y = gfx_h-(gfx_texth)*2-2;
     gfx_drawstr(drawText);
     //================================================================
-    sprintf (drawText,"Chorus Width: %1.2f ms", MAX_CHORUS_WIDTH * XYSLIDER_getYValue(comp_XYSlider_1) );
+    sprintf (drawText,"Chorus Width: %1.2f ms", DEFINE_MAX_CHORUS_WIDTH * XYSLIDER_getYValue(comp_XYSlider_1) );
     //================================================================
     gfx_x = 5;
     gfx_y = gfx_h-gfx_texth-1;
     gfx_drawstr(drawText);
     //================================================================
     
-
    
 //====================================================================
 // 続

@@ -826,16 +826,6 @@ local ( radius,lineH,x,y,w,h,cx,cy,circle_Area_ID
     YYYY = (y+radius)+ (h-radius*2 ) * XYSLIDER_getYValue(XYSLIDER_ID) ; 
     //================================================================
     
-    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
-    //================================================================
-    // draw Cross  Lines;
-    //================================================================
-    ( XYSLIDER_getIsNeedCrossCursolLine(XYSLIDER_ID)==true)?
-    (
-        _XYSLIDER_drawCrossCursol(XYSLIDER_ID,XXXX,YYYY);
-    );
-    //================================================================
-    
     //================================================================
     CIRCLE_setCX(circle_Area_ID,XXXX );
     CIRCLE_setCY(circle_Area_ID,YYYY);
@@ -877,6 +867,17 @@ local ( radius,lineH,x,y,w,h,cx,cy,circle_Area_ID
         gfx_y = y+h/2+margin;
         //============================================================
         _XYSLIDER_drawXYAngleFromCenter(XYSLIDER_ID,XXXX,YYYY);
+    );
+    //================================================================
+    
+    //================================================================
+    COMPONENT_changeColorGfx( XYSLIDER_ID,"black");
+    //================================================================
+    // draw Cross  Lines;
+    //================================================================
+    ( XYSLIDER_getIsNeedCrossCursolLine(XYSLIDER_ID)==true)?
+    (
+        _XYSLIDER_drawCrossCursol(XYSLIDER_ID,XXXX,YYYY);
     );
     //================================================================
     

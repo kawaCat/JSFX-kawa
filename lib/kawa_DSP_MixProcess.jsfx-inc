@@ -1,0 +1,216 @@
+
+//====================================================================
+@init
+//====================================================================
+DEFINE_MIXPROCESS_LINER                 = 0;
+DEFINE_MIXPROCESS_COS                   = 1;
+DEFINE_MIXPROCESS_INTERPOLATION_LINER   = 2;
+DEFINE_MIXPROCESS_INTERPOLATION_COS     = 3;
+//====================================================================
+
+//====================================================================
+function MIXPROCESS_create() local ( MIXPROCESS_ID,singlePole_ID )
+(
+    singlePole_ID =createSinglePole();
+    SINGLEPOLE_setSmoozingTime(singlePole_ID,20);//smooze 20 ms
+    //================================================================
+    MIXPROCESS_ID = STATIC_MASTER_BUFF_ID;
+    //================================================================
+    STATIC_MASTER_BUFF[MIXPROCESS_ID]   = "MIXPROCESS";   // class name
+    STATIC_MASTER_BUFF[MIXPROCESS_ID+1] = 9;              // total Element Num 
+    //================================================================
+    STATIC_MASTER_BUFF[MIXPROCESS_ID+2] = STATIC_MASTER_BUFF[MIXPROCESS_ID+1];  // element num only this class
+    STATIC_MASTER_BUFF[MIXPROCESS_ID+3] = 0.0;            // mix value ( 0.0 ~ 1.0)
+    STATIC_MASTER_BUFF[MIXPROCESS_ID+4] = 0.0;            // latest Dry value
+    STATIC_MASTER_BUFF[MIXPROCESS_ID+5] = 0.0;            // latest Wet value
+    STATIC_MASTER_BUFF[MIXPROCESS_ID+6] = DEFINE_MIXPROCESS_COS;// MIX process Type
+    STATIC_MASTER_BUFF[MIXPROCESS_ID+7] = 1.0;            // dry gain
+    STATIC_MASTER_BUFF[MIXPROCESS_ID+8] = 0.0;            // wet gain
+    STATIC_MASTER_BUFF[MIXPROCESS_ID+9] = singlePole_ID;  // smoozing single pole 
+    //================================================================
+    STATIC_MASTER_BUFF_ID +=STRUCT_getElementNum(MIXPROCESS_ID)+1; //increment next entry point
+    //================================================================
+    MIXPROCESS_ID;
+);
+//====================================================================
+
+//====================================================================
+function _MIXPROCESS_getElementNum   (MIXPROCESS_ID)       ( STATIC_MASTER_BUFF[MIXPROCESS_ID + 2];);// protected
+
+//====================================================================
+function MIXPROCESS_getDryValue      (MIXPROCESS_ID)       ( STATIC_MASTER_BUFF[MIXPROCESS_ID+4];);
+function _MIXPROCESS_setDryValue     (MIXPROCESS_ID,v)     ( STATIC_MASTER_BUFF[MIXPROCESS_ID+4] =v;);
+function MIXPROCESS_getWetValue      (MIXPROCESS_ID)       ( STATIC_MASTER_BUFF[MIXPROCESS_ID+5];);
+function _MIXPROCESS_setWetValue     (MIXPROCESS_ID,v)     ( STATIC_MASTER_BUFF[MIXPROCESS_ID+5] =v;);
+//====================================================================
+function MIXPROCESS_getMixProcessType(MIXPROCESS_ID)       ( STATIC_MASTER_BUFF[MIXPROCESS_ID+6];);
+function MIXPROCESS_setMixProcessType(MIXPROCESS_ID,v)     ( STATIC_MASTER_BUFF[MIXPROCESS_ID+6] =v;);
+//====================================================================
+function MIXPROCESS_getDryGain       (MIXPROCESS_ID)       ( STATIC_MASTER_BUFF[MIXPROCESS_ID+7];);
+function _MIXPROCESS_setDryGain      (MIXPROCESS_ID,v)     ( STATIC_MASTER_BUFF[MIXPROCESS_ID+7] =v;);
+//====================================================================
+function MIXPROCESS_getWetGain       (MIXPROCESS_ID)       ( STATIC_MASTER_BUFF[MIXPROCESS_ID+8];);
+function _MIXPROCESS_setWetGain      (MIXPROCESS_ID,v)     ( STATIC_MASTER_BUFF[MIXPROCESS_ID+8] =v;);
+//====================================================================
+function MIXPROCESS_getSinglePoleID  (MIXPROCESS_ID )      ( STATIC_MASTER_BUFF[MIXPROCESS_ID+9];);
+//====================================================================
+function MIXPROCESS_getMixValue      (MIXPROCESS_ID)       ( STATIC_MASTER_BUFF[MIXPROCESS_ID+3];);
+//====================================================================
+function _MIXPROCESS_updateGain(MIXPROCESS_ID,targetMixValue)
+    local ( mixProcessTYpe,dryGain,WetGain)
+(
+    mixProcessTYpe = MIXPROCESS_getMixProcessType(MIXPROCESS_ID) ;
+    //================================================================
+    ( mixProcessTYpe ==DEFINE_MIXPROCESS_LINER)?
+    (
+        // linear
+        //============================================================
+        dryGain = (1-targetMixValue);
+        WetGain = targetMixValue;
+        //============================================================
+    ):( mixProcessTYpe ==DEFINE_MIXPROCESS_COS)?
+    (    
+        // cos
+        //============================================================
+        dryGain = cos( targetMixValue * $pi/2 );
+        WetGain = sin( targetMixValue * $pi/2 );
+        //============================================================
+    ):( mixProcessTYpe == DEFINE_MIXPROCESS_INTERPOLATION_LINER)?
+    (
+        // interpolate linear
+        //============================================================
+        (targetMixValue <= 0.5)?
+        (
+            dryGain = (0.5-targetMixValue)*2;
+            WetGain = (targetMixValue)*2;
+            //========================================================
+        ):(
+            dryGain = (1-targetMixValue);
+            WetGain = (targetMixValue);
+            //========================================================
+        );
+        //============================================================
+    ):( mixProcessTYpe == DEFINE_MIXPROCESS_INTERPOLATION_COS)?
+    (
+        // interpolate cos
+        //============================================================
+        (targetMixValue <= 0.5)?
+        (
+            targetMixValue = targetMixValue*2;
+            dryGain = cos( targetMixValue * $pi/2 );//cos( (0.5-mixValue)*2 )* $pi/2 );
+            WetGain = sin( targetMixValue * $pi/2 );
+            //========================================================
+        ):(
+            dryGain = cos( targetMixValue * $pi/2 );
+            WetGain = sin( targetMixValue * $pi/2 );
+            //========================================================
+        );
+        //============================================================
+    );
+    //================================================================
+    _MIXPROCESS_setDryGain(MIXPROCESS_ID,dryGain);
+    _MIXPROCESS_setWetGain(MIXPROCESS_ID,WetGain);
+    //================================================================
+);
+//====================================================================
+function MIXPROCESS_setMixValue      (MIXPROCESS_ID,v)
+( 
+    STATIC_MASTER_BUFF[MIXPROCESS_ID+3] =v; // 
+    //================================================================
+);
+//====================================================================
+function _MIXPROCESS_dLinTerp( x1,  x2,  y1,  y2,  interPolationPos)// from waveTable .jsfx-inc
+    local (denom,out,dx)
+(
+    //================================================================
+    denom = x2 - x1;
+    out = y1;
+    //================================================================
+    (denom != 0)?
+    (
+        dx = (interPolationPos - x1)/(x2 - x1);
+        out= dx*y2 + (1-dx)*y1;
+        //============================================================
+    );
+    //================================================================
+    out;
+    //================================================================
+);
+//====================================================================
+
+//====================================================================
+function MIXPROCESS_getProcessedValue(MIXPROCESS_ID )
+(
+    MIXPROCESS_getDryValue(MIXPROCESS_ID) +MIXPROCESS_getWetValue(MIXPROCESS_ID);//out;
+);
+//====================================================================
+function MIXPROCESS_Process(MIXPROCESS_ID,inDryValue,inWetValue)//calucrate
+    local (mixProcessTYpe,mixValue,drayGain,WetGain,interpValue,singlePole_ID)
+(
+    //================================================================
+    mixProcessTYpe = MIXPROCESS_getMixProcessType(MIXPROCESS_ID) ;
+    
+    //================================================================
+    mixValue = SINGLEPOLE_getSmoozedValue( MIXPROCESS_getSinglePoleID  (MIXPROCESS_ID )
+                                         , MIXPROCESS_getMixValue(MIXPROCESS_ID)
+                                         ); // smoozing
+    //================================================================
+     _MIXPROCESS_updateGain(MIXPROCESS_ID,mixValue);
+    //================================================================
+    dryGain =MIXPROCESS_getDryGain(MIXPROCESS_ID);
+    WetGain =MIXPROCESS_getWetGain(MIXPROCESS_ID);
+    //================================================================
+    ( mixProcessTYpe ==DEFINE_MIXPROCESS_LINER)?
+    (
+        //liner
+        //============================================================
+        _MIXPROCESS_setDryValue(MIXPROCESS_ID, dryGain * inDryValue);
+        _MIXPROCESS_setWetValue(MIXPROCESS_ID, WetGain * inWetValue);
+        //============================================================
+    ):( mixProcessTYpe ==DEFINE_MIXPROCESS_COS)?
+    (    // cos
+        //============================================================
+        _MIXPROCESS_setDryValue(MIXPROCESS_ID, dryGain * inDryValue);
+        _MIXPROCESS_setWetValue(MIXPROCESS_ID, WetGain * inWetValue);
+        //============================================================
+    ):( mixProcessTYpe == DEFINE_MIXPROCESS_INTERPOLATION_LINER)  ?
+    (
+        // interpolate
+        //============================================================
+        interpValue = _MIXPROCESS_dLinTerp( 0.0,  1.0, inDryValue ,  inWetValue,  mixValue);
+        //============================================================
+        (mixValue <= 0.5)?
+        (
+            //========================================================
+            _MIXPROCESS_setDryValue(MIXPROCESS_ID, dryGain * inDryValue );
+            _MIXPROCESS_setWetValue(MIXPROCESS_ID, WetGain * interpValue);
+        ):(
+            //========================================================
+            _MIXPROCESS_setDryValue(MIXPROCESS_ID, dryGain * interpValue);
+            _MIXPROCESS_setWetValue(MIXPROCESS_ID, WetGain * inWetValue );
+            //========================================================
+        );
+        //============================================================
+    ):( mixProcessTYpe == DEFINE_MIXPROCESS_INTERPOLATION_COS)  ?
+    (
+        // interpolate
+        //============================================================
+        interpValue = _MIXPROCESS_dLinTerp( 0.0,1.0, inDryValue ,  inWetValue,  mixValue);
+        //============================================================
+        (mixValue <= 0.5)?
+        (
+            //========================================================
+            _MIXPROCESS_setDryValue(MIXPROCESS_ID, dryGain * inDryValue);
+            _MIXPROCESS_setWetValue(MIXPROCESS_ID, WetGain * interpValue);
+        ):(
+            _MIXPROCESS_setDryValue(MIXPROCESS_ID, dryGain * interpValue);
+            _MIXPROCESS_setWetValue(MIXPROCESS_ID, WetGain * inWetValue);
+            //========================================================
+        );
+        //============================================================
+    )
+    ;
+    //================================================================
+);
+//====================================================================
+

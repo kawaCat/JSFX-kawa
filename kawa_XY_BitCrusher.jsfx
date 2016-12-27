@@ -260,7 +260,7 @@ out_pin:right output
     gfx_y = gfx_h-(gfx_texth)*1.05*2-1;
     gfx_drawstr(drawText);
     //================================================================
-    sprintf (drawText,"Bit    : %1.2f bit", fBits*DEFINE_MAX_BIT);
+    sprintf (drawText,"Bit.   : %1.2f bit", fBits*DEFINE_MAX_BIT);
     //================================================================
     gfx_x = 5;
     gfx_y = gfx_h-gfx_texth-2;

@@ -10,6 +10,7 @@ import kawa_SinglePole.jsfx-inc
 import kawa_ARRAY_.jsfx-inc
 import kawa_DBG.jsfx-inc
 //====================================================================
+import kawa_DSP_MixProcess.jsfx-inc
 import kawa_DSP_BPMUtil.jsfx-inc
 import kawa_DSP_PitchUtil.jsfx-inc
 import kawa_DSP_DCOffset.jsfx-inc
@@ -21,7 +22,6 @@ import kawa_DSP_RBJFilter.jsfx-inc
 import kawa_DSP_Panner.jsfx-inc
 //====================================================================
 import kawa_MIDI_ADSR.jsfx-inc
-
 
 //====================================================================
 import kawa_GUI_CORE_.jsfx-inc

@@ -12,24 +12,25 @@ import kawa_ALL.jsfx-inc
 slider1:0.325 <0.0,1.0>DELAY L
 slider2:0.65 <0.0,1.0>DELAY R
 slider3:0.45 <0.0,0.9>FEEDBACK
-slider4:0.0 <0,250,0.1>EDIT SMOOZING (ms)
-slider5:0.4  <0.0,1.0>DRY / WET
-slider6:3    <0,5, {0.0625 sec ,0.125 sec ,0.25 sec,0.5 sec,1.0 sec} > MAX DELAY TIME
-slider7:0    <0,3, {NORMAL,INVERT - L,INVERT - R,INVERT - BOTH}>DELAY PHASE
-slider8:1    <0,2, {LR MIXED,LR SEPARATE,PINPON DELAY}>DELAY TYPE
-slider9:0.0  <0,1, {Off,On}> DELAY STEREO FLIP
-slider10:0   <0,2, {Normal,Distance To FeedBack.,Angle to FeedBack.}>XY SLIDER EDIT MODE
+slider4:0.0  <0,250,0.1>EDIT SMOOZING (ms)
+slider5:0.0  <-30,10>DRY LEVEL(dB)
+slider6:-7.0 <-30,10>WET LEVEL(dB)
+slider7:3    <0,5, {0.0625 sec ,0.125 sec ,0.25 sec,0.5 sec,1.0 sec} > MAX DELAY TIME
+slider8:0    <0,3, {NORMAL,INVERT - L,INVERT - R,INVERT - BOTH}>DELAY PHASE
+slider9:1    <0,2, {LR MIXED,LR SEPARATE,PINPON DELAY}>DELAY TYPE
+slider10:0.0  <0,1, {Off,On}> DELAY STEREO FLIP
+slider11:0   <0,2, {Normal,Distance To FeedBack.,Angle to FeedBack.}>XY SLIDER EDIT MODE
 //====================================================================
 //0.25sec
-//slider60:2756.25 <0.0,1.0> -lastDelayTime_L 
-//slider61:8820.0 <0.0,1.0>  -lastDelayTime_R
+//slider70:2756.25 <0.0,1.0> -lastDelayTime_L 
+//slider71:8820.0 <0.0,1.0>  -lastDelayTime_R
 //====================================================================
 //0.5sec
-slider60:5512.49  <0.0,1.0> -lastDelayTime_L
-slider61:17639.99 <0.0,1.0> -lastDelayTime_R
-slider62:120      <0.0,1.0> -lastBPM
-slider63:0.1      <0,1>     -lastGridparamX
-slider64:0.1      <0,1>     -lastGridparamY
+slider70:5512.49  <0.0,1.0> -lastDelayTime_L
+slider71:17639.99 <0.0,1.0> -lastDelayTime_R
+slider72:120      <0.0,1.0> -lastBPM
+slider73:0.1      <0,1>     -lastGridparamX
+slider74:0.1      <0,1>     -lastGridparamY
 slider59:44100    <0,1>     -lastSampleRate
 
 //====================================================================
@@ -110,6 +111,11 @@ out_pin:right output
     delayTime = srate ;
     //================================================================
     
+    // mixProcess
+    mixProcess_ID_L = MIXPROCESS_create();
+    mixProcess_ID_R = MIXPROCESS_create();
+    //================================================================
+    
 @slider
 //====================================================================
     XYSLIDER_setXValue(comp_XYSlider_1,slider2,false);
@@ -117,66 +123,71 @@ out_pin:right output
     //================================================================
     APP_SliderChanged(app_ID); // notify for update lastValue
     //================================================================
-    delayTime_L = slider60; //restore
-    delayTime_R = slider61; //restore
+    delayTime_L = slider70; //restore
+    delayTime_R = slider71; //restore
     SINGLEPOLE_setLastValue(singlePole_ID_L,delayTime_L);
     SINGLEPOLE_setLastValue(singlePole_ID_R,delayTime_R);
     //================================================================
     SINGLEPOLE_setSmoozingTime(singlePole_ID_L,slider4);//smooze
     SINGLEPOLE_setSmoozingTime(singlePole_ID_R,slider4);//smooze
     //================================================================
-    XYSLIDER_setXYDistanceDrawMode( comp_XYSlider_1,slider10);
+    XYSLIDER_setXYDistanceDrawMode( comp_XYSlider_1,slider11);
     //================================================================
-    XYSLIDER_setXGridParam(comp_XYSlider_1,slider63);
-    XYSLIDER_setYGridParam(comp_XYSlider_1,slider64);
+    XYSLIDER_setXGridParam(comp_XYSlider_1,slider73);
+    XYSLIDER_setYGridParam(comp_XYSlider_1,slider74);
     //================================================================
+    MIXPROCESS_setMixValue (mixProcess_ID_L,slider5);
+    MIXPROCESS_setMixValue (mixProcess_ID_R,slider5);
+    //================================================================
+    dryGain = decivelToValue(slider5);
+    wetGain = decivelToValue(slider6);
+    //================================================================
+    
 @block
 //====================================================================
     f_max_L = 0;f_min_L = 0;
     f_max_R = 0;f_min_R = 0;
     //================================================================
     _safeTempo = max(min(tempo,360),40 );
-    //================================================================
-    _sampleFor32thNote = get32thNote_Sample (_safeTempo,srate);
-    //================================================================
     _sampleFor32thNote = get32thNote_Sample (_safeTempo,srate);
     _gridParam = max(_sampleFor32thNote,1)/ max(delayTime ,1 );
-    slider63 = _gridParam;
-    slider64 = _gridParam;
+    //================================================================
+    slider73 = _gridParam; //store last grid Parameter
+    slider74 = _gridParam; //store last grid Parameter
     XYSLIDER_setXGridParam(comp_XYSlider_1,_gridParam);
     XYSLIDER_setYGridParam(comp_XYSlider_1,_gridParam);
     //================================================================
-    slider59 = srate;
+    slider59 = srate; // store last sampleRate
     //================================================================
     
 @sample
 //====================================================================
-    //================================================================
-    ((slider6 == 0)?
+    //===============================================================
+    ((slider7 == 0)?
     (
         // 0.0625 sec == srate/16
         delayTime = srate/16 ;
         delayTimeOffset = 0;
         //============================================================
-    ):slider6  == 1)?
+    ):slider7  == 1)?
     (
         // 0.125 sec == srate/8
         delayTime = srate/8 ;
         delayTimeOffset = 0;
         //============================================================
-    ):(slider6 == 2)?
+    ):(slider7 == 2)?
     (
         // 0.25 sec == srate/4
         delayTime = srate/4 ;
         delayTimeOffset = 0;
         //============================================================
-    ):(slider6 == 3)?
+    ):(slider7 == 3)?
     (
         // 0.5 sec == srate/2
         delayTime = srate /2;
         delayTimeOffset = 0;
         //============================================================
-    ):(slider6 == 4)?
+    ):(slider7 == 4)?
     (
         // 1 sec == srate
         delayTime = srate  ;
@@ -209,7 +220,7 @@ out_pin:right output
     
     //================================================================
     // DELAY MODE
-    (slider8 == 0)? // LR MIXED
+    (slider9 == 0)? // LR MIXED
     (
         //============================================================
         CURSOLBUFFER_push( DELAY_ARRAY_L
@@ -217,7 +228,7 @@ out_pin:right output
         CURSOLBUFFER_push( DELAY_ARRAY_R
                          ,(spl0+spl1)/2+delay_R*slider3 );  
         //============================================================
-    ):(slider8 == 1 || slider8 ==2)? // LR SEPARATED and PINPON
+    ):(slider9 == 1 || slider9 ==2)? // LR SEPARATED and PINPON
     (
         CURSOLBUFFER_push( DELAY_ARRAY_L
                          ,(spl0)+delay_L*slider3 );    
@@ -238,8 +249,8 @@ out_pin:right output
                                                              + delayTimeOffset
                                             );
     //================================================================
-    slider60 = delayTime_L;
-    slider61 = delayTime_R;
+    slider70 = delayTime_L;
+    slider71 = delayTime_R;
     //================================================================
     
     //================================================================
@@ -250,13 +261,13 @@ out_pin:right output
                                              , -delayTime_R
                                              );
     //================================================================
-    (slider8 == 0)? // LR MIXED
+    (slider9 == 0)? // LR MIXED
     (
         delay_L = ( delay_L+delay_R )/2;
         delay_R = ( delay_L+delay_R )/2;
     );
     //================================================================
-    (slider8 == 2)? //if pinpon
+    (slider9 == 2)? //if pinpon
     (
         //============================================================
         delay_L_pinpon = CURSOLBUFFER_getOffsettedValueWithInterp( DELAY_ARRAY_L
@@ -279,26 +290,31 @@ out_pin:right output
     // delay_Wet_L = delay_Wet_L;
     // delay_Wet_R = delay_Wet_R;
     //================================================================
-    (slider7 ==1 || slider7 == 3 ) ? invertL =-1 : invertL = 1;
-    (slider7 ==2 || slider7 == 3 ) ? invertR =-1 : invertR = 1;
+    (slider8 ==1 || slider8 == 3 ) ? invertL =-1 : invertL = 1;
+    (slider8 ==2 || slider8 == 3 ) ? invertR =-1 : invertR = 1;
     //================================================================
-    (slider9 ==1)?
+    (slider10 ==1)?
     (   
-        spl0 = spl0 *(1-slider5   ) + ( delay_Wet_R ) * (slider5   )*invertR ;
-        spl1 = spl1 *(1-slider5   ) + ( delay_Wet_L ) * (slider5   )*invertL;
+        //stereo swap
+        //============================================================
+        // mix 
+        spl0 = spl0*dryGain + delay_Wet_R*invertR * wetGain;
+        spl1 = spl1*dryGain + delay_Wet_L*invertL * wetGain;
     ):(
-        spl0 = spl0 *(1-slider5   ) + ( delay_Wet_L ) * (slider5   )*invertL ;
-        spl1 = spl1 *(1-slider5   ) + ( delay_Wet_R ) * (slider5   )*invertR ;
+        //============================================================
+        spl0 = spl0*dryGain + delay_Wet_L*invertR * wetGain;
+        spl1 = spl1*dryGain + delay_Wet_R*invertL * wetGain;
     );
     //================================================================
-    maxSample = max(abs(f_min_L), f_max_L )+max(abs(f_min_R), f_max_R );
-    maxSample = (96.0+valueToDecivel(maxSample/2))/96.0;
-    maxSample = SINGLEPOLE_getSmoozedValue(singlePole_ID_GRAPH,maxSample);
+    
+    // update max sample
     //================================================================
-    f_max_L = max(f_max_L,spl0);
-    f_min_L = min(f_min_L,spl0);
-    f_max_R = max(f_max_R,spl1);
-    f_min_R = min(f_min_R,spl1);
+    f_max_L = max(f_max_L,spl0);f_min_L = min(f_min_L,spl0);
+    f_max_R = max(f_max_R,spl1);f_min_R = min(f_min_R,spl1);
+    //================================================================
+    maxSample = max(abs(f_min_L), f_max_L )+max(abs(f_min_R), f_max_R );
+    maxSample = (96.0+valueToDecivel(maxSample/2))/96.0; //normarize by decibel
+    maxSample = SINGLEPOLE_getSmoozedValue(singlePole_ID_GRAPH,maxSample);
     //================================================================
 
 @gfx 200 400
@@ -440,8 +456,8 @@ out_pin:right output
     //================================================================
     // delay time info
     //================================================================
-    delayTimeForDraw_L = slider60/slider59;//msec (slider59 is lastSampleRate)
-    delayTimeForDraw_R = slider61/slider59;//msec  (slider59 is lastSampleRate)
+    delayTimeForDraw_L = slider70/slider59;//msec (slider59 is lastSampleRate)
+    delayTimeForDraw_R = slider71/slider59;//msec  (slider59 is lastSampleRate)
     //================================================================
     drawText = #;
     //================================================================
@@ -462,11 +478,11 @@ out_pin:right output
     gfx_y = RECTANGLE_getY2(comp_Border)+ 5;
     gfx_x = 5;
     //================================================================
-      ( slider6 == 0)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 0.0625);
-    ):( slider6 == 1)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 0.125);
-    ):( slider6 == 2)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 0.25);
-    ):( slider6 == 3)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 0.50);
-    ):( slider6 == 4)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 1.0);
+      ( slider7 == 0)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 0.0625);
+    ):( slider7 == 1)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 0.125);
+    ):( slider7 == 2)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 0.25);
+    ):( slider7 == 3)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 0.50);
+    ):( slider7 == 4)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 1.0);
     );
     //================================================================
     gfx_drawstr(drawText);
