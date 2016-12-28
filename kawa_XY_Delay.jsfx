@@ -10,28 +10,28 @@ import kawa_ALL.jsfx-inc
 // sliders  //( this app lib need Continuous number)
 //--------------------------------------------------------------------
 slider1:0.325 <0.0,1.0>DELAY L
-slider2:0.65 <0.0,1.0>DELAY R
-slider3:0.45 <0.0,0.9>FEEDBACK
-slider4:0.0  <0,250,0.1>EDIT SMOOZING (ms)
-slider5:0.0  <-30,10>DRY LEVEL(dB)
-slider6:-7.0 <-30,10>WET LEVEL(dB)
-slider7:3    <0,5, {0.0625 sec ,0.125 sec ,0.25 sec,0.5 sec,1.0 sec} > MAX DELAY TIME
-slider8:0    <0,3, {NORMAL,INVERT - L,INVERT - R,INVERT - BOTH}>DELAY PHASE
-slider9:1    <0,2, {LR MIXED,LR SEPARATE,PINPON DELAY}>DELAY TYPE
+slider2:0.65  <0.0,1.0>DELAY R
+slider3:0.45  <0.0,0.9>FEEDBACK
+slider4:0.0   <0,250,0.1>EDIT SMOOZING (ms)
+slider5:0.0   <-30,10>DRY LEVEL(dB)
+slider6:-4.0  <-30,10>WET LEVEL(dB)
+slider7:3     <0,5, {0.0625 sec ,0.125 sec ,0.25 sec,0.5 sec,1.0 sec} > MAX DELAY TIME
+slider8:0     <0,3, {NORMAL,INVERT - L,INVERT - R,INVERT - BOTH}>DELAY PHASE
+slider9:1     <0,2, {LR MIXED,LR SEPARATE,PINPON DELAY}>DELAY TYPE
 slider10:0.0  <0,1, {Off,On}> DELAY STEREO FLIP
-slider11:0   <0,2, {Normal,Distance To FeedBack.,Angle to FeedBack.}>XY SLIDER EDIT MODE
+slider11:0    <0,2, {Normal,Distance To FeedBack.,Angle to FeedBack.}>XY SLIDER EDIT MODE
 //====================================================================
 //0.25sec
-//slider70:2756.25 <0.0,1.0> -lastDelayTime_L 
-//slider71:8820.0 <0.0,1.0>  -lastDelayTime_R
+//slider59:2756.25 <0.0,1.0> -lastDelayTime_L 
+//slider60:8820.0 <0.0,1.0>  -lastDelayTime_R
 //====================================================================
+slider58:44100    <0,1>     -lastSampleRate
 //0.5sec
-slider70:5512.49  <0.0,1.0> -lastDelayTime_L
-slider71:17639.99 <0.0,1.0> -lastDelayTime_R
-slider72:120      <0.0,1.0> -lastBPM
-slider73:0.1      <0,1>     -lastGridparamX
-slider74:0.1      <0,1>     -lastGridparamY
-slider59:44100    <0,1>     -lastSampleRate
+slider59:5512.49  <0.0,1.0> -lastDelayTime_L
+slider60:17639.99 <0.0,1.0> -lastDelayTime_R
+slider61:120      <0.0,1.0> -lastBPM
+slider62:0.1      <0,1>     -lastGridparamX
+slider63:0.1      <0,1>     -lastGridparamY
 
 //====================================================================
 in_pin: left input
@@ -123,8 +123,8 @@ out_pin:right output
     //================================================================
     APP_SliderChanged(app_ID); // notify for update lastValue
     //================================================================
-    delayTime_L = slider70; //restore
-    delayTime_R = slider71; //restore
+    delayTime_L = slider59; //restore
+    delayTime_R = slider60; //restore
     SINGLEPOLE_setLastValue(singlePole_ID_L,delayTime_L);
     SINGLEPOLE_setLastValue(singlePole_ID_R,delayTime_R);
     //================================================================
@@ -133,8 +133,8 @@ out_pin:right output
     //================================================================
     XYSLIDER_setXYDistanceDrawMode( comp_XYSlider_1,slider11);
     //================================================================
-    XYSLIDER_setXGridParam(comp_XYSlider_1,slider73);
-    XYSLIDER_setYGridParam(comp_XYSlider_1,slider74);
+    XYSLIDER_setXGridParam(comp_XYSlider_1,slider62);
+    XYSLIDER_setYGridParam(comp_XYSlider_1,slider63);
     //================================================================
     MIXPROCESS_setMixValue (mixProcess_ID_L,slider5);
     MIXPROCESS_setMixValue (mixProcess_ID_R,slider5);
@@ -148,21 +148,24 @@ out_pin:right output
     f_max_L = 0;f_min_L = 0;
     f_max_R = 0;f_min_R = 0;
     //================================================================
+    
+@sample
+//====================================================================
+
+    //================================================================
     _safeTempo = max(min(tempo,360),40 );
     _sampleFor32thNote = get32thNote_Sample (_safeTempo,srate);
     _gridParam = max(_sampleFor32thNote,1)/ max(delayTime ,1 );
     //================================================================
-    slider73 = _gridParam; //store last grid Parameter
-    slider74 = _gridParam; //store last grid Parameter
+    slider62 = min(max(_gridParam,0.0001),1); //store last grid Parameter
+    slider63 = min(max(_gridParam,0.0001),1); //store last grid Parameter
     XYSLIDER_setXGridParam(comp_XYSlider_1,_gridParam);
     XYSLIDER_setYGridParam(comp_XYSlider_1,_gridParam);
     //================================================================
-    slider59 = srate; // store last sampleRate
+    slider58 = srate; // store last sampleRate
     //================================================================
     
-@sample
-//====================================================================
-    //===============================================================
+    //================================================================
     ((slider7 == 0)?
     (
         // 0.0625 sec == srate/16
@@ -249,8 +252,8 @@ out_pin:right output
                                                              + delayTimeOffset
                                             );
     //================================================================
-    slider70 = delayTime_L;
-    slider71 = delayTime_R;
+    slider59 = delayTime_L;
+    slider60 = delayTime_R;
     //================================================================
     
     //================================================================
@@ -456,8 +459,8 @@ out_pin:right output
     //================================================================
     // delay time info
     //================================================================
-    delayTimeForDraw_L = slider70/slider59;//msec (slider59 is lastSampleRate)
-    delayTimeForDraw_R = slider71/slider59;//msec  (slider59 is lastSampleRate)
+    delayTimeForDraw_L = slider59/slider58;//msec (slider58 is lastSampleRate)
+    delayTimeForDraw_R = slider60/slider58;//msec  (slider58 is lastSampleRate)
     //================================================================
     drawText = #;
     //================================================================

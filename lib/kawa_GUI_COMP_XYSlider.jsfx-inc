@@ -88,9 +88,9 @@ function XYSLIDER_setIsNeedCrossCursolLine        ( XYSLIDER_ID,v)    ( STATIC_M
 function XYSLIDER_getIsDrawGrid                   ( XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 14];);
 function XYSLIDER_setIsDrawGrid                   ( XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 14]=v;);
 function XYSLIDER_getXGridParam                   ( XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 15];);
-function XYSLIDER_setXGridParam                   ( XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 15]=v;);
+function XYSLIDER_setXGridParam                   ( XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 15]=min(max(v,0.0001),1););
 function XYSLIDER_getYGridParam                   ( XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 16];);
-function XYSLIDER_setYGridParam                   ( XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 16]=v;);
+function XYSLIDER_setYGridParam                   ( XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 16]=min(max(v,0.0001),1););
 //====================================================================
 function XYSLIDER_getXGridParamName               ( XYSLIDER_ID)      ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 17];);
 function XYSLIDER_setXGridParamName               ( XYSLIDER_ID,v)    ( STATIC_MASTER_BUFF[XYSLIDER_ID + _COMPONENT_getElementNum(XYSLIDER_ID)+ 17]=v;);
