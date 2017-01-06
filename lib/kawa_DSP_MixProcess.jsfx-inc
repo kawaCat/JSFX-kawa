@@ -4,9 +4,31 @@
 //====================================================================
 DEFINE_MIXPROCESS_LINER                 = 0;
 DEFINE_MIXPROCESS_COS                   = 1;
-DEFINE_MIXPROCESS_INTERPOLATION_LINER   = 2;
+DEFINE_MIXPROCESS_INTERPOLATION_LINER   = 2; 
 DEFINE_MIXPROCESS_INTERPOLATION_COS     = 3;
 //====================================================================
+
+//====================================================================
+//    MIXPROCESS_create() 
+//====================================================================
+    
+//====================================================================
+//    MIXPROCESS_getMixProcessType(MIXPROCESS_ID)       
+//    MIXPROCESS_setMixProcessType(MIXPROCESS_ID,v)     
+//====================================================================
+//    MIXPROCESS_getMixValue      (MIXPROCESS_ID)      
+//    MIXPROCESS_setMixValue      (MIXPROCESS_ID,v)//v is 0.0 ~ 1.0
+//====================================================================
+//    MIXPROCESS_Process(MIXPROCESS_ID,inDryValue,inWetValue) //calucrate
+//====================================================================
+//    MIXPROCESS_getProcessedValue(MIXPROCESS_ID ) // get mixed value
+//====================================================================
+//    MIXPROCESS_getDryGain       (MIXPROCESS_ID)  
+//    MIXPROCESS_getWetGain       (MIXPROCESS_ID)  
+//    MIXPROCESS_getDryValue      (MIXPROCESS_ID)  
+//    MIXPROCESS_getWetValue      (MIXPROCESS_ID)  
+//====================================================================
+
 
 //====================================================================
 function MIXPROCESS_create() local ( MIXPROCESS_ID,singlePole_ID )

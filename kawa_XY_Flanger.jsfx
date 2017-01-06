@@ -9,17 +9,16 @@ import kawa_ALL.jsfx-inc
 
 // sliders//( this app lib need Continuous number)
 //--------------------------------------------------------------------
-slider1: 0.1<0.0,1.0>RATE X
-slider2: 0.6<0.0,1.0>RATE Y
-slider3: 0.0<0,1,{FLANGER,PHASER}>MODE
-slider4: 0  <0,3,{Sin,Saw,Rect,Tri}> WAVE TYPE
-slider5: 0  <0,500> FADE SMOOZING(ms)
-slider6: 0.0<0,0.95>FEEDBACK( x100 %)
-slider7: 0<-30.0,10>DRY LEVEL(dB)
-slider8: 0<-30.0,10>WET LEVEL(dB)
-slider9: 0  <0,1,{Wave,Modulation}>VIEW
-//====================================================================
-
+slider1: 0.1 <0.0,1.0>RATE X
+slider2: 0.6 <0.0,1.0>RATE Y
+slider3: 0.0 <0,1,{FLANGER,PHASER}>MODE
+slider4: 0.0 <0,3,{Sin,Saw,Rect,Tri}>WAVE TYPE
+slider5: 0.0 <0,500>FADE SMOOZING(ms)
+slider6: 0.0 <0,0.95>FEEDBACK( x100 %)
+slider7: 0.0 <-30.0,10>DRY LEVEL(dB)
+slider8: 0.0 <-30.0,10>WET LEVEL(dB)
+slider9: 0.0 <0,2,{Wave,Modulation,Off}>VIEW
+slider10:0.0 <0,5,{COLORFULL,SLATE GREY,ORANGE RED,SEA GREEN,DODGER BLUE,GRAPHICS OFF}>STYLE
 //====================================================================
 in_pin: left input
 in_pin: right input
@@ -30,7 +29,6 @@ out_pin:right output
 //====================================================================
 @init
 //====================================================================
-      
     // create APP ID
     //================================================================
     app_ID = APP_create();
@@ -54,10 +52,10 @@ out_pin:right output
     //================================================================
     COMPONENT_setSliderIndex(comp_PHASER_ModeButton,3);
     COMPONENT_changeColor(comp_PHASER_ModeButton,"textColor_mouseon",0,0,0,1);
-    //----------------------------------------------------------------
+    //================================================================
     XYSLIDER_setIsNeedCrossCursolLine(comp_XYSlider_1,true);
     XYSLIDER_setIsDrawGrid(comp_XYSlider_1,true);
-    //----------------------------------------------------------------
+    //================================================================
     LAYER_addChildComponent(layer_001  , comp_Border );
     LAYER_addChildComponent(layer_001  , comp_PHASER_ModeButton);
     LAYER_addChildComponent(layer_001  , comp_XYSlider_1);
@@ -75,7 +73,6 @@ out_pin:right output
     canvas_WAVE_L = CANVAS_create(gfx_w,gfx_h);
     canvas_WAVE_R = CANVAS_create(gfx_w,gfx_h);
     //================================================================
-    
     delaySize = srate;
     delay_ARRAY_L = CURSOLBUFFER_create(delaySize);
     delay_ARRAY_R = CURSOLBUFFER_create(delaySize);
@@ -102,10 +99,10 @@ out_pin:right output
     //================================================================
     bufferForGraph = CURSOLBUFFER_create (srate*3);
     //================================================================
-    
     dryGain = 1.0;
     wetGain = 1.0;
-    
+    //================================================================
+    backGround_colorSingleStr = "slategrey"
     
 @slider
 //====================================================================
@@ -133,6 +130,42 @@ out_pin:right output
     //================================================================
     dryGain = decivelToValue(slider7);
     wetGain = decivelToValue(slider8);
+    //================================================================
+    ( slider10 == 0)?
+    (
+        COMPONENT_setActive(comp_Border,true);
+        gfx_clear = -1;
+        //============================================================
+    ):( slider10 == 1)?
+    (
+        COMPONENT_setActive(comp_Border,false);
+        backGround_colorSingleStr = "slategrey";
+        gfx_clear = -1;
+        //============================================================
+    ):( slider10 == 2)?
+    (
+        COMPONENT_setActive(comp_Border,false);
+        backGround_colorSingleStr = "orangered";
+        gfx_clear = -1;
+        //============================================================
+    ):( slider10 == 3)?
+    (
+        COMPONENT_setActive(comp_Border,false);
+        backGround_colorSingleStr = "seagreen";
+        gfx_clear = -1;
+        //============================================================
+    ):( slider10 == 4)?
+    (
+        COMPONENT_setActive(comp_Border,false); 
+        backGround_colorSingleStr = "dodgerblue";
+        gfx_clear = -1;
+        //============================================================
+    ):( slider10 == 5)?
+    (
+        gfx_clear = 0; //brack
+    )
+    ;
+    //================================================================
     
 @block
 //====================================================================
@@ -240,16 +273,50 @@ out_pin:right output
     spl0 = spl0*dryGain + delay_L * wetGain;
     spl1 = spl1*dryGain + delay_R * wetGain;
     //================================================================
-     
+    
 @gfx 200 400
 //====================================================================
-    // direct draw background to
+( slider10 != 5 )?
+(
+    //style mode
     //================================================================
-    drawBackGrond_color(5,0,60);
-    drawSinWaveCircle(100,0.8,1,0.0043);
+    ( slider10 == 0)?
+    (
+        // direct draw background to
+        //============================================================
+        drawBackGrond_color(5,0,60);
+        drawSinWaveCircle(100,0.8,1,0.0043);
+        //============================================================
+        COMPONENT_setComponentAlpha(comp_Border ,abs(sin($pi*2*mod*2)));
+        mod += 0.01;(mod > 1 )?(mod=0;);
+        //============================================================
+        drawDotGrid(16,16,0.6);
+        //============================================================
+        // for particle 
+        PARTICLE_CONTROLLER_update ( PARTICLE_controller );
+        //============================================================
+        ( APP_isMouseButtonHoldingPress(app_ID)  ==true) ?      
+        (
+            PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
+        );
+        //============================================================
+        PARTICLE_CONTROLLER_addParticleType3_XY (PARTICLE_controller
+                                                ,XYSLIDER_getCircleAreaCX(comp_XYSlider_1)
+                                                ,XYSLIDER_getCircleAreaCY(comp_XYSlider_1)
+                                                ,false
+                                                );
+        //============================================================
+    ):(
+        //============================================================
+        changeGfxColorByPreset(backGround_colorSingleStr );  
+        gfx_a=1;
+        //============================================================
+        gfx_rect(0,0,gfx_w,gfx_h,true);
+        //============================================================
+    );
     //================================================================
-
-    // canvase test
+    
+    //view mode
     //================================================================
     (slider9 ==0)?
     (
@@ -274,15 +341,8 @@ out_pin:right output
         CANVAS_blitImage4(canvas_WAVE_R,1,0);
         CANVAS_blitImage4(canvas_WAVE_L,1,0);
         gfx_a =1;
-    );
-    //================================================================
-    // final background
-    //================================================================
-    drawDotGrid(16,16,0.6);
-    //================================================================
-   
-    //================================================================
-    (slider9 ==1)?
+        //============================================================
+    ):(slider9 ==1)?
     (
         drawPointNum = min(srate/rateX*2,srate/2);
         //============================================================
@@ -292,46 +352,13 @@ out_pin:right output
         gfx_rect( 0,gfx_h/2-1, gfx_w, 2,true);
     );
     //================================================================
-    
-    // for debug
-    //================================================================
-    //DBGMESSAGE_drawAllMessage(DBG);
-    //================================================================
-    
-    // for particle 
-    PARTICLE_CONTROLLER_update ( PARTICLE_controller );
-    //================================================================
-    ( APP_isMouseButtonHoldingPress(app_ID)  ==true) ?      
-    (
-        PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
-        0;
-    );
-    //================================================================
-    PARTICLE_CONTROLLER_addParticleType3_XY (PARTICLE_controller
-                                            ,XYSLIDER_getCircleAreaCX(comp_XYSlider_1)
-                                            ,XYSLIDER_getCircleAreaCY(comp_XYSlider_1)
-                                            ,false
-                                            );
-    //================================================================
 
+    //================================================================
     // App update. check and compare with last event state.(resize or mouse)
     //================================================================
     APP_update(app_ID);
-    
+ 
     //================================================================
-    ( mouse_cap & 64 ==64 && lastCAP != mouse_cap )?
-    (
-        DBG_toggle(DBG);
-    );
-    lastCAP = mouse_cap;
-    //================================================================
-    ( APP_isMouseButtonPressed(app_ID)  ==true) ?
-    ( 0;);
-    
-    ( APP_isMouseButtonReleased(app_ID) ==true) ?
-    ( 0;);
-    //================================================================
-    
     // alignment position when resized.
     //================================================================
     ( APP_isWindowResized(app_ID) ==true) ?
@@ -360,7 +387,6 @@ out_pin:right output
         //RECTANGLE_cropFromRightP   (comp_PHASER_ModeButton,0.3);
     );
     //================================================================
-    
     (BUTTON_isON(comp_PHASER_ModeButton)==true)?
     (
         COMPONENT_setName(comp_PHASER_ModeButton,"PHASER MODE ");
@@ -369,15 +395,7 @@ out_pin:right output
         COMPONENT_setName(comp_PHASER_ModeButton,"FLANGER MODE");
     );
     //================================================================
-    
-    //================================================================
-    // if animation
-    //================================================================
-    COMPONENT_setComponentAlpha(comp_Border ,abs(sin($pi*2*mod*2)));
-    mod += 0.01;(mod > 1 )?(mod=0;);
-    //================================================================
-    //RECTANGLE_setX( layer_001 ,40*sin($pi*2*mod));
-    
+
     //================================================================
     // plugin Title Str
     //================================================================
@@ -419,7 +437,11 @@ out_pin:right output
     gfx_y = gfx_h-gfx_texth-2;
     gfx_drawstr(drawText);
     //================================================================
-
+):(
+    gfx_a=1;
+    //================================================================
+    gfx_rect(0,0,gfx_w,gfx_h,true);
+);
 //====================================================================
 // 続
 

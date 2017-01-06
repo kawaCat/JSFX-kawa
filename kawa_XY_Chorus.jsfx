@@ -11,12 +11,13 @@ import kawa_ALL.jsfx-inc
 //--------------------------------------------------------------------
 slider1:0.25<0.0,1.0>RATE 
 slider2:0.25<0.0,1.0>WIDTH
-slider3:0<0,1,{Normal,Deep}> Chorus Mode
-slider4:0<0,3,{Sin,Saw,Rect,Tri}> WAVE TYPE
-slider5:0<0,100> SMOOZING (ms)
-slider6:0<-30,10>DRY LEVEL(dB)
-slider7:0<-30,10>WET LEVEL(dB)
-slider8:0<0,1,{Wave,Modulation}>VIEW
+slider3:0.0 <0,1,{Normal,Deep}> Chorus Mode
+slider4:0.0 <0,3,{Sin,Saw,Rect,Tri}> WAVE TYPE
+slider5:0.0 <0,100> SMOOZING (ms)
+slider6:0.0 <-30,10>DRY LEVEL(dB)
+slider7:0.0 <-30,10>WET LEVEL(dB)
+slider8:0.0 <0,3,{Wave,Modulation,Off}>VIEW
+slider9:0.0 <0,5, {COLORFULL,SLATE GREY,ORANGE RED,SEA GREEN,DODGER BLUE,GRAPHICS OFF}>STYLE
 //====================================================================
 in_pin: left input
 in_pin: right input
@@ -98,6 +99,7 @@ out_pin:right output
     mixProcess_ID_L = MIXPROCESS_create();
     mixProcess_ID_R = MIXPROCESS_create();
     //================================================================
+    backGround_colorSingleStr = "slategrey"
     
 @slider
 //====================================================================
@@ -129,6 +131,44 @@ out_pin:right output
     //================================================================
     dryGain = decivelToValue(slider6);
     wetGain = decivelToValue(slider7);
+    //================================================================
+    
+    //================================================================
+    ( slider9 == 0)?
+    (
+        COMPONENT_setActive(comp_Border,true);
+        gfx_clear = -1;
+        //============================================================
+    ):( slider9 == 1)?
+    (
+        COMPONENT_setActive(comp_Border,false);
+        backGround_colorSingleStr = "slategrey";
+        gfx_clear = -1;
+        //============================================================
+    ):( slider9 == 2)?
+    (
+        COMPONENT_setActive(comp_Border,false);
+        backGround_colorSingleStr = "orangered";
+        gfx_clear = -1;
+        //============================================================
+    ):( slider9 == 3)?
+    (
+        COMPONENT_setActive(comp_Border,false);
+        backGround_colorSingleStr = "seagreen";
+        gfx_clear = -1;
+        //============================================================
+    ):( slider9 == 4)?
+    (
+        COMPONENT_setActive(comp_Border,false); 
+        backGround_colorSingleStr = "dodgerblue";
+        gfx_clear = -1;
+        //============================================================
+    ):( slider9 == 5)?
+    (
+        gfx_clear = 0; //brack
+        //============================================================
+    )
+    ;
     //================================================================
     
 @block
@@ -185,7 +225,7 @@ out_pin:right output
     CURSOLBUFFER_push( DELAY_ARRAY_L ,spl0 );
     CURSOLBUFFER_push( DELAY_ARRAY_R ,spl1 );
     //================================================================
-    //  (this process getted with noise in the case of pure sine wave.)
+    // (this process getted with noise in the case of pure sine wave.)
     // delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
     //                                         , - chorusWidth * valueX -1 );
     // delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
@@ -224,14 +264,57 @@ out_pin:right output
 
 @gfx 200 400
 //====================================================================
-    // direct draw background to
+( slider9 != 5 )?
+(
     //================================================================
-    drawBackGrond_color(5,0,60);
-    drawSinWaveCircle(100,0.8,1,0.0043);
+    //style mode
     //================================================================
+    ( slider9 == 0)?
+    (
+        // direct draw background to
+        //============================================================
+        drawBackGrond_color(5,0,60);
+        drawSinWaveCircle(100,0.8,1,0.0043);
+        //============================================================
 
-    // for particle 
-    PARTICLE_CONTROLLER_update ( PARTICLE_controller );
+        // for particle 
+        PARTICLE_CONTROLLER_update ( PARTICLE_controller );
+        //============================================================
+        
+        //============================================================
+        // final background
+        //============================================================
+        drawDotGrid(16,16,0.6);
+        //============================================================
+        ( APP_isMouseButtonHoldingPress(app_ID)  ==true) ? 
+        (
+            PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
+            0;
+        );
+        //============================================================
+        (time_precise() -lastPTime_  > 0.25)?
+        (
+            PARTICLE_CONTROLLER_addParticleType2_XY (PARTICLE_controller
+                                                    ,gfx_w/2
+                                                    ,gfx_h/2
+                                                    ,false
+                                                   );
+            lastPTime_ = time_precise();
+        );
+        //============================================================
+        COMPONENT_setComponentAlpha(comp_Border,abs(sin($pi*2*mod*2)));
+        mod += 0.01;(mod > 1 )?(mod=0;);
+        //============================================================
+    ):(
+        //============================================================
+        changeGfxColorByPreset(backGround_colorSingleStr );  
+        gfx_a=1;
+        //============================================================
+        gfx_rect(0,0,gfx_w,gfx_h,true);
+        //============================================================
+    );
+    //================================================================
+    // view mode
     //================================================================
     (slider8 ==0)?
     (
@@ -257,15 +340,8 @@ out_pin:right output
         CANVAS_blitImage4(canvas_WAVE_R,1,0);
         CANVAS_blitImage4(canvas_WAVE_L,1,0);
         gfx_a =1;
-    );
-    //================================================================
-    // final background
-    //================================================================
-    drawDotGrid(16,16,0.6);
-    //================================================================
-    
-    //================================================================
-    (slider8 ==1)?
+        //============================================================
+    ):(slider8 ==1)?
     (
         drawPointNum = min(srate/rateX*2,srate/2);
         //============================================================
@@ -276,45 +352,10 @@ out_pin:right output
     );
     //================================================================
    
-    // for debug
     //================================================================
-    //DBGMESSAGE_drawAllMessage(DBG);
-    //================================================================
-
-    //================================================================
-    ( APP_isMouseButtonHoldingPress(app_ID)  ==true) ? 
-    (
-        PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
-        0;
-    );
-    //================================================================
-    (time_precise() -lastPTime_  > 0.25)?
-    (
-        PARTICLE_CONTROLLER_addParticleType2_XY (PARTICLE_controller
-                                                ,gfx_w/2
-                                                ,gfx_h/2
-                                                ,false
-                                               );
-        lastPTime_ = time_precise();
-    );
-    //================================================================
-
     // App update. check and compare with last event state.(resize or mouse)
     //================================================================
     APP_update(app_ID);
-    
-    //================================================================
-    ( mouse_cap & 64 ==64 && lastCAP != mouse_cap )?
-    (
-        DBG_toggle(DBG);
-    );
-    lastCAP = mouse_cap;
-    //================================================================
-    ( APP_isMouseButtonPressed(app_ID)  ==true) ?
-    ( 0;);
-    
-    ( APP_isMouseButtonReleased(app_ID) ==true) ?
-    ( 0;);
     //================================================================
     
     // alignment position when resized.
@@ -341,12 +382,8 @@ out_pin:right output
         RECTANGLE_reduceP        (comp_XYSlider_1,0.1,0.1);
     );
     //================================================================
-    // if animation
-    //================================================================
-    COMPONENT_setComponentAlpha(comp_Border,abs(sin($pi*2*mod*2)));
-    mod += 0.01;(mod > 1 )?(mod=0;);
-    //================================================================
     
+    //================================================================
     // plugin Title Str
     //================================================================
     RECTANGLE_drawBottomRightText( app_ID,"XY Chorus");
@@ -370,8 +407,11 @@ out_pin:right output
     gfx_y = gfx_h-gfx_texth-1;
     gfx_drawstr(drawText);
     //================================================================
-    
-   
+):(
+    gfx_a=1;
+    //================================================================
+    gfx_rect(0,0,gfx_w,gfx_h,true);
+);
 //====================================================================
 // 続
 

@@ -9,8 +9,10 @@ import kawa_ALL.jsfx-inc
 
 // sliders //( this app lib need Continuous number)
 //--------------------------------------------------------------------
-slider1:0.25<0.0,1.0.0001>BIT 
-slider2:0.25<0.0,0.9>FREQ
+slider1:0.25 <0.0,1.0.0001>BIT 
+slider2:0.25 <0.0,0.9>FREQ
+slider3:0.0  <0,1,{Wave,Off}>VIEW
+slider4:0.0  <0,5, {COLORFULL,SLATE GREY,ORANGE RED,SEA GREEN,DODGER BLUE,GRAPHICS OFF}>STYLE
 //====================================================================
 in_pin: left input
 in_pin: right input
@@ -76,6 +78,7 @@ out_pin:right output
     f_fLastValueL =0;
     f_fLastValueR =0;
     //================================================================
+    backGround_colorSingleStr = "slategrey"
 
 @slider
 //====================================================================
@@ -83,6 +86,50 @@ out_pin:right output
     XYSLIDER_setXValue(comp_XYSlider_1,slider2,false);
     //================================================================
     APP_SliderChanged(app_ID); // notify for update lastValue
+    //================================================================
+    
+    //================================================================
+    ( slider4 == 0)?
+    (
+        COMPONENT_setActive(comp_Border,true);
+        //============================================================
+    ):( slider4 == 1)?
+    (
+        COMPONENT_setActive(comp_Border,false);
+        backGround_colorSingleStr = "slategrey";
+        COMPONENT_setComponentAlpha(comp_Border,1);
+        RECTANGLE_setX( layer_001 ,0);
+        gfx_clear = -1;
+        //============================================================
+        ):( slider4 == 2)?
+    (
+        COMPONENT_setActive(comp_Border,false);
+        backGround_colorSingleStr = "orangered";
+        COMPONENT_setComponentAlpha(comp_Border,1);
+        RECTANGLE_setX( layer_001 ,0);
+        gfx_clear = -1;
+        //============================================================
+    ):( slider4 == 3)?
+    (
+        COMPONENT_setActive(comp_Border,false);
+        backGround_colorSingleStr = "seagreen";
+        COMPONENT_setComponentAlpha(comp_Border,1);
+        RECTANGLE_setX( layer_001 ,0);
+        gfx_clear = -1;
+        //============================================================
+    ):( slider4 == 4)?
+    (
+        COMPONENT_setActive(comp_Border,false); 
+        backGround_colorSingleStr = "dodgerblue";
+        COMPONENT_setComponentAlpha(comp_Border,1);
+        RECTANGLE_setX( layer_001 ,0);
+        gfx_clear = -1;
+        //============================================================
+    ):( slider4 == 5)?
+    (
+        gfx_clear = 0; //brack
+    )
+    ;
     //================================================================
     
 @block
@@ -130,86 +177,95 @@ out_pin:right output
     
 @gfx 200 400
 //====================================================================
-    // direct draw background to
+( slider4 != 5 )?
+(
     //================================================================
-    drawBackGrond_color( 20
-                       , 120 + 120 *  ( XYSLIDER_getXValue(comp_XYSlider_1) )
-                       , 12*20 *  ( XYSLIDER_getYValue(comp_XYSlider_1) ));
-    drawSinWaveCircle(100,0.8,1,0.0043);
+    // if animation on?
     //================================================================
-
-    // canvase test
-    //================================================================
-    drawWaveBufferToCanvas(canvas_WAVE_L
-                          ,f_max_L
-                          ,f_min_L
-                          ,40 * ( 1- XYSLIDER_getXValue(comp_XYSlider_1) )
-                          ,0.3
-                          ,1
-                          ,80);
-
-    drawWaveBufferToCanvas(canvas_WAVE_R
-                          ,f_max_R
-                          ,f_min_R
-                          ,40 * ( XYSLIDER_getYValue(comp_XYSlider_1) )
-                          ,0.4
-                          ,1
-                          ,0);
-    //================================================================
-    gfx_a =0.6;
-    CANVAS_blitImage4(canvas_WAVE_R,1,0);
-    CANVAS_blitImage4(canvas_WAVE_L,1,0);
-    gfx_a =1;
-    //================================================================
-    // final background
-    //================================================================
-    drawDotGrid(16,16,0.6);
-    //================================================================
-   
-    // for debug
-    //================================================================
-    //DBGMESSAGE_drawAllMessage(DBG);
+    ( slider4 == 0)?
+    (
+        // direct draw background to
+        //============================================================
+        drawBackGrond_color( 20
+                           , 120 + 120 *  ( XYSLIDER_getXValue(comp_XYSlider_1) )
+                           , 12*20 *  ( XYSLIDER_getYValue(comp_XYSlider_1) ));
+        //============================================================
+        drawSinWaveCircle(100,0.8,1,0.0043);
+        //============================================================
+            
+        //============================================================
+        // final background
+        //============================================================
+        drawDotGrid(16,16,0.6);
+        //============================================================
+        // for particle 
+        PARTICLE_CONTROLLER_update ( PARTICLE_controller );
+        //============================================================
+        ( APP_isMouseButtonHoldingPress(app_ID)  ==true) ?      
+        (
+            PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
+        );
+        //============================================================
+        (time_precise() -lastPTime_  > 0.25)?
+        (
+            PARTICLE_CONTROLLER_addParticleType2_XY (PARTICLE_controller
+                                                    ,gfx_w/2
+                                                    ,gfx_h/2
+                                                    ,false
+                                                   );
+            lastPTime_ = time_precise();
+        );
+        //============================================================
+        // if animation
+        //============================================================
+        COMPONENT_setComponentAlpha(comp_Border,abs(sin($pi*2*mod*2)));
+        mod += 0.01;(mod > 1 )?(mod=0;);
+        //============================================================
+        RECTANGLE_setX( layer_001 ,40*sin($pi*2*mod));
+        //============================================================
+    ):(
+        //============================================================
+        changeGfxColorByPreset(backGround_colorSingleStr );  
+        gfx_a=1;
+        //============================================================
+        gfx_rect(0,0,gfx_w,gfx_h,true);
+        //============================================================
+    );
     //================================================================
     
-    // for particle 
-    PARTICLE_CONTROLLER_update ( PARTICLE_controller );
     //================================================================
-    ( APP_isMouseButtonHoldingPress(app_ID)  ==true) ?      
+    // graph View
+    //================================================================
+    (slider3 ==0)?
     (
-        PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
-        0;
+        //============================================================
+        drawWaveBufferToCanvas(canvas_WAVE_L
+                              ,f_max_L
+                              ,f_min_L
+                              ,40 * ( 1- XYSLIDER_getXValue(comp_XYSlider_1) )
+                              ,0.3
+                              ,1
+                              ,80);
+        //============================================================
+        drawWaveBufferToCanvas(canvas_WAVE_R
+                              ,f_max_R
+                              ,f_min_R
+                              ,40 * ( XYSLIDER_getYValue(comp_XYSlider_1) )
+                              ,0.4
+                              ,1
+                              ,0);
+        //============================================================
+        gfx_a =0.6;
+        CANVAS_blitImage4(canvas_WAVE_R,1,0);
+        CANVAS_blitImage4(canvas_WAVE_L,1,0);
+        gfx_a =1;
     );
     //================================================================
-    (time_precise() -lastPTime_  > 0.25)?
-    (
-        PARTICLE_CONTROLLER_addParticleType2_XY (PARTICLE_controller
-                                                ,gfx_w/2
-                                                ,gfx_h/2
-                                                ,false
-                                               );
-        lastPTime_ = time_precise();
-    );
-    //================================================================
-
+    
     // App update. check and compare with last event state.(resize or mouse)
     //================================================================
     APP_update(app_ID);
     //================================================================
-
-    //================================================================
-    ( mouse_cap & 64 ==64 && lastCAP != mouse_cap )?
-    (
-        DBG_toggle(DBG);
-    );
-    lastCAP = mouse_cap;
-    //================================================================
-    ( APP_isMouseButtonPressed(app_ID)  ==true) ?
-    ( 0;);
-    
-    ( APP_isMouseButtonReleased(app_ID) ==true) ?
-    ( 0;);
-    //================================================================
-    
     
     // alignment position when resized.
     //================================================================
@@ -224,8 +280,6 @@ out_pin:right output
         //============================================================
     );
     //================================================================
-
-    //================================================================
     ( LAYER_isAreaResized(layer_001 ) ==true)   ?
     (
         RECTANGLE_copyTo         (comp_Border,layer_001 );
@@ -236,18 +290,11 @@ out_pin:right output
         //============================================================
     );
     //================================================================
-    // if animation
-    //================================================================
-    COMPONENT_setComponentAlpha(comp_Border,abs(sin($pi*2*mod*2)));
-    mod += 0.01;(mod > 1 )?(mod=0;);
-    //================================================================
-    RECTANGLE_setX( layer_001 ,40*sin($pi*2*mod));
     
     // plugin Title Str
     //================================================================
     RECTANGLE_drawBottomRightText( app_ID,"XY Bit Crusher");
     //================================================================
-    
 
     drawText = #;
     //================================================================
@@ -266,6 +313,11 @@ out_pin:right output
     gfx_y = gfx_h-gfx_texth-2;
     gfx_drawstr(drawText);
     //================================================================
+):(
+    gfx_a=1;
+    //================================================================
+    gfx_rect(0,0,gfx_w,gfx_h,true);
+);
 //====================================================================
 // 続
 

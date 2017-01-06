@@ -874,11 +874,11 @@ local (CANVAS_ID,canvasSLOTID,ww_,hh_,baseClassElementNum)
 
     //================================================================
     STATIC_MASTER_BUFF[CANVAS_ID ] = "CANVAS";                     // class name
-    STATIC_MASTER_BUFF[CANVAS_ID +1]   = baseClassElementNum +3;   // total element NUM;
+    STATIC_MASTER_BUFF[CANVAS_ID +1]   = baseClassElementNum +4;   // total element NUM;
     //================================================================
-    STATIC_MASTER_BUFF[CANVAS_ID + baseClassElementNum + 1] = STATIC_CANVAS_SLOT_CURSOL;        // canvas SLOT
-    STATIC_MASTER_BUFF[CANVAS_ID + baseClassElementNum + 2] = false;                            // isCreatedFlag
-    STATIC_MASTER_BUFF[CANVAS_ID + baseClassElementNum + 3] = STATIC_MASTER_BUFF[CANVAS_ID +1]; // Element Num in CANVAS class.
+    STATIC_MASTER_BUFF[CANVAS_ID + baseClassElementNum + 2] = STATIC_CANVAS_SLOT_CURSOL;        // canvas SLOT
+    STATIC_MASTER_BUFF[CANVAS_ID + baseClassElementNum + 3] = false;                            // isCreatedFlag
+    STATIC_MASTER_BUFF[CANVAS_ID + baseClassElementNum + 4] = STATIC_MASTER_BUFF[CANVAS_ID +1]; // Element Num in CANVAS class.
     //================================================================
     STATIC_MASTER_BUFF_ID += STRUCT_getElementNum(CANVAS_ID)+1; // step cursol
     //================================================================
@@ -887,10 +887,10 @@ local (CANVAS_ID,canvasSLOTID,ww_,hh_,baseClassElementNum)
     CANVAS_ID;
 );
 //====================================================================
-function _CANVAS_getElementNum(CANVAS_ID)       ( STATIC_MASTER_BUFF[CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+3];);// protected
+function _CANVAS_getElementNum(CANVAS_ID)       ( STATIC_MASTER_BUFF[CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+4];);// protected
 //====================================================================
-function CANVAS_isCreatedCanvas(CANVAS_ID)      ( STATIC_MASTER_BUFF[CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+2];);
-function _CANVAS_setisCreatedCanvas(CANVAS_ID,v)( STATIC_MASTER_BUFF[CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+2] = v;);
+function CANVAS_isCreatedCanvas(CANVAS_ID)      ( STATIC_MASTER_BUFF[CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+3];);
+function _CANVAS_setisCreatedCanvas(CANVAS_ID,v)( STATIC_MASTER_BUFF[CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+3] = v;);
 //====================================================================
 
 //====================================================================
@@ -900,7 +900,7 @@ function CANVAS_recreateCanvas(CANVAS_ID)local (width,height,canvasSlot,cW,cH)
     width  = RECTANGLE_getWidth(CANVAS_ID); 
     height = RECTANGLE_getHeight(CANVAS_ID);
     //================================================================
-    canvasSlot = STATIC_MASTER_BUFF[ CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+1];
+    canvasSlot = STATIC_MASTER_BUFF[ CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+2];
     //================================================================
     gfx_getimgdim(canvasSlot,cW,cH);
     //================================================================
@@ -931,7 +931,7 @@ function CANVAS_getCanvaseSlotID(CANVAS_ID)local (out)
         CANVAS_recreateCanvas(CANVAS_ID);
     );
     //================================================================
-    out = STATIC_MASTER_BUFF[ CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+1 ];
+    out = STATIC_MASTER_BUFF[ CANVAS_ID +_RECTANGLE_getElementNum(CANVAS_ID)+2 ];
     out;
 );
 //====================================================================
