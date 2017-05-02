@@ -16,19 +16,15 @@ tested on Reaper 5.30.
 
 ## XY Chorus
 
-<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/XY_CHorus.gif" width="400px"/>
+<img src="/img/XY_CHorus.gif" width="400px"/>
 
 ## XY Flanger
 
-<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/XY_Flanger.gif" width="400px"/>
+<img src="/img/XY_Flanger.gif" width="400px"/>
 
 ## XY Delay
 
-<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/XY_Delay.PNG" width="400px"/>
-
-## XY BitCrusher
-
-<img src="https://bitbucket.org/kawaCat/jsfx-kawa/wiki/img/XY_BitCrusher.PNG" width="400px"/>
+<img src="/img/XY_Delay.PNG" width="400px"/>
 
 
 ------
