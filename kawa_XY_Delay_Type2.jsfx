@@ -1,0 +1,533 @@
+//====================================================================
+desc:_kawa_XY_Delay_Type2
+//====================================================================
+
+// imports
+//====================================================================
+import kawa_ALL.jsfx-inc
+//====================================================================
+
+// sliders  //( this app lib need Continuous number)
+//--------------------------------------------------------------------
+slider1:0.325 <0.0,1.0>DELAY L
+slider2:0.65  <0.0,1.0>DELAY R
+slider3:0.45  <0.0,0.9>FEEDBACK
+slider5:0.0   <0,250,0.1>EDIT SMOOZING (ms)
+slider6:3     <0,5, {0.0625 sec ,0.125 sec ,0.25 sec,0.5 sec,1.0 sec} > MAX DELAY TIME
+slider7:0    <0,3, {NORMAL,INVERT - L,INVERT - R,INVERT - BOTH}>DELAY PHASE
+slider13:0.0  <0,1, {Off,On}> DELAY STEREO FLIP
+//--------------------------------------------------------------------
+slider14:0    <0,2, {Normal,Distance To FeedBack.,Angle to FeedBack.}>XY SLIDER EDIT MODE
+slider15:0    <0,1, {Wave,Off}>VIEW
+slider16:0    <0,5, {COLORFULL,SLATE GREY,ORANGE RED,SEA GREEN,DODGER BLUE,GRAPHICS OFF}>STYLE
+//--------------------------------------------------------------------
+slider20:0.0   <-30,10>DRY L LEVEL(dB)
+slider21:0.0   <-30,10>DRY R LEVEL(dB)
+slider22:-7.0  <-30,10>WET L LEVEL(dB)
+slider23:-7.0  <-30,10>WET R LEVEL(dB)
+slider24:0    <0,1.0>  WET L PAN L
+slider25:1.0  <0,1.0>  WET R PAN R
+//--------------------------------------------------------------------
+
+//====================================================================
+//0.25sec
+//slider59:2756.25 <0.0,1.0> -lastDelayTime_L 
+//slider60:8820.0 <0.0,1.0>  -lastDelayTime_R
+//====================================================================
+slider58:44100    <0,1>     -lastSampleRate
+//0.5sec
+slider59:5512.49  <0.0,1.0> -lastDelayTime_L
+slider60:17639.99 <0.0,1.0> -lastDelayTime_R
+slider61:120      <0.0,1.0> -lastBPM
+slider62:0.1      <0,1>     -lastGridparamX
+slider63:0.1      <0,1>     -lastGridparamY
+
+//====================================================================
+in_pin: left input
+in_pin: right input
+out_pin:left output
+out_pin:right output
+//====================================================================
+
+@init
+//====================================================================
+    // create APP ID
+    //================================================================
+    app_ID = APP_create();
+    //================================================================
+
+    //create Layer ID
+    //================================================================
+    layer_002  = LAYER_create("LAYER01");
+    //================================================================
+
+    // layer 2
+    comp_Border  = COMPONENT_create("TEST");
+    //================================================================
+    comp_XYSlider_1 = XYSLIDER_create("comp_XYSlider_1");
+    //================================================================
+    XYSLIDER_setSliderIndexX(comp_XYSlider_1,2);
+    XYSLIDER_setSliderIndexY(comp_XYSlider_1,1);
+    //================================================================
+    XYSLIDER_setXYDistanceDrawMode( comp_XYSlider_1,DEFINE_XYSLIDER_DISTANCE_DRAWMODE_CENTER);
+    XYSLIDER_setIsNeedCrossCursolLine(comp_XYSlider_1,true);
+    XYSLIDER_setIsUseGridParamerOnMousePt(comp_XYSlider_1,true);
+    XYSLIDER_setIsDrawGrid(comp_XYSlider_1,true);
+    //================================================================
+    XYSLIDER_setXGridParamName(comp_XYSlider_1,"X: 32th x ");
+    XYSLIDER_setYGridParamName(comp_XYSlider_1,"Y: 32th x ");
+    //================================================================
+    LAYER_addChildComponent(layer_002 , comp_Border);// shared with layer1
+    LAYER_addChildComponent(layer_002 , comp_XYSlider_1);
+    //================================================================
+
+    // layer add to app
+    //================================================================
+    APP_addChildComponent(app_ID,layer_002 );
+    LAYER_setActive(layer_002 ,true);
+    //================================================================
+
+    // canvase test
+    //================================================================
+    canvas_WAVE_L = CANVAS_create(gfx_w,gfx_h);
+    canvas_WAVE_R = CANVAS_create(gfx_w,gfx_h);
+    //================================================================
+    
+    //================================================================
+    delaySize = srate*10;
+    DELAY_ARRAY_L = CURSOLBUFFER_create(delaySize);
+    DELAY_ARRAY_R = CURSOLBUFFER_create(delaySize);
+    //================================================================
+    DBG_toggle(DBG); // visible off
+    //================================================================
+    
+    // for particle 
+    PARTICLE_controller = PARTICLE_CONTROLLER_create();
+    //================================================================
+    singlePole_ID_L =createSinglePole();
+    singlePole_ID_R =createSinglePole();
+    SINGLEPOLE_setSmoozingTime(singlePole_ID_L,slider5);//smooze 5ms
+    SINGLEPOLE_setSmoozingTime(singlePole_ID_R,slider5);//smooze 5ms
+    delayTime_L =  0.0;
+    delayTime_R =  0.0;
+    //================================================================
+    
+    //================================================================
+    BufferForGraph = CURSOLBUFFER_create(srate);
+    //================================================================
+    singlePole_ID_GRAPH =createSinglePole();
+    SINGLEPOLE_setSmoozingTime(singlePole_ID_GRAPH,400);//smooze 5ms
+    //================================================================
+    delayTime = srate ;
+    //================================================================
+    
+    // mixProcess
+    mixProcess_ID_L = MIXPROCESS_create();
+    mixProcess_ID_R = MIXPROCESS_create();
+    //================================================================
+    backGround_colorSingleStr = "slategrey"
+    
+@slider
+//====================================================================
+    XYSLIDER_setXValue(comp_XYSlider_1,slider2,false);
+    XYSLIDER_setYValue(comp_XYSlider_1,slider1,false);
+    //================================================================
+    APP_SliderChanged(app_ID); // notify for update lastValue
+    //================================================================
+    delayTime_L = slider59; //restore
+    delayTime_R = slider60; //restore
+    SINGLEPOLE_setLastValue(singlePole_ID_L,delayTime_L);
+    SINGLEPOLE_setLastValue(singlePole_ID_R,delayTime_R);
+    //================================================================
+    SINGLEPOLE_setSmoozingTime(singlePole_ID_L,slider5);//smooze
+    SINGLEPOLE_setSmoozingTime(singlePole_ID_R,slider5);//smooze
+    //================================================================
+    XYSLIDER_setXYDistanceDrawMode( comp_XYSlider_1,slider14);
+    //================================================================
+    XYSLIDER_setXGridParam(comp_XYSlider_1,slider62);
+    XYSLIDER_setYGridParam(comp_XYSlider_1,slider63);
+    //================================================================
+    MIXPROCESS_setMixValue (mixProcess_ID_L,slider21);
+    MIXPROCESS_setMixValue (mixProcess_ID_R,slider21);
+    //================================================================
+    dryGain_L = decivelToValue(slider20);
+    dryGain_R = decivelToValue(slider21);
+    wetGain_L = decivelToValue(slider22);
+    wetGain_R = decivelToValue(slider23);
+    //================================================================
+    
+    //================================================================
+    ( slider16 == 0)? //style
+    (
+        COMPONENT_setActive(comp_Border,true);
+        gfx_clear = -1;
+        //============================================================
+    ):( slider16 == 1)?
+    (
+        COMPONENT_setActive(comp_Border,false);
+        backGround_colorSingleStr = "slategrey";
+        gfx_clear = -1;
+        //============================================================
+    ):( slider16 == 2)?
+    (
+        COMPONENT_setActive(comp_Border,false);
+        backGround_colorSingleStr = "orangered";
+        gfx_clear = -1;
+        //============================================================
+    ):( slider16 == 3)?
+    (
+        COMPONENT_setActive(comp_Border,false);
+        backGround_colorSingleStr = "seagreen";
+        gfx_clear = -1;
+        //============================================================
+    ):( slider16 == 4)?
+    (
+        COMPONENT_setActive(comp_Border,false); 
+        backGround_colorSingleStr = "dodgerblue";
+        gfx_clear = -1;
+        //============================================================
+    ):( slider16 == 5)?
+    (
+        gfx_clear = 0; //brack
+        //============================================================
+    )
+    ;
+    //================================================================
+    
+@block
+//====================================================================
+    f_max_L = 0;f_min_L = 0;
+    f_max_R = 0;f_min_R = 0;
+    //================================================================
+    
+@sample
+//====================================================================
+
+    //================================================================
+    _safeTempo = max(min(tempo,360),40 );
+    _sampleFor32thNote = get32thNote_Sample (_safeTempo,srate);
+    _gridParam = max(_sampleFor32thNote,1)/ max(delayTime ,1 );
+    //================================================================
+    slider62 = min(max(_gridParam,0.0001),1); //store last grid Parameter
+    slider63 = min(max(_gridParam,0.0001),1); //store last grid Parameter
+    XYSLIDER_setXGridParam(comp_XYSlider_1,_gridParam);
+    XYSLIDER_setYGridParam(comp_XYSlider_1,_gridParam);
+    //================================================================
+    slider58 = srate; // store last sampleRate
+    //================================================================
+    
+    //================================================================
+    ((slider6 == 0)?
+    (
+        // 0.0625 sec == srate/16
+        delayTime = srate/16 ;
+        delayTimeOffset = 0;
+        //============================================================
+    ):slider6  == 1)?
+    (
+        // 0.125 sec == srate/8
+        delayTime = srate/8 ;
+        delayTimeOffset = 0;
+        //============================================================
+    ):(slider6 == 2)?
+    (
+        // 0.25 sec == srate/4
+        delayTime = srate/4 ;
+        delayTimeOffset = 0;
+        //============================================================
+    ):(slider6 == 3)?
+    (
+        // 0.5 sec == srate/2
+        delayTime = srate /2;
+        delayTimeOffset = 0;
+        //============================================================
+    ):(slider6 == 4)?
+    (
+        // 1 sec == srate
+        delayTime = srate  ;
+        delayTimeOffset = 0;
+        //============================================================
+    )
+    ;
+    //================================================================
+    ( XYSLIDER_getXYDistanceDrawMode  ( comp_XYSlider_1) == DEFINE_XYSLIDER_DISTANCE_DRAWMODE_CENTER)?
+    (
+        //============================================================
+        slider3 = abs( min( XYSLIDER_getXYDistanceFromCenter( comp_XYSlider_1)
+                          , 0.9 )
+                     );
+        //============================================================
+    ):(XYSLIDER_getXYDistanceDrawMode  ( comp_XYSlider_1) == DEFINE_XYSLIDER_DISTANCE_DRAWMODE_CENTER_ANGLE )?
+    (
+        //============================================================
+        angle = XYSLIDER_getXYAngleFromCenter( comp_XYSlider_1);
+        angle = 360 -deg(angle+$pi );
+        //angle = 360 -deg(angle );//
+        slider3 = abs( min(  angle/360,  0.9 ) );
+        //============================================================
+    );
+    //================================================================
+    CURSOLBUFFER_push( BufferForGraph,(spl0+spl1)/2);    
+    //================================================================
+    
+    //================================================================
+    // DELAY MODE
+    CURSOLBUFFER_push( DELAY_ARRAY_L
+                     ,(spl0)+delay_L*slider3 );    
+    CURSOLBUFFER_push( DELAY_ARRAY_R
+                     ,(spl1)+delay_R*slider3 );  
+    //================================================================
+     
+    //================================================================
+    delayTime_L = SINGLEPOLE_getSmoozedValue( singlePole_ID_L ,  delayTime 
+                                                              * XYSLIDER_getYValue(comp_XYSlider_1)
+                                                              + delayTimeOffset
+                                            );
+    //================================================================
+    delayTime_R = SINGLEPOLE_getSmoozedValue(singlePole_ID_R ,  delayTime 
+                                                             * XYSLIDER_getXValue(comp_XYSlider_1)
+                                                             + delayTimeOffset
+                                            );
+    //================================================================
+    slider59 = delayTime_L;
+    slider60 = delayTime_R;
+    //================================================================
+    
+    //================================================================
+    delay_L = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_L
+                                             , -delayTime_L
+                                             );
+    delay_R = CURSOLBUFFER_getOffsettedValue( DELAY_ARRAY_R
+                                             , -delayTime_R
+                                             );
+    //================================================================
+    _dl_L = (delay_L * (1.0 - slider24));
+    _dl_R = (delay_L * slider24);
+    _dr_L = (delay_R * (1.0 - slider25));
+    _dr_R = (delay_R * slider25);
+    //================================================================
+    delay_Wet_L = _dl_L + _dr_L;
+    delay_Wet_R = _dl_R + _dr_R;
+    delay_L = delay_Wet_L;
+    delay_R = delay_Wet_R;
+    //================================================================
+    
+    // delay_Wet_L = spl0/2 + delay_Wet_L;
+    // delay_Wet_R = spl1/2 + delay_Wet_R;
+    // delay_Wet_L = delay_Wet_L;
+    // delay_Wet_R = delay_Wet_R;
+    //================================================================
+    (slider7 ==1 || slider7 == 3 ) ? invertL =-1 : invertL = 1;
+    (slider7 ==2 || slider7 == 3 ) ? invertR =-1 : invertR = 1;
+    //================================================================
+    (slider13 ==1)?
+    (   
+        //stereo swap
+        //============================================================
+        // mix 
+        spl0 =  spl0 * dryGain_L
+              + delay_Wet_R * invertR * wetGain_R;
+        spl1 =  spl1 * dryGain_R
+              + delay_Wet_L * invertL * wetGain_L;
+    ):(
+        //============================================================
+        spl0 =  spl0 * dryGain_L 
+              + delay_Wet_L * invertL * wetGain_L;
+        spl1 =  spl1 * dryGain_R 
+              + delay_Wet_R * invertR * wetGain_R;
+    );
+    //================================================================
+    
+    // update max sample
+    //================================================================
+    f_max_L = max(f_max_L,spl0);f_min_L = min(f_min_L,spl0);
+    f_max_R = max(f_max_R,spl1);f_min_R = min(f_min_R,spl1);
+    //================================================================
+    maxSample = max(abs(f_min_L), f_max_L )+max(abs(f_min_R), f_max_R );
+    maxSample = (96.0+valueToDecivel(maxSample/2))/96.0; //normarize by decibel
+    maxSample = SINGLEPOLE_getSmoozedValue(singlePole_ID_GRAPH,maxSample);
+    //================================================================
+
+@gfx 200 400
+//====================================================================
+( slider16 != 5 )?
+(
+    //================================================================
+    // style mode
+    //================================================================
+    ( slider16 == 0)?
+    (
+        // direct draw background to
+        //============================================================
+        drawBackGrond_color( 12, 120 , 12*12);
+        drawSinWaveCircle(100,0.8,1,0.0043);
+        drawSinWaveCircle(100,0.8,1,0.0043);
+        //============================================================
+        drawDotGrid(10,10,0.06);
+        //============================================================
+        COMPONENT_setComponentAlpha(comp_Border,abs(sin($pi*2*mod*2)));
+        mod += 0.01;(mod > 1 )?(mod=0;);
+        
+        //============================================================
+        // for particle 
+        PARTICLE_CONTROLLER_update ( PARTICLE_controller );
+        //============================================================
+       
+        //============================================================
+        ( APP_isMouseButtonHoldingPress(app_ID)  ==true) ?      
+        (
+            PARTICLE_CONTROLLER_addParticleType1(PARTICLE_controller);
+        );
+        //============================================================
+        (time_precise() -lastPTime_  > 0.25)?
+        (
+            PARTICLE_CONTROLLER_addParticleType2_XY ( PARTICLE_controller
+                                                    , gfx_w/2
+                                                    , gfx_h/2
+                                                    , false
+                                                   );
+            lastPTime_ = time_precise();
+        );
+        //============================================================
+    ):(
+        //============================================================
+        changeGfxColorByPreset(backGround_colorSingleStr );  
+        gfx_a=1;
+        //============================================================
+        gfx_rect(0,0,gfx_w,gfx_h,true);
+        //============================================================
+    );
+    //================================================================
+
+    //================================================================
+    // view mode
+    //================================================================
+    ( slider15 == 0 ) ?
+    (
+        // canvase
+        //============================================================
+        drawWaveBufferToCanvas( canvas_WAVE_L
+                              , f_max_L
+                              , f_min_L
+                              , 3 *  XYSLIDER_getXValue(comp_XYSlider_1)
+                              , 0.3
+                              , 1
+                              , 80);
+        //============================================================
+        drawWaveBufferToCanvas( canvas_WAVE_R
+                              , f_max_R
+                              , f_min_R
+                              , 3 *  XYSLIDER_getYValue(comp_XYSlider_1)
+                              , 0.4
+                              , 1
+                              , 0);
+        //============================================================
+        gfx_a =0.8;
+        CANVAS_blitImage4(canvas_WAVE_R,1,0);
+        CANVAS_blitImage4(canvas_WAVE_L,1,0);
+        gfx_a =1; 
+        //============================================================
+    );
+    //================================================================
+    
+    //================================================================
+    // App update. check and compare with last event state.(resize or mouse)
+    //================================================================
+    APP_update(app_ID);
+    //================================================================
+    
+    // alignment position when resized.
+    //================================================================
+    ( APP_isWindowResized(app_ID) ==true) ?
+    (
+        RECTANGLE_copyTo      ( canvas_WAVE_L,app_ID);
+        RECTANGLE_copyTo      ( canvas_WAVE_R,app_ID);
+        CANVAS_recreateCanvas ( canvas_WAVE_L ); 
+        CANVAS_recreateCanvas ( canvas_WAVE_R );
+        //============================================================
+        RECTANGLE_copyTo      ( layer_002 ,app_ID);  // layer resize 
+        //============================================================
+    );
+    //================================================================
+  
+    //================================================================
+    ( LAYER_isAreaResized(layer_002 ) ==true)   ?
+    (
+        RECTANGLE_copyTo          (comp_Border,layer_002 );
+        RECTANGLE_cropFromTopP    (comp_Border,0.025);
+        //============================================================
+        RECTANGLE_copyTo          (comp_XYSlider_1,layer_002 );
+        RECTANGLE_reduceP         (comp_XYSlider_1,0.1,0.1);   
+    );
+    //================================================================
+
+    //================================================================
+    // plugin Title Str
+    //================================================================
+    RECTANGLE_drawBottomRightText( app_ID,"XY Delay");
+    //================================================================
+
+    //================================================================
+    // delay time info
+    //================================================================
+    delayTimeForDraw_L = slider59/slider58;//msec (slider218 is lastSampleRate)
+    delayTimeForDraw_R = slider60/slider58;//msec  (slider218 is lastSampleRate)
+    //================================================================
+    drawText = #;
+    //================================================================
+    //gfx_setfont(1,"Courier new bold",18);
+    //================================================================
+    gfx_r = 0;gfx_g =0;gfx_b =0;gfx_a = 1;
+    gfx_x = 5;
+    gfx_y = gfx_h-(gfx_texth)*2-2;
+    sprintf (drawText,"Delay L(ms): %4.2f ms", delayTimeForDraw_L*1000);
+    gfx_drawstr(drawText);
+    gfx_x = 5;
+    gfx_y = gfx_h-gfx_texth-1;
+    sprintf (drawText,"Delay R(ms): %4.2f ms", delayTimeForDraw_R*1000);
+    gfx_drawstr(drawText);
+    //================================================================
+    
+    //================================================================
+    gfx_y = RECTANGLE_getY2(comp_Border)+ 5;
+    gfx_x = 5;
+    //================================================================
+      ( slider6 == 0)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 0.0625);
+    ):( slider6 == 1)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 0.125);
+    ):( slider6 == 2)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 0.25);
+    ):( slider6 == 3)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 0.50);
+    ):( slider6 == 4)? ( sprintf (drawText,"MAX Delay Time: %1.4f sec", 1.0);
+    );
+    //================================================================
+    gfx_drawstr(drawText);
+    //================================================================
+    
+    _gridXValue = XYSLIDER_getGridValueParameter_Y (comp_XYSlider_1);
+    _gridYValue = XYSLIDER_getGridValueParameter_X (comp_XYSlider_1);
+    //================================================================
+    sprintf (drawText,"Delay L(Beat):16th x %1.2f ", _gridXValue / 2);
+    gfx_measurestr(drawText,str_W,str_H);
+    //================================================================
+    gfx_y = RECTANGLE_getY2(comp_Border)+ 5;
+    gfx_x = gfx_w - str_W-5;
+    gfx_drawstr(drawText);
+    //================================================================
+    sprintf (drawText,"Delay R(Beat):16th x %1.2f ", _gridYValue / 2);
+    gfx_measurestr(drawText,str_W,str_H);
+    //================================================================
+    gfx_y = gfx_y+gfx_texth +3;
+    gfx_x = gfx_w - str_W-5;
+    gfx_drawstr(drawText);
+    //================================================================
+    
+    //================================================================
+    gfx_setfont(0);
+    //================================================================
+):(
+    gfx_a=1;
+    //================================================================
+    gfx_rect(0,0,gfx_w,gfx_h,true);
+);
+//====================================================================
+// 続
+
